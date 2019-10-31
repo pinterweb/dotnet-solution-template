@@ -42,15 +42,20 @@ the Domain layer
 
 ### Domain Layer
 Classes/Services to serve the Aggregate(s)
+* _No dependencies_
 
 ### App Layer
 Classes/Services to serve the domain in a command/query fashion
+* _dependencies: System.ComponentModel.Annotations_
+* _optional dependencies: Fluent Validation_
 
 ### Data Layer
 Classes/Services to persist the domain Aggregate(s)
+* _optional dependencies: Entity Framework Core_
 
 ### WebApi Layer
 Classes/Services to run a minimal web request/response application. This should
 help you focus on building your application and not relying so much on the framework.
 Routes are used rather than controllers to force you to implement your own command/query
 handling
+* _dependencies: SimpleInjector, DotnetEnv_
