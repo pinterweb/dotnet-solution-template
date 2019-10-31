@@ -1,0 +1,116 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Jeremy Zagorski",
+    "classifications": [ "Solution", "Web", "WebApi", "Routing" ],
+    "identity": "WebApiSolution.CSharp",
+    "name": "ASP.NET Core Web API Routing Solution",
+    "shortName": "webapi-bizapp",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "BusinessApp",
+    "symbols":{
+        "copyrightName": {
+            "type": "parameter",
+            "dataType": "string",
+            "replaces":"<Your Copyright Name Here>",
+            "isRequired": "true",
+            "description": "Your personal or company copyright"
+        },
+        "efcore": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "true",
+            "description": "Adds services for entity framework core in your data layer"
+        },
+        "json": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "true",
+            "description": "Adds services to parse json payloads"
+        },
+        "connstrName": {
+            "type": "parameter",
+            "dataType": "string",
+            "isRequired": "false",
+            "defaultValue": "SQLCONNSTR_BUSINESSAPPLICATION",
+            "replaces": "SQLCONNSTR_BUSINESSAPPLICATION",
+            "description": "Connection string name for your application"
+        },
+        "docker": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "false",
+            "description": "Adds support for docker and docker-compose. Set it up with docker_run.cmd"
+        },
+        "fluentvalidation": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "false",
+            "description": "Adds services integrate the fluent validation library"
+        }
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "exclude": [
+                        "src/.vs/**"
+                    ]
+                },
+                {
+                    "condition": "(!efcore)",
+                    "exclude": [
+                        "src/BusinessApp.Data/BusinessAppDbContext.cs",
+                        "src/BusinessApp.Data/BusinessAppReadOnlyDbContext.cs",
+                        "src/BusinessApp.Data/EFIdentityMap.cs",
+                        "src/BusinessApp.Data/EFQueryStrategyHandler.cs",
+                        "src/BusinessApp.Data/EFQueryVisitor.cs",
+                        "src/BusinessApp.Data/EFQueryFieldsVisitor.cs",
+                        "src/BusinessApp.Data/database_restore.cmd",
+                        "src/BusinessApp.Data/database_up.cmd",
+                        "src/BusinessApp.Data/EventRepository.cs",
+                        "src/BusinessApp.Data/migrations_add.cmd",
+                        "src/BusinessApp.Data/migrations_restore.cmd",
+                        "src/BusinessApp.Data/Migrations/**"
+                    ]
+                },
+                {
+                    "condition": "(!fluentvalidation)",
+                    "exclude": [
+                        "src/BusinessApp.App/FluentValidationValidator.cs"
+                    ]
+                },
+                {
+                    "condition": "(!json)",
+                    "exclude": [
+                        "src/BusinessApp.WebApi/Json/**"
+                    ]
+                },
+                {
+                    "condition": "(!docker)",
+                    "exclude": [
+                        "src/.env",
+                        "src/docker-compose.yml",
+                        "src/Dockerfile",
+                        "src/docker_run.cmd",
+                        "src/.dockerignore",
+                        "src/BusinessApp.WebApi/.env.docker"
+                    ]
+                },
+                {
+                    "condition": "(docker)",
+                    "exclude": [
+                        "src/BusinessApp.WebApi/.env"
+                    ],
+                    "rename": {
+                        "src/BusinessApp.WebApi/.env.docker": "src/BusinessApp.WebApi/.env"
+                    }
+                }
+            ]
+        }
+    ]
+}

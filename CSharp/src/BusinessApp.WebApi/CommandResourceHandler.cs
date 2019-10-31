@@ -1,0 +1,35 @@
+﻿namespace BusinessApp.WebApi
+{
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using BusinessApp.App;
+    using BusinessApp.Domain;
+
+    /// <summary>
+    /// Basic http handler for commands
+    /// </summary>
+    public class CommandResourceHandler<TRequest> : IResourceHandler<TRequest, TRequest>
+        where TRequest : class, new()
+    {
+        private readonly ICommandHandler<TRequest> handler;
+        private readonly ISerializer serializer;
+
+        public CommandResourceHandler(
+            ICommandHandler<TRequest> handler,
+            ISerializer serializer
+        )
+        {
+            this.handler = GuardAgainst.Null(handler, nameof(handler));
+            this.serializer = GuardAgainst.Null(serializer, nameof(serializer));
+        }
+
+        public async Task<TRequest> HandleAsync(HttpContext context, CancellationToken cancellationToken)
+        {
+            var command = context.DeserializeInto<TRequest>(serializer);
+            await handler.HandleAsync(command, cancellationToken);
+
+            return command;
+        }
+    }
+}
