@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.App
 {
+    using System;
     using System.Linq;
     using System.Reflection;
     using System.Security;
@@ -7,43 +8,57 @@
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Base class to authorizes a user in the context of {T} based on the <see cref="AuthorizeAttribute" />
+    /// Implementation to authorizes a user in the context of {T} based on the <see cref="AuthorizeAttribute" />
     /// </summary>
-    public abstract class AuthorizeAttributeHandler<T>
+    public class AuthorizeAttributeHandler<T> : IAuthorizer<T>
     {
-        protected static readonly AuthorizeAttribute Attribute =
-            typeof(T).GetTypeInfo().GetCustomAttribute<AuthorizeAttribute>();
+        protected AuthorizeAttribute Attribute = GetAttribute(typeof(T));
 
         private readonly IPrincipal currentUser;
         private readonly ILogger logger;
 
         public AuthorizeAttributeHandler(IPrincipal currentUser, ILogger logger)
         {
-            this.currentUser = currentUser;
-            this.logger = logger;
+            this.currentUser = GuardAgainst.Null(currentUser, nameof(logger));
+            this.logger = GuardAgainst.Null(logger, nameof(logger));
         }
 
-        protected void Authorize(string executionContext)
+        public void AuthorizeObject(T instance)
         {
-            var allowedRoleCount = Attribute.Roles.Count();
-
-            for (int i = allowedRoleCount - 1; i >= 0; i--)
+            if (Attribute == null)
             {
-                if (currentUser.IsInRole(Attribute.Roles.ElementAt(i))) break;
+                // for child classes of {T}
+                Attribute = GetAttribute(instance.GetType());
 
-                if (i == 0)
+                if (Attribute != null) AuthorizeObject(instance);
+            }
+            else
+            {
+                var allowedRoleCount = Attribute.Roles.Count();
+
+                for (int i = allowedRoleCount - 1; i >= 0; i--)
                 {
-                    logger.Log(
-                        new LogEntry(
-                            LogSeverity.Info,
-                            $"User {currentUser.Identity.Name} is not authorized to execute " +
-                            executionContext
-                        )
-                    );
+                    if (currentUser.IsInRole(Attribute.Roles.ElementAt(i))) break;
 
-                    throw new SecurityException();
+                    if (i == 0)
+                    {
+                        logger.Log(
+                            new LogEntry(
+                                LogSeverity.Info,
+                                $"User '{currentUser.Identity.Name}' is not authorized to execute " +
+                                instance.GetType().Name
+                            )
+                        );
+
+                        throw new SecurityException();
+                    }
                 }
             }
+        }
+
+        protected static AuthorizeAttribute GetAttribute(Type commandType)
+        {
+            return commandType.GetTypeInfo().GetCustomAttribute<AuthorizeAttribute>();
         }
     }
 }

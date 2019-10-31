@@ -19,6 +19,7 @@
 #if fluentvalidation
             container.Collection.Register(typeof(FluentValidation.IValidator<>), Assembly);
 #endif
+            container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
             container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
@@ -38,6 +39,10 @@
                 typeof(ValidationBatchCommandDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(ValidationCommandDecorator<>));
+            container.RegisterDecorator(
+                typeof(ICommandHandler<>),
+                typeof(AuthorizationCommandDecorator<>)
+            );
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(DeadlockRetryDecorator<>));
             // The batch decorator should wrap
