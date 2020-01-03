@@ -5,7 +5,7 @@
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Authorizes a user issuing a query based on the <see cref="AuthorizeAttribute" />
+    /// Authorizes a user based on the <typeparam name="TQuery">TQuery</typeparam>
     /// </summary>
     public class AuthorizationQueryDecorator<TQuery, TResult> : IQueryHandler<TQuery, TResult>
         where TQuery : IQuery<TResult>

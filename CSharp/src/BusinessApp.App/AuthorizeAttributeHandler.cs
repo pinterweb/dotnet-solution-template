@@ -42,21 +42,24 @@
 
                     if (i == 0)
                     {
+                        var msgTemplate = $"{{0}} not authorized to execute {instance.GetType().Name}";
+                        var ex= new SecurityException(string.Format(msgTemplate, "You are"));
+
                         logger.Log(
                             new LogEntry(
                                 LogSeverity.Info,
-                                $"User '{currentUser.Identity.Name}' is not authorized to execute " +
-                                instance.GetType().Name
+                                string.Format(msgTemplate, $"User '{currentUser.Identity.Name}' is"),
+                                ex
                             )
                         );
 
-                        throw new SecurityException();
+                        throw ex;
                     }
                 }
             }
         }
 
-        protected static AuthorizeAttribute GetAttribute(Type commandType)
+        private static AuthorizeAttribute GetAttribute(Type commandType)
         {
             return commandType.GetTypeInfo().GetCustomAttribute<AuthorizeAttribute>();
         }

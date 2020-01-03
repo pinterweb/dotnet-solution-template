@@ -5,7 +5,7 @@
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Authorizes a user issuing a command based on the <see cref="AuthorizeAttribute" />
+    /// Authorizes a user based on the <typeparam name="TCommand">TCommand</typeparam>
     /// </summary>
     public class AuthorizationCommandDecorator<TCommand> : ICommandHandler<TCommand>
     {
