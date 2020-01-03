@@ -22,7 +22,7 @@ steps:
   displayName: 'dotnet build $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: Test
+  displayName: dotnet test
   inputs:
     command: test
     projects: '$(Parameters.TestProjects)'
