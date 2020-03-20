@@ -12,7 +12,7 @@
     /// </summary>
     public class AuthorizeAttributeHandler<T> : IAuthorizer<T>
     {
-        protected AuthorizeAttribute Attribute = GetAttribute(typeof(T));
+        private static AuthorizeAttribute Attribute = GetAttribute(typeof(T));
 
         private readonly IPrincipal currentUser;
         private readonly ILogger logger;

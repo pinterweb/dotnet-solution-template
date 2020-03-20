@@ -4,6 +4,7 @@
     using System.Reflection;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using System.Linq;
 
     /// <summary>
     /// Allows registering all types that are defined in the app layer
@@ -39,10 +40,15 @@
                 typeof(ValidationBatchCommandDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(ValidationCommandDecorator<>));
+
             container.RegisterDecorator(
                 typeof(ICommandHandler<>),
-                typeof(AuthorizationCommandDecorator<>)
-            );
+                typeof(AuthorizationCommandDecorator<>),
+                c => c.ServiceType
+                      .GetGenericArguments()[0]
+                      .GetCustomAttributes(typeof(AuthorizeAttribute))
+                      .Any());
+
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(DeadlockRetryDecorator<>));
             // The batch decorator should wrap
