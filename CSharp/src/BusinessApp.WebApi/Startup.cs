@@ -54,7 +54,7 @@
             });
 
 
-            WebApiBootstrapper.Bootstrap(app, container);
+            WebApiBootstrapper.Bootstrap(app, env, container);
             container.Verify();
 
             if (env.IsDevelopment())

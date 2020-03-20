@@ -4,6 +4,7 @@
     using System.IO;
     using System.Linq;
     using System.Web;
+    using BusinessApp.App;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
 
@@ -21,6 +22,7 @@
                 context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase)
                 )
             {
+                // TODO might not be able to do Sync. Deserialization see ShelfLife 3.1 commit
                 using (var stream = DeserializeUri(context, serializer))
                 {
                     return serializer.Deserialize<T>(stream) ?? new T();

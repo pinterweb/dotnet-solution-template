@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.WebApi
+﻿namespace BusinessApp.App
 {
     using System.IO;
 

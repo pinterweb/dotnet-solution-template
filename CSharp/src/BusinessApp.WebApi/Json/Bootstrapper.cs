@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.WebApi.Json
 {
+    using BusinessApp.App;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using SimpleInjector;
