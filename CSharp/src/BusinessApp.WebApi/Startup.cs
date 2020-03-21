@@ -53,11 +53,10 @@
                 options.UseMiddleware<HttpRequestExceptionMiddleware>(app);
             });
 
-
             WebApiBootstrapper.Bootstrap(app, env, container);
             container.Verify();
 
-            if (env.IsDevelopment())
+            if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
             {
                 app.UseDeveloperExceptionPage();
 #if efcore

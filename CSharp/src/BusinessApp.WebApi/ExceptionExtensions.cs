@@ -23,7 +23,8 @@ namespace BusinessApp.WebApi
         {
             string errorType = "server-error";
             string title = "Server Error";
-            var errors = new Dictionary<string, IEnumerable<string>>();
+            IDictionary<string, IEnumerable<string>> errors =
+                new Dictionary<string, IEnumerable<string>>();
 
             switch (exception)
             {
@@ -70,7 +71,7 @@ namespace BusinessApp.WebApi
                 case TaskCanceledException ex:
                     context.Response.StatusCode = 400;
                     errorType = "cancelled";
-                    title = "There was a conflict while updating your data.";
+                    title = ex.Message;
                     break;
                 case AggregateException manyExceptions:
                     foreach(var ex in manyExceptions.Flatten().InnerExceptions)
