@@ -12,10 +12,29 @@ pool:
 variables:
   buildConfiguration: 'Release'
   GitVersion.SemVer: ''
+  testProjects: '**/*Test.csproj'
+  runtimeProjects: '**/*.csproj'
 
 steps:
 - task: gittools.gitversion.gitversion-task.GitVersion@5
   displayName: GitVersion
   
-- script: dotnet build ./CSharp/src --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: restore
+    projects: '$(runtimeProjects)'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    projects: '$(runtimeProjects)'
+    arguments: '--configuration $(buildConfiguration)'
+
+
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: '$(testProjects)'
+    arguments: '--configuration $(buildConfiguration)'
