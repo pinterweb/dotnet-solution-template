@@ -26,7 +26,6 @@ namespace BusinessApp.App
                 var msg = formatter.Format(entry);
                 console.Write(msg);
                 console.Flush();
-                Debug.Write(entry.Exception);
             }
         }
     }

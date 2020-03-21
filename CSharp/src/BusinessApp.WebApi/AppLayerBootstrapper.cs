@@ -32,6 +32,8 @@
             container.Register<PostHandleRegister>();
             container.Register<IPostHandleRegister>(container.GetInstance<PostHandleRegister>);
 
+            RegisterLoggers(container, env);
+
             // XXX Order of decorator registration matters.
             // Last registered runs first.
             container.RegisterDecorator(typeof(ICommandHandler<>),
@@ -55,9 +57,10 @@
         {
             container.Register(typeof(ILogger), typeof(CompositeLogger), Lifestyle.Singleton);
 
-#if DEBUG
-            container.Collection.Append<ILogger, TraceLogger>();
-#endif
+            if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
+            {
+                container.Collection.Append<ILogger, TraceLogger>();
+            }
 
             container.RegisterSingleton<ILogEntryFormatter, SerializedLogEntryFormatter>();
             container.RegisterInstance<IFileProperties>(new RollingFileProperties

@@ -10,6 +10,18 @@ namespace BusinessApp.App
             Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Out));
         }
 
-        public void Log(LogEntry entry) => Trace.WriteLine(entry.Exception);
+        public void Log(LogEntry entry)
+        {
+            if (entry.Exception != null)
+            {
+                Trace.WriteLine(entry.Exception);
+                Trace.Flush();
+            }
+            else if (!string.IsNullOrWhiteSpace(entry.Message))
+            {
+                Trace.WriteLine(entry.Message);
+                Trace.Flush();
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-namespace BusinessApp.App.UnitTest
+namespace BusinessApp.App.IntegrationTest
 {
     using System;
     using System.Threading.Tasks;

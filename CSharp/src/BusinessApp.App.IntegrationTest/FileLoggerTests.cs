@@ -7,19 +7,6 @@ namespace BusinessApp.App.IntegrationTest
     using BusinessApp.Domain;
     using Xunit;
 
-    public class LogFileFixture : IDisposable
-    {
-        public string FilePath { get; set; } = "./log-file-test.log";
-
-        public void Dispose()
-        {
-            if (File.Exists(FilePath))
-            {
-                File.Delete(FilePath);
-            }
-        }
-    }
-
     public class FileLoggerTests : IClassFixture<LogFileFixture>
     {
         private readonly FileLogger sut;
