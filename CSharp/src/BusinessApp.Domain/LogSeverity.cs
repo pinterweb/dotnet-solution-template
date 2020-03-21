@@ -5,8 +5,10 @@
     /// </summary>
     public enum LogSeverity
     {
+        Debug,
         Info,
         Warning,
-        Error
+        Error,
+        Critical
     }
 }
