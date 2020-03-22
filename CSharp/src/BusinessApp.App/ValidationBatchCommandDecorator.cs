@@ -21,10 +21,10 @@ namespace BusinessApp.App
             this.handler = GuardAgainst.Null(handler, nameof(handler));
         }
 
-        async Task ICommandHandler<IEnumerable<TCommand>>.HandleAsync(IEnumerable<TCommand> command,
+        public async Task HandleAsync(IEnumerable<TCommand> command,
             CancellationToken cancellationToken)
         {
-            if (command == null) throw new ArgumentNullException(nameof(command));
+            GuardAgainst.Null(command, nameof(command));
 
             foreach(var cmd in command) validator.ValidateObject(cmd);
 
