@@ -1,16 +1,19 @@
-﻿namespace BusinessApp.App
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace BusinessApp.App
 {
+    using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Diagnostics;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using BusinessApp.Domain;
 
     /// <summary>
     /// Runs validations for data annotations
     /// </summary>
     public class DataAnnotationsValidator<TCommand> : IValidator<TCommand>
     {
-        [DebuggerStepThrough]
-        void IValidator<TCommand>.ValidateObject(TCommand instance)
+        Task IValidator<TCommand>.ValidateAsync(TCommand instance)
         {
             var context = new ValidationContext(instance);
             var errors = new List<ValidationResult>();
@@ -18,10 +21,17 @@
 
             if (!isValid)
             {
-                throw new ValidationException(
-                    new CompositeValidationResult("Multiple validation errors occurred", errors)
-                );
+                if (errors.Count == 1)
+                {
+                    throw new ValidationException(errors[0]);
+                }
+                else
+                {
+                    throw new AggregateException(errors.Select(e => new ValidationException(e)));
+                }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -68,7 +68,7 @@ namespace BusinessApp.App.UnitTests
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
                 var command = A.Dummy<DummyCommand>();
-                A.CallTo(() => validator.ValidateObject(A<DummyCommand>._))
+                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._))
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
@@ -88,7 +88,7 @@ namespace BusinessApp.App.UnitTests
                 await sut.HandleAsync(command, A.Dummy<CancellationToken>());
 
                 /* Assert */
-                A.CallTo(() => validator.ValidateObject(command))
+                A.CallTo(() => validator.ValidateAsync(command))
                     .MustHaveHappenedOnceExactly();
             }
 

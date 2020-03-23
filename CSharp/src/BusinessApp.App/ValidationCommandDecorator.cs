@@ -22,7 +22,7 @@
         {
             GuardAgainst.Null(command, nameof(command));
 
-            validator.ValidateObject(command);
+            validator.ValidateAsync(command);
 
             return handler.HandleAsync(command, cancellationToken);
         }
