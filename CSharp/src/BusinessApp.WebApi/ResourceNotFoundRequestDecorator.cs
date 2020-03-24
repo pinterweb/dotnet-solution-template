@@ -20,14 +20,21 @@
 
         public async Task<TResponse> HandleAsync(HttpContext context, CancellationToken cancellationToken)
         {
-            var resource = await decorated.HandleAsync(context, cancellationToken);
-
-            if (resource == null)
+            try
             {
-                throw new ResourceNotFoundException();
-            }
+                var resource = await decorated.HandleAsync(context, cancellationToken);
 
-            return resource;
+                if (resource == null)
+                {
+                    throw new ResourceNotFoundException();
+                }
+
+                return resource;
+            }
+            catch (EntityNotFoundException e)
+            {
+                throw new ResourceNotFoundException(e.Message, e);
+            }
         }
     }
 }

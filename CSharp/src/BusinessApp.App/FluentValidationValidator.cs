@@ -3,6 +3,7 @@ namespace BusinessApp.App
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
+    using System.Threading.Tasks;
     using BusinessApp.Domain;
 
     /// <summary>
@@ -17,13 +18,13 @@ namespace BusinessApp.App
             this.validators = GuardAgainst.Null(validators, nameof(validators));
         }
 
-        public void ValidateObject(TCommand instance)
+        public async Task ValidateAsync(TCommand instance)
         {
             var errors = new List<ValidationResult>();
 
             foreach (var validator in validators)
             {
-                var result = validator.Validate(instance);
+                var result = await validator.ValidateAsync(instance);
 
                 if (!result.IsValid)
                 {
