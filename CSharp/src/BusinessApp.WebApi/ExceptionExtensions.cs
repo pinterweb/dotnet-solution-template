@@ -52,7 +52,7 @@
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                     errorType = "insufficient-privileges";
                     title = "Insufficient privileges";
-                    detail = sre.Message;
+                    detail = "";
                     errors = new Dictionary<string, IEnumerable<string>>
                     {
                         { sre.ResourceName, new[] { sre.Message } }
