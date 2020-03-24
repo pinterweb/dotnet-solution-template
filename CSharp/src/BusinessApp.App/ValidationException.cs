@@ -4,6 +4,7 @@
     using System.Collections;
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
+    using BusinessApp.Domain;
 
     /// <summary>
     /// Aggregates all validations results into one exception
