@@ -1,4 +1,4 @@
-namespace BusinessApp.Domain.UnitTest
+namespace BusinessApp.App.UnitTest
 {
     using System;
     using Xunit;
