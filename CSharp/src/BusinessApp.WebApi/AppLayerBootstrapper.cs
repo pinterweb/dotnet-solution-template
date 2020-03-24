@@ -17,8 +17,11 @@
         {
             GuardAgainst.Null(container, nameof(container));
 
+            container.Collection.Register(typeof(IValidator<>), new[] { Assembly });
+
 #if fluentvalidation
             container.Collection.Register(typeof(FluentValidation.IValidator<>), Assembly);
+            container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
             container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
