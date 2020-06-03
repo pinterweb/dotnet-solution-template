@@ -52,6 +52,7 @@ namespace BusinessApp.Data
         {
             Saved = delegate { };
             Saving = delegate { };
+            base.Dispose();
         }
 
         void IUnitOfWork.Add(AggregateRoot aggregate)
