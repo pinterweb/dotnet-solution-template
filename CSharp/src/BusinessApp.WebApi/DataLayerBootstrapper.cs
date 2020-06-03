@@ -7,7 +7,6 @@
     using System;
 #if DEBUG
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Logging.Console;
 #endif
     using BusinessApp.App;
 #endif
@@ -23,12 +22,15 @@
         public static readonly Assembly Assembly = typeof(IQueryVisitor<>).Assembly;
 #if efcore
 #if DEBUG
-        public static readonly LoggerFactory LoggerFactory
-            = new LoggerFactory(new[]
-        {
-            new ConsoleLoggerProvider((category, level) => category == DbLoggerCategory.Database.Command.Name
-                   && level == LogLevel.Information, true)
-        });
+        public static readonly ILoggerFactory DataLayerLoggerFactory
+            = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter((category, level) =>
+                        category == DbLoggerCategory.Database.Command.Name
+                        && level == LogLevel.Information)
+                    .AddConsole();
+            });
 #endif
 #endif
 
@@ -48,6 +50,12 @@
             });
             container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
 #if efcore
+            container.Register(typeof(IDbSetVisitorFactory<,>), Assembly);
+            container.RegisterConditional(
+                typeof(IDbSetVisitorFactory<,>),
+                typeof(NullDbSetVisitorFactory<,>),
+                ctx => !ctx.Handled);
+
             container.RegisterConditional(
                 typeof(IQueryHandler<,>),
                 typeof(EFQueryStrategyHandler<,>),
@@ -94,7 +102,7 @@
               new DbContextOptionsBuilder<TContext>()
 #if DEBUG
                     .EnableSensitiveDataLogging()
-                    .UseLoggerFactory(LoggerFactory)
+                    .UseLoggerFactory(DataLayerLoggerFactory)
 #endif
                     .UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_BUSINESSAPPLICATION"))
                     .Options
