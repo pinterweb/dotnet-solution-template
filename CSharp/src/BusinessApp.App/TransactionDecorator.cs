@@ -5,45 +5,55 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    /// <summary>
-    /// Responsible for committing and running the post handlers after commit
-    /// </summary>
     public class TransactionDecorator<TCommand> : ICommandHandler<TCommand>
     {
-        private readonly IUnitOfWork uow;
-        private readonly PostHandleRegister register;
-        private readonly ICommandHandler<TCommand> handler;
+        private readonly ICommandHandler<TCommand> inner;
+        private readonly ITransactionFactory transactionFactory;
+        private readonly PostCommitRegister register;
 
-        public TransactionDecorator(IUnitOfWork uow,
-            ICommandHandler<TCommand> handler,
-            PostHandleRegister register)
+        public TransactionDecorator(ITransactionFactory transactionFactory,
+            ICommandHandler<TCommand> inner,
+            PostCommitRegister register)
         {
-            this.uow = GuardAgainst.Null(uow, nameof(uow));
-            this.handler = GuardAgainst.Null(handler, nameof(handler));
+            this.inner = GuardAgainst.Null(inner, nameof(inner));
+            this.transactionFactory = GuardAgainst.Null(transactionFactory, nameof(transactionFactory));
             this.register = GuardAgainst.Null(register, nameof(register));
         }
 
-        async Task ICommandHandler<TCommand>.HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
             GuardAgainst.Null(command, nameof(command));
 
-            await handler.HandleAsync(command, cancellationToken);
-            await uow.CommitAsync(cancellationToken);
+            var trans = transactionFactory.Begin();
 
-            try
+            await inner.HandleAsync(command, cancellationToken);
+
+            await trans.CommitAsync(cancellationToken);
+
+            while (register.FinishHandlers.Count > 0)
             {
-                // Other handlers could add more to the list so keep looping
-                // each time creating a new commit scope
-                while (register.FinishHandlers.Count > 0)
+                try
                 {
                     await register.OnFinishedAsync();
-                    await uow.CommitAsync(cancellationToken);
                 }
-            }
-            catch (Exception)
-            {
-                await uow.RevertAsync(cancellationToken);
-                throw;
+                catch
+                {
+                    await trans.RevertAsync(cancellationToken);
+                    throw;
+                }
+
+                try
+                {
+                    await trans.CommitAsync(cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    throw new PotentialDataLossException("If this business transaction generated " +
+                        "external messages to other system(s), then the two may be out of sync. The " +
+                        "app [currently] does not revert exernal systems once a message was sent. " +
+                        "If you expected messages to be sent to external systems please verify " +
+                        "the data in those systems before proceeding", e);
+                }
             }
         }
     }

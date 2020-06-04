@@ -32,20 +32,22 @@
 
             container.RegisterCommandHandlers(new[] { Assembly });
 
-            container.Register<PostHandleRegister>();
-            container.Register<IPostHandleRegister>(container.GetInstance<PostHandleRegister>);
+            container.Register<PostCommitRegister>();
+            container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
 
             container.RegisterLoggers(env);
 
             // XXX Order of decorator registration matters.
-            // Last registered runs first.
+            // First decorator wraps the real instance
+            container.RegisterDecorator(typeof(ICommandHandler<>),
+                typeof(TransactionDecorator<>));
+
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(ValidationBatchCommandDecorator<>));
+
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(ValidationCommandDecorator<>));
 
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(TransactionDecorator<>));
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(DeadlockRetryDecorator<>));
         }

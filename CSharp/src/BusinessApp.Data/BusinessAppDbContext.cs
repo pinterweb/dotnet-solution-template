@@ -5,15 +5,17 @@ namespace BusinessApp.Data
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessApp.App;
     using BusinessApp.Domain;
     using Microsoft.EntityFrameworkCore;
 
     /// <summary>
     /// DbContext serving the domain Aggregate(s)
     /// </summary>
-    public class BusinessAppDbContext : DbContext, IUnitOfWork
+    public class BusinessAppDbContext : DbContext, IUnitOfWork, ITransactionFactory
     {
         private readonly EventUnitOfWork eventUow;
+        private bool transactionFromFactory = false;
 
         public BusinessAppDbContext(
             DbContextOptions<BusinessAppDbContext> opts,
@@ -91,11 +93,26 @@ namespace BusinessApp.Data
                     , ex
                 );
             }
+
+            if (Database.CurrentTransaction != null && transactionFromFactory)
+            {
+                Database.CurrentTransaction.Commit();
+                transactionFromFactory = false;
+            }
         }
 
         Task IUnitOfWork.RevertAsync(CancellationToken cancellationToken)
         {
             return eventUow.RevertAsync(cancellationToken);
+        }
+
+        public IUnitOfWork Begin()
+        {
+            Database.BeginTransaction();
+
+            transactionFromFactory = true;
+
+            return this;
         }
     }
 }

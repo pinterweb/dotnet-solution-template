@@ -1,17 +1,16 @@
-﻿namespace BusinessApp.App
+﻿namespace BusinessApp.Domain
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Interface to hold onto handlers that should be run after the main
-    /// handling completes
+    /// Interface to register handlers that should be run after <see cref="IUnitOfWork.CommitAsync"/>
     /// </summary>
-    public interface IPostHandleRegister
+    public interface IPostCommitRegister
     {
         /// <summary>
-        /// The tasks to run after the handling has finished
+        /// The tasks to run
         /// </summary>
         ICollection<Func<Task>> FinishHandlers { get; }
     }

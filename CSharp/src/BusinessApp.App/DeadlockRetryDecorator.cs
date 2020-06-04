@@ -12,7 +12,7 @@ namespace BusinessApp.App
     public class DeadlockRetryDecorator<TCommand> : ICommandHandler<TCommand>
     {
         private readonly ICommandHandler<TCommand> decoratee;
-        private readonly int sleepBetweenRetries = 300;
+        private readonly int sleepBetweenRetries = 500;
         private int retries = 5;
 
         public DeadlockRetryDecorator(ICommandHandler<TCommand> decoratee)
@@ -33,11 +33,21 @@ namespace BusinessApp.App
             }
             catch (Exception ex)
             {
-                if (retries <= 0 || !IsDeadlockException(ex)) throw;
+                if (!IsDeadlockException(ex)) throw;
+
+                retries--;
+
+                if (retries <= 0)
+                {
+                    throw new CommunicationException(
+                        "There was a conflict saving your data. Please retry your " +
+                        "operation again. If you continue to see this message, please " +
+                        "contact support.", ex);
+
+                }
 
                 Thread.Sleep(sleepBetweenRetries);
 
-                retries--;
                 await HandleWithRetry(command, cancellationToken);
             }
         }

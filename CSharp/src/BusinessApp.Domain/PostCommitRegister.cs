@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.App
+﻿namespace BusinessApp.Domain
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@
     /// <summary>
     /// Runs all the tasks after handling completes
     /// </summary>
-    public class PostHandleRegister : IPostHandleRegister
+    public class PostCommitRegister : IPostCommitRegister
     {
         private readonly List<Func<Task>> finishHandlers
             = new List<Func<Task>>();

@@ -69,6 +69,7 @@
             );
             container.Register<IEventRepository, EventRepository>();
             container.Register<IUnitOfWork>(() => container.GetInstance<BusinessAppDbContext>());
+            container.Register<ITransactionFactory>(() => container.GetInstance<BusinessAppDbContext>());
             RegisterDbContext<BusinessAppDbContext>(container);
             RegisterDbContext<BusinessAppReadOnlyDbContext>(container);
 #endif
