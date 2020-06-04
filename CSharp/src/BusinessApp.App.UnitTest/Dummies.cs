@@ -1,4 +1,4 @@
-namespace BusinessApp.App.UnitTests
+namespace BusinessApp.App.UnitTest
 {
     using System.ComponentModel.DataAnnotations;
 

@@ -1,4 +1,4 @@
-namespace BusinessApp.App.UnitTests
+namespace BusinessApp.App.UnitTest
 {
     using System;
     using System.Collections.Generic;

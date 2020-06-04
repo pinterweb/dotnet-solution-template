@@ -1,4 +1,4 @@
-namespace BusinessApp.App.UnitTests
+namespace BusinessApp.App.UnitTest
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,6 @@ namespace BusinessApp.App.UnitTests
     using BusinessApp.App;
     using Xunit;
     using System.Threading;
-    using BusinessApp.Domain;
 
     public class BatchCommandHandlerTests
     {

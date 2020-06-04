@@ -1,4 +1,4 @@
-namespace BusinessApp.App.UnitTests
+namespace BusinessApp.App.UnitTest
 {
     using System;
     using Xunit;
@@ -6,7 +6,6 @@ namespace BusinessApp.App.UnitTests
     using FakeItEasy;
     using System.Threading.Tasks;
     using System.Linq;
-    using BusinessApp.Domain;
 
     public class ValidationStub {  }
 

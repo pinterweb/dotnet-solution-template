@@ -1,11 +1,10 @@
-namespace BusinessApp.App.UnitTests
+namespace BusinessApp.App.UnitTest
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using FakeItEasy;
-    using BusinessApp.Domain;
     using Xunit;
     using System.Threading;
 

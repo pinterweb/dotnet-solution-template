@@ -9,6 +9,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.IO;
     using System.Linq;
+
     public class SerializedLogEntryFormatterTests
     {
         private readonly SerializedLogEntryFormatter sut;
