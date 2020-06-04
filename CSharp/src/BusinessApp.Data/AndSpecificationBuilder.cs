@@ -8,7 +8,8 @@
     /// Combines all specifications with the & operator
     /// </summary>
     public class AndSpecificationBuilder<TQuery, TResult> :
-        IQueryVisitorFactory<TQuery, TResult>
+        IQueryVisitorFactory<TQuery, TResult>,
+        ILinqSpecificationBuilder<TQuery, TResult>
     {
         private readonly IEnumerable<ILinqSpecificationBuilder<TQuery, TResult>> builders;
 
@@ -17,7 +18,7 @@
             this.builders = GuardAgainst.Null(builders, nameof(builders));
         }
 
-        public IQueryVisitor<TResult> Create(TQuery query)
+        public LinqSpecification<TResult> Build(TQuery query)
         {
             var allSpecs = new List<LinqSpecification<TResult>>();
 
@@ -28,13 +29,16 @@
 
             if (allSpecs.Any())
             {
-                return new LinqSpecificationQueryVisitor<TResult>(
-                    allSpecs.Aggregate((current, next) => current & next)
-                );
+                return allSpecs.Aggregate((current, next) => current & next);
             }
 
+            return new NullSpecification<TResult>(true);
+        }
+
+        public IQueryVisitor<TResult> Create(TQuery query)
+        {
             return new LinqSpecificationQueryVisitor<TResult>(
-                new NullSpecification<TResult>(true)
+                Build(query)
             );
         }
     }
