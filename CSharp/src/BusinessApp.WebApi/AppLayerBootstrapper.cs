@@ -5,6 +5,7 @@
     using BusinessApp.App;
     using BusinessApp.Domain;
     using Microsoft.AspNetCore.Hosting;
+    using System;
 
     /// <summary>
     /// Allows registering all types that are defined in the app layer
@@ -30,17 +31,21 @@
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(AuthorizationQueryDecorator<,>));
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EntityNotFoundQueryDecorator<,>));
 
-            container.RegisterCommandHandlers(new[] { Assembly });
+            container.Register(typeof(IBatchGrouper<>), Assembly);
+            container.RegisterConditional(typeof(IBatchGrouper<>),
+                typeof(NullBatchGrouper<>),
+                ctx => !ctx.Handled);
 
-            container.Register<PostCommitRegister>();
-            container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
+            var handlerTypes = container.GetTypesToRegister(typeof(ICommandHandler<>), Assembly);
+            container.RegisterCommandHandlersInOneBatch(handlerTypes);
 
             container.RegisterLoggers(env);
 
             // XXX Order of decorator registration matters.
             // First decorator wraps the real instance
             container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(TransactionDecorator<>));
+                typeof(TransactionDecorator<>),
+                ctx => IsNotBatchHandler(ctx.ImplementationType));
 
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(ValidationBatchCommandDecorator<>));
@@ -49,7 +54,21 @@
                 typeof(ValidationCommandDecorator<>));
 
             container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(DeadlockRetryDecorator<>));
+                typeof(DeadlockRetryDecorator<>),
+                ctx => IsNotBatchHandler(ctx.ImplementationType));
+
+            container.RegisterDecorator(typeof(ICommandHandler<>),
+                typeof(SimpleInjectorAsyncScopeCommandProxy<>),
+                Lifestyle.Singleton);
+
+            container.RegisterDecorator(typeof(ICommandHandler<>),
+                typeof(BatchCommandGroupDecorator<>));
+        }
+
+        private static bool IsNotBatchHandler(Type implementationType)
+        {
+            return !implementationType.IsConstructedGenericType ||
+                implementationType.GetGenericTypeDefinition() != typeof(BatchCommandHandler<>);
         }
     }
 }

@@ -25,6 +25,9 @@
 
             container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
             container.Register<EventUnitOfWork>();
+
+            container.Register<PostCommitRegister>();
+            container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
         }
     }
 }

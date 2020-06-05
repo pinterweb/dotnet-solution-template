@@ -31,18 +31,14 @@
                 {
                     await inner.HandleAsync(c, cancellationToken);
                 }
-                catch (ValidationException ex)
+                catch(Exception ex)
                 {
-                    var indexResult = ex.Result.CreateWithIndexName(i);
+                    foreach (var e in ex.Flatten())
+                    {
+                        IndexException(i, e);
+                    }
 
-                    errors.Add(new ValidationException(indexResult, ex.InnerException));
-                }
-                catch (SecurityResourceException ex)
-                {
-                    var indexResult = ex.ResourceName.CreateIndexName(i);
-
-                    errors.Add(
-                        new SecurityResourceException(indexResult, ex.Message, ex.InnerException));
+                    errors.Add(ex);
                 }
             }
 
@@ -54,6 +50,25 @@
             {
                 throw new AggregateException(errors);
             }
+        }
+
+        private static void IndexException(int commandIndex, Exception ex)
+        {
+            var newKeys = new Dictionary<object, string>();
+
+            foreach (var key in ex.Data.Keys)
+            {
+                var indexKey = key.ToString().CreateIndexName(commandIndex);
+                newKeys.Add(key, indexKey);
+            }
+
+            foreach (var kvp in newKeys)
+            {
+                ex.Data.Add(kvp.Value, ex.Data[kvp.Key]);
+                ex.Data.Remove(kvp.Key);
+            }
+
+            ex.Data.Add("Index", commandIndex);
         }
     }
 }

@@ -1,21 +1,23 @@
 namespace BusinessApp.App.UnitTest
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using FakeItEasy;
-    using BusinessApp.App;
     using Xunit;
-    using System.Threading;
 
     public class BatchCommandHandlerTests
     {
+        private readonly CancellationToken token;
         private readonly BatchCommandHandler<DummyCommand> sut;
         private readonly ICommandHandler<DummyCommand> inner;
 
         public BatchCommandHandlerTests()
         {
+            token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<DummyCommand>>();
 
             sut = new BatchCommandHandler<DummyCommand>(inner);
@@ -48,7 +50,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithoutCommand_ExceptionThrown()
             {
                 /* Arrange */
-                Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
+                Task shouldthrow() => sut.HandleAsync(null, token);
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(shouldthrow);
@@ -62,7 +64,6 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-                var token = CancellationToken.None;
 
                 /* Act */
                 await sut.HandleAsync(commands, token);
@@ -73,114 +74,59 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task ValidationException_MemberNameHasIndex()
+            public async Task ExceptionThrown_IndexAddedToDataKey()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var thrownException = new Exception();
+                thrownException.Data.Add("foo", "bar");
 
-                A.CallTo(() => inner.HandleAsync(commands.Last(), A<CancellationToken>._))
-                    .Throws(new ValidationException("foo", "bar"));
+                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).Throws(thrownException);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
-                var invalid = Assert.IsType<ValidationException>(ex);
-                var member = Assert.Single(invalid.Result.MemberNames);
-                Assert.Equal("[1].foo", member);
+                Assert.Collection(ex.Data.Cast<DictionaryEntry>(),
+                    d =>
+                    {
+                        Assert.Equal("[1].foo", d.Key);
+                        Assert.Equal("bar", d.Value);
+                    },
+                    d =>
+                    {
+                        Assert.Equal("Index", d.Key);
+                        Assert.Equal(1, d.Value);
+                    });
             }
 
             [Fact]
-            public async Task ValidationException_SameMessageUsed()
+            public async Task WithInnerExceptions_IndexAddedToInnerException()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var thrownInner = new Exception("foo");
+                var thrownException = new Exception("bar", thrownInner);
+                thrownException.Data.Add("lorem", "ipsum");
+                thrownInner.Data.Add("dolor", "ipsit");
 
-                A.CallTo(() => inner.HandleAsync(commands.Last(), A<CancellationToken>._))
-                    .Throws(new ValidationException("foo", "bar"));
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
-
-                /* Assert */
-                var invalid = Assert.IsType<ValidationException>(ex);
-                Assert.Equal("bar", invalid.Result.ErrorMessage);
-            }
-
-            [Fact]
-            public async Task ValidationException_InnerExceptionUsed()
-            {
-                /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-                var innerException = new ValidationException("lorem", "ipsum");
-
-                A.CallTo(() => inner.HandleAsync(commands.Last(), A<CancellationToken>._))
-                    .Throws(new ValidationException("foo", "bar", innerException));
+                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).Throws(thrownException);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
-                var invalid = Assert.IsType<ValidationException>(ex);
-                Assert.Same(innerException, invalid.InnerException);
-            }
-
-            [Fact]
-            public async Task SecurityException_MemberNameHasIndex()
-            {
-                /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-
-                A.CallTo(() => inner.HandleAsync(commands.Last(), A<CancellationToken>._))
-                    .Throws(new SecurityResourceException("foo", "bar"));
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
-
-                /* Assert */
-                var unauthorized = Assert.IsType<SecurityResourceException>(ex);
-                Assert.Equal("[1].foo", unauthorized.ResourceName);
-            }
-
-            [Fact]
-            public async Task SecurityException_SameMessageUsed()
-            {
-                /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-
-                A.CallTo(() => inner.HandleAsync(commands.First(), A<CancellationToken>._))
-                    .Throws(new SecurityResourceException("foo", "bar"));
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
-
-                /* Assert */
-                var unauthorized = Assert.IsType<SecurityResourceException>(ex);
-                Assert.Equal("bar", unauthorized.Message);
-            }
-
-            [Fact]
-            public async Task SecurityException_InnerExceptionUsed()
-            {
-                /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-                var innerException = new SecurityResourceException("lorem", "ipsum");
-
-                A.CallTo(() => inner.HandleAsync(commands.Last(), A<CancellationToken>._))
-                    .Throws(new SecurityResourceException("foo", "bar", innerException));
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
-
-                /* Assert */
-                var invalid = Assert.IsType<SecurityResourceException>(ex);
-                Assert.Same(innerException, invalid.InnerException);
+                Assert.Collection(ex.InnerException.Data.Cast<DictionaryEntry>(),
+                    d =>
+                    {
+                        Assert.Equal("[1].dolor", d.Key);
+                        Assert.Equal("ipsit", d.Value);
+                    },
+                    d =>
+                    {
+                        Assert.Equal("Index", d.Key);
+                        Assert.Equal(1, d.Value);
+                    });
             }
 
             [Fact]
@@ -188,23 +134,40 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-                var firstEx = new ValidationException("foo", "bar");
-                var secondEx = new SecurityResourceException("foo", "bar");
+                var firstEx = new Exception("ispit");
+                var secondEx = new Exception("ispit");
+                firstEx.Data.Add("foo", "bar");
+                secondEx.Data.Add("lorem", "ipsum");
 
-                A.CallTo(() => inner.HandleAsync(A<DummyCommand>._, A.Dummy<CancellationToken>()))
-                    .Throws(firstEx).Once();
-                A.CallTo(() => inner.HandleAsync(A<DummyCommand>._, A.Dummy<CancellationToken>()))
-                    .Throws(secondEx).Once();
+                A.CallTo(() => inner.HandleAsync(commands.First(), token)).Throws(firstEx);
+                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).Throws(secondEx);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
-                var aggregate = Assert.IsType<AggregateException>(ex);
-                var innerExceptions = aggregate.Flatten().InnerExceptions;
-                Assert.Single(innerExceptions, i => i is ValidationException);
-                Assert.Single(innerExceptions, i => i is SecurityResourceException);
+                var manyErrs = Assert.IsType<AggregateException>(ex);
+                Assert.Collection(manyErrs.InnerExceptions.SelectMany(e => e.Data.Cast<DictionaryEntry>()),
+                    d =>
+                    {
+                        Assert.Equal("[0].foo", d.Key);
+                        Assert.Equal("bar", d.Value);
+                    },
+                    d =>
+                    {
+                        Assert.Equal("Index", d.Key);
+                        Assert.Equal(0, d.Value);
+                    },
+                    d =>
+                    {
+                        Assert.Equal("[1].lorem", d.Key);
+                        Assert.Equal("ipsum", d.Value);
+                    },
+                    d =>
+                    {
+                        Assert.Equal("Index", d.Key);
+                        Assert.Equal(1, d.Value);
+                    });
             }
         }
     }

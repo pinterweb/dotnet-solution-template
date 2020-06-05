@@ -3,7 +3,6 @@ namespace BusinessApp.WebApi
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using BusinessApp.App;
     using BusinessApp.Domain;
     using Microsoft.AspNetCore.Hosting;
@@ -11,20 +10,6 @@ namespace BusinessApp.WebApi
 
     public static class SimpleInjectorRegistrationExtensions
     {
-        public static void RegisterCommandHandlers(this Container container, IEnumerable<Assembly> assemblies)
-        {
-            var flag = Environment.GetEnvironmentVariable("BATCH_PROCESSING");
-
-            if (string.Compare(flag, "MULTI", true) == 0)
-            {
-                WrapService(container, assemblies);
-            }
-            else
-            {
-                WrapImplementation(container, assemblies);
-            }
-        }
-
         public static void RegisterLoggers(this Container container, IHostingEnvironment env)
         {
             container.Register(typeof(ILogger), typeof(CompositeLogger), Lifestyle.Singleton);
@@ -51,26 +36,19 @@ namespace BusinessApp.WebApi
                 Lifestyle.Singleton);
         }
 
-        private static void WrapService(Container container, IEnumerable<Assembly> assemblies)
-        {
-            container.Register(typeof(ICommandHandler<>), assemblies);
-
-            container.RegisterConditional(
-                typeof(ICommandHandler<>),
-                typeof(BatchCommandHandler<>),
-                ctx => !ctx.Handled);
-        }
-
         /// <summary>
         /// Registers concrete type and interface. When interface is injected you get the
         /// entire decoration graph. When concrete type is injected you just get the handler
         /// </summary>
-        private static void WrapImplementation(Container container, IEnumerable<Assembly> assemblies)
+        /// <remarks>
+        /// This will create one transaction for every item in the
+        /// batch submission
+        /// </remarks>
+        public static void RegisterCommandHandlersInOneBatch(
+            this Container container,
+            IEnumerable<Type> handlerTypes)
         {
-
-            var types = container.GetTypesToRegister(typeof(ICommandHandler<>), assemblies);
-
-            foreach (var type in types)
+            foreach (var type in handlerTypes)
             {
                 container.Register(type);
 
