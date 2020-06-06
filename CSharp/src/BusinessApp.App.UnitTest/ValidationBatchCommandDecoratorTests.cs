@@ -10,12 +10,14 @@ namespace BusinessApp.App.UnitTest
 
     public class ValidationBatchCommandDecoratorTests
     {
+        private readonly CancellationToken token;
         private readonly ValidationBatchCommandDecorator<DummyCommand> sut;
         private readonly ICommandHandler<IEnumerable<DummyCommand>> inner;
         private readonly IValidator<DummyCommand> validator;
 
         public ValidationBatchCommandDecoratorTests()
         {
+            token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<DummyCommand>>>();
             validator = A.Fake<IValidator<DummyCommand>>();
 
@@ -67,11 +69,11 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._))
+                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._, token))
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
-                await sut.HandleAsync(commands, A.Dummy<CancellationToken>());
+                await sut.HandleAsync(commands, token);
 
                 /* Assert */
                 Assert.Equal(0, handlerCallsBeforeValidate);
@@ -84,12 +86,12 @@ namespace BusinessApp.App.UnitTest
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
                 /* Act */
-                await sut.HandleAsync(commands, A.Dummy<CancellationToken>());
+                await sut.HandleAsync(commands, token);
 
                 /* Assert */
-                A.CallTo(() => validator.ValidateAsync(commands.First()))
+                A.CallTo(() => validator.ValidateAsync(commands.First(), token))
                     .MustHaveHappenedOnceExactly().Then(
-                        A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                        A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                             .MustHaveHappenedOnceExactly());
             }
 
@@ -97,7 +99,6 @@ namespace BusinessApp.App.UnitTest
             public async Task WithTwoCommands_HandledOnce()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
                 /* Act */
@@ -114,12 +115,11 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
-                A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new ValidationException("foo", "bar"));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var invalid = Assert.IsType<ValidationException>(ex);
@@ -133,12 +133,11 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
-                A.CallTo(() => validator.ValidateAsync(commands.First()))
+                A.CallTo(() => validator.ValidateAsync(commands.First(), token))
                     .Throws(new ValidationException("foo", "bar"));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var invalid = Assert.IsType<ValidationException>(ex);
@@ -152,12 +151,11 @@ namespace BusinessApp.App.UnitTest
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
                 var innerException = new ValidationException("lorem", "ipsum");
 
-                A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new ValidationException("foo", "bar", innerException));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var invalid = Assert.IsType<ValidationException>(ex);
@@ -170,7 +168,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
-                A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
                             {
                                 new ValidationException("foo", "bar"),
@@ -178,8 +176,7 @@ namespace BusinessApp.App.UnitTest
                             }));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var aggregate = Assert.IsType<AggregateException>(ex);
@@ -192,7 +189,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
-                A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
                             {
                                 new ValidationException("foo", "bar"),
@@ -200,8 +197,7 @@ namespace BusinessApp.App.UnitTest
                             }));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var aggregate = Assert.IsType<AggregateException>(ex);
@@ -217,7 +213,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
-                A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
                             {
                                 new ValidationException("foo", "bar"),
@@ -225,8 +221,7 @@ namespace BusinessApp.App.UnitTest
                             }));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var aggregate = Assert.IsType<AggregateException>(ex);
@@ -244,7 +239,7 @@ namespace BusinessApp.App.UnitTest
                 var secondInner = new Exception();
                 var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
 
-                A.CallTo(() => validator.ValidateAsync(commands.Last()))
+                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
                             {
                                 new ValidationException("foo", "bar", firstInner),
@@ -252,8 +247,7 @@ namespace BusinessApp.App.UnitTest
                             }));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync(commands, A.Dummy<CancellationToken>()));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
                 var aggregate = Assert.IsType<AggregateException>(ex);

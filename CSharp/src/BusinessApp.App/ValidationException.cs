@@ -1,9 +1,7 @@
 ﻿namespace BusinessApp.App
 {
     using System;
-    using System.Collections;
     using System.ComponentModel.DataAnnotations;
-    using System.Linq;
     using BusinessApp.Domain;
 
     /// <summary>
@@ -16,32 +14,21 @@
             :base(result.ErrorMessage, inner)
         {
             Result = GuardAgainst.Null(result, nameof(result));
+
+            foreach (var member in Result.MemberNames)
+            {
+                Data.Add(member, Result.ErrorMessage);
+            }
         }
 
         public ValidationException(string memberName, string message, Exception inner = null)
-            :base(message, inner)
-        {
-            Result = new ValidationResult(message, new[] { memberName });
-        }
+            :this(new ValidationResult(message, new[] { memberName }), inner)
+        {}
 
         public ValidationException(string message)
-            :base(message)
-        {
-            Result = new ValidationResult(message, new[] { "" });
-        }
+            :this(new ValidationResult(message, new[] { "" }))
+        {}
 
         public ValidationResult Result { get; }
-
-        /// <summary>
-        /// Converts the <see cref="Result"/> into a key, value pair
-        /// of property name and validation messages
-        /// </summary>
-        public override IDictionary Data
-        {
-            get => Result.MemberNames
-                .ToDictionary(
-                    member => member,
-                    member => Result.ErrorMessage);
-        }
     }
 }

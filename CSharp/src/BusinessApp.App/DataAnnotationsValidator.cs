@@ -5,15 +5,15 @@ namespace BusinessApp.App
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
-    using BusinessApp.Domain;
 
     /// <summary>
     /// Runs validations for data annotations
     /// </summary>
-    public class DataAnnotationsValidator<TCommand> : IValidator<TCommand>
+    public class DataAnnotationsValidator<T> : IValidator<T>
     {
-        Task IValidator<TCommand>.ValidateAsync(TCommand instance)
+        Task IValidator<T>.ValidateAsync(T instance, CancellationToken cancellationToken)
         {
             var context = new ValidationContext(instance);
             var errors = new List<ValidationResult>();
