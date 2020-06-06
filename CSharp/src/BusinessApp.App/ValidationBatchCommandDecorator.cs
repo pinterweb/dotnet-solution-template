@@ -34,7 +34,7 @@ namespace BusinessApp.App
 
                 try
                 {
-                    await singleValidator.ValidateAsync(c);
+                    await singleValidator.ValidateAsync(c, cancellationToken);
                 }
                 catch (AggregateException ex)
                 {

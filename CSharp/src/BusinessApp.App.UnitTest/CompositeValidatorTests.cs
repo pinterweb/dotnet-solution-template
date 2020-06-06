@@ -6,17 +6,20 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using System.Threading.Tasks;
     using System.Linq;
+    using System.Threading;
 
     public class ValidationStub {  }
 
     public class CompositeValidatorTests
     {
+        private readonly CancellationToken token;
         private readonly IEnumerable<IValidator<ValidationStub>> validators;
         private readonly ValidationStub instance;
         private CompositeValidator<ValidationStub> sut;
 
         public CompositeValidatorTests()
         {
+            token = A.Dummy<CancellationToken>();
             instance = new ValidationStub();
             validators = new[]
             {
@@ -44,7 +47,7 @@ namespace BusinessApp.App.UnitTest
         {
             /* Arrange */
             sut = new CompositeValidator<ValidationStub>(new IValidator<ValidationStub>[0]);
-            async Task shouldNotThrow() => await sut.ValidateAsync(A.Dummy<ValidationStub>());
+            async Task shouldNotThrow() => await sut.ValidateAsync(A.Dummy<ValidationStub>(), token);
 
             /* Act */
             var ex = await Record.ExceptionAsync(shouldNotThrow);
@@ -57,15 +60,15 @@ namespace BusinessApp.App.UnitTest
         public async Task ValidateAsync_MultipleValidators_AllCalled()
         {
             /* Arrange */
-            async Task shouldNotThrow() => await sut.ValidateAsync(instance);
+            async Task shouldNotThrow() => await sut.ValidateAsync(instance, token);
 
             /* Act */
             var ex = await Record.ExceptionAsync(shouldNotThrow);
 
             /* Assert */
-            A.CallTo(() => validators.First().ValidateAsync(instance))
+            A.CallTo(() => validators.First().ValidateAsync(instance, token))
                 .MustHaveHappenedOnceExactly().Then(
-                    A.CallTo(() => validators.Last().ValidateAsync(instance))
+                    A.CallTo(() => validators.Last().ValidateAsync(instance, token))
                         .MustHaveHappenedOnceExactly());
         }
     }

@@ -11,12 +11,14 @@ namespace BusinessApp.App.UnitTest
 
     public class ValidationCommandDecoratorTests
     {
+        private readonly CancellationToken token;
         private readonly ValidationCommandDecorator<DummyCommand> sut;
         private readonly ICommandHandler<DummyCommand> inner;
         private readonly IValidator<DummyCommand> validator;
 
         public ValidationCommandDecoratorTests()
         {
+            token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<DummyCommand>>();
             validator = A.Fake<IValidator<DummyCommand>>();
 
@@ -68,11 +70,11 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
                 var command = A.Dummy<DummyCommand>();
-                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._))
+                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._, token))
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
-                await sut.HandleAsync(command, A.Dummy<CancellationToken>());
+                await sut.HandleAsync(command, token);
 
                 /* Assert */
                 Assert.Equal(0, handlerCallsBeforeValidate);
@@ -85,10 +87,10 @@ namespace BusinessApp.App.UnitTest
                 var command = A.Dummy<DummyCommand>();
 
                 /* Act */
-                await sut.HandleAsync(command, A.Dummy<CancellationToken>());
+                await sut.HandleAsync(command, token);
 
                 /* Assert */
-                A.CallTo(() => validator.ValidateAsync(command))
+                A.CallTo(() => validator.ValidateAsync(command, token))
                     .MustHaveHappenedOnceExactly();
             }
 
