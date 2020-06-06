@@ -59,7 +59,7 @@
 
         public override string ToString()
         {
-            var exceptions = Exception?.InnerExceptions().Prepend(Exception);
+            var exceptions = Exception?.Flatten();
             var nl = Environment.NewLine;
             var sb = new StringBuilder();
             var header = new StringBuilder($"{Logged.ToString("HH:mm")} [{Severity.ToString()}] {Message}");
