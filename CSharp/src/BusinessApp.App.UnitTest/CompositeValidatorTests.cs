@@ -40,7 +40,7 @@ namespace BusinessApp.App.UnitTest
         }
 
         [Fact]
-        public async Task ValidateObject_NoValidators_NoExceptionThrown()
+        public async Task ValidateAsync_NullValidators_NoExceptionThrown()
         {
             /* Arrange */
             sut = new CompositeValidator<ValidationStub>(new IValidator<ValidationStub>[0]);
@@ -54,56 +54,19 @@ namespace BusinessApp.App.UnitTest
         }
 
         [Fact]
-        public async Task ValidateObject_HasOneError_ValidationExceptionThrown()
+        public async Task ValidateAsync_MultipleValidators_AllCalled()
         {
             /* Arrange */
-            var expectedEx = new ValidationException("foo");
-            A.CallTo(() => validators.First().ValidateAsync(instance))
-                .Throws(expectedEx);
-            async Task shouldThrow() => await sut.ValidateAsync(instance);
+            async Task shouldNotThrow() => await sut.ValidateAsync(instance);
 
             /* Act */
-            var actualEx = await Record.ExceptionAsync(shouldThrow);
+            var ex = await Record.ExceptionAsync(shouldNotThrow);
 
             /* Assert */
-            Assert.Same(expectedEx, actualEx);
-        }
-
-        [Fact]
-        public async Task ValidateObject_HasManyErrors_AggregateExceptionThrown()
-        {
-            /* Arrange */
             A.CallTo(() => validators.First().ValidateAsync(instance))
-                .Throws(new ValidationException("foo"));
-            A.CallTo(() => validators.Last().ValidateAsync(instance))
-                .Throws(new ValidationException("bar"));
-            async Task shouldThrow() => await sut.ValidateAsync(instance);
-
-            /* Act */
-            var actualEx = await Record.ExceptionAsync(shouldThrow);
-
-            /* Assert */
-            Assert.IsType<AggregateException>(actualEx);
-        }
-
-        [Fact]
-        public async Task ValidateObject_HasManyErrors_ContainsInnerValidationExceptions()
-        {
-            /* Arrange */
-            var firstEx = new ValidationException("foo");
-            var lastEx = new ValidationException("bar");
-            A.CallTo(() => validators.First().ValidateAsync(instance))
-                .Throws(firstEx);
-            A.CallTo(() => validators.Last().ValidateAsync(instance))
-                .Throws(lastEx);
-            async Task shouldThrow() => await sut.ValidateAsync(instance);
-
-            /* Act */
-            var actualEx = await Record.ExceptionAsync(shouldThrow) as AggregateException;
-
-            /* Assert */
-            Assert.Contains(firstEx, actualEx.Flatten().InnerExceptions);
-            Assert.Contains(lastEx, actualEx.Flatten().InnerExceptions);
+                .MustHaveHappenedOnceExactly().Then(
+                    A.CallTo(() => validators.Last().ValidateAsync(instance))
+                        .MustHaveHappenedOnceExactly());
         }
     }
 }
