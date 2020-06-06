@@ -57,11 +57,12 @@ namespace BusinessApp.App.UnitTest
             var ex = new Exception("bar", inner);
 
             /* Act */
-            var inners = ex.InnerExceptions();
+            var inners = ex.Flatten();
 
             /* Assert */
-            Assert.Equal(2, inners.Count());
-            Assert.Contains(inner, inners);
+            Assert.Equal(3, inners.Count());
+            Assert.Contains(ex, inners);
+            Assert.Contains(innerInner, inners);
             Assert.Contains(inner, inners);
         }
     }
