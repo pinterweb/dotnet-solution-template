@@ -37,7 +37,7 @@ namespace BusinessApp.App
             var exceptions = (
                 entry.Exception == null ?
                 new List<Exception>() :
-                entry.Exception.InnerExceptions().Prepend(entry.Exception).ToList()
+                entry.Exception.Flatten().ToList()
             ).Select(e => new
             {
                 e.Message,

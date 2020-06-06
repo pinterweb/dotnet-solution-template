@@ -5,9 +5,18 @@ namespace BusinessApp.Domain
 
     public static class ExceptionExtensions
     {
-        public static IEnumerable<Exception> InnerExceptions(this Exception e)
+        public static IEnumerable<Exception> Flatten(this Exception e)
         {
-            while (e?.InnerException != null) yield return e = e.InnerException;
+            if (e == null) yield break;
+
+            var ex = e;
+
+            while (ex != null)
+            {
+                yield return ex;
+
+                ex = ex.InnerException;
+            }
         }
     }
 }
