@@ -18,13 +18,13 @@
             this.handler = GuardAgainst.Null(handler, nameof(handler));
         }
 
-        public Task HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
             GuardAgainst.Null(command, nameof(command));
 
-            validator.ValidateAsync(command, cancellationToken);
+            await validator.ValidateAsync(command, cancellationToken);
 
-            return handler.HandleAsync(command, cancellationToken);
+            await handler.HandleAsync(command, cancellationToken);
         }
     }
 }
