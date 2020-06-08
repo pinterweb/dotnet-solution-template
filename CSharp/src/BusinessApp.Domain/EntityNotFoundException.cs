@@ -5,6 +5,7 @@
     /// <summary>
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>
+    [Serializable]
     public class EntityNotFoundException : Exception
     {
         public EntityNotFoundException(string entityName, string message = null)
