@@ -1,19 +1,12 @@
 ﻿namespace BusinessApp.Data
 {
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
+    using System.Runtime.Serialization;
     using BusinessApp.App;
     using BusinessApp.Domain;
     using Microsoft.EntityFrameworkCore;
-
-    /// <summary>
-    /// Factory to create an Entity Framework query visitor
-    /// </summary>
-    public class EFQueryVisitorFactory<TQuery, TResult> : IQueryVisitorFactory<TQuery, TResult>
-        where TQuery : Query
-        where TResult : class
-    {
-        public IQueryVisitor<TResult> Create(TQuery query) => new EFQueryVisitor<TResult>(query);
-    }
 
     /// <summary>
     /// Runs Entity Framework specific logic based on the <see cref="Query"/> data
@@ -22,6 +15,17 @@
         where TResult : class
     {
         private readonly Query query;
+        private static IEnumerable<string> IncludablePropNames = typeof(TResult)
+           .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+           .Where(prop =>
+               (
+                   prop.PropertyType.IsGenericIEnumerable() ?
+                   prop.PropertyType.GetGenericArguments()[0] :
+                   prop.PropertyType
+               ).GetCustomAttribute<DataContractAttribute>() != null
+           )
+           .Select(p => p.Name)
+           .ToList();
 
         public EFQueryVisitor(Query query)
         {
@@ -30,9 +34,14 @@
 
         public IQueryable<TResult> Visit(IQueryable<TResult> queryable)
         {
-            foreach (var item in query.Embed.Concat(query.Expand))
+            var includables = query.Embed
+                .Concat(query.Expand)
+                .Select(i => i.ConvertToPascalCase())
+                .Where(i => IncludablePropNames.Contains(i.Split('.')[0]));
+
+            foreach (var item in includables)
             {
-                queryable = queryable.Include(item.ConvertToPascalCase());
+                queryable = queryable.Include(item);
             }
 
             if (query.Offset.HasValue) queryable = queryable.Skip(query.Offset.Value);
