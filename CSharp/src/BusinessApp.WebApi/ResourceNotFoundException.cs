@@ -9,7 +9,7 @@
     public class ResourceNotFoundException : Exception
     {
         public ResourceNotFoundException(string message = null, Exception inner = null)
-            : base(message ?? "The resource you are looking for does not exist")
+            : base(message ?? "The resource you are looking for does not exist", inner)
         { }
     }
 }
