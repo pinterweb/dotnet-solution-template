@@ -95,6 +95,75 @@ namespace BusinessApp.WebApi.UnitTest
             }
         }
 
+        public class OnBadStateException : ExceptionExtensionsTests
+        {
+            private readonly BadStateException ex;
+
+            public OnBadStateException()
+            {
+                ex = new BadStateException("foo");
+            }
+
+            [Fact]
+            public void StatusCode_MappedToBadResponse()
+            {
+                /* Act */
+                ex.MapToWebResponse(http);
+
+                /* Assert */
+                A.CallToSet(() => http.Response.StatusCode).To(400)
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public void Url_MappedToInvalidData()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("/docs/errors/invalid-data", response.Type.AbsolutePath);
+            }
+
+            [Fact]
+            public void DetailMessage_InResponse()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(
+                    "Your data was not accepted because it is not valid. Please fix the errors",
+                    response.Detail);
+            }
+
+            [Fact]
+            public void Title_InResponse()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("Invalid Data", response.Title);
+            }
+
+            [Fact]
+            public void Errors_InResponse()
+            {
+                /* Arrange */
+                var expected = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "", new[] { "foo" } }
+                };
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(expected, response.Errors);
+            }
+        }
+
         public class OnActivationException : ExceptionExtensionsTests
         {
             private readonly ActivationException ex;
@@ -152,7 +221,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -213,7 +282,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -248,7 +317,7 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Fact]
-            public void DetailMessage_OmittedBecauseInDetail()
+            public void DetailMessage_ExceptionMessageOmitted()
             {
                 /* Act */
                 var response = ex.MapToWebResponse(http);
@@ -315,7 +384,7 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Fact]
-            public void DetailMessage_ExceptionMessageMapped()
+            public void DetailMessage_OmittedSinceInErrors()
             {
                 /* Act */
                 var response = ex.MapToWebResponse(http);
@@ -341,7 +410,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -405,7 +474,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -446,7 +515,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Detail);
+                Assert.Equal("foo", response.Detail);
             }
 
             [Fact]
@@ -466,7 +535,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -527,7 +596,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -589,7 +658,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -651,7 +720,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
             }
         }
 
@@ -749,6 +818,7 @@ namespace BusinessApp.WebApi.UnitTest
             public OnException()
             {
                 ex = new Exception();
+                ex.Data.Add("foo", "bar");
             }
 
             [Fact]
@@ -806,7 +876,75 @@ namespace BusinessApp.WebApi.UnitTest
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Empty(response.Errors);
+                Assert.Null(response.Errors);
+            }
+        }
+
+        public class OnCommunicationException : ExceptionExtensionsTests
+        {
+            private readonly CommunicationException ex;
+
+            public OnCommunicationException()
+            {
+                ex = new CommunicationException("foo");
+            }
+
+            [Fact]
+            public void StatusCode_MappedToFailedDependencyResponse()
+            {
+                /* Act */
+                ex.MapToWebResponse(http);
+
+                /* Assert */
+                A.CallToSet(() => http.Response.StatusCode).To(424)
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public void Url_MappedToCommunicationError()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("/docs/errors/dependent-error", response.Type.AbsolutePath);
+            }
+
+            [Fact]
+            public void DetailMessage_MappedFromExceptionMessage()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("foo", response.Detail);
+            }
+
+            [Fact]
+            public void Title_InResponse()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("Communication Error",
+                    response.Title);
+            }
+
+            [Fact]
+            public void Errors_EmptyInResponse()
+            {
+                /* Arrange */
+                var expected = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "", new[] { "foo" } }
+                };
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(expected, response.Errors);
             }
         }
     }

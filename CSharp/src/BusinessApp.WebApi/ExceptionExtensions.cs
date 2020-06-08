@@ -1,6 +1,7 @@
 ﻿namespace BusinessApp.WebApi
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Data;
     using System.Linq;
@@ -22,25 +23,17 @@
             string errorType = "server-error";
             string title = "Server Error";
             string detail = null;
-            var errors = new Dictionary<string, IEnumerable<string>>();
+            var errors = ToResponseProblemErrors(exception.Data);
 
             switch (exception)
             {
                 // The supplied model isn't valid.
-                case BadStateException _:
-                    context.Response.StatusCode = 400;
-                    errorType = "invalid-model";
-                    title = "Invalid Model";
-                    break;
                 case ValidationException ve:
-                    context.Response.StatusCode = 400;
+                case BadStateException _:
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorType = "invalid-data";
-                    title = "Invalid Data";
                     detail = "Your data was not accepted because it is not valid. Please fix the errors";
-                    errors = ve.Result.MemberNames
-                        .ToDictionary(
-                        member => member,
-                        member => (IEnumerable<string>)new[] { ve.Result.ErrorMessage });
+                    title = "Invalid Data";
                     break;
                 case ActivationException _:
                 case ResourceNotFoundException _:
@@ -53,10 +46,6 @@
                     errorType = "insufficient-privileges";
                     title = "Insufficient privileges";
                     detail = "";
-                    errors = new Dictionary<string, IEnumerable<string>>
-                    {
-                        { sre.ResourceName, new[] { sre.Message } }
-                    };
                     break;
                 case SecurityException se:
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -72,11 +61,16 @@
                         "If you continue to see this error please contact support.";
                     break;
                 case NotImplementedException _:
-                case NotSupportedException _:
                     context.Response.StatusCode = (int)HttpStatusCode.NotImplemented;
                     errorType = "not-supported";
                     title = "The operation is not supported.";
                     detail = "";
+                    break;
+                case NotSupportedException ex:
+                    context.Response.StatusCode = (int)HttpStatusCode.NotImplemented;
+                    errorType = "not-supported";
+                    title = "The operation is not supported.";
+                    detail = ex.Message;
                     break;
                 case TaskCanceledException ex:
                     context.Response.StatusCode = 400;
@@ -88,6 +82,12 @@
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorType = "not-supported";
                     title = "The operation is not supported because of bad data.";
+                    detail = ex.Message;
+                    break;
+                case CommunicationException ex:
+                    context.Response.StatusCode = (int)HttpStatusCode.FailedDependency;
+                    errorType = "dependent-error";
+                    title = "Communication Error";
                     detail = ex.Message;
                     break;
                 case AggregateException manyExceptions:
@@ -107,7 +107,7 @@
                             new Dictionary<string, IEnumerable<string>>(),
                             (accu, problem) =>
                             {
-                                if (!problem.Errors.Any())
+                                if (problem.Errors == null)
                                 {
                                     AddProblemErrors(accu,
                                         "",
@@ -130,6 +130,7 @@
                             })
                     };
                 default:
+                    errors = null;
                     if (context.Response.IsSuccess())
                     {
                         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
@@ -161,6 +162,14 @@
             {
                 accu[key] = messages.Concat(value).ToArray();
             }
+        }
+
+        private static IDictionary<string, IEnumerable<string>> ToResponseProblemErrors(IDictionary data)
+        {
+            return data.Keys.Count == 0 ? null : data.Cast<DictionaryEntry>()
+                         .Where(de => de.Key is string && de.Value is string)
+                         .ToDictionary(de => (string)de.Key,
+                                       de => (IEnumerable<string>)new[] { (string)de.Value });
         }
     }
 }
