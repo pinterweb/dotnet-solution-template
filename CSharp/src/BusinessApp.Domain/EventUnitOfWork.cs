@@ -23,20 +23,22 @@
             emitters.Add(emitter);
         }
 
-        public virtual void Add(AggregateRoot aggregate)
+        public void Add(AggregateRoot aggregate)
         {
             emitters.Add(aggregate);
         }
 
         public virtual async Task CommitAsync(CancellationToken cancellationToken)
         {
-            var emitting = emitters.ToArray();
-            emitters.Clear();
-
-            for (int a = 0; a < emitting.Length; a++)
+            do
             {
-                await eventPublisher.PublishAsync(emitting[a], cancellationToken);
-            }
+                var pending = emitters.Where(i => i.HasEvents()).ToArray();
+
+                for (int a = 0; a < pending.Count(); a++)
+                {
+                    await eventPublisher.PublishAsync(pending[a], cancellationToken);
+                }
+            } while (emitters.Any(i => i.HasEvents()));
         }
 
         public virtual void Remove(AggregateRoot aggregate)
