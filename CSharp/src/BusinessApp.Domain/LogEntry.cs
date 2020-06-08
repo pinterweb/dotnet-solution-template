@@ -26,37 +26,6 @@
         public Exception Exception { get; }
         public DateTimeOffset Logged { get; } = DateTimeOffset.UtcNow;
 
-        public override bool Equals(object obj)
-        {
-            if (obj is LogEntry other)
-            {
-                return Severity.Equals(other.Severity) &&
-                    Message == other.Message &&
-                    (Data?.Equals(other.Data) ?? other.Data == null) &&
-                    (Exception?.Equals(other.Exception) ?? other.Exception == null) &&
-                    Logged.Equals(other.Logged);
-            }
-
-            return base.Equals(obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                // Choose large primes to avoid hashing collisions
-                const int HashingBase = (int)2166136261;
-                const int HashingMultiplier = 16777619;
-                int hash = (HashingBase * HashingMultiplier) ^ Severity.GetHashCode();
-                hash = (hash * HashingMultiplier) ^ Message?.GetHashCode() ?? 0;
-                hash = (hash * HashingMultiplier) ^ Data?.GetHashCode() ?? 0;
-                hash = (hash * HashingMultiplier) ^ Exception?.GetHashCode() ?? 0;
-                hash = (hash * HashingMultiplier) ^ Logged.GetHashCode();
-
-                return hash;
-            }
-        }
-
         public override string ToString()
         {
             var exceptions = Exception?.Flatten();
