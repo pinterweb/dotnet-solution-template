@@ -11,11 +11,13 @@ namespace BusinessApp.App.UnitTest
 
     public class DeadlockRetryDecoratorTests
     {
+        private readonly CancellationToken token;
         private readonly DeadlockRetryDecorator<DummyCommand> sut;
         private readonly ICommandHandler<DummyCommand> inner;
 
         public DeadlockRetryDecoratorTests()
         {
+            token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<DummyCommand>>();
 
             sut = new DeadlockRetryDecorator<DummyCommand>(inner);
@@ -53,7 +55,6 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var command = A.Dummy<DummyCommand>();
-                var token = A.Dummy<CancellationToken>();
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws<Exception>();
 
                 /* Act */
@@ -67,7 +68,6 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionNotADeadlock_DoesNothing()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
                 var command = A.Dummy<DummyCommand>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception);
@@ -83,7 +83,6 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionIsDeadlock_Retries5times()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
                 var command = A.Dummy<DummyCommand>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => exception.Message).Returns("foobar deadlock lorem");
@@ -101,7 +100,6 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionIsDeadlockAfterFiveTimes_ThrowsCommunicationException()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
                 var command = A.Dummy<DummyCommand>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => exception.Message).Returns("foobar deadlock lorem");
@@ -123,7 +121,6 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionInInnerExceptionIsDeadlock_Retries5times()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
                 var command = A.Dummy<DummyCommand>();
                 var dbException = A.Fake<DbException>();
                 A.CallTo(() => dbException.Message).Returns("foobar deadlock lorem");
