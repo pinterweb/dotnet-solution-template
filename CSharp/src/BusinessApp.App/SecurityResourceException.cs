@@ -1,8 +1,6 @@
 namespace BusinessApp.App
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Security;
     using BusinessApp.Domain;
 
@@ -12,16 +10,10 @@ namespace BusinessApp.App
             :base(message, inner)
         {
             ResourceName = GuardAgainst.Empty(resourceName, nameof(resourceName));
+
+            Data.Add(ResourceName, Message);
         }
 
         public string ResourceName { get; }
-
-        public override IDictionary Data
-        {
-            get => new Dictionary<string, string>
-            {
-                { ResourceName, Message }
-            };
-        }
     }
 }

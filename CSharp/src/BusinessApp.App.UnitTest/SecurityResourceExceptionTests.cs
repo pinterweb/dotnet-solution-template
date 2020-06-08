@@ -2,10 +2,7 @@ namespace BusinessApp.App.UnitTest
 {
     using System;
     using Xunit;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using System.Linq;
-    using System.Collections.Generic;
+    using System.Collections;
 
     public class SecurityResourceExceptionTests
     {
@@ -41,30 +38,31 @@ namespace BusinessApp.App.UnitTest
                 var ex = new SecurityResourceException("foo", "bar");
 
                 /* Assert */
-                var dictionary = Assert.IsType<Dictionary<string, string>>(ex.Data);
-                var data = Assert.Single(dictionary);
-                Assert.Contains("foo", data.Key);
-                Assert.Contains("bar", data.Value);
+                var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
+                Assert.Equal("foo", data.Key);
+                Assert.Equal("bar", data.Value);
             }
-        }
 
-        [Fact]
-        public void InnerExceptions_HasSome_Returned()
-        {
-            /* Arrange */
-            var innerInner = new Exception();
-            var inner = new Exception("foo", innerInner);
-            var ex = new Exception("bar", inner);
+            [Fact]
+            public void WithMessage_MappedToProp()
+            {
+                /* Act */
+                var ex = new SecurityResourceException("foo", "bar");
 
-            /* Act */
-            var inners = ex.Flatten();
+                /* Assert */
+                Assert.Equal("bar", ex.Message);
+            }
 
-            /* Assert */
-            Assert.Equal(3, inners.Count());
-            Assert.Contains(ex, inners);
-            Assert.Contains(innerInner, inners);
-            Assert.Contains(inner, inners);
+            [Fact]
+            public void WithInnerException_MappedToProp()
+            {
+                /* Act */
+                var inner = new Exception();
+                var ex = new SecurityResourceException("foo", "bar", inner);
+
+                /* Assert */
+                Assert.Equal(inner, ex.InnerException);
+            }
         }
     }
 }
-

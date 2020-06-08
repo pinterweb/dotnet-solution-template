@@ -9,11 +9,13 @@
     public class BadStateException : Exception
     {
         public BadStateException(string message)
-            :base(message)
+            :this(message, null)
         { }
 
         public BadStateException(string message, Exception innerException)
             :base(message, innerException)
-        { }
+        {
+            Data[""] = message;
+        }
     }
 }
