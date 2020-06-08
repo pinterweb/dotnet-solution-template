@@ -14,6 +14,7 @@
     {
         private static readonly Func<T, TId> Creator;
         private static readonly Func<TId, T> Getter;
+        private static TypeConverter Inner;
 
         static EntityIdTypeConverter()
         {
@@ -32,19 +33,38 @@
 
             Getter = Expression.Lambda<Func<TId, T>>(exBody2, exTarget).Compile();
             Creator = Expression.Lambda<Func<T, TId>>(memberInit, idValueParam).Compile();
+            Inner = TypeDescriptor.GetConverter(typeof(T));
         }
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-            => typeof(T) == sourceType;
+            => typeof(T) == sourceType || Inner.CanConvertFrom(sourceType);
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            => Creator((T)value);
+        {
+            if (value is T)
+            {
+                return Creator((T)value);
+            }
+
+            var innerValue = (T)Inner.ConvertFrom(context, culture, value);
+
+            return Creator(innerValue);
+        }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            => typeof(T) == destinationType;
+            => typeof(T) == destinationType || Inner.CanConvertTo(context, destinationType);
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            => Getter((TId)value);
+        {
+            if (value is TId)
+            {
+                return Getter((TId)value);
+            }
+
+            var innerValue = (TId)Inner.ConvertTo(context, culture, value, destinationType);
+
+            return Getter(innerValue);
+        }
 
         public override bool IsValid(ITypeDescriptorContext context, object value)
         {
