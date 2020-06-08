@@ -1,33 +1,49 @@
 ﻿namespace BusinessApp.WebApi
 {
+    using System;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.Configuration;
 #if DEBUG
-    using Microsoft.AspNetCore.Server.HttpSys;
     using System.Diagnostics;
-    using Microsoft.Extensions.Logging;
+    using Microsoft.AspNetCore.Server.HttpSys;
 #endif
+    using Microsoft.Extensions.Configuration;
+    using BusinessApp.App;
+    using BusinessApp.Domain;
 
     public class Program
     {
         public static void Main(string[] args)
         {
-            var builder = CreateWebHostBuilder(args);
+            var logger = new ConsoleLogger(new StringLogEntryFormatter());
+
+            try
+            {
+                logger.Log(new LogEntry(LogSeverity.Info, $"Starting BusinessApp web host..."));
+                var builder = CreateWebHostBuilder(args);
 
 #if DEBUG
-            if(string.Compare(Process.GetCurrentProcess().ProcessName, "iisexpress") != 0)
-            {
-                builder.UseHttpSys(opt =>
+                if(string.Compare(Process.GetCurrentProcess().ProcessName, "iisexpress") != 0)
                 {
-                    opt.Authentication.Schemes =
-                        AuthenticationSchemes.NTLM | AuthenticationSchemes.Negotiate;
-                    opt.Authentication.AllowAnonymous = true;
-                });
-            }
+                    logger.Log(new LogEntry(LogSeverity.Info, $"Using httpsys options..."));
+                    builder.UseHttpSys(opt =>
+                    {
+                        opt.Authentication.Schemes =
+                            AuthenticationSchemes.NTLM | AuthenticationSchemes.Negotiate;
+                        opt.Authentication.AllowAnonymous = true;
+                    });
+                }
 #endif
 
-            builder.Build().Run();
+                builder.Build().Run();
+            }
+            catch (Exception ex)
+            {
+                logger.Log(
+                    new LogEntry(LogSeverity.Critical,
+                        $"BusinessApp terminated unexpectedly",
+                        ex));
+            }
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
@@ -37,13 +53,6 @@
                     builder.AddCommandLine(args);
                     builder.AddEnvironmentVariables();
                 })
-#if DEBUG
-                .ConfigureLogging((hostingContext, logging) =>
-                {
-                    logging.AddConsole();
-                    logging.AddDebug();
-                })
-#endif
                 .UseStartup<Startup>();
     }
 }
