@@ -14,6 +14,10 @@
             this.db = GuardAgainst.Null(db, nameof(db));
         }
 
-        public void Add(IDomainEvent @event) => db.Add(@event);
+        public void Add(IDomainEvent @event)
+        {
+            GuardAgainst.Null(@event, nameof(@event));
+            db.Add(@event);
+        }
     }
 }
