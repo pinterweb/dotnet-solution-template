@@ -29,7 +29,7 @@ steps:
   displayName: Build
   inputs:
     projects: '$(runtimeProjects)'
-    arguments: '--configuration $(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration) -p:DefineConstants=efcore%3Bfluentvalidation%3Bjson%3Bdocker'
 
 
 - task: DotNetCoreCLI@2
