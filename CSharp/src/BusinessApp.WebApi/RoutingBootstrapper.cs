@@ -1,7 +1,6 @@
 ﻿namespace BusinessApp.WebApi
 {
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Routing;
     using SimpleInjector;
 
     /// <summary>
@@ -9,37 +8,45 @@
     /// </summary>
     public static class RoutingBootstrapper
     {
-        public static void Bootstrap(Container container, IApplicationBuilder app)
+        public static void SetupEndpoints(this IApplicationBuilder app, Container container)
         {
-            var routeBuilder = new RouteBuilder(app);
+            app.UseRouting();
 
             #region TODO APIS HERE
 
-            //routeBuilder.MapGet("/api/<aggregate>", async ctx =>
-            //    await container
-            //        .GetInstance<IResourceHandler<SomeQuery, IEnumerable<BusinessContract>>>()
-            //        .HandleAsync(ctx, default)
-            //);
-            //routeBuilder.MapGet("/api/<aggregate>/{id:long}", async ctx =>
-            //    await container
-            //        .GetInstance<IResourceHandler<SomeQuery, BusinessContract>>()
-            //        .HandleAsync(ctx, default)
-            //);
-            //routeBuilder.MapPost("/api/<aggregate>", async ctx =>
-            //    await container
-            //        .GetInstance<IResourceHandler<BusinessCommand, BusinessCommand>>()
-            //        .HandleAsync(ctx, default)
-            //);
-            //routeBuilder.MapPut("/api/<aggregate>/{id:long}", async ctx =>
-            //    await container
-            //        .GetInstance<IResourceHandler<BusinessCommand, BusinessCommand>>()
-            //        .HandleAsync(ctx, default)
-            //);
-
+            app.UseEndpoints(endpoint =>
+            {
+                var endpoints = new IEndpointConventionBuilder[]
+                {
+                    //endpoint.MapGet("/api/<aggregate>", async ctx =>
+                    //    await container
+                    //        .GetInstance<IResourceHandler<SomeQuery, IEnumerable<BusinessContract>>>()
+                    //        .HandleAsync(ctx, default)
+                    //),
+                    //endpoint.MapGet("/api/<aggregate>/{id:long}", async ctx =>
+                    //    await container
+                    //        .GetInstance<IResourceHandler<SomeQuery, BusinessContract>>()
+                    //        .HandleAsync(ctx, default)
+                    //),
+                    //endpoint.MapPost("/api/<aggregate>", async ctx =>
+                    //    await container
+                    //        .GetInstance<IResourceHandler<BusinessCommand, BusinessCommand>>()
+                    //        .HandleAsync(ctx, default)
+                    //),
+                    //endpoint.MapPut("/api/<aggregate>/{id:long}", async ctx =>
+                    //    await container
+                    //        .GetInstance<IResourceHandler<BusinessCommand, BusinessCommand>>()
+                    //        .HandleAsync(ctx, default)
+                    //),
+                    //endpoint.MapDelete("/api/<aggregate>/{id:long}", async ctx =>
+                    //    await container
+                    //        .GetInstance<IResourceHandler<DeleteCommand, DeleteCommand>>()
+                    //        .HandleAsync(ctx, default)
+                    //),
+                };
+            });
 
             #endregion
-
-            app.UseRouter(routeBuilder.Build());
         }
     }
 }
