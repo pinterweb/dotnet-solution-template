@@ -41,8 +41,6 @@
                 ctx => !ctx.Handled
             );
 
-            RoutingBootstrapper.Bootstrap(container, app);
-
             return container;
         }
     }

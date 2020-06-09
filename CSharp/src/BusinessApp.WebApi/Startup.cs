@@ -48,6 +48,8 @@
             app.UseSimpleInjector(container);
             app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
 
+            app.SetupEndpoints(container);
+
             WebApiBootstrapper.Bootstrap(app, env, container);
             container.Verify();
 
