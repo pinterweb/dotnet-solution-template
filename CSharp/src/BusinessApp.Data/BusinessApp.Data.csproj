@@ -1,17 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
   </ItemGroup>
 <!--#if (efcore)-->
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
   </ItemGroup>
 <!--#endif-->
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-  </PropertyGroup>
 </Project>

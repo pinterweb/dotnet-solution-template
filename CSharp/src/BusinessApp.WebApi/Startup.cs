@@ -16,15 +16,12 @@
 #if DEBUG
     using Microsoft.Extensions.Logging;
 #endif
-    using BusinessApp.Domain;
-    using System.Threading.Tasks;
-    using System.Threading;
 
     public class Startup
     {
         private readonly Container container = new Container();
 
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             container.Options.ResolveUnregisteredConcreteTypes = false;
             Configuration = configuration;
@@ -39,19 +36,17 @@
         public void ConfigureServices(IServiceCollection services)
         {
 #if DEBUG
-            services.AddLogging(configure => configure.AddConsole());
+            services.AddLogging(configure => configure.AddConsole().AddDebug());
 #endif
             services.AddRouting();
             services.AddSimpleInjector(container, options => options.AddAspNetCore());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseSimpleInjector(container, options =>
-            {
-                options.UseMiddleware<HttpRequestExceptionMiddleware>(app);
-            });
+            app.UseSimpleInjector(container);
+            app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
 
             WebApiBootstrapper.Bootstrap(app, env, container);
             container.Verify();
@@ -69,7 +64,7 @@
             }
         }
 
-        private static void SetupEnvironment(IHostingEnvironment env)
+        private static void SetupEnvironment(IWebHostEnvironment env)
         {
             // it is not a requirement and IO will throw if not found
             try
@@ -83,12 +78,6 @@
             {
                 Console.WriteLine("Did not load .env because: " + e.Message);
             }
-        }
-
-        private sealed class NullEventPublisher : IEventPublisher
-        {
-            public Task PublishAsync(IEventEmitter emitter, CancellationToken cancellationToken)
-                => Task.CompletedTask;
         }
     }
 }

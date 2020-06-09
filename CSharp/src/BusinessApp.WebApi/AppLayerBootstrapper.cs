@@ -14,7 +14,7 @@
     {
         public static readonly Assembly Assembly = typeof(IQuery<>).Assembly;
 
-        public static void Bootstrap(Container container, IHostingEnvironment env)
+        public static void Bootstrap(Container container, IWebHostEnvironment env)
         {
             GuardAgainst.Null(container, nameof(container));
 

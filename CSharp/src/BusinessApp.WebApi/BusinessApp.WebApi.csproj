@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <Product>BusinessApp Web Api</Product>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+    <IsPackable>false</IsPackable>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
@@ -11,13 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="1.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc" Version="4.6.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.HttpSys" Version="2.2.6">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.4" />
+    <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc" Version="4.10.3" />
+    <PackageReference Include="System.IO.Pipelines" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,10 +24,11 @@
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update=".env">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+<!--#if (efcore)-->
+  <Target Name="Create Migrations Script" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+      <Exec Command="dotnet tool restore" />
+      <Exec Command="dotnet tool run dotnet-ef migrations script --configuration $(Configuration) --no-build --idempotent --output $(build_artifactstagingdirectory)/migrations/database_up.sql --context BusinessAppReadOnlyDbContext" />
+  </Target>
+<!--#endif-->
 
 </Project>

@@ -10,7 +10,7 @@ namespace BusinessApp.WebApi
 
     public static class SimpleInjectorRegistrationExtensions
     {
-        public static void RegisterLoggers(this Container container, IHostingEnvironment env)
+        public static void RegisterLoggers(this Container container, IWebHostEnvironment env)
         {
             container.Register(typeof(ILogger), typeof(CompositeLogger), Lifestyle.Singleton);
 

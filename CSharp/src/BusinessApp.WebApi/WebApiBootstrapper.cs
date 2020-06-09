@@ -14,7 +14,7 @@
     {
         public static readonly Assembly Assembly = typeof(Startup).Assembly;
 
-        public static Container Bootstrap(IApplicationBuilder app, IHostingEnvironment env, Container container)
+        public static Container Bootstrap(IApplicationBuilder app, IWebHostEnvironment env, Container container)
         {
             DomainLayerBoostrapper.Bootstrap(container);
             AppLayerBootstrapper.Bootstrap(container, env);

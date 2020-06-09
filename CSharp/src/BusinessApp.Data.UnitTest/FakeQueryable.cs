@@ -8,7 +8,7 @@ namespace BusinessApp.Data.UnitTest
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal class FakeQueryable<T> : IAsyncEnumerable<T>, IQueryable<T>
+    class FakeQueryable<T> : IAsyncEnumerable<T>, IQueryable<T>
     {
         private readonly IEnumerable<T> resultSet;
 
@@ -23,6 +23,11 @@ namespace BusinessApp.Data.UnitTest
 
         public IQueryProvider Provider => throw new NotImplementedException();
 
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            return new FakeEnumerator(resultSet);
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             return new FakeEnumerator(resultSet);
@@ -30,12 +35,7 @@ namespace BusinessApp.Data.UnitTest
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new FakeEnumerator(resultSet);
-        }
-
-        IAsyncEnumerator<T> IAsyncEnumerable<T>.GetEnumerator()
-        {
-            return new FakeEnumerator(resultSet);
+            throw new NotImplementedException();
         }
 
         private class FakeEnumerator : IAsyncEnumerator<T>, IEnumerator<T>
@@ -56,14 +56,20 @@ namespace BusinessApp.Data.UnitTest
                 inner.Dispose();
             }
 
+            public ValueTask DisposeAsync()
+            {
+                Dispose();
+                return new ValueTask();
+            }
+
             public bool MoveNext()
             {
                 return inner.MoveNext();
             }
 
-            public Task<bool> MoveNext(CancellationToken cancellationToken)
+            public ValueTask<bool> MoveNextAsync()
             {
-                return Task.FromResult(MoveNext());
+                return new ValueTask<bool>(MoveNext());
             }
 
             public void Reset() => inner.Reset();

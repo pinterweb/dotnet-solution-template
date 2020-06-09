@@ -96,7 +96,7 @@ namespace BusinessApp.Data
 
             if (Database.CurrentTransaction != null && transactionFromFactory)
             {
-                Database.CurrentTransaction.Commit();
+                await Database.CurrentTransaction.CommitAsync(cancellationToken);
                 transactionFromFactory = false;
             }
         }
