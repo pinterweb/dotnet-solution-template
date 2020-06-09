@@ -1,6 +1,5 @@
 ﻿namespace BusinessApp.WebApi
 {
-    using System.Diagnostics;
     using System.Reflection;
     using System.Security.Principal;
     using BusinessApp.Domain;
@@ -21,6 +20,8 @@
             AppLayerBootstrapper.Bootstrap(container, env);
             DataLayerBootstrapper.Bootstrap(container);
 
+            container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(ResourceNotFoundRequestDecorator<,>));
+
 #if json
             Json.Bootstrapper.Bootstrap(container);
 #endif
@@ -39,8 +40,6 @@
                 typeof(CommandResourceHandler<>),
                 ctx => !ctx.Handled
             );
-
-            container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(ResourceNotFoundRequestDecorator<,>));
 
             RoutingBootstrapper.Bootstrap(container, app);
 
