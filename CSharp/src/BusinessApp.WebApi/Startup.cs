@@ -16,6 +16,7 @@
 #if DEBUG
     using Microsoft.Extensions.Logging;
 #endif
+    using Microsoft.AspNetCore.Server.HttpSys;
 
     public class Startup
     {
@@ -39,6 +40,10 @@
             services.AddLogging(configure => configure.AddConsole().AddDebug());
 #endif
             services.AddRouting();
+#if winauth
+            services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
+#endif
+            services.AddAuthorization();
             services.AddSimpleInjector(container, options => options.AddAspNetCore());
         }
 
@@ -49,6 +54,11 @@
             app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
 
             app.SetupEndpoints(container);
+
+#if winauth
+            app.UseAuthentication();
+#endif
+            app.UseAuthorization();
 
             WebApiBootstrapper.Bootstrap(app, env, container);
             container.Verify();

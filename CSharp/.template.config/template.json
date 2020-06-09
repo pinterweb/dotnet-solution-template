@@ -51,6 +51,13 @@
             "isRequired": "false",
             "defaultValue": "false",
             "description": "Adds services integrate the fluent validation library"
+        },
+        "winauth": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "false",
+            "description": "Adds windows authentication"
         }
     },
     "sources": [
@@ -124,5 +131,20 @@
                 }
             ]
         }
-    ]
+    ],
+    "SpecialCustomOperations": {
+        "**/*.json": {
+            "operations": [
+                {
+                    "type": "conditional",
+                    "configuration": {
+                        "if": ["\"__#if\":"],
+                        "endif": ["\"__#endif\": null"],
+                        "trim" : "true",
+                        "wholeLine": "true"
+                    }
+                }
+            ]
+        }
+    }
 }
