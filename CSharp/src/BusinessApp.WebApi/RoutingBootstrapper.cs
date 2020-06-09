@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.WebApi
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Builder;
     using SimpleInjector;
 
@@ -44,6 +45,11 @@
                     //        .HandleAsync(ctx, default)
                     //),
                 };
+
+                foreach (var ep in endpoints)
+                {
+                    ep.RequireAuthorization(new AuthorizeAttribute());
+                }
             });
 
             #endregion

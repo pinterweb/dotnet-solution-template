@@ -1,6 +1,8 @@
 ﻿{
     "iisSettings": {
+        "__#if": winauth,
         "windowsAuthentication": true,
+        "__#endif": null,
         "anonymousAuthentication": true,
         "iisExpress": {
             "applicationUrl": "http://localhost:59748",
