@@ -23,6 +23,12 @@
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update=".env">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 <!--#if (efcore)-->
   <Target Name="Create Migrations Script" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
       <Exec Command="dotnet tool restore" />
