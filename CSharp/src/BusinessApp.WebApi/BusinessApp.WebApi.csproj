@@ -24,7 +24,7 @@
   </ItemGroup>
 
 <!--#if (efcore)-->
-  <Target Name="Create Migrations Script" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="Create Migrations Script" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
       <Exec Command="dotnet tool restore" />
       <Exec Command="dotnet tool run dotnet-ef migrations script --configuration $(Configuration) --no-build --idempotent --output $(build_artifactstagingdirectory)/migrations/database_up.sql --context BusinessAppReadOnlyDbContext" />
   </Target>
