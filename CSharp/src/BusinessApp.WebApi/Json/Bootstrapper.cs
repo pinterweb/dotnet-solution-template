@@ -30,9 +30,6 @@
                         new EntityIdJsonConverter<long>(),
                         new EntityIdJsonConverter<string>(),
                         new EntityIdJsonConverter<int>(),
-                        new CsvJsonConverter<string>(),
-                        new CsvJsonConverter<decimal>(),
-                        new CsvJsonConverter<int>(),
                         new LongToStringJsonConverter(),
                         new IDictionaryJsonConverter()
                     }

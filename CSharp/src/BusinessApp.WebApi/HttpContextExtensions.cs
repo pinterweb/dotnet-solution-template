@@ -1,12 +1,8 @@
 ﻿namespace BusinessApp.WebApi
 {
     using System;
-    using System.IO;
-    using System.Linq;
-    using System.Web;
     using BusinessApp.App;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Routing;
 
     public static class HttpContextExtensions
     {
@@ -17,11 +13,10 @@
             ISerializer serializer)
         {
             if (context.Request.Method.Equals("get", StringComparison.OrdinalIgnoreCase) ||
-                context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase)
-                )
+                context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase))
             {
                 // TODO might not be able to do Sync. Deserialization see ShelfLife 3.1 commit
-                using (var stream = DeserializeUri(context, serializer))
+                using (var stream = GenericSerializationHelpers<T>.DeserializeUri(context, serializer))
                 {
                     return serializer.Deserialize<T>(stream);
                 }
@@ -42,29 +37,5 @@
         /// <returns></returns>
         public static Uri CreateProblemUri(this HttpContext context, string errorType)
             => new Uri($"{context.Request.Scheme}://{context.Request.Host}/docs/errors/{errorType}");
-
-        private static Stream DeserializeUri(HttpContext context, ISerializer serializer)
-        {
-            var collection = HttpUtility.ParseQueryString(context.Request.QueryString.Value);
-
-            foreach (var r in context.GetRouteData().Values)
-            {
-                collection.Add(r.Key, r.Value.ToString());
-            }
-
-            var stream = new MemoryStream();
-
-            if (collection.HasKeys())
-            {
-                serializer.Serialize(
-                    stream,
-                    collection.AllKeys.ToDictionary(key => key, key => collection[key])
-                );
-
-                stream.Position = 0;
-            }
-
-            return stream;
-        }
     }
 }

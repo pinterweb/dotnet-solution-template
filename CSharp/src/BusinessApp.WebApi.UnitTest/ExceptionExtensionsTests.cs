@@ -23,6 +23,173 @@ namespace BusinessApp.WebApi.UnitTest
             http = HttpContextFakeFactory.New();
         }
 
+        public class OnArgumentException : ExceptionExtensionsTests
+        {
+            [Fact]
+            public void WithoutInnerFormatException_MappedToServerError()
+            {
+                /* Arrange */
+                var ex = new ArgumentException("foo");
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("An unexpected error has occurred in the system.", response.Title);
+            }
+
+            [Fact]
+            public void WithInnerFormatException_MappedToBadRequest()
+            {
+                /* Arrange */
+                var ex = new ArgumentException("foo", "ba", new FormatException());
+
+                /* Act */
+                ex.MapToWebResponse(http);
+
+                /* Assert */
+                A.CallToSet(() => http.Response.StatusCode).To(400)
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public void WithFormatException_UrlMappedToInvalidRequest()
+            {
+                /* Arrange */
+                var ex = new ArgumentException("foo", "ba", new FormatException());
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("/docs/errors/invalid-request", response.Type.AbsolutePath);
+            }
+
+            [Fact]
+            public void WithFormatException_DetailIsArgumentExceptionMessage()
+            {
+                /* Arrange */
+                var ex = new ArgumentException("foo", "bar", new FormatException());
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("foo", response.Detail);
+            }
+
+            [Fact]
+            public void WithFormatException_TitleInResponse()
+            {
+                /* Arrange */
+                var ex = new ArgumentException("foo", "bar", new FormatException());
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("Invalid Request", response.Title);
+            }
+
+            [Fact]
+            public void WithFormatException_ErrorsMappedFromArgumentExceptionData()
+            {
+                /* Arrange */
+                var format = new FormatException();
+                var ex = new ArgumentException("foo", "bar", format);
+                ex.Data.Add("bar", "lorem");
+                var expected = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "bar", new[] { "lorem" } },
+                };
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(expected, response.Errors);
+            }
+        }
+
+        public class OnFormatException : ExceptionExtensionsTests
+        {
+            private FormatException ex;
+
+            public OnFormatException()
+            {
+                ex = new FormatException("foo");
+            }
+
+            [Fact]
+            public void StatusCode_MappedToBadResponse()
+            {
+                /* Act */
+                ex.MapToWebResponse(http);
+
+                /* Assert */
+                A.CallToSet(() => http.Response.StatusCode).To(400)
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public void Url_MappedToInvalidRequest()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("/docs/errors/invalid-request", response.Type.AbsolutePath);
+            }
+
+            [Theory]
+            [InlineData("Byte", "number")]
+            [InlineData("Int16", "number")]
+            [InlineData("Int32", "number")]
+            [InlineData("Int64", "number")]
+            [InlineData("Double", "number")]
+            [InlineData("Decimal", "number")]
+            [InlineData("DateTime", "date")]
+            [InlineData("Single", "number")]
+            public void DetailMessage_InResponse(string dataType, string expectedReplacement)
+            {
+                /* Arrange */
+                ex = new FormatException(dataType);
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(expectedReplacement, response.Detail);
+            }
+
+            [Fact]
+            public void Title_InResponse()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("Invalid Request", response.Title);
+            }
+
+            [Fact]
+            public void Errors_InResponse()
+            {
+                /* Arrange */
+                var expected = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "", new[] { "foo" } }
+                };
+                ex.Data.Add("", "foo");
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(expected, response.Errors);
+            }
+        }
+
         public class OnValidationException : ExceptionExtensionsTests
         {
             private readonly ValidationException ex;

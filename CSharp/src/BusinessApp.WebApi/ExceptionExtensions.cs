@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Net;
     using System.Security;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
     using BusinessApp.App;
     using BusinessApp.Domain;
@@ -27,7 +28,26 @@
 
             switch (exception)
             {
-                // The supplied model isn't valid.
+                case FormatException fe:
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    errorType = "invalid-request";
+                    detail = fe.Message
+                        .Replace("Byte", "number")
+                        .Replace("Int16", "number")
+                        .Replace("Int32", "number")
+                        .Replace("Int64", "number")
+                        .Replace("Double", "number")
+                        .Replace("Decimal", "number")
+                        .Replace("DateTime", "date")
+                        .Replace("Single", "number");
+                    title = "Invalid Request";
+                    break;
+                case ArgumentException ae when ae.InnerException is FormatException:
+                    var response =  new FormatException(Regex.Replace(ae.Message, " \\(.*\\)", ""))
+                        .MapToWebResponse(context);
+                    response.Errors = errors;
+
+                    return response;
                 case ValidationException ve:
                 case BadStateException _:
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -129,6 +149,8 @@
                                 return accu;
                             })
                     };
+                case Exception ex when ex.InnerException != null:
+                    return ex.InnerException.MapToWebResponse(context);
                 default:
                     errors = null;
                     if (context.Response.IsSuccess())
