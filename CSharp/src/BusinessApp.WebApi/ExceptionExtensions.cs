@@ -149,8 +149,6 @@
                                 return accu;
                             })
                     };
-                case Exception ex when ex.InnerException != null:
-                    return ex.InnerException.MapToWebResponse(context);
                 default:
                     errors = null;
                     if (context.Response.IsSuccess())
