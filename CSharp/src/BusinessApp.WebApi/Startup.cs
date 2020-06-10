@@ -16,7 +16,9 @@
 //#if DEBUG
     using Microsoft.Extensions.Logging;
 //#endif
+#if winauth
     using Microsoft.AspNetCore.Server.HttpSys;
+#endif
 
     public class Startup
     {
