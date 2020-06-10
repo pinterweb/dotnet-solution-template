@@ -21,9 +21,9 @@
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
 
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-#if DEBUG
+//#if DEBUG
                     Formatting = Formatting.Indented,
-#endif
+//#endif
 
                     Converters = new JsonConverter[]
                     {

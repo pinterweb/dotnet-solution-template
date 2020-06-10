@@ -5,9 +5,9 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using System;
-#if DEBUG
+//#if DEBUG
     using Microsoft.Extensions.Logging;
-#endif
+//#endif
     using BusinessApp.App;
 #endif
     using System.Reflection;
@@ -21,7 +21,7 @@
     {
         public static readonly Assembly Assembly = typeof(IQueryVisitor<>).Assembly;
 #if efcore
-#if DEBUG
+//#if DEBUG
         public static readonly ILoggerFactory DataLayerLoggerFactory
             = LoggerFactory.Create(builder =>
             {
@@ -32,7 +32,7 @@
                     .AddConsole()
                     .AddDebug();
             });
-#endif
+//#endif
 #endif
 
         public static void Bootstrap(Container container)
@@ -103,10 +103,10 @@
             container.Register<TContext>();
             container.RegisterInstance(
               new DbContextOptionsBuilder<TContext>()
-#if DEBUG
+//#if DEBUG
                     .EnableSensitiveDataLogging()
                     .UseLoggerFactory(DataLayerLoggerFactory)
-#endif
+//#endif
                     .UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_BUSINESSAPPLICATION"))
                     .Options
             );
