@@ -22,9 +22,16 @@
         "copyrightName": {
             "type": "parameter",
             "dataType": "string",
-            "replaces":"<Your Copyright Name Here>",
-            "isRequired": "true",
+            "isRequired": "false",
             "description": "Your personal or company copyright"
+        },
+        "copyrightYear": {
+            "type": "generated",
+            "generator": "now",
+            "replaces": "1975-1975",
+            "parameters": {
+                "format": "yyyy"
+            }
         },
         "efcore": {
             "type": "parameter",
@@ -66,6 +73,15 @@
             "isRequired": "false",
             "defaultValue": "false",
             "description": "Adds windows authentication"
+        },
+        "copyrightReplacer": {
+            "type": "generated",
+            "generator": "coalesce",
+            "parameters": {
+                "sourceVariableName": "copyrightName",
+                "fallbackVariableName": "name"
+            },
+            "replaces": "$(Your Copyright Name)"
         }
     },
     "sources": [
