@@ -82,6 +82,14 @@
                 "fallbackVariableName": "name"
             },
             "replaces": "$(Your Copyright Name)"
+        },
+        "compilerDirectives": {
+             "type": "generated",
+             "generator": "constant",
+             "parameters": {
+                 "value":"#"
+              },
+              "replaces":"//#"
         }
     },
     "sources": [

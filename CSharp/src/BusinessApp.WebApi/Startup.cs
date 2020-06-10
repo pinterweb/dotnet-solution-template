@@ -13,9 +13,9 @@
 #if efcore
     using BusinessApp.Data;
 #endif
-#if DEBUG
+//#if DEBUG
     using Microsoft.Extensions.Logging;
-#endif
+//#endif
     using Microsoft.AspNetCore.Server.HttpSys;
 
     public class Startup
@@ -36,9 +36,9 @@
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-#if DEBUG
+//#if DEBUG
             services.AddLogging(configure => configure.AddConsole().AddDebug());
-#endif
+//#endif
             services.AddRouting();
 #if winauth
             services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
