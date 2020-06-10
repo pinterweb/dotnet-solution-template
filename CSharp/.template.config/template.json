@@ -11,6 +11,14 @@
     },
     "sourceName": "BusinessApp",
     "symbols":{
+        "description": {
+            "type": "parameter",
+            "dataType": "string",
+            "replaces":"$(product_description)",
+            "defaultValue": "",
+            "isRequired": "false",
+            "description": "A description of your app"
+        },
         "copyrightName": {
             "type": "parameter",
             "dataType": "string",

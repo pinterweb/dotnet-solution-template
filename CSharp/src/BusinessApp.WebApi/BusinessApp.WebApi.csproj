@@ -6,6 +6,9 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <IsPackable>false</IsPackable>
+<!--#if (description != '')-->
+    <Description>$(product_description)</Description>
+<!--#endif-->
     <Version Condition=" '$(BUILD_BUILDNUMBER)' == '' ">0.0.1-local</Version>
     <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
     <Version Condition=" '$(BUILD_BUILDNUMBER)' != '' ">$(BUILD_BUILDNUMBER)</Version>
