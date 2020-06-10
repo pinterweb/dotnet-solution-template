@@ -163,20 +163,5 @@
                 }
             ]
         }
-    ],
-    "SpecialCustomOperations": {
-        "**/*.json": {
-            "operations": [
-                {
-                    "type": "conditional",
-                    "configuration": {
-                        "if": ["\"__#if\":"],
-                        "endif": ["\"__#endif\": null"],
-                        "trim" : "true",
-                        "wholeLine": "true"
-                    }
-                }
-            ]
-        }
-    }
+    ]
 }
