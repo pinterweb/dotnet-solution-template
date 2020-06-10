@@ -83,7 +83,7 @@
             },
             "replaces": "$(Your Copyright Name)"
         },
-        "compilerDirecrives": {
+        "compilerDirectives": {
              "type": "generated",
              "generator": "constant",
              "parameters": {
