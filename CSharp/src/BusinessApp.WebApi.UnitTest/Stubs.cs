@@ -5,11 +5,6 @@ namespace BusinessApp.WebApi.UnitTest
 
     public enum EnumQueryStub { Foobar }
 
-    public class NestedQueryStub
-    {
-        public string Ipsit { get; set; }
-    }
-
     public class QueryStub
     {
         public bool? Bool { get; set; }
@@ -21,7 +16,20 @@ namespace BusinessApp.WebApi.UnitTest
         public DateTime? DateTime { get; set; }
         public EnumQueryStub? Enum { get; set; }
         public NestedQueryStub SingleNested { get; set; }
+        public DeeplyNestedQueryStub DeeplyNested { get; set; }
         public IEnumerable<NestedQueryStub> MultiNested { get; set; }
         public IEnumerable<float> Enumerable { get; set; }
+
+        public class NestedQueryStub
+        {
+            public string Ipsit { get; set; }
+            public string Dolor { get; set; }
+            public IEnumerable<float> Enumerable { get; set; }
+        }
+
+        public class DeeplyNestedQueryStub
+        {
+            public NestedQueryStub Nested { get; set; }
+        }
     }
 }
