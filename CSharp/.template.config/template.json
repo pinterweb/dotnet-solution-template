@@ -144,22 +144,11 @@
                 {
                     "condition": "(!docker)",
                     "exclude": [
-                        "src/.env",
                         "src/docker-compose.yml",
                         "src/Dockerfile",
                         "src/docker_run.cmd",
-                        "src/.dockerignore",
-                        "src/BusinessApp.WebApi/.env.docker"
+                        "src/.dockerignore"
                     ]
-                },
-                {
-                    "condition": "(docker)",
-                    "exclude": [
-                        "src/BusinessApp.WebApi/.env"
-                    ],
-                    "rename": {
-                        "src/BusinessApp.WebApi/.env.docker": "src/BusinessApp.WebApi/.env"
-                    }
                 }
             ]
         }

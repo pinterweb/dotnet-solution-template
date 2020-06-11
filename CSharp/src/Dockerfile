@@ -6,5 +6,4 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS runtime
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
-COPY BusinessApp.WebApi/.env BusinessApp.WebApi/bin/Debug/netcoreapp3.1/publish/ ./
 ENTRYPOINT ["dotnet", "BusinessApp.WebApi.dll"]

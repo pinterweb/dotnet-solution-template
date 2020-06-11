@@ -4,6 +4,7 @@
 #if efcore
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
+    using Microsoft.Extensions.Configuration;
     using System;
 //#if DEBUG
     using Microsoft.Extensions.Logging;
@@ -35,7 +36,7 @@
 //#endif
 #endif
 
-        public static void Bootstrap(Container container)
+        public static void Bootstrap(Container container, BootstrapOptions options)
         {
             GuardAgainst.Null(container, nameof(container));
 
@@ -71,22 +72,22 @@
             container.Register<IEventRepository, EventRepository>();
             container.Register<IUnitOfWork>(() => container.GetInstance<BusinessAppDbContext>());
             container.Register<ITransactionFactory>(() => container.GetInstance<BusinessAppDbContext>());
-            RegisterDbContext<BusinessAppDbContext>(container);
-            RegisterDbContext<BusinessAppReadOnlyDbContext>(container);
+
+            RegisterDbContext<BusinessAppDbContext>(container, options.WriteConnectionString);
+            RegisterDbContext<BusinessAppReadOnlyDbContext>(container, options.ReadConnectionString);
 #endif
         }
 
 #if efcore
         public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
         {
-            public MigrationsContextFactory()
-            {
-                DotNetEnv.Env.Load("./.env");
-            }
-
             public BusinessAppReadOnlyDbContext CreateDbContext(string[] args)
             {
-                var connection = Environment.GetEnvironmentVariable("SQLCONNSTR_BUSINESSAPPLICATION");
+                var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+                    .Build()
+                    .Services
+                    .GetService(typeof(IConfiguration));
+                var connection = config.GetConnectionString("Main");
                 var optionsBuilder = new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>();
 
                 optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
@@ -97,7 +98,7 @@
             }
         }
 
-        private static void RegisterDbContext<TContext>(Container container)
+        private static void RegisterDbContext<TContext>(Container container, string connectionString)
             where TContext : DbContext
         {
             container.Register<TContext>();
@@ -107,7 +108,7 @@
                     .EnableSensitiveDataLogging()
                     .UseLoggerFactory(DataLayerLoggerFactory)
 //#endif
-                    .UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_BUSINESSAPPLICATION"))
+                    .UseSqlServer(connectionString)
                     .Options
             );
         }
