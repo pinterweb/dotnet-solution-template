@@ -9,10 +9,6 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Routing;
     using System;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Buffers;
-    using System.Threading;
 
     public class HttpContextExtensionsTests
     {
@@ -259,6 +255,92 @@ namespace BusinessApp.WebApi.UnitTest
 
                 /* Assert */
                 Assert.Same(query, returned);
+            }
+
+            [Theory]
+            [InlineData("GET")]
+            [InlineData("delete")]
+            public void GetOrDeleteNestedClassWithDot_SerializedToDictionary(string method)
+            {
+                /* Arrange */
+                var expectNestedDictionary = new Dictionary<string, object>
+                {
+                    { "ipsit", "blah" },
+                    { "dolor", "boo" },
+                };
+                IDictionary<string, object> serializedData = null;
+                A.CallTo(() => context.Request.Method).Returns(method);
+                A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
+                    .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
+                A.CallTo(() => context.Request.QueryString)
+                    .Returns(new QueryString("?singleNested.ipsit=blah&singleNested.dolor=boo"));
+
+                /* Act */
+                context.DeserializeInto<QueryStub>(serializer);
+
+                /* Assert */
+                Assert.Equal(expectNestedDictionary, serializedData["singleNested"]);
+            }
+
+            [Theory]
+            [InlineData("GET")]
+            [InlineData("delete")]
+            public void GetOrDeleteDeeplyNestedClassWithDot_SerializedToDictionary(string method)
+            {
+                /* Arrange */
+                var expectNestedDictionary = new Dictionary<string, object>
+                {
+                    {
+                        "nested",
+                        new Dictionary<string, object>
+                        {
+                            { "ipsit", "blah" },
+                            { "dolor", "boo" },
+                        }
+                    }
+                };
+                IDictionary<string, object> serializedData = null;
+                A.CallTo(() => context.Request.Method).Returns(method);
+                A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
+                    .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
+                A.CallTo(() => context.Request.QueryString)
+                    .Returns(new QueryString("?deeplyNested.nested.ipsit=blah&deeplyNested.nested.dolor=boo"));
+
+                /* Act */
+                context.DeserializeInto<QueryStub>(serializer);
+
+                /* Assert */
+                Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
+            }
+
+            [Theory]
+            [InlineData("GET")]
+            [InlineData("delete")]
+            public void GetOrDeleteDeeplyNestedEnumerableWithDot_SerializedToDictionary(string method)
+            {
+                /* Arrange */
+                var expectNestedDictionary = new Dictionary<string, object>
+                {
+                    {
+                        "nested",
+                        new Dictionary<string, object>
+                        {
+                            { "enumerable", new float[] { 1, 2 } }
+                        }
+                    }
+                };
+                IDictionary<string, object> serializedData = null;
+                A.CallTo(() => context.Request.Method).Returns(method);
+                A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
+                    .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
+                A.CallTo(() => context.Request.QueryString)
+                    .Returns(new QueryString("?deeplyNested.nested.enumerable=1,2"));
+
+                /* Act */
+                context.DeserializeInto<QueryStub>(serializer);
+
+                /* Assert */
+                Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
             }
         }
     }
