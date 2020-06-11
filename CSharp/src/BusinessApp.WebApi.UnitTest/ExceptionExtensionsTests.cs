@@ -1114,5 +1114,78 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal(expected, response.Errors);
             }
         }
+
+        public class WithInnerException : ExceptionExtensionsTests
+        {
+            private readonly FooException ex;
+
+            public WithInnerException()
+            {
+                ex = new FooException();
+                ex.InnerException.Data.Add("", "lorem");
+            }
+
+            [Fact]
+            public void StatusCode_MappedToFailedDependencyResponse()
+            {
+                /* Act */
+                ex.MapToWebResponse(http);
+
+                /* Assert */
+                A.CallToSet(() => http.Response.StatusCode).To(403)
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public void Url_MappedToCommunicationError()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("/docs/errors/insufficient-privileges", response.Type.AbsolutePath);
+            }
+
+            [Fact]
+            public void DetailMessage_MappedFromExceptionMessage()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("foobar", response.Detail);
+            }
+
+            [Fact]
+            public void Title_InResponse()
+            {
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal("Insufficient privileges", response.Title);
+            }
+
+            [Fact]
+            public void Errors_EmptyInResponse()
+            {
+                /* Arrange */
+                var expected = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "", new[] { "lorem" } }
+                };
+
+                /* Act */
+                var response = ex.MapToWebResponse(http);
+
+                /* Assert */
+                Assert.Equal(expected, response.Errors);
+            }
+
+            private class FooException : Exception
+            {
+                public FooException() : base("foo", new SecurityException("foobar")) {  }
+            }
+        }
     }
 }
