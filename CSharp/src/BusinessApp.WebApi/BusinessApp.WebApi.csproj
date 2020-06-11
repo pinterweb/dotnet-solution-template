@@ -15,7 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetEnv" Version="1.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.4" />
     <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc" Version="4.10.3" />
   </ItemGroup>
@@ -24,12 +23,6 @@
     <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
     <ProjectReference Include="..\BusinessApp.Data\BusinessApp.Data.csproj" />
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update=".env">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 <!--#if (efcore)-->

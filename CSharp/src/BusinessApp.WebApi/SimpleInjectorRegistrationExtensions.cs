@@ -10,7 +10,9 @@ namespace BusinessApp.WebApi
 
     public static class SimpleInjectorRegistrationExtensions
     {
-        public static void RegisterLoggers(this Container container, IWebHostEnvironment env)
+        public static void RegisterLoggers(this Container container,
+            IWebHostEnvironment env,
+            BootstrapOptions options)
         {
             container.Register(typeof(ILogger), typeof(CompositeLogger), Lifestyle.Singleton);
 
@@ -22,8 +24,7 @@ namespace BusinessApp.WebApi
             container.RegisterSingleton<ILogEntryFormatter, SerializedLogEntryFormatter>();
             container.RegisterInstance<IFileProperties>(new RollingFileProperties
             {
-                Name = Environment.GetEnvironmentVariable("BUSINESSAPP_LOG_FILE") ??
-                    $"{env.ContentRootPath}/app.log"
+                Name = options.LogFilePath ?? $"{env.ContentRootPath}/app.log"
             });
 
             container.RegisterSingleton<ConsoleLogger>();

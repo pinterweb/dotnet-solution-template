@@ -14,7 +14,9 @@
     {
         public static readonly Assembly Assembly = typeof(IQuery<>).Assembly;
 
-        public static void Bootstrap(Container container, IWebHostEnvironment env)
+        public static void Bootstrap(Container container,
+            IWebHostEnvironment env,
+            BootstrapOptions options)
         {
             GuardAgainst.Null(container, nameof(container));
 
@@ -39,7 +41,7 @@
             var handlerTypes = container.GetTypesToRegister(typeof(ICommandHandler<>), Assembly);
             container.RegisterCommandHandlersInOneBatch(handlerTypes);
 
-            container.RegisterLoggers(env);
+            container.RegisterLoggers(env, options);
 
             // XXX Order of decorator registration matters.
             // First decorator wraps the real instance

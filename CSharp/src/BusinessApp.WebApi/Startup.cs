@@ -23,17 +23,19 @@
     public class Startup
     {
         private readonly Container container = new Container();
+        private readonly BootstrapOptions options = new BootstrapOptions();
 
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             container.Options.ResolveUnregisteredConcreteTypes = false;
-            Configuration = configuration;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-            SetupEnvironment(env);
-        }
 
-        public IConfiguration Configuration { get; }
+            options.LogFilePath = configuration.GetSection("Logginc")
+                .GetValue<string>("LogFilePath");
+            options.WriteConnectionString = options.ReadConnectionString =
+                configuration.GetConnectionString("Main");
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -57,7 +59,7 @@
 
             app.SetupEndpoints(container);
 
-            WebApiBootstrapper.Bootstrap(app, env, container);
+            WebApiBootstrapper.Bootstrap(app, env, container, options);
             container.Verify();
 
             if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
@@ -70,22 +72,6 @@
                     db.Database.Migrate();
                 }
 #endif
-            }
-        }
-
-        private static void SetupEnvironment(IWebHostEnvironment env)
-        {
-            // it is not a requirement and IO will throw if not found
-            try
-            {
-                using (var stream = System.IO.File.OpenRead(env.ContentRootPath + "./.env"))
-                {
-                    DotNetEnv.Env.Load(stream);
-                }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine("Did not load .env because: " + e.Message);
             }
         }
     }
