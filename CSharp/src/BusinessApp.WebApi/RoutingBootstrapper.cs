@@ -13,6 +13,11 @@
         {
             app.UseRouting();
 
+#if winauth
+            app.UseAuthentication();
+            app.UseAuthorization();
+#endif
+
             #region TODO APIS HERE
 
             app.UseEndpoints(endpoint =>
@@ -46,10 +51,12 @@
                     //),
                 };
 
+#if winauth
                 foreach (var ep in endpoints)
                 {
                     ep.RequireAuthorization(new AuthorizeAttribute());
                 }
+#endif
             });
 
             #endregion

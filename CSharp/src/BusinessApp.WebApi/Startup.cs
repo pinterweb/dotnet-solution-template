@@ -44,8 +44,8 @@
             services.AddRouting();
 #if winauth
             services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
-#endif
             services.AddAuthorization();
+#endif
             services.AddSimpleInjector(container, options => options.AddAspNetCore());
         }
 
@@ -56,11 +56,6 @@
             app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
 
             app.SetupEndpoints(container);
-
-#if winauth
-            app.UseAuthentication();
-#endif
-            app.UseAuthorization();
 
             WebApiBootstrapper.Bootstrap(app, env, container);
             container.Verify();
