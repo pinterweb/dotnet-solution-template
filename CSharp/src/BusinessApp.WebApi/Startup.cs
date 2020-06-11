@@ -31,7 +31,7 @@
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            options.LogFilePath = configuration.GetSection("Logginc")
+            options.LogFilePath = configuration.GetSection("Logging")
                 .GetValue<string>("LogFilePath");
             options.WriteConnectionString = options.ReadConnectionString =
                 configuration.GetConnectionString("Main");
