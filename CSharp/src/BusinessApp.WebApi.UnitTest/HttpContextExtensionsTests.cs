@@ -4,19 +4,23 @@ namespace BusinessApp.WebApi.UnitTest
     using Microsoft.AspNetCore.Http;
     using BusinessApp.App;
     using Xunit;
-    using BusinessApp.WebApi;
     using System.IO;
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Routing;
     using System;
+    using System.Threading.Tasks;
+    using System.Threading;
+    using System.IO.Pipelines;
 
     public class HttpContextExtensionsTests
     {
         private HttpContext context;
+        private CancellationToken token;
 
         public HttpContextExtensionsTests()
         {
             context = HttpContextFakeFactory.New();
+            token = A.Dummy<CancellationToken>();
             A.CallTo(() => context.Request.QueryString).Returns(new QueryString(""));
         }
 
@@ -30,14 +34,14 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Fact]
-            public void UnknownMethod_DefaultTReturned()
+            public async Task UnknownMethod_DefaultTReturned()
             {
                 /* Arrange */
                 A.CallTo(() => context.Request.Method).Returns("foo");
                 A.CallTo(() => context.Request.ContentLength).Returns(0);
 
                 /* Act */
-                var result = context.DeserializeInto<QueryStub>(serializer);
+                var result = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Null(result);
@@ -48,14 +52,14 @@ namespace BusinessApp.WebApi.UnitTest
             [InlineData("get")]
             [InlineData("delete")]
             [InlineData("DELETE")]
-            public void GetOrDelete_CaseIgnored(string method)
+            public async Task GetOrDelete_CaseIgnored(string method)
             {
                 /* Arrange */
                 A.CallTo(() => context.Request.Method).Returns(method);
                 A.CallTo(() => context.Request.ContentLength).Returns(0);
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 A.CallTo(() => serializer.Deserialize<QueryStub>(A<Stream>._)).MustHaveHappened();
@@ -64,14 +68,14 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public void  GetOrDeleteNoQueryStringOrRouteArgs_NotSerialized(string method)
+            public async Task  GetOrDeleteNoQueryStringOrRouteArgs_NotSerialized(string method)
             {
                 /* Arrange */
                 A.CallTo(() => context.Request.Method).Returns(method);
                 A.CallTo(() => context.Request.ContentLength).Returns(0);
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 A.CallTo(() => serializer.Serialize(A<Stream>._, A<object>._)).MustNotHaveHappened();
@@ -80,7 +84,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public void GetOrDeleteUnknownQueryStringKey_NotSerialized(string method)
+            public async Task GetOrDeleteUnknownQueryStringKey_NotSerialized(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -90,7 +94,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?blah=blah"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Empty(serializedData);
@@ -99,7 +103,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public void GetOrDeleteInvalidQueryStringKey_NotSerialized(string method)
+            public async Task GetOrDeleteInvalidQueryStringKey_NotSerialized(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -109,7 +113,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?blahblah"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Null(serializedData);
@@ -118,7 +122,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public void GetOrDeleteOnlyHasQueryString_SerializedAllWithDictionary(string method)
+            public async Task GetOrDeleteOnlyHasQueryString_SerializedAllWithDictionary(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -128,7 +132,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?foo=bar&lorem=ipsum"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.True(serializedData.ContainsKey("foo"));
@@ -140,7 +144,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public void GetOrDeleteOnlyHasRouteArg_SerializedAllWithDictionary(string method)
+            public async Task GetOrDeleteOnlyHasRouteArg_SerializedAllWithDictionary(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -157,7 +161,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Features.Get<IRoutingFeature>()).Returns(null);
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.True(serializedData.ContainsKey("foo"));
@@ -174,7 +178,7 @@ namespace BusinessApp.WebApi.UnitTest
             [InlineData("?bool=true", "bool", typeof(bool))]
             [InlineData("?double=1.2", "double", typeof(double))]
             [InlineData("?dateTime=2020-01-01", "dateTime", typeof(DateTime))]
-            public void GetOnlyHasQueryString_ConvertsToType(string queryString,
+            public async Task GetOnlyHasQueryString_ConvertsToType(string queryString,
                 string key, Type expectedType)
             {
                 /* Arrange */
@@ -185,7 +189,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString(queryString));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.IsType(expectedType, serializedData[key]);
@@ -199,7 +203,7 @@ namespace BusinessApp.WebApi.UnitTest
             [InlineData("bool", typeof(bool), true)]
             [InlineData("double", typeof(double), 1.2)]
             [InlineData("dateTime", typeof(DateTime), "2020-01-01")]
-            public void GetOnlyHasRouteArg_ConvertsToType(string key, Type expectedType, object value)
+            public async Task GetOnlyHasRouteArg_ConvertsToType(string key, Type expectedType, object value)
             {
                 /* Arrange */
                 var routeData = new RouteValueDictionary
@@ -215,7 +219,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Features.Get<IRoutingFeature>()).Returns(null);
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.IsType(expectedType, serializedData[key]);
@@ -224,7 +228,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public void GetOrDeleteCSVQueryString_SerializedToIEnumerable(string method)
+            public async Task GetOrDeleteCSVQueryString_SerializedToIEnumerable(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -234,24 +238,24 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?enumerable=1,2,3"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Equal(new float[] { 1, 2, 3 }, serializedData["enumerable"]);
             }
 
             [Fact]
-            public void AnyMethodWithBody_SerializedNestedClass()
+            public async Task AnyMethodWithBody_SerializedNestedClass()
             {
-                /* Arrange */
-                var stream = A.Dummy<Stream>();
+                /* Arrange - TODO no unit test on pipe reader, do functional test */
+                var reader = A.Dummy<PipeReader>();
                 var query = A.Fake<QueryStub>();
-                A.CallTo(() => context.Request.Body).Returns(stream);
-                A.CallTo(() => serializer.Deserialize<QueryStub>(stream))
+                A.CallTo(() => context.Request.BodyReader).Returns(reader);
+                A.CallTo(() => serializer.Deserialize<QueryStub>(A<MemoryStream>._))
                     .Returns(query);
 
                 /* Act */
-                var returned = context.DeserializeInto<QueryStub>(serializer);
+                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Same(query, returned);
@@ -260,7 +264,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("GET")]
             [InlineData("delete")]
-            public void GetOrDeleteNestedClassWithDot_SerializedToDictionary(string method)
+            public async Task GetOrDeleteNestedClassWithDot_SerializedToDictionary(string method)
             {
                 /* Arrange */
                 var expectNestedDictionary = new Dictionary<string, object>
@@ -276,7 +280,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(new QueryString("?singleNested.ipsit=blah&singleNested.dolor=boo"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["singleNested"]);
@@ -285,7 +289,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("GET")]
             [InlineData("delete")]
-            public void GetOrDeleteDeeplyNestedClassWithDot_SerializedToDictionary(string method)
+            public async Task GetOrDeleteDeeplyNestedClassWithDot_SerializedToDictionary(string method)
             {
                 /* Arrange */
                 var expectNestedDictionary = new Dictionary<string, object>
@@ -307,7 +311,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(new QueryString("?deeplyNested.nested.ipsit=blah&deeplyNested.nested.dolor=boo"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
@@ -316,7 +320,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("GET")]
             [InlineData("delete")]
-            public void GetOrDeleteDeeplyNestedEnumerableWithDot_SerializedToDictionary(string method)
+            public async Task GetOrDeleteDeeplyNestedEnumerableWithDot_SerializedToDictionary(string method)
             {
                 /* Arrange */
                 var expectNestedDictionary = new Dictionary<string, object>
@@ -337,7 +341,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(new QueryString("?deeplyNested.nested.enumerable=1,2"));
 
                 /* Act */
-                context.DeserializeInto<QueryStub>(serializer);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);

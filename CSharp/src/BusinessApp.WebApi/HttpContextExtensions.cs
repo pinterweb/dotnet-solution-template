@@ -1,6 +1,10 @@
 ﻿namespace BusinessApp.WebApi
 {
     using System;
+    using System.Buffers;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
     using BusinessApp.App;
     using Microsoft.AspNetCore.Http;
 
@@ -9,8 +13,9 @@
         /// <summary>
         /// Deserializes the uri or body depending on the request method
         /// </summary>
-        public static T DeserializeInto<T>(this HttpContext context,
-            ISerializer serializer)
+        public static async Task<T> DeserializeIntoAsync<T>(this HttpContext context,
+            ISerializer serializer,
+            CancellationToken cancellationToken)
         {
             if (context.Request.Method.Equals("get", StringComparison.OrdinalIgnoreCase) ||
                 context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase))
@@ -23,7 +28,12 @@
             }
             else if (context.Request.ContentLength == null || context.Request.ContentLength > 0)
             {
-                return serializer.Deserialize<T>(context.Request.Body);
+                var body = await context.Request.BodyReader.ReadAsync(cancellationToken);
+
+                using (var ms = new MemoryStream(body.Buffer.ToArray()))
+                {
+                    return serializer.Deserialize<T>(ms);
+                }
             }
 
             return default(T);
