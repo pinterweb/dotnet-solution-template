@@ -1,4 +1,4 @@
-namespace BusinessApp.WebApi.Json
+namespace BusinessApp.App.Json
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;

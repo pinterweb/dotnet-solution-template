@@ -9,6 +9,9 @@
   </ItemGroup>
 
   <ItemGroup>
+<!--#if (json)-->
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+<!--#endif-->
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
 <!--#if (fluentvalidation)-->
     <PackageReference Include="FluentValidation" Version="8.6.2" />

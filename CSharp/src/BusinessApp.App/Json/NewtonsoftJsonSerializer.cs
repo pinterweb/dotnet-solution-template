@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.WebApi.Json
+﻿namespace BusinessApp.App.Json
 {
     using System.IO;
     using System.Text;
@@ -6,13 +6,13 @@
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Default json serializer
+    /// A json serializer based on Newtonsoft
     /// </summary>
-    public class JsonFormatter : ISerializer
+    public class NewtonsoftJsonSerializer : ISerializer
     {
         private readonly JsonSerializer serializer;
 
-        public JsonFormatter(JsonSerializerSettings settings)
+        public NewtonsoftJsonSerializer(JsonSerializerSettings settings)
         {
             serializer = JsonSerializer.Create(settings);
         }
