@@ -138,7 +138,8 @@
                 {
                     "condition": "(!json)",
                     "exclude": [
-                        "src/BusinessApp.WebApi/Json/**"
+                        "src/BusinessApp.WebApi/Json/**",
+                        "src/BusinessApp.App/Json/**"
                     ]
                 },
                 {
