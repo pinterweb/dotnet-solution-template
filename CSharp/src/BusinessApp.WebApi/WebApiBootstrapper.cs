@@ -1,10 +1,10 @@
 ﻿namespace BusinessApp.WebApi
 {
-    using System.Diagnostics;
     using System.Reflection;
     using System.Security.Principal;
     using BusinessApp.Domain;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
 
     /// <summary>
@@ -14,18 +14,22 @@
     {
         public static readonly Assembly Assembly = typeof(Startup).Assembly;
 
-        public static Container Bootstrap(IApplicationBuilder app, Container container)
+        public static Container Bootstrap(IApplicationBuilder app,
+            IWebHostEnvironment env,
+            Container container,
+            BootstrapOptions options)
         {
             DomainLayerBoostrapper.Bootstrap(container);
-            AppLayerBootstrapper.Bootstrap(container);
-            DataLayerBootstrapper.Bootstrap(container);
+            AppLayerBootstrapper.Bootstrap(container, env, options);
+            DataLayerBootstrapper.Bootstrap(container, options);
+
+            container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(ResourceNotFoundRequestDecorator<,>));
 
 #if json
             Json.Bootstrapper.Bootstrap(container);
 #endif
 
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
-            container.RegisterInstance<ILogger>(new TraceLogger());
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
 
             container.Register(typeof(IResourceHandler<,>), Assembly);
@@ -39,21 +43,8 @@
                 typeof(CommandResourceHandler<>),
                 ctx => !ctx.Handled
             );
-            container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(ResourceNotFoundRequestDecorator<,>));
-
-            RoutingBootstrapper.Bootstrap(container, app);
 
             return container;
-        }
-
-        private sealed class TraceLogger : ILogger
-        {
-            public TraceLogger()
-            {
-                Trace.Listeners.Add(new TextWriterTraceListener(System.Console.Out));
-            }
-
-            public void Log(LogEntry entry) => Trace.WriteLine(entry.Exception);
         }
     }
 }

@@ -18,6 +18,11 @@
             this.container = GuardAgainst.Null(container, nameof(container));
         }
 
+        /// <summary>
+        /// Handle all the events stored in the <see cref="IEventEmitter"/>
+        /// </summary>
+        /// <param name="emmitter"></param>
+        /// <returns></returns>
         public async Task PublishAsync(IEventEmitter emitter, CancellationToken cancellationToken)
         {
             var events = emitter.PublishEvents();

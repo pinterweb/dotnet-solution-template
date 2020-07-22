@@ -1,5 +1,7 @@
 ﻿namespace BusinessApp.WebApi.Json
 {
+    using BusinessApp.App;
+    using BusinessApp.App.Json;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using SimpleInjector;
@@ -12,7 +14,7 @@
         public static void Bootstrap(Container container)
         {
             container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(JsonResponseDecorator<,>));
-            container.RegisterSingleton<ISerializer, JsonFormatter>();
+            container.RegisterSingleton<ISerializer, NewtonsoftJsonSerializer>();
 
             container.RegisterInstance(
                 new JsonSerializerSettings
@@ -20,18 +22,15 @@
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
 
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-#if DEBUG
+//#if DEBUG
                     Formatting = Formatting.Indented,
-#endif
+//#endif
 
                     Converters = new JsonConverter[]
                     {
                         new EntityIdJsonConverter<long>(),
                         new EntityIdJsonConverter<string>(),
                         new EntityIdJsonConverter<int>(),
-                        new CsvJsonConverter<string>(),
-                        new CsvJsonConverter<decimal>(),
-                        new CsvJsonConverter<int>(),
                         new LongToStringJsonConverter(),
                         new IDictionaryJsonConverter()
                     }

@@ -26,7 +26,13 @@
 
         public async Task<TRequest> HandleAsync(HttpContext context, CancellationToken cancellationToken)
         {
-            var command = context.DeserializeInto<TRequest>(serializer);
+            var command = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
+
+            if (command == null)
+            {
+                throw new ValidationException("No Data found");
+            }
+
             await handler.HandleAsync(command, cancellationToken);
 
             return command;

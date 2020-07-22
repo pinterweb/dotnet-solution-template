@@ -13,51 +13,56 @@
 #if efcore
     using BusinessApp.Data;
 #endif
-#if DEBUG
+//#if DEBUG
     using Microsoft.Extensions.Logging;
+//#endif
+#if winauth
+    using Microsoft.AspNetCore.Server.HttpSys;
 #endif
-    using BusinessApp.Domain;
-    using System.Threading.Tasks;
-    using System.Threading;
 
     public class Startup
     {
         private readonly Container container = new Container();
+        private readonly BootstrapOptions options = new BootstrapOptions();
 
-        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             container.Options.ResolveUnregisteredConcreteTypes = false;
-            Configuration = configuration;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-            SetupEnvironment(env);
-        }
 
-        public IConfiguration Configuration { get; }
+            options.LogFilePath = configuration.GetSection("Logging")
+                .GetValue<string>("LogFilePath");
+            options.WriteConnectionString = options.ReadConnectionString =
+                configuration.GetConnectionString("Main");
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-#if DEBUG
-            services.AddLogging(configure => configure.AddConsole());
-#endif
+//#if DEBUG
+            services.AddLogging(configure => configure.AddConsole().AddDebug());
+//#endif
             services.AddRouting();
+#if winauth
+            services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
+            services.AddAuthorization();
+#endif
             services.AddSimpleInjector(container, options => options.AddAspNetCore());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseSimpleInjector(container, options =>
-            {
-                options.UseMiddleware<HttpRequestExceptionMiddleware>(app);
-            });
+            app.UseSimpleInjector(container);
+            app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
 
+            app.SetupEndpoints(container);
 
-            WebApiBootstrapper.Bootstrap(app, container);
+            WebApiBootstrapper.Bootstrap(app, env, container, options);
             container.Verify();
 
-            if (env.IsDevelopment())
+            if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
             {
                 app.UseDeveloperExceptionPage();
 #if efcore
@@ -68,28 +73,6 @@
                 }
 #endif
             }
-        }
-
-        private static void SetupEnvironment(IHostingEnvironment env)
-        {
-            // it is not a requirement and IO will throw if not found
-            try
-            {
-                using (var stream = System.IO.File.OpenRead(env.ContentRootPath + "./.env"))
-                {
-                    DotNetEnv.Env.Load(stream);
-                }
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine("Did not load .env because: " + e.Message);
-            }
-        }
-
-        private sealed class NullEventPublisher : IEventPublisher
-        {
-            public Task PublishAsync(IEventEmitter emitter, CancellationToken cancellationToken)
-                => Task.CompletedTask;
         }
     }
 }

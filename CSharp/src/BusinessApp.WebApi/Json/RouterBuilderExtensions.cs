@@ -2,6 +2,7 @@
 {
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Routing;
     using Newtonsoft.Json;
@@ -23,7 +24,7 @@
         {
             builder.MapPost(template, ctx =>
             {
-                if (ctx.Request.BodyType() != JsonToken.StartArray)
+                if (ctx.Request.BodyType().GetAwaiter().GetResult() != JsonToken.StartArray)
                 {
                     return one(ctx);
                 }
@@ -34,7 +35,7 @@
             });
         }
 
-        private static JsonToken BodyType(this HttpRequest request)
+        public static async Task<JsonToken> BodyType(this HttpRequest request)
         {
             request.EnableBuffering();
 
@@ -50,7 +51,7 @@
             )
             using (var jsonReader = new JsonTextReader(reader))
             {
-                jsonReader.Read();
+                await jsonReader.ReadAsync();
                 request.Body.Position = 0;
 
                 return jsonReader.TokenType;

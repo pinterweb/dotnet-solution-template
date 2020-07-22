@@ -15,21 +15,25 @@
         where TResult : class
     {
         private readonly BusinessAppReadOnlyDbContext db;
+        private readonly IDbSetVisitorFactory<TQuery, TResult> dbSetFactory;
         private readonly IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory;
 
         public EFQueryStrategyHandler(BusinessAppReadOnlyDbContext db,
-            IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory)
+            IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
+            IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
             this.db = GuardAgainst.Null(db, nameof(db));
             this.queryVisitorFactory = GuardAgainst.Null(queryVisitorFactory, nameof(queryVisitorFactory));
+            this.dbSetFactory = GuardAgainst.Null(dbSetFactory, nameof(dbSetFactory));
         }
 
         public virtual async Task<IEnumerable<TResult>> HandleAsync(TQuery query, CancellationToken cancellationToken)
         {
-            var queryable = db.Set<TResult>();
-            var visitor = queryVisitorFactory.Create(query);
+            var queryableFactory = dbSetFactory.Create(query);
+            var queryVisitor = queryVisitorFactory.Create(query);
+            var queryable = queryableFactory.Visit(db.Set<TResult>());
 
-            return await visitor.Visit(queryable).ToListAsync();
+            return await queryVisitor.Visit(queryable).ToListAsync();
         }
     }
 
@@ -41,21 +45,25 @@
         where TResult : class
     {
         private readonly BusinessAppReadOnlyDbContext db;
+        private readonly IDbSetVisitorFactory<TQuery, TResult> dbSetFactory;
         private readonly IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory;
 
         public EFSingleQueryStrategyHandler(BusinessAppReadOnlyDbContext db,
-            IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory)
+            IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
+            IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
             this.db = GuardAgainst.Null(db, nameof(db));
             this.queryVisitorFactory = GuardAgainst.Null(queryVisitorFactory, nameof(queryVisitorFactory));
+            this.dbSetFactory = GuardAgainst.Null(dbSetFactory, nameof(dbSetFactory));
         }
 
         public virtual async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
         {
-            var queryable = db.Set<TResult>();
-            var visitor = queryVisitorFactory.Create(query);
+            var queryableFactory = dbSetFactory.Create(query);
+            var queryVisitor = queryVisitorFactory.Create(query);
+            var queryable = queryableFactory.Visit(db.Set<TResult>());
 
-            return await visitor.Visit(queryable).SingleOrDefaultAsync();
+            return await queryVisitor.Visit(queryable).SingleOrDefaultAsync();
         }
     }
 }

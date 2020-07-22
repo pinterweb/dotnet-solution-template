@@ -1,10 +1,7 @@
 ﻿namespace BusinessApp.App
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using System.Linq;
     using BusinessApp.Domain;
 
     /// <summary>
@@ -13,33 +10,25 @@
     [Serializable]
     public class ValidationException : Exception
     {
-        public ValidationException(IEnumerable<ValidationResult> results)
-            :base("Multiple Validation Errors Occurred. Please see the inner errors for more details")
+        public ValidationException(ValidationResult result, Exception inner = null)
+            :base(result.ErrorMessage, inner)
         {
-            Results = GuardAgainst.Null(results, nameof(results));
+            Result = GuardAgainst.Null(result, nameof(result));
+
+            foreach (var member in Result.MemberNames)
+            {
+                Data.Add(member, Result.ErrorMessage);
+            }
         }
+
+        public ValidationException(string memberName, string message, Exception inner = null)
+            :this(new ValidationResult(message, new[] { memberName }), inner)
+        {}
 
         public ValidationException(string message)
-            :base(message)
-        {
-            Results = new[] { new ValidationResult(message) };
-        }
+            :this(new ValidationResult(message, new[] { "" }))
+        {}
 
-        public IEnumerable<ValidationResult> Results { get; }
-
-        /// <summary>
-        /// Converts the <see cref="Results"/> into a key, value pair
-        /// of property name and validation messages, rather than one message and many
-        /// member names.
-        /// </summary>
-        public override IDictionary Data
-        {
-            get => Results.SelectMany(r => r.MemberNames)
-                .ToDictionary(
-                    member => member,
-                    member => Results
-                        .Where(r => r.MemberNames.Contains(member))
-                        .Select(r => r.ErrorMessage));
-        }
+        public ValidationResult Result { get; }
     }
 }

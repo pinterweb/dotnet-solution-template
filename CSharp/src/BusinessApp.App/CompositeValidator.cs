@@ -1,12 +1,12 @@
 namespace BusinessApp.App
 {
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Runs multiple validators for one instance of {T}
+    /// Runs multiple validators for one instance of <typeparam name="T">T</typeparam>
     /// </summary>
     public class CompositeValidator<T> : IValidator<T>
     {
@@ -17,27 +17,11 @@ namespace BusinessApp.App
             this.validators = GuardAgainst.Null(validators, nameof(validators));
         }
 
-        public void ValidateObject(T instance)
+        public async Task ValidateAsync(T instance, CancellationToken cancellationToken)
         {
-            var errors = new List<ValidationResult>();
-
             foreach (var validator in validators)
             {
-                try
-                {
-                    validator.ValidateObject(instance);
-                }
-                catch (ValidationException ex)
-                {
-                    errors.AddRange(ex.Results);
-                }
-            }
-
-            if (errors.Any())
-            {
-                throw new ValidationException(
-                    new CompositeValidationResult("Multiple validation errors occurred", errors)
-                );
+                await validator.ValidateAsync(instance, cancellationToken);
             }
         }
     }

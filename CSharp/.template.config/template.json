@@ -11,12 +11,27 @@
     },
     "sourceName": "BusinessApp",
     "symbols":{
+        "description": {
+            "type": "parameter",
+            "dataType": "string",
+            "replaces":"$(product_description)",
+            "defaultValue": "",
+            "isRequired": "false",
+            "description": "A description of your app"
+        },
         "copyrightName": {
             "type": "parameter",
             "dataType": "string",
-            "replaces":"<Your Copyright Name Here>",
-            "isRequired": "true",
+            "isRequired": "false",
             "description": "Your personal or company copyright"
+        },
+        "copyrightYear": {
+            "type": "generated",
+            "generator": "now",
+            "replaces": "1975-1975",
+            "parameters": {
+                "format": "yyyy"
+            }
         },
         "efcore": {
             "type": "parameter",
@@ -51,6 +66,30 @@
             "isRequired": "false",
             "defaultValue": "false",
             "description": "Adds services integrate the fluent validation library"
+        },
+        "winauth": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "false",
+            "description": "Adds windows authentication"
+        },
+        "copyrightReplacer": {
+            "type": "generated",
+            "generator": "coalesce",
+            "parameters": {
+                "sourceVariableName": "copyrightName",
+                "fallbackVariableName": "name"
+            },
+            "replaces": "$(Your Copyright Name)"
+        },
+        "compilerDirectives": {
+             "type": "generated",
+             "generator": "constant",
+             "parameters": {
+                 "value":"#"
+              },
+              "replaces":"//#"
         }
     },
     "sources": [
@@ -64,17 +103,29 @@
                 {
                     "condition": "(!efcore)",
                     "exclude": [
+                        "src/.config/dotnet-tools.json",
                         "src/BusinessApp.Data/BusinessAppDbContext.cs",
                         "src/BusinessApp.Data/BusinessAppReadOnlyDbContext.cs",
+                        "src/BusinessApp.Data/database_restore.cmd",
+                        "src/BusinessApp.Data/database_restore.sh",
+                        "src/BusinessApp.Data/database_up.cmd",
+                        "src/BusinessApp.Data/database_up.sh",
+                        "src/BusinessApp.Data/EFEnvelopedQueryHandler.cs",
                         "src/BusinessApp.Data/EFIdentityMap.cs",
+                        "src/BusinessApp.Data/EFQueryFieldsVisitor.cs",
+                        "src/BusinessApp.Data/EFQueryFieldsVisitorFactory.cs",
                         "src/BusinessApp.Data/EFQueryStrategyHandler.cs",
                         "src/BusinessApp.Data/EFQueryVisitor.cs",
-                        "src/BusinessApp.Data/EFQueryFieldsVisitor.cs",
-                        "src/BusinessApp.Data/database_restore.cmd",
-                        "src/BusinessApp.Data/database_up.cmd",
+                        "src/BusinessApp.Data/EFQueryVisitorFactory.cs",
+                        "src/BusinessApp.Data/IDbSetVisitor.cs",
+                        "src/BusinessApp.Data/IDbSetVisitorFactory.cs",
+                        "src/BusinessApp.Data/NullDbSetVisitor.cs",
+                        "src/BusinessApp.Data/NullDbSetVisitorFactory.cs",
                         "src/BusinessApp.Data/EventRepository.cs",
                         "src/BusinessApp.Data/migrations_add.cmd",
+                        "src/BusinessApp.Data/migrations_add.sh",
                         "src/BusinessApp.Data/migrations_restore.cmd",
+                        "src/BusinessApp.Data/migrations_restore.sh",
                         "src/BusinessApp.Data/Migrations/**"
                     ]
                 },
@@ -87,28 +138,18 @@
                 {
                     "condition": "(!json)",
                     "exclude": [
-                        "src/BusinessApp.WebApi/Json/**"
+                        "src/BusinessApp.WebApi/Json/**",
+                        "src/BusinessApp.App/Json/**"
                     ]
                 },
                 {
                     "condition": "(!docker)",
                     "exclude": [
-                        "src/.env",
                         "src/docker-compose.yml",
                         "src/Dockerfile",
                         "src/docker_run.cmd",
-                        "src/.dockerignore",
-                        "src/BusinessApp.WebApi/.env.docker"
+                        "src/.dockerignore"
                     ]
-                },
-                {
-                    "condition": "(docker)",
-                    "exclude": [
-                        "src/BusinessApp.WebApi/.env"
-                    ],
-                    "rename": {
-                        "src/BusinessApp.WebApi/.env.docker": "src/BusinessApp.WebApi/.env"
-                    }
                 }
             ]
         }

@@ -4,11 +4,11 @@
 #if efcore
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
+    using Microsoft.Extensions.Configuration;
     using System;
-#if DEBUG
+//#if DEBUG
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Logging.Console;
-#endif
+//#endif
     using BusinessApp.App;
 #endif
     using System.Reflection;
@@ -22,22 +22,28 @@
     {
         public static readonly Assembly Assembly = typeof(IQueryVisitor<>).Assembly;
 #if efcore
-#if DEBUG
-        public static readonly LoggerFactory LoggerFactory
-            = new LoggerFactory(new[]
-        {
-            new ConsoleLoggerProvider((category, level) => category == DbLoggerCategory.Database.Command.Name
-                   && level == LogLevel.Information, true)
-        });
-#endif
+//#if DEBUG
+        public static readonly ILoggerFactory DataLayerLoggerFactory
+            = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter((category, level) =>
+                        category == DbLoggerCategory.Database.Command.Name
+                        && level == LogLevel.Information)
+                    .AddConsole()
+                    .AddDebug();
+            });
+//#endif
 #endif
 
-        public static void Bootstrap(Container container)
+        public static void Bootstrap(Container container, BootstrapOptions options)
         {
             GuardAgainst.Null(container, nameof(container));
 
             container.Register(typeof(IAggregateRootRepository<,>), Assembly);
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
+            container.Register(typeof(ILinqSpecificationBuilder<,>), typeof(AndSpecificationBuilder<,>));
+            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
             container.Collection.Register(typeof(IQueryVisitorFactory<,>), new[]
             {
                 typeof(AndSpecificationBuilder<,>),
@@ -46,8 +52,13 @@
                 typeof(EFQueryFieldsVisitorFactory<,>)
 #endif
             });
-            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
 #if efcore
+            container.Register(typeof(IDbSetVisitorFactory<,>), Assembly);
+            container.RegisterConditional(
+                typeof(IDbSetVisitorFactory<,>),
+                typeof(NullDbSetVisitorFactory<,>),
+                ctx => !ctx.Handled);
+
             container.RegisterConditional(
                 typeof(IQueryHandler<,>),
                 typeof(EFQueryStrategyHandler<,>),
@@ -60,22 +71,23 @@
             );
             container.Register<IEventRepository, EventRepository>();
             container.Register<IUnitOfWork>(() => container.GetInstance<BusinessAppDbContext>());
-            RegisterDbContext<BusinessAppDbContext>(container);
-            RegisterDbContext<BusinessAppReadOnlyDbContext>(container);
+            container.Register<ITransactionFactory>(() => container.GetInstance<BusinessAppDbContext>());
+
+            RegisterDbContext<BusinessAppDbContext>(container, options.WriteConnectionString);
+            RegisterDbContext<BusinessAppReadOnlyDbContext>(container, options.ReadConnectionString);
 #endif
         }
 
 #if efcore
         public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
         {
-            public MigrationsContextFactory()
-            {
-                DotNetEnv.Env.Load("./.env");
-            }
-
             public BusinessAppReadOnlyDbContext CreateDbContext(string[] args)
             {
-                var connection = Environment.GetEnvironmentVariable("SQLCONNSTR_BUSINESSAPPLICATION");
+                var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+                    .Build()
+                    .Services
+                    .GetService(typeof(IConfiguration));
+                var connection = config.GetConnectionString("Main");
                 var optionsBuilder = new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>();
 
                 optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
@@ -86,17 +98,17 @@
             }
         }
 
-        private static void RegisterDbContext<TContext>(Container container)
+        private static void RegisterDbContext<TContext>(Container container, string connectionString)
             where TContext : DbContext
         {
             container.Register<TContext>();
             container.RegisterInstance(
               new DbContextOptionsBuilder<TContext>()
-#if DEBUG
+//#if DEBUG
                     .EnableSensitiveDataLogging()
-                    .UseLoggerFactory(LoggerFactory)
-#endif
-                    .UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_BUSINESSAPPLICATION"))
+                    .UseLoggerFactory(DataLayerLoggerFactory)
+//#endif
+                    .UseSqlServer(connectionString)
                     .Options
             );
         }

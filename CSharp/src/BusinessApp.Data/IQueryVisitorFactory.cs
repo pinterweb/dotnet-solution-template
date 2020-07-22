@@ -3,7 +3,7 @@
     /// <summary>
     /// Create  a query visitor from the query at runtime
     /// </summary>
-    public interface IQueryVisitorFactory<TQuery, TResult>
+    public interface IQueryVisitorFactory<in TQuery, TResult>
     {
         IQueryVisitor<TResult> Create(TQuery query);
     }

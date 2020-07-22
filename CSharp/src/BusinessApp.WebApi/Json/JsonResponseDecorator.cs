@@ -30,7 +30,9 @@
                     !string.IsNullOrWhiteSpace(context.Request.ContentType) &&
                     context.Request.ContentType.Contains("application/json");
 
-                if (context.Request.HasBody() && !validContentType)
+                var requestHasBody = await context.Request.HasBody();
+
+                if (requestHasBody && !validContentType)
                 {
                     context.Response.StatusCode = 415;
                     throw new NotSupportedException("Expected content-type to be application/json");
@@ -48,7 +50,7 @@
             }
         }
 
-        public virtual async Task WriteResponseAsync(HttpContext context, TResponse model)
+        public virtual Task WriteResponseAsync(HttpContext context, TResponse model)
         {
             GuardAgainst.Null(context, nameof(context));
             context.Response.ContentType = "application/json";
@@ -64,8 +66,10 @@
                 context.Response.StatusCode == 200 ||
                 string.Compare(context.Request.Method, "get", true) == 0)
             {
-                await context.Response.WriteAsync(JsonConvert.SerializeObject(model, jsonSettings));
+                return context.Response.WriteAsync(JsonConvert.SerializeObject(model, jsonSettings));
             }
+
+            return Task.CompletedTask;
         }
 
         public virtual Task WriteResponseErrorAsync(HttpContext context, Exception exception)

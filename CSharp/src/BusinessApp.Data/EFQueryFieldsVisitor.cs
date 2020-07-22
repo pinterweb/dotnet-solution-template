@@ -11,16 +11,6 @@
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Factory to create the fields query visitor
-    /// </summary>
-    public class EFQueryFieldsVisitorFactory<TQuery, TResult> : IQueryVisitorFactory<TQuery, TResult>
-        where TQuery : Query
-        where TResult : class
-    {
-        public IQueryVisitor<TResult> Create(TQuery query) => new EFQueryFieldsVisitor<TResult>(query);
-    }
-
-    /// <summary>
     /// Dynamically creates the select statement for the query provider
     /// based on the query
     /// </summary>

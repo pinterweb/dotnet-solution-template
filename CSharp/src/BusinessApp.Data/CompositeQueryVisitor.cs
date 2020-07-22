@@ -1,49 +1,29 @@
-﻿namespace BusinessApp.Data
+namespace BusinessApp.Data
 {
     using System.Collections.Generic;
     using System.Linq;
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Builds one factory from many query visitor factories
-    /// </summary>
-    public class CompositeQueryVisitorBuilder<TQuery, TResult> : IQueryVisitorFactory<TQuery, TResult>
-    {
-        private readonly IEnumerable<IQueryVisitorFactory<TQuery, TResult>> factories;
-
-        public CompositeQueryVisitorBuilder(IEnumerable<IQueryVisitorFactory<TQuery, TResult>> factories)
-        {
-            this.factories = GuardAgainst.Null(factories, nameof(factories));
-        }
-
-        public IQueryVisitor<TResult> Create(TQuery query)
-        {
-            var visitors = factories.Select(f => f.Create(query));
-
-            return new CompositeQueryVisitor<TQuery, TResult>(visitors);
-        }
-    }
-
-    /// <summary>
     /// Builds one visitor to run many query visitors
     /// </summary>
-    public class CompositeQueryVisitor<TQuery, TResult> : IQueryVisitor<TResult>
+    public class CompositeQueryVisitor<T> : IQueryVisitor<T>
     {
-        private readonly IEnumerable<IQueryVisitor<TResult>> visitors;
+        private readonly IEnumerable<IQueryVisitor<T>> visitors;
 
-        public CompositeQueryVisitor(IEnumerable<IQueryVisitor<TResult>> visitors)
+        public CompositeQueryVisitor(IEnumerable<IQueryVisitor<T>> visitors)
         {
             this.visitors = GuardAgainst.Null(visitors, nameof(visitors));
         }
 
-        public IQueryable<TResult> Visit(IQueryable<TResult> query)
+        public IQueryable<T> Visit(IQueryable<T> queryable)
         {
             foreach (var visitor in visitors)
             {
-                query = visitor.Visit(query);
+                queryable = visitor.Visit(queryable);
             }
 
-            return query;
+            return queryable;
         }
     }
 }

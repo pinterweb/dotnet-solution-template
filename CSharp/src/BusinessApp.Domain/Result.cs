@@ -52,5 +52,7 @@
         }
 
         public static implicit operator Result(Result<T> result) => result.Kind;
+
+        public static implicit operator bool(Result<T> result) => result.Kind == Result.Ok;
     }
 }

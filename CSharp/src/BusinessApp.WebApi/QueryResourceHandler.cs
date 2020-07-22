@@ -17,8 +17,7 @@
 
         public QueryResourceHandler(
             IQueryHandler<TRequest, TResponse> handler,
-            ISerializer serializer
-        )
+            ISerializer serializer)
         {
             this.handler = GuardAgainst.Null(handler, nameof(handler));
             this.serializer = GuardAgainst.Null(serializer, nameof(serializer));
@@ -27,7 +26,12 @@
         public async Task<TResponse> HandleAsync(HttpContext context,
             CancellationToken cancellationToken)
         {
-            var query = context.DeserializeInto<TRequest>(serializer);
+            var query = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
+
+            if (query == null)
+            {
+                query = new TRequest();
+            }
 
             return await handler.HandleAsync(query, cancellationToken);
         }

@@ -8,7 +8,7 @@
         {
             return string.Join(
                 ".",
-                str.Split(".")
+                str.Split('.')
                     .Select(s => char.ToUpper(s.ToCharArray()[0]) + s.Substring(1))
             );
         }
