@@ -1,37 +1,31 @@
 ﻿namespace BusinessApp.App
 {
-    using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Authorizes a user issuing a command based on the <see cref="AuthorizeAttribute" />
+    /// Authorizes a user based on the <typeparam name="TCommand">TCommand</typeparam>
     /// </summary>
-    public class AuthorizationCommandDecorator<TCommand> :
-        AuthorizeAttributeHandler<TCommand>,
-        ICommandHandler<TCommand>
+    public class AuthorizationCommandDecorator<TCommand> : ICommandHandler<TCommand>
     {
         private readonly ICommandHandler<TCommand> decoratedHandler;
+        private readonly IAuthorizer<TCommand> authorizer;
 
         public AuthorizationCommandDecorator(
             ICommandHandler<TCommand> decoratedHandler,
-            IPrincipal currentUser,
-            ILogger logger
+            IAuthorizer<TCommand> authorizer
         )
-            : base(currentUser, logger)
         {
-            this.decoratedHandler = decoratedHandler;
+            this.decoratedHandler = GuardAgainst.Null(decoratedHandler, nameof(decoratedHandler));
+            this.authorizer = GuardAgainst.Null(authorizer, nameof(authorizer));
         }
 
-        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public Task HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
-            if (Attribute != null)
-            {
-                Authorize(typeof(TCommand).Name);
-            }
+            authorizer.AuthorizeObject(command);
 
-            await decoratedHandler.HandleAsync(command, cancellationToken);
+            return decoratedHandler.HandleAsync(command, cancellationToken);
         }
     }
 }

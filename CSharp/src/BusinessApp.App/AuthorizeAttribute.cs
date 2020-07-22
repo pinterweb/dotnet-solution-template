@@ -19,7 +19,7 @@ namespace BusinessApp.App
         /// Initializes a new instance of the <see cref="AuthorizeAttribute"/> class with the specified roles.
         /// </summary>
         /// <param name="policy">The roles required for authorization.</param>
-        public AuthorizeAttribute(IEnumerable<string> roles)
+        public AuthorizeAttribute(params string[] roles)
         {
             Roles = GuardAgainst.Null(roles, nameof(roles));
         }
@@ -27,6 +27,6 @@ namespace BusinessApp.App
         /// <summary>
         /// Roles that are allowed to access the resource.
         /// </summary>
-        public IEnumerable<string> Roles { get; set; }
+        public IEnumerable<string> Roles { get; } = new string[0];
     }
 }

@@ -4,6 +4,7 @@
     using System.Reflection;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using System.Linq;
     using Microsoft.AspNetCore.Hosting;
     using System;
 
@@ -26,11 +27,11 @@
             container.Collection.Register(typeof(FluentValidation.IValidator<>), Assembly);
             container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
+            container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
             container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
             container.Register(typeof(IQueryHandler<,>), Assembly);
-            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(AuthorizationQueryDecorator<,>));
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EntityNotFoundQueryDecorator<,>));
 
             container.Register(typeof(IBatchGrouper<>), Assembly);
@@ -54,6 +55,22 @@
 
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(ValidationCommandDecorator<>));
+
+            container.RegisterDecorator(
+                typeof(ICommandHandler<>),
+                typeof(AuthorizationCommandDecorator<>),
+                c => c.ServiceType
+                      .GetGenericArguments()[0]
+                      .GetCustomAttributes(typeof(AuthorizeAttribute))
+                      .Any());
+
+            container.RegisterDecorator(
+                typeof(IQueryHandler<,>),
+                typeof(AuthorizationQueryDecorator<,>),
+                c => c.ServiceType
+                      .GetGenericArguments()[0]
+                      .GetCustomAttributes(typeof(AuthorizeAttribute))
+                      .Any());
 
             container.RegisterDecorator(typeof(ICommandHandler<>),
                 typeof(DeadlockRetryDecorator<>),
