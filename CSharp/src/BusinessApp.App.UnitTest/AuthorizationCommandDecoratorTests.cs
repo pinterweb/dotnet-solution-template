@@ -55,33 +55,32 @@ namespace BusinessApp.App.UnitTest
 
         public class HandleAsync : AuthorizationCommandDecoratorTests
         {
-            CommandStub query;
+            CommandStub cmd;
 
             public HandleAsync()
             {
-                query = new CommandStub();
+                cmd = new CommandStub();
             }
 
             [Fact]
-            public async Task AuthorizedBeforeHandles()
+            public async Task CallsAuthorizerThenHandler()
             {
                 /* Arrange */
-                bool handlerCalled = true;
-                A.CallTo(() => authorizer.AuthorizeObject(query))
-                    .Invokes(ctx => handlerCalled = Fake.GetCalls(decorated).Count() != 0);
+                CancellationToken token = default;
 
                 /* Act */
-                await sut.HandleAsync(query, default);
+                await sut.HandleAsync(cmd, token);
 
                 /* Assert */
-                Assert.False(handlerCalled);
+                A.CallTo(() => authorizer.AuthorizeObject(cmd)).MustHaveHappenedOnceExactly().Then(
+                    A.CallTo(() => decorated.HandleAsync(cmd, token)).MustHaveHappenedOnceExactly());
             }
 
             [Fact]
             public async Task CallsDecoratedHandlerOnce()
             {
                 /* Act */
-                await sut.HandleAsync(query, default);
+                await sut.HandleAsync(cmd, default);
 
                 /* Assert */
                 A.CallTo(() => decorated.HandleAsync(A<CommandStub>._, A<CancellationToken>._))
@@ -92,7 +91,7 @@ namespace BusinessApp.App.UnitTest
             public async Task CallsAuthorizerOnce()
             {
                 /* Act */
-                await sut.HandleAsync(query, default);
+                await sut.HandleAsync(cmd, default);
 
                 /* Assert */
                 A.CallTo(() => authorizer.AuthorizeObject(A<CommandStub>._))

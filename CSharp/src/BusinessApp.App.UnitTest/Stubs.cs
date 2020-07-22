@@ -1,9 +1,11 @@
 namespace BusinessApp.App.UnitTest
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class CommandStub
     {}
 
-    [Obsolete("Use CommandStub instead")]
+    [System.Obsolete("Use CommandStub instead")]
     public class DummyCommand { }
 
     [Authorize]

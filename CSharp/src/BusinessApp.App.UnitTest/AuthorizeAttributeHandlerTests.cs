@@ -22,29 +22,33 @@ namespace BusinessApp.App.UnitTest
             sut = new AuthorizeAttributeHandler<CommandStub>(user, logger);
         }
 
-        public static IEnumerable<object[]> InvalidCtorArgs
+        public class Constructor : AuthorizeAttributeHandlerTests
         {
-            get
+            public static IEnumerable<object[]> InvalidCtorArgs
             {
-                return new []
+                get
                 {
-                    new object[] { null, A.Dummy<ILogger>() },
-                    new object[] { A.Dummy<IPrincipal>(), null }
-                };
+                    return new []
+                    {
+                        new object[] { null, A.Dummy<ILogger>() },
+                        new object[] { A.Dummy<IPrincipal>(), null }
+                    };
+                }
             }
-        }
 
-        [Theory, MemberData(nameof(InvalidCtorArgs))]
-        public void Constructor_ExceptionThrownIfAnyArgumentNull(IPrincipal p, ILogger l)
-        {
-            /* Arrange */
-            Action create = () => new AuthorizeAttributeHandler<CommandStub>(p , l);
 
-            /* Act */
-            var exception = Record.Exception(create);
+            [Theory, MemberData(nameof(InvalidCtorArgs))]
+            public void InvalidCtorArgs_ExceptionThrown(IPrincipal p, ILogger l)
+            {
+                /* Arrange */
+                Action create = () => new AuthorizeAttributeHandler<CommandStub>(p , l);
 
-            /* Assert */
-            Assert.IsType<ArgumentNullException>(exception);
+                /* Act */
+                var exception = Record.Exception(create);
+
+                /* Assert */
+                Assert.IsType<ArgumentNullException>(exception);
+            }
         }
 
         public class AuthorizeObject : AuthorizeAttributeHandlerTests

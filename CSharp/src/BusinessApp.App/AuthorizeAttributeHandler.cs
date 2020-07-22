@@ -12,7 +12,7 @@
     /// </summary>
     public class AuthorizeAttributeHandler<T> : IAuthorizer<T>
     {
-        private static AuthorizeAttribute Attribute = GetAttribute(typeof(T));
+        private AuthorizeAttribute Attribute = GetAttribute(typeof(T));
 
         private readonly IPrincipal currentUser;
         private readonly ILogger logger;
@@ -43,7 +43,7 @@
                     if (i == 0)
                     {
                         var msgTemplate = $"{{0}} not authorized to execute {instance.GetType().Name}";
-                        var ex= new SecurityException(string.Format(msgTemplate, "You are"));
+                        var ex = new SecurityException(string.Format(msgTemplate, "You are"));
 
                         logger.Log(
                             new LogEntry(

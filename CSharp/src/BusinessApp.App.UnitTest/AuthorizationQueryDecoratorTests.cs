@@ -66,15 +66,14 @@ namespace BusinessApp.App.UnitTest
             public async Task AuthorizedBeforeHandles()
             {
                 /* Arrange */
-                bool handlerCalled = true;
-                A.CallTo(() => authorizer.AuthorizeObject(query))
-                    .Invokes(ctx => handlerCalled = Fake.GetCalls(decorated).Count() != 0);
+                CancellationToken token = default;
 
                 /* Act */
-                await sut.HandleAsync(query, default);
+                await sut.HandleAsync(query, token);
 
                 /* Assert */
-                Assert.False(handlerCalled);
+                A.CallTo(() => authorizer.AuthorizeObject(query)).MustHaveHappenedOnceExactly().Then(
+                    A.CallTo(() => decorated.HandleAsync(query, token)).MustHaveHappenedOnceExactly());
             }
 
             [Fact]
