@@ -27,12 +27,14 @@ namespace BusinessApp.App
         {
             GuardAgainst.Null(command, nameof(command));
 
-            var originalCommands = command.ToArray();
             var payloads = await grouper.GroupAsync(command, cancellationToken);
 
             var errors = new List<Exception>();
+            var tasks = new List<Task>();
 
-            foreach (var payload in payloads)
+            // use Parallel so that work is batched into a smaller # of tasks
+            // https://stackoverflow.com/questions/19102966/parallel-foreach-vs-task-run-and-task-whenall
+            await Task.Run(() => Parallel.ForEach(payloads, async payload =>
             {
                 try
                 {
@@ -44,7 +46,7 @@ namespace BusinessApp.App
 
                     foreach (var e in ex.InnerExceptions)
                     {
-                        FindAndChangeIndexKey(e, payload, originalCommands);
+                        FindAndChangeIndexKey(e, payload, command);
                     }
                 }
                 catch (Exception ex)
@@ -53,23 +55,25 @@ namespace BusinessApp.App
 
                     foreach (var e in ex.Flatten())
                     {
-                        FindAndChangeIndexKey(e, payload, originalCommands);
+                        FindAndChangeIndexKey(e, payload, command);
                     }
                 }
-            }
+            }));
+
+            await Task.WhenAll(tasks);
 
             if (errors.Count == 1)
             {
                 throw errors.First();
             }
-            else if (errors.Count() > 1)
+            else if (errors.Count > 1)
             {
                 throw new AggregateException(errors);
             }
         }
 
         private static void FindAndChangeIndexKey(Exception e, IEnumerable<TCommand> payload,
-            TCommand[] originalCommands)
+            IEnumerable<TCommand> originalCommands)
         {
             var wrongIndex = FindIndex(e);
 
@@ -114,11 +118,13 @@ namespace BusinessApp.App
             return -1;
         }
 
-        private static int NormalizeIndex(IEnumerable<TCommand> payload, TCommand[] original, int payloadIndex)
+        private static int NormalizeIndex(IEnumerable<TCommand> payload, IEnumerable<TCommand> original, int payloadIndex)
         {
             var payloadCommand = payload.ElementAt(payloadIndex);
 
-            return Array.IndexOf(original, payloadCommand);
+            return original.Select((o, i) => new { o, i })
+                .FirstOrDefault(p => ReferenceEquals(p.o, payloadCommand))
+                ?.i ?? -1;
         }
 
         private static void ChangePayloadIndex(int index, Exception e)
