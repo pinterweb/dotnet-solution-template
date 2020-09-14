@@ -40,6 +40,8 @@
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
 
+            container.RegisterLoggers(env, options);
+
             var handlerTypes = container.GetTypesToRegister(typeof(ICommandHandler<>), Assembly);
 
             foreach (var type in handlerTypes) container.Register(type);
