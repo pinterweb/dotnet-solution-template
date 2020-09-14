@@ -97,17 +97,17 @@
         public sealed class HandlerWrapper<TConsumer, T> : ICommandHandler<T>
             where TConsumer : ICommandHandler<T>
         {
-            private readonly TConsumer consumer;
+            private readonly TConsumer inner;
 
-            public HandlerWrapper(TConsumer consumer)
+            public HandlerWrapper(TConsumer inner)
             {
-                this.consumer = consumer;
+                this.inner = inner;
 
             }
 
             public Task HandleAsync(T command, CancellationToken cancellationToken)
             {
-                return consumer.HandleAsync(command, cancellationToken);
+                return inner.HandleAsync(command, cancellationToken);
             }
         }
     }
