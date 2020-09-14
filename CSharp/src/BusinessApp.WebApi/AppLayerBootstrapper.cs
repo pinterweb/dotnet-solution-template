@@ -22,33 +22,23 @@
         {
             GuardAgainst.Null(container, nameof(container));
 
-            container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
-
             container.Collection.Register(typeof(IValidator<>), new[] { Assembly });
 
 #if fluentvalidation
             container.Collection.Register(typeof(FluentValidation.IValidator<>), Assembly);
             container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
+            container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
             container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
             container.Register(typeof(IQueryHandler<,>), Assembly);
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EntityNotFoundQueryDecorator<,>));
-            container.RegisterDecorator(
-                typeof(IQueryHandler<,>),
-                typeof(AuthorizationQueryDecorator<,>),
-                c => c.ServiceType
-                      .GetGenericArguments()[0]
-                      .GetCustomAttributes(typeof(AuthorizeAttribute))
-                      .Any());
 
             container.Register(typeof(IBatchGrouper<>), Assembly);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
-
-            container.RegisterLoggers(env, options);
 
             var handlerTypes = container.GetTypesToRegister(typeof(ICommandHandler<>), Assembly);
 

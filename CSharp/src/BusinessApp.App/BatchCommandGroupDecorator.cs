@@ -30,7 +30,6 @@ namespace BusinessApp.App
             var payloads = await grouper.GroupAsync(command, cancellationToken);
 
             var errors = new List<Exception>();
-            var tasks = new List<Task>();
 
             // use Parallel so that work is batched into a smaller # of tasks
             // https://stackoverflow.com/questions/19102966/parallel-foreach-vs-task-run-and-task-whenall
@@ -59,8 +58,6 @@ namespace BusinessApp.App
                     }
                 }
             }));
-
-            await Task.WhenAll(tasks);
 
             if (errors.Count == 1)
             {
