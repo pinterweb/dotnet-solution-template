@@ -1,6 +1,7 @@
 namespace BusinessApp.App.UnitTest
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -11,17 +12,17 @@ namespace BusinessApp.App.UnitTest
     public class BatchCommandGroupDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandGroupDecorator<DummyCommand> sut;
-        private readonly ICommandHandler<IEnumerable<DummyCommand>> inner;
-        private readonly IBatchGrouper<DummyCommand> grouper;
+        private readonly BatchCommandGroupDecorator<CommandStub> sut;
+        private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
+        private readonly IBatchGrouper<CommandStub> grouper;
 
         public BatchCommandGroupDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<IEnumerable<DummyCommand>>>();
-            grouper = A.Fake<IBatchGrouper<DummyCommand>>();
+            inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
+            grouper = A.Fake<IBatchGrouper<CommandStub>>();
 
-            sut = new BatchCommandGroupDecorator<DummyCommand>(grouper, inner);
+            sut = new BatchCommandGroupDecorator<CommandStub>(grouper, inner);
         }
 
         public class Constructor : BatchCommandGroupDecoratorTests
@@ -30,23 +31,23 @@ namespace BusinessApp.App.UnitTest
             {
                 new object[]
                 {
-                    A.Fake<IBatchGrouper<DummyCommand>>(),
+                    A.Fake<IBatchGrouper<CommandStub>>(),
                     null
                 },
                 new object[]
                 {
-                    A.Fake<IBatchGrouper<DummyCommand>>(),
+                    A.Fake<IBatchGrouper<CommandStub>>(),
                     null
                 },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
-                IBatchGrouper<DummyCommand> g,
-                ICommandHandler<IEnumerable<DummyCommand>> i)
+                IBatchGrouper<CommandStub> g,
+                ICommandHandler<IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandGroupDecorator<DummyCommand>(g, i);
+                void shouldThrow() => new BatchCommandGroupDecorator<CommandStub>(g, i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -77,25 +78,26 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var groups = new[]
                 {
-                    new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() },
-                    new[] { A.Dummy<DummyCommand>() },
+                    new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() },
+                    new[] { A.Dummy<CommandStub>() },
                 };
-                var commands = A.Dummy<IEnumerable<DummyCommand>>();
-                var payloads = new List<IEnumerable<DummyCommand>>();
+                var commands = A.Dummy<IEnumerable<CommandStub>>();
+                var firstPayload = new ConcurrentBag<IEnumerable<CommandStub>>();
+                var secondPayload = new ConcurrentBag<IEnumerable<CommandStub>>();
                 A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(A<IEnumerable<DummyCommand>>._, token))
-                    .Invokes(ctx => payloads.Add(ctx.GetArgument<IEnumerable<DummyCommand>>(0)));
+                A.CallTo(() => inner.HandleAsync(groups.First(), token))
+                    .Invokes(ctx => firstPayload.Add(ctx.GetArgument<IEnumerable<CommandStub>>(0)));
+                A.CallTo(() => inner.HandleAsync(groups.Last(), token))
+                    .Invokes(ctx => secondPayload.Add(ctx.GetArgument<IEnumerable<CommandStub>>(0)));
 
                 /* Act */
                 await sut.HandleAsync(commands, token);
 
-                /* Assert */
-                Assert.Equal(2, payloads.Count());
-                Assert.Collection(payloads.First(),
-                    p => Assert.Contains(p, groups.First()),
-                    p => Assert.Contains(p, groups.First()));
-                Assert.Collection(payloads.Last(),
-                    p => Assert.Contains(p, groups.Last()));
+                /* Assert cannot guarntee order */
+                Assert.Collection(firstPayload,
+                    p => Assert.Same(p, groups.First()));
+                Assert.Collection(secondPayload,
+                    p => Assert.Same(p, groups.Last()));
             }
 
             [Theory]
@@ -111,9 +113,9 @@ namespace BusinessApp.App.UnitTest
                 exception.Data.Add("foo", "bar");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>()
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>()
                 };
                 var groups = new[]
                 {
@@ -145,9 +147,9 @@ namespace BusinessApp.App.UnitTest
                 exception2.Data.Add("lorem", "ipsum");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>()
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>()
                 };
                 var groups = new[]
                 {
@@ -180,9 +182,9 @@ namespace BusinessApp.App.UnitTest
                 exception.Data.Add(exceptionIndexKey, "bar message");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>()
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>()
                 };
                 var groups = new[]
                 {
@@ -212,9 +214,9 @@ namespace BusinessApp.App.UnitTest
                 exception2.Data.Add("[0].lorem", "ipsum");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>()
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>()
                 };
                 var groups = new[]
                 {
@@ -243,7 +245,7 @@ namespace BusinessApp.App.UnitTest
                 exception.Data.Add("lorem", "ipsum");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>()
+                    A.Dummy<CommandStub>(), A.Dummy<CommandStub>()
                 };
                 var groups = new[]
                 {
@@ -276,7 +278,7 @@ namespace BusinessApp.App.UnitTest
                 exception2.Data.Add("foo", "bar");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>()
+                    A.Dummy<CommandStub>(), A.Dummy<CommandStub>()
                 };
                 var groups = new[]
                 {
@@ -300,12 +302,12 @@ namespace BusinessApp.App.UnitTest
             public async Task MultipleExceptions_ThrowsAsAggregate()
             {
                 /* Arrange */
-                var exception1 = new Exception();
-                var exception2 = new Exception();
+                var exception1 = new Exception("foo");
+                var exception2 = new Exception("bar");
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(),
-                    A.Dummy<DummyCommand>(),
+                    A.Dummy<CommandStub>(),
+                    A.Dummy<CommandStub>(),
                 };
                 var groups = new[]
                 {
@@ -313,19 +315,18 @@ namespace BusinessApp.App.UnitTest
                     new[] { commands.Last() }
                 };
                 A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(0), token))
+                A.CallTo(() => inner.HandleAsync(groups.First(), token))
                     .Throws(exception1);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(1), token))
+                A.CallTo(() => inner.HandleAsync(groups.Last(), token))
                     .Throws(exception2);
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
-                /* Assert */
+                /* Assert - cannot guarantee order, just that they exist */
                 var multiErr = Assert.IsType<AggregateException>(ex);
-                Assert.Collection(multiErr.InnerExceptions,
-                    e => Assert.Same(exception1, e),
-                    e => Assert.Same(exception2, e));
+                Assert.Contains(exception1, multiErr.InnerExceptions);
+                Assert.Contains(exception2, multiErr.InnerExceptions);
             }
 
             [Fact]
@@ -335,7 +336,7 @@ namespace BusinessApp.App.UnitTest
                 var exception = new Exception();
                 var commands = new[]
                 {
-                    A.Dummy<DummyCommand>(),
+                    A.Dummy<CommandStub>(),
                 };
                 var groups = new[]
                 {
