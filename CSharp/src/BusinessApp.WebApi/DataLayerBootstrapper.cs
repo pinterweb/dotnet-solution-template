@@ -64,6 +64,9 @@
                 typeof(EFQueryStrategyHandler<,>),
                 ctx => !ctx.Handled
             );
+            container.RegisterConditional(typeof(IQueryHandler<,>),
+                typeof(EFEnvelopedQueryHandler<,>),
+                ctx => !ctx.Handled);
             container.RegisterConditional(
                 typeof(IQueryHandler<,>),
                 typeof(EFSingleQueryStrategyHandler<,>),

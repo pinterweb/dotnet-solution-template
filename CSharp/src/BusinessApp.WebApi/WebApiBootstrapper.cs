@@ -35,6 +35,10 @@
             container.Register(typeof(IResourceHandler<,>), Assembly);
             container.RegisterConditional(
                 typeof(IResourceHandler<,>),
+                typeof(EnvelopeQueryResourceHandler<,>),
+                ctx => !ctx.Handled);
+            container.RegisterConditional(
+                typeof(IResourceHandler<,>),
                 typeof(QueryResourceHandler<,>),
                 ctx => !ctx.Handled
             );
