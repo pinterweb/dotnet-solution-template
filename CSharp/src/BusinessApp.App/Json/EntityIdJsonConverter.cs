@@ -1,7 +1,6 @@
 ﻿namespace BusinessApp.App.Json
 {
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using System;
     using System.ComponentModel;
     using BusinessApp.Domain;
@@ -15,47 +14,45 @@
         public override bool CanConvert(Type objectType)
             => typeof(EntityId<T>).IsAssignableFrom(objectType);
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null || reader.Value == null) return null;
 
             var converter = TypeDescriptor.GetConverter(objectType);
 
-            if (converter.CanConvertFrom(typeof(T)))
+            if (converter.CanConvertFrom(reader.ValueType))
             {
-                return converter.ConvertFrom(
-                    Convert.ChangeType(reader.Value, typeof(T))
-                );
+                try
+                {
+                    return converter.ConvertFrom(reader.Value);
+                }
+                catch
+                {
+                    throw new FormatException($"Cannot read value for '{reader.Path}' because the " +
+                        $"type is incorrect. Expected a '{typeof(T).Name}'.");
+                }
             }
 
-            return serializer.Deserialize(reader);
+            throw new FormatException($"Cannot read value for '{reader.Path}' because the " +
+                $"type is incorrect. Expected a '{typeof(T).Name}', but read a '{reader.ValueType.Name}'.");
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            JToken t = JToken.FromObject(value);
+            var converter = TypeDescriptor.GetConverter(value);
 
-            if (t.Type != JTokenType.Object)
+            if (converter.CanConvertTo(typeof(T)))
             {
-                t.WriteTo(writer);
+                var innerValue = converter.ConvertTo(value, typeof(T));
+
+                serializer.Serialize(writer, innerValue);
             }
             else
             {
-                T id = value as EntityId<T>;
-                JToken finalValue;
-
-                if (typeof(T) == typeof(long))
-                {
-                    finalValue = JToken.FromObject(id.ToString());
-                }
-                else
-                {
-                    finalValue = JToken.FromObject(id);
-                }
-
-                finalValue.WriteTo(writer);
+                throw new NotSupportedException("Cannot write the EntityId to a json value. " +
+                    $"Cannot convert from '{value.GetType().Name}' to '{typeof(T).Name}'.");
             }
         }
-
     }
 }
