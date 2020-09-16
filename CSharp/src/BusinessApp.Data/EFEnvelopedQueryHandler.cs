@@ -31,20 +31,22 @@ namespace BusinessApp.Data
             var queryVisitor = queryVisitorFactory.Create(query);
             var queryable = dbSetVisitor.Visit(db.Set<TResult>());
 
-            // handle these values here
+            // handle these values here so we can get a total count
             var take = query.Limit;
             var skip = query.Offset ?? 0;
             query.Limit = null;
             query.Offset = null;
 
-            var data = await queryVisitor.Visit(queryable).ToListAsync();
+            var finalQuery = queryVisitor.Visit(queryable);
+            var totalCount = await finalQuery.CountAsync(cancellationToken);
 
             return new EnvelopeContract<TResult>
             {
-                Data = data.Skip(skip).Take(take ?? data.Count),
+                // take must be greater than 0
+                Data = await finalQuery.Skip(skip).Take(take ?? (totalCount == 0 ? 1 : totalCount)).ToListAsync(),
                 Pagination = new Pagination
                 {
-                    ItemCount = data.Count
+                    ItemCount = totalCount
                 }
             };
         }

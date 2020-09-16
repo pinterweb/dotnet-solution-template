@@ -1,4 +1,4 @@
-namespace BusinessApp.Data.UnitTest
+namespace BusinessApp.Data.IntegrationTest
 {
     using FakeItEasy;
     using Microsoft.EntityFrameworkCore;
@@ -8,6 +8,8 @@ namespace BusinessApp.Data.UnitTest
         protected override BusinessAppReadOnlyDbContext Create()
         {
             return new BusinessAppReadOnlyDbContext(new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>()
+                // we already have UseSqlServer for our DatabaseFixutre
+                // could use inmemory too, but would need nuget package
                 .UseSqlServer("Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar")
                 .Options);
         }
