@@ -119,7 +119,13 @@
                         "src/BusinessApp.Data/migrations_add.sh",
                         "src/BusinessApp.Data/migrations_restore.cmd",
                         "src/BusinessApp.Data/migrations_restore.sh",
-                        "src/BusinessApp.Data/Migrations/**"
+                        "src/BusinessApp.Data/Migrations/**",
+                        "src/BusinessApp.Data.IntegrationTest/EF*.cs",
+                        "src/BusinessApp.Data.IntegrationTest/BusinessAppDbContextDummyFactory.cs",
+                        "src/BusinessApp.Data.IntegrationTest/EventRepositoryTests.cs",
+                        "src/BusinessApp.Test.Common/BusinessAppTestDbContext.cs",
+                        "src/BusinessApp.Test.Common/DatabaseFixture.cs",
+                        "src/BusinessApp.Test.Common/migrations*.cmd"
                     ]
                 },
                 {
