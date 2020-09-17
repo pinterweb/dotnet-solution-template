@@ -102,7 +102,6 @@
             }
         }
 
-
         private static void RegisterDbContext<TContext>(Container container, string connectionString)
             where TContext : DbContext
         {
