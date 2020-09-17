@@ -2,15 +2,15 @@ namespace BusinessApp.Test
 {
     using System;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Infrastructure;
     using Microsoft.EntityFrameworkCore.Migrations;
     using Microsoft.Extensions.Logging;
     using BusinessApp.Data;
     using Microsoft.Extensions.Configuration;
-    using BusinessApp.Domain;
-    using FakeItEasy;
     using Microsoft.AspNetCore.Hosting;
     using BusinessApp.WebApi;
+    using FakeItEasy;
+    using BusinessApp.Domain;
+    using Microsoft.EntityFrameworkCore.Infrastructure;
 
     public class DatabaseFixture : IDisposable
 	{
@@ -43,14 +43,7 @@ namespace BusinessApp.Test
 
 		public DatabaseFixture()
 		{
-            ReadContext = new BusinessAppReadOnlyTestDbContext(
-                new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>()
-                    .UseLoggerFactory(EFDebugLoggerFactory)
-                    .UseSqlServer(ConnectionStr)
-                    .Options
-            );
-
-            WriteContext = new BusinessAppDbContext(
+            DbContext = new BusinessAppTestDbContext(
                 new DbContextOptionsBuilder<BusinessAppDbContext>()
                     .UseLoggerFactory(EFDebugLoggerFactory)
                     .UseSqlServer(ConnectionStr)
@@ -58,29 +51,24 @@ namespace BusinessApp.Test
                 A.Dummy<EventUnitOfWork>()
             );
 
-            WriteContext.Database.Migrate();
-            ReadContext.Database.Migrate();
+            DbContext.Database.Migrate();
 		}
 
-		public BusinessAppReadOnlyDbContext ReadContext { get; }
-		public BusinessAppDbContext WriteContext { get; }
+		public BusinessAppDbContext DbContext { get; }
 
 		public void Dispose()
 		{
             try
             {
-                ReadContext.GetService<IMigrator>().Migrate("0");
-                WriteContext.GetService<IMigrator>().Migrate("0");
+                DbContext.GetService<IMigrator>().Migrate("0");
             }
             catch
             {
                 // can't migration back, just delete
-                ReadContext.Database.EnsureDeleted();
-                WriteContext.Database.EnsureDeleted();
+                DbContext.Database.EnsureDeleted();
             }
 
-            ReadContext.Dispose();
-            WriteContext.Dispose();
+            DbContext.Dispose();
 		}
 
         private class Startup

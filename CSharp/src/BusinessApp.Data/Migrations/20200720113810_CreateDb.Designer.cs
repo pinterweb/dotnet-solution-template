@@ -8,16 +8,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BusinessApp.Data.Migrations
 {
-    [DbContext(typeof(BusinessAppReadOnlyDbContext))]
-    [Migration("20191030202258_CreateDb")]
+    [DbContext(typeof(BusinessAppDbContext))]
+    [Migration("20200720113810_CreateDb")]
     partial class CreateDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618

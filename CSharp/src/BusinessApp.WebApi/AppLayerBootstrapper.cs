@@ -8,6 +8,9 @@
     using Microsoft.AspNetCore.Hosting;
     using System.Threading.Tasks;
     using System.Threading;
+#if efcore
+    using BusinessApp.Data;
+#endif
 
     /// <summary>
     /// Allows registering all types that are defined in the app layer
@@ -33,6 +36,9 @@
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
             container.Register(typeof(IQueryHandler<,>), Assembly);
+#if efcore
+            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EFTrackingQueryDecorator<,>));
+#endif
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EntityNotFoundQueryDecorator<,>));
 
             container.Register(typeof(IBatchGrouper<>), Assembly);

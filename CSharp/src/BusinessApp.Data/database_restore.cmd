@@ -7,4 +7,4 @@ IF [%1] == [] (
     exit /b %errorlevel%
 )
 
-dotnet ef database update %1 -s ..\BusinessApp.WebApi\ -v --context BusinessAppReadOnlyDbContext
+dotnet ef database update %1 -s ..\BusinessApp.WebApi\ -v --context BusinessAppDbContext

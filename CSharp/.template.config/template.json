@@ -105,18 +105,11 @@
                     "exclude": [
                         "src/.config/dotnet-tools.json",
                         "src/BusinessApp.Data/BusinessAppDbContext.cs",
-                        "src/BusinessApp.Data/BusinessAppReadOnlyDbContext.cs",
                         "src/BusinessApp.Data/database_restore.cmd",
                         "src/BusinessApp.Data/database_restore.sh",
                         "src/BusinessApp.Data/database_up.cmd",
                         "src/BusinessApp.Data/database_up.sh",
-                        "src/BusinessApp.Data/EFEnvelopedQueryHandler.cs",
-                        "src/BusinessApp.Data/EFIdentityMap.cs",
-                        "src/BusinessApp.Data/EFQueryFieldsVisitor.cs",
-                        "src/BusinessApp.Data/EFQueryFieldsVisitorFactory.cs",
-                        "src/BusinessApp.Data/EFQueryStrategyHandler.cs",
-                        "src/BusinessApp.Data/EFQueryVisitor.cs",
-                        "src/BusinessApp.Data/EFQueryVisitorFactory.cs",
+                        "src/BusinessApp.Data/EF*.cs",
                         "src/BusinessApp.Data/IDbSetVisitor.cs",
                         "src/BusinessApp.Data/IDbSetVisitorFactory.cs",
                         "src/BusinessApp.Data/NullDbSetVisitor.cs",
@@ -126,7 +119,13 @@
                         "src/BusinessApp.Data/migrations_add.sh",
                         "src/BusinessApp.Data/migrations_restore.cmd",
                         "src/BusinessApp.Data/migrations_restore.sh",
-                        "src/BusinessApp.Data/Migrations/**"
+                        "src/BusinessApp.Data/Migrations/**",
+                        "src/BusinessApp.Data.IntegrationTest/EF*.cs",
+                        "src/BusinessApp.Data.IntegrationTest/BusinessAppDbContextDummyFactory.cs",
+                        "src/BusinessApp.Data.IntegrationTest/EventRepositoryTests.cs",
+                        "src/BusinessApp.Test.Common/BusinessAppTestDbContext.cs",
+                        "src/BusinessApp.Test.Common/DatabaseFixture.cs",
+                        "src/BusinessApp.Test.Common/migrations*.cmd"
                     ]
                 },
                 {

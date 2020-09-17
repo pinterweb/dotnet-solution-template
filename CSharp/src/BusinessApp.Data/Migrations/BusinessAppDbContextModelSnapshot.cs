@@ -7,15 +7,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BusinessApp.Data.Migrations
 {
-    [DbContext(typeof(BusinessAppReadOnlyDbContext))]
-    partial class BusinessAppReadOnlyDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(BusinessAppDbContext))]
+    partial class BusinessAppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 #pragma warning restore 612, 618

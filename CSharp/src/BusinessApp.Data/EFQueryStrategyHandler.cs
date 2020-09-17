@@ -14,11 +14,11 @@
         where TQuery : Query, IQuery<IEnumerable<TResult>>
         where TResult : class
     {
-        private readonly BusinessAppReadOnlyDbContext db;
+        private readonly BusinessAppDbContext db;
         private readonly IDbSetVisitorFactory<TQuery, TResult> dbSetFactory;
         private readonly IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory;
 
-        public EFQueryStrategyHandler(BusinessAppReadOnlyDbContext db,
+        public EFQueryStrategyHandler(BusinessAppDbContext db,
             IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
             IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
@@ -44,11 +44,11 @@
         where TQuery : Query, IQuery<TResult>
         where TResult : class
     {
-        private readonly BusinessAppReadOnlyDbContext db;
+        private readonly BusinessAppDbContext db;
         private readonly IDbSetVisitorFactory<TQuery, TResult> dbSetFactory;
         private readonly IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory;
 
-        public EFSingleQueryStrategyHandler(BusinessAppReadOnlyDbContext db,
+        public EFSingleQueryStrategyHandler(BusinessAppDbContext db,
             IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
             IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {

@@ -7,8 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BusinessApp.Test.Common.Migrations
 {
-    [DbContext(typeof(BusinessAppReadOnlyTestDbContext))]
-    partial class BusinessAppReadOnlyTestDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(BusinessAppTestDbContext))]
+    partial class BusinessAppTestDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

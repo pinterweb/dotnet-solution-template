@@ -13,7 +13,7 @@ namespace BusinessApp.Data.IntegrationTest
     [Collection(nameof(DatabaseCollection))]
     public class EFEnvelopedQueryHandlerTests : IDisposable
     {
-        private readonly BusinessAppReadOnlyDbContext db;
+        private readonly BusinessAppDbContext db;
         private readonly IDbSetVisitorFactory<EnvelopeRequestStub, ResponseStub> dbSetFactory;
         private readonly IQueryVisitorFactory<EnvelopeRequestStub, ResponseStub> queryVisitorFactory;
         private EFEnvelopedQueryHandler<EnvelopeRequestStub, ResponseStub> sut;
@@ -21,7 +21,7 @@ namespace BusinessApp.Data.IntegrationTest
 
         public EFEnvelopedQueryHandlerTests(DatabaseFixture fixture)
         {
-            db = fixture.ReadContext;
+            db = fixture.DbContext;
             dbSetFactory = A.Fake<IDbSetVisitorFactory<EnvelopeRequestStub, ResponseStub>>();
             queryVisitorFactory = A.Fake<IQueryVisitorFactory<EnvelopeRequestStub, ResponseStub>>();
 
@@ -60,20 +60,20 @@ namespace BusinessApp.Data.IntegrationTest
                 },
                 new object[]
                 {
-                    A.Dummy<BusinessAppReadOnlyDbContext>(),
+                    A.Dummy<BusinessAppDbContext>(),
                     null,
                     A.Dummy<IDbSetVisitorFactory<EnvelopeRequestStub, ResponseStub>>()
                 },
                 new object[]
                 {
-                    A.Dummy<BusinessAppReadOnlyDbContext>(),
+                    A.Dummy<BusinessAppDbContext>(),
                     A.Dummy<IQueryVisitorFactory<EnvelopeRequestStub, ResponseStub>>(),
                     null
                 }
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(BusinessAppReadOnlyDbContext r,
+            public void InvalidCtorArgs_ExceptionThrown(BusinessAppDbContext r,
                 IQueryVisitorFactory<EnvelopeRequestStub, ResponseStub> q,
                 IDbSetVisitorFactory<EnvelopeRequestStub, ResponseStub> d)
             {
@@ -91,8 +91,6 @@ namespace BusinessApp.Data.IntegrationTest
         public class HandleAsync : EFEnvelopedQueryHandlerTests
         {
             private readonly EnvelopeRequestStub query;
-            private readonly IDbSetVisitor<ResponseStub> dbSetVisitor;
-            private readonly IQueryVisitor<ResponseStub> queryVisitor;
 
             public HandleAsync(DatabaseFixture fixture) : base(fixture)
             {
@@ -106,7 +104,7 @@ namespace BusinessApp.Data.IntegrationTest
                     .Returns(originalDbSet);
 
                 dbSetVisitor = A.Fake<IDbSetVisitor<ResponseStub>>();
-                queryVisitor = A.Fake<IQueryVisitor<ResponseStub>>();
+                var queryVisitor = A.Fake<IQueryVisitor<ResponseStub>>();
                 A.CallTo(() => dbSetFactory.Create(query)).Returns(dbSetVisitor);
                 A.CallTo(() => queryVisitorFactory.Create(query)).Returns(queryVisitor);
 

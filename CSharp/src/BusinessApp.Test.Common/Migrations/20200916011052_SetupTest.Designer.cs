@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BusinessApp.Test.Common.Migrations
 {
-    [DbContext(typeof(BusinessAppReadOnlyTestDbContext))]
+    [DbContext(typeof(BusinessAppTestDbContext))]
     [Migration("20200916011052_SetupTest")]
     partial class SetupTest
     {
