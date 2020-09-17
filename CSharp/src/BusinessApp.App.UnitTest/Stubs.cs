@@ -5,9 +5,6 @@ namespace BusinessApp.App.UnitTest
     public class CommandStub
     {}
 
-    [System.Obsolete("Use CommandStub instead")]
-    public class DummyCommand { }
-
     [Authorize]
     public class AuthCommandStub : CommandStub
     {}

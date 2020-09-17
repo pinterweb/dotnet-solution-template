@@ -8,13 +8,13 @@ namespace BusinessApp.App.UnitTest
     public class NullBatchGrouperTests
     {
         private readonly CancellationToken token;
-        private readonly NullBatchGrouper<DummyCommand> sut;
+        private readonly NullBatchGrouper<CommandStub> sut;
 
         public NullBatchGrouperTests()
         {
             token = A.Dummy<CancellationToken>();
 
-            sut = new NullBatchGrouper<DummyCommand>();
+            sut = new NullBatchGrouper<CommandStub>();
         }
 
         public class GroupAsync : NullBatchGrouperTests
@@ -23,7 +23,7 @@ namespace BusinessApp.App.UnitTest
             public async Task DefaultBehavior_OneGroupReturned()
             {
                 /* Arrange */
-                var commands = new[] { new DummyCommand(), new DummyCommand() };
+                var commands = new[] { new CommandStub(), new CommandStub() };
 
                 /* Act */
                 var grouping = await sut.GroupAsync(commands, token);

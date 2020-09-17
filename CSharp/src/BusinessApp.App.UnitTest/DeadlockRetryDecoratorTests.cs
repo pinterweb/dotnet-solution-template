@@ -12,15 +12,15 @@ namespace BusinessApp.App.UnitTest
     public class DeadlockRetryDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly DeadlockRetryDecorator<DummyCommand> sut;
-        private readonly ICommandHandler<DummyCommand> inner;
+        private readonly DeadlockRetryDecorator<CommandStub> sut;
+        private readonly ICommandHandler<CommandStub> inner;
 
         public DeadlockRetryDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<DummyCommand>>();
+            inner = A.Fake<ICommandHandler<CommandStub>>();
 
-            sut = new DeadlockRetryDecorator<DummyCommand>(inner);
+            sut = new DeadlockRetryDecorator<CommandStub>(inner);
         }
 
         public class Constructor : DeadlockRetryDecoratorTests
@@ -34,10 +34,10 @@ namespace BusinessApp.App.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<DummyCommand> c)
+            public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new DeadlockRetryDecorator<DummyCommand>(c);
+                void shouldThrow() => new DeadlockRetryDecorator<CommandStub>(c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -54,7 +54,7 @@ namespace BusinessApp.App.UnitTest
             public async Task NormalException_DoesNothing()
             {
                 /* Arrange */
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws<Exception>();
 
                 /* Act */
@@ -68,7 +68,7 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionNotADeadlock_DoesNothing()
             {
                 /* Arrange */
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception);
 
@@ -83,7 +83,7 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionIsDeadlock_Retries5times()
             {
                 /* Arrange */
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => exception.Message).Returns("foobar deadlock lorem");
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception).NumberOfTimes(4);
@@ -100,7 +100,7 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionIsDeadlockAfterFiveTimes_ThrowsCommunicationException()
             {
                 /* Arrange */
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => exception.Message).Returns("foobar deadlock lorem");
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception).NumberOfTimes(5);
@@ -121,7 +121,7 @@ namespace BusinessApp.App.UnitTest
             public async Task DbExceptionInInnerExceptionIsDeadlock_Retries5times()
             {
                 /* Arrange */
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
                 var dbException = A.Fake<DbException>();
                 A.CallTo(() => dbException.Message).Returns("foobar deadlock lorem");
                 var exception = new Exception("foo", new Exception("bar", dbException));

@@ -12,15 +12,15 @@ namespace BusinessApp.App.UnitTest
     public class BatchCommandHandlerTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandHandler<DummyCommand> sut;
-        private readonly ICommandHandler<DummyCommand> inner;
+        private readonly BatchCommandHandler<CommandStub> sut;
+        private readonly ICommandHandler<CommandStub> inner;
 
         public BatchCommandHandlerTests()
         {
             token = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<DummyCommand>>();
+            inner = A.Fake<ICommandHandler<CommandStub>>();
 
-            sut = new BatchCommandHandler<DummyCommand>(inner);
+            sut = new BatchCommandHandler<CommandStub>(inner);
         }
 
         public class Constructor : BatchCommandHandlerTests
@@ -31,10 +31,10 @@ namespace BusinessApp.App.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<DummyCommand> c)
+            public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandHandler<DummyCommand>(c);
+                void shouldThrow() => new BatchCommandHandler<CommandStub>(c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -63,7 +63,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithCommands_EachCalled()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 /* Act */
                 await sut.HandleAsync(commands, token);
@@ -77,7 +77,7 @@ namespace BusinessApp.App.UnitTest
             public async Task ExceptionThrown_IndexAddedToDataKey()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
                 var thrownException = new Exception();
                 thrownException.Data.Add("foo", "bar");
 
@@ -104,7 +104,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithInnerExceptions_IndexAddedToInnerException()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
                 var thrownInner = new Exception("foo");
                 var thrownException = new Exception("bar", thrownInner);
                 thrownException.Data.Add("lorem", "ipsum");
@@ -133,7 +133,7 @@ namespace BusinessApp.App.UnitTest
             public async Task MultipleExceptions_AggregateExceptionThrown()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
                 var firstEx = new Exception("ispit");
                 var secondEx = new Exception("ispit");
                 firstEx.Data.Add("foo", "bar");

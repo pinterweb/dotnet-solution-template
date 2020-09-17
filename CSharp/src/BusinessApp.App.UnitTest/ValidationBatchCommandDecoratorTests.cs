@@ -11,34 +11,34 @@ namespace BusinessApp.App.UnitTest
     public class ValidationBatchCommandDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly ValidationBatchCommandDecorator<DummyCommand> sut;
-        private readonly ICommandHandler<IEnumerable<DummyCommand>> inner;
-        private readonly IValidator<DummyCommand> validator;
+        private readonly ValidationBatchCommandDecorator<CommandStub> sut;
+        private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
+        private readonly IValidator<CommandStub> validator;
 
         public ValidationBatchCommandDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<IEnumerable<DummyCommand>>>();
-            validator = A.Fake<IValidator<DummyCommand>>();
+            inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
+            validator = A.Fake<IValidator<CommandStub>>();
 
-            sut = new ValidationBatchCommandDecorator<DummyCommand>(validator, inner);
+            sut = new ValidationBatchCommandDecorator<CommandStub>(validator, inner);
         }
 
         public class Constructor : ValidationBatchCommandDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
-                new object[] { null, A.Dummy<ICommandHandler<IEnumerable<DummyCommand>>>() },
-                new object[] { A.Fake<IValidator<DummyCommand>>(), null },
+                new object[] { null, A.Dummy<ICommandHandler<IEnumerable<CommandStub>>>() },
+                new object[] { A.Fake<IValidator<CommandStub>>(), null },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
-                IValidator<DummyCommand> v,
-                ICommandHandler<IEnumerable<DummyCommand>> c)
+                IValidator<CommandStub> v,
+                ICommandHandler<IEnumerable<CommandStub>> c)
             {
                 /* Arrange */
-                void shouldThrow() => new ValidationBatchCommandDecorator<DummyCommand>(v, c);
+                void shouldThrow() => new ValidationBatchCommandDecorator<CommandStub>(v, c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -68,8 +68,8 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
-                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._, token))
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
+                A.CallTo(() => validator.ValidateAsync(A<CommandStub>._, token))
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
@@ -83,7 +83,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithTwoCommands_ValidatedTwice()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 /* Act */
                 await sut.HandleAsync(commands, token);
@@ -99,7 +99,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithTwoCommands_HandledOnce()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 /* Act */
                 await sut.HandleAsync(commands, token);
@@ -113,7 +113,7 @@ namespace BusinessApp.App.UnitTest
             public async Task ValidationException_MemberNameHasIndex()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new ValidationException("foo", "bar"));
@@ -131,7 +131,7 @@ namespace BusinessApp.App.UnitTest
             public async Task ValidationException_SameMessageUsed()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.First(), token))
                     .Throws(new ValidationException("foo", "bar"));
@@ -148,7 +148,7 @@ namespace BusinessApp.App.UnitTest
             public async Task ValidationException_InnerExceptionUsed()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
                 var innerException = new ValidationException("lorem", "ipsum");
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
@@ -166,7 +166,7 @@ namespace BusinessApp.App.UnitTest
             public async Task AggregateException_HasMultipleValidationExceptions()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
@@ -187,7 +187,7 @@ namespace BusinessApp.App.UnitTest
             public async Task AggregateException_MemberNamesHasIndex()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
@@ -211,7 +211,7 @@ namespace BusinessApp.App.UnitTest
             public async Task AggregateException_SameMessageUsed()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
@@ -237,7 +237,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var firstInner = new Exception();
                 var secondInner = new Exception();
-                var commands = new[] { A.Dummy<DummyCommand>(), A.Dummy<DummyCommand>() };
+                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]

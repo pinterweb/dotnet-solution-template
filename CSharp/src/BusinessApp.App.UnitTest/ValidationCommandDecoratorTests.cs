@@ -12,34 +12,34 @@ namespace BusinessApp.App.UnitTest
     public class ValidationCommandDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly ValidationCommandDecorator<DummyCommand> sut;
-        private readonly ICommandHandler<DummyCommand> inner;
-        private readonly IValidator<DummyCommand> validator;
+        private readonly ValidationCommandDecorator<CommandStub> sut;
+        private readonly ICommandHandler<CommandStub> inner;
+        private readonly IValidator<CommandStub> validator;
 
         public ValidationCommandDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<DummyCommand>>();
-            validator = A.Fake<IValidator<DummyCommand>>();
+            inner = A.Fake<ICommandHandler<CommandStub>>();
+            validator = A.Fake<IValidator<CommandStub>>();
 
-            sut = new ValidationCommandDecorator<DummyCommand>(validator, inner);
+            sut = new ValidationCommandDecorator<CommandStub>(validator, inner);
         }
 
         public class Constructor : ValidationCommandDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
-                new object[] { null, A.Dummy<ICommandHandler<DummyCommand>>() },
-                new object[] { A.Fake<IValidator<DummyCommand>>(), null },
+                new object[] { null, A.Dummy<ICommandHandler<CommandStub>>() },
+                new object[] { A.Fake<IValidator<CommandStub>>(), null },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
-                IValidator<DummyCommand> v,
-                ICommandHandler<DummyCommand> c)
+                IValidator<CommandStub> v,
+                ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new ValidationCommandDecorator<DummyCommand>(v, c);
+                void shouldThrow() => new ValidationCommandDecorator<CommandStub>(v, c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -69,8 +69,8 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
-                var command = A.Dummy<DummyCommand>();
-                A.CallTo(() => validator.ValidateAsync(A<DummyCommand>._, token))
+                var command = A.Dummy<CommandStub>();
+                A.CallTo(() => validator.ValidateAsync(A<CommandStub>._, token))
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
@@ -84,7 +84,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithCommand_ValidatedOnce()
             {
                 /* Arrange */
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
 
                 /* Act */
                 await sut.HandleAsync(command, token);
@@ -99,7 +99,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
 
 
                 /* Act */
