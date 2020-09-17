@@ -10,18 +10,18 @@ namespace BusinessApp.App.UnitTest
 
     public class TransactionDecoratorTests
     {
-        private readonly TransactionDecorator<DummyCommand> sut;
-        private readonly ICommandHandler<DummyCommand> inner;
+        private readonly TransactionDecorator<CommandStub> sut;
+        private readonly ICommandHandler<CommandStub> inner;
         private readonly ITransactionFactory factory;
         private readonly PostCommitRegister register;
 
         public TransactionDecoratorTests()
         {
-            inner = A.Fake<ICommandHandler<DummyCommand>>();
+            inner = A.Fake<ICommandHandler<CommandStub>>();
             factory = A.Fake<ITransactionFactory>();
             register = new PostCommitRegister();
 
-            sut = new TransactionDecorator<DummyCommand>(factory, inner, register);
+            sut = new TransactionDecorator<CommandStub>(factory, inner, register);
         }
 
         public class Constructor : TransactionDecoratorTests
@@ -31,7 +31,7 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     null,
-                    A.Dummy<ICommandHandler<DummyCommand>>(),
+                    A.Dummy<ICommandHandler<CommandStub>>(),
                     A.Dummy<PostCommitRegister>()
                 },
                 new object[]
@@ -43,17 +43,17 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     A.Fake<ITransactionFactory>(),
-                    A.Dummy<ICommandHandler<DummyCommand>>(),
+                    A.Dummy<ICommandHandler<CommandStub>>(),
                     null,
                 },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(ITransactionFactory v,
-                ICommandHandler<DummyCommand> c, PostCommitRegister r)
+                ICommandHandler<CommandStub> c, PostCommitRegister r)
             {
                 /* Arrange */
-                void shouldThrow() => new TransactionDecorator<DummyCommand>(v, c, r);
+                void shouldThrow() => new TransactionDecorator<CommandStub>(v, c, r);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -83,7 +83,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
-                var command = A.Dummy<DummyCommand>();
+                var command = A.Dummy<CommandStub>();
                 var uow = A.Fake<IUnitOfWork>();
                 A.CallTo(() => factory.Begin()).Returns(uow);
 
@@ -109,7 +109,7 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => factory.Begin()).Returns(uow);
 
                 /* Act */
-                await sut.HandleAsync(A.Dummy<DummyCommand>(), token);
+                await sut.HandleAsync(A.Dummy<CommandStub>(), token);
 
                 /* Assert */
                 A.CallTo(() => handler1()).MustHaveHappenedOnceExactly()
@@ -131,7 +131,7 @@ namespace BusinessApp.App.UnitTest
                 register.FinishHandlers.Add(handler2);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<DummyCommand>(), token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
 
                 /* Assert */
                 Assert.NotNull(ex);
@@ -154,7 +154,7 @@ namespace BusinessApp.App.UnitTest
                 register.FinishHandlers.Add(handler1);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<DummyCommand>(), token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
 
                 /* Assert */
                 Assert.IsType<CommunicationException>(ex);
