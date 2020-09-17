@@ -3,24 +3,21 @@ namespace BusinessApp.Data.IntegrationTest
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BusinessApp.App;
     using BusinessApp.Test;
-    using FakeItEasy;
     using Microsoft.EntityFrameworkCore;
     using Xunit;
 
     [Collection(nameof(DatabaseCollection))]
     public class EFQueryVisitorTests : IDisposable
     {
-        private readonly BusinessAppReadOnlyDbContext db;
+        private readonly BusinessAppDbContext db;
         private readonly IEnumerable<ResponseStub> dataset;
         private EFQueryVisitor<ResponseStub> sut;
 
         public EFQueryVisitorTests(DatabaseFixture fixture)
         {
-            this.db = fixture.ReadContext;
+            this.db = fixture.DbContext;
 
             using (var transaction = db.Database.BeginTransaction())
             {

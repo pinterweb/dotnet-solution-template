@@ -34,7 +34,11 @@
             options.LogFilePath = configuration.GetSection("Logging")
                 .GetValue<string>("LogFilePath");
             options.WriteConnectionString = options.ReadConnectionString =
-                configuration.GetConnectionString("Main");
+#if docker
+                configuration.GetConnectionString("docker");
+#else
+                configuration.GetConnectionString("local");
+#endif
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -68,7 +72,7 @@
 #if efcore
                 using (AsyncScopedLifestyle.BeginScope(container))
                 {
-                    var db = container.GetInstance<BusinessAppReadOnlyDbContext>();
+                    var db = container.GetInstance<BusinessAppDbContext>();
                     db.Database.Migrate();
                 }
 #endif

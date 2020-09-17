@@ -78,29 +78,43 @@
             container.Register<ITransactionFactory>(() => container.GetInstance<BusinessAppDbContext>());
 
             RegisterDbContext<BusinessAppDbContext>(container, options.WriteConnectionString);
-            RegisterDbContext<BusinessAppReadOnlyDbContext>(container, options.ReadConnectionString);
 #endif
         }
 
 #if efcore
-        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
+
+        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
         {
-            public BusinessAppReadOnlyDbContext CreateDbContext(string[] args)
+            public BusinessAppDbContext CreateDbContext(string[] args)
             {
                 var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
                     .Build()
                     .Services
                     .GetService(typeof(IConfiguration));
-                var connection = config.GetConnectionString("Main");
-                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>();
+#if docker
+                var connection = config.GetConnectionString("docker");
+#else
+                var connection = config.GetConnectionString("local");
+#endif
+                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
 
                 optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
 
-                return new BusinessAppReadOnlyDbContext(
-                    optionsBuilder.Options
-                );
+                return new BusinessAppDbContext(
+                    optionsBuilder.Options,
+                    new EventUnitOfWork(new NullEventPublisher()));
+            }
+
+            private sealed class NullEventPublisher : BusinessApp.Domain.IEventPublisher
+            {
+                public System.Threading.Tasks.Task PublishAsync(IEventEmitter emitter,
+                    System.Threading.CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
+
 
         private static void RegisterDbContext<TContext>(Container container, string connectionString)
             where TContext : DbContext

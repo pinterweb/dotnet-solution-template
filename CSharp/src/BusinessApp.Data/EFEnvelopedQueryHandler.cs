@@ -11,11 +11,11 @@ namespace BusinessApp.Data
         where TQuery : Query, IQuery<EnvelopeContract<TResult>>
         where TResult : class
     {
-        private readonly BusinessAppReadOnlyDbContext db;
+        private readonly BusinessAppDbContext db;
         private readonly IDbSetVisitorFactory<TQuery, TResult> dbSetFactory;
         private readonly IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory;
 
-        public EFEnvelopedQueryHandler(BusinessAppReadOnlyDbContext db,
+        public EFEnvelopedQueryHandler(BusinessAppDbContext db,
             IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
             IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
