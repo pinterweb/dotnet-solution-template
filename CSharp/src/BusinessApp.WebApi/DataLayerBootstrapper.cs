@@ -83,31 +83,22 @@
         }
 
 #if efcore
-        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
+        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
         {
-            public BusinessAppDbContext CreateDbContext(string[] args)
+            public BusinessReadOnlyAppContext CreateDbContext(string[] args)
             {
                 var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
                     .Build()
                     .Services
                     .GetService(typeof(IConfiguration));
                 var connection = config.GetConnectionString("Main");
-                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
+                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>();
 
                 optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
 
-                return new BusinessAppDbContext(
-                    optionsBuilder.Options,
-                    new EventUnitOfWork(new NullEventPublisher()));
-            }
-
-            private class NullEventPublisher : BusinessApp.Domain.IEventPublisher
-            {
-                public System.Threading.Tasks.Task PublishAsync(IEventEmitter emitter,
-                    System.Threading.CancellationToken cancellationToken)
-                {
-                    throw new NotImplementedException();
-                }
+                return new BusinessAppReadOnlyDbContext(
+                    optionsBuilder.Options
+                );
             }
         }
 
