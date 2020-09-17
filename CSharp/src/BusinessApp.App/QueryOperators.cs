@@ -3,11 +3,10 @@ namespace BusinessApp.App
     /// <summary>
     /// The supported operators for <see cref="IOperationQuery{T}"/>
     /// </summary>
-    public static class Operator
+    public static class QueryOperators
     {
+        public const string Equal = "eq";
         public const string Contains = "in";
-        public const string Exclusion = "excl";
-        public const string Inclusion = "incl";
         public const string GreaterThanOrEqualTo = "gte";
         public const string LessThanOrEqualTo = "lte";
         public const string GreaterThan = "gt";

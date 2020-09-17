@@ -44,6 +44,7 @@
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
             container.Register(typeof(ILinqSpecificationBuilder<,>), typeof(AndSpecificationBuilder<,>));
             container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
+            container.Collection.Append(typeof(ILinqSpecificationBuilder<,>), typeof(QueryOperatorSpecificationBuilder<,>));
             container.Collection.Register(typeof(IQueryVisitorFactory<,>), new[]
             {
                 typeof(AndSpecificationBuilder<,>),
@@ -82,7 +83,7 @@
         }
 
 #if efcore
-        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
+        public sealed class MigrationsReadOnlyContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
         {
             public BusinessAppReadOnlyDbContext CreateDbContext(string[] args)
             {
@@ -100,6 +101,35 @@
                 );
             }
         }
+
+        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
+        {
+            public BusinessAppDbContext CreateDbContext(string[] args)
+            {
+                var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+                    .Build()
+                    .Services
+                    .GetService(typeof(IConfiguration));
+                var connection = config.GetConnectionString("Main");
+                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
+
+                optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
+
+                return new BusinessAppDbContext(
+                    optionsBuilder.Options,
+                    new EventUnitOfWork(new NullEventPublisher()));
+            }
+
+            private class NullEventPublisher : BusinessApp.Domain.IEventPublisher
+            {
+                public System.Threading.Tasks.Task PublishAsync(IEventEmitter emitter,
+                    System.Threading.CancellationToken cancellationToken)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+
 
         private static void RegisterDbContext<TContext>(Container container, string connectionString)
             where TContext : DbContext
