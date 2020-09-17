@@ -44,6 +44,7 @@
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
             container.Register(typeof(ILinqSpecificationBuilder<,>), typeof(AndSpecificationBuilder<,>));
             container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
+            container.Collection.Append(typeof(ILinqSpecificationBuilder<,>), typeof(QueryOperatorSpecificationBuilder<,>));
             container.Collection.Register(typeof(IQueryVisitorFactory<,>), new[]
             {
                 typeof(AndSpecificationBuilder<,>),
