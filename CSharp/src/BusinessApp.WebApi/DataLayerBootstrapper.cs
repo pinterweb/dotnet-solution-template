@@ -85,7 +85,7 @@
 #if efcore
         public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
         {
-            public BusinessReadOnlyAppContext CreateDbContext(string[] args)
+            public BusinessAppReadOnlyDbContext CreateDbContext(string[] args)
             {
                 var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
                     .Build()
