@@ -109,7 +109,7 @@
                         "src/BusinessApp.Data/database_restore.sh",
                         "src/BusinessApp.Data/database_up.cmd",
                         "src/BusinessApp.Data/database_up.sh",
-                        "src/BusinessApp.Data/EF*.cd",
+                        "src/BusinessApp.Data/EF*.cs",
                         "src/BusinessApp.Data/IDbSetVisitor.cs",
                         "src/BusinessApp.Data/IDbSetVisitorFactory.cs",
                         "src/BusinessApp.Data/NullDbSetVisitor.cs",
