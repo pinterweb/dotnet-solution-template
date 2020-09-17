@@ -83,25 +83,6 @@
         }
 
 #if efcore
-        public sealed class MigrationsReadOnlyContextFactory : IDesignTimeDbContextFactory<BusinessAppReadOnlyDbContext>
-        {
-            public BusinessAppReadOnlyDbContext CreateDbContext(string[] args)
-            {
-                var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
-                    .Build()
-                    .Services
-                    .GetService(typeof(IConfiguration));
-                var connection = config.GetConnectionString("Main");
-                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppReadOnlyDbContext>();
-
-                optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
-
-                return new BusinessAppReadOnlyDbContext(
-                    optionsBuilder.Options
-                );
-            }
-        }
-
         public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
         {
             public BusinessAppDbContext CreateDbContext(string[] args)
