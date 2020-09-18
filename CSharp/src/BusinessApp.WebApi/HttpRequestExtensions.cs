@@ -7,13 +7,9 @@ namespace BusinessApp.WebApi
     {
         public static async Task<bool> HasBody(this HttpRequest request)
         {
-            request.EnableBuffering();
+            var firstByte = await request.BodyReader.ReadAsync();
 
-            var hasBody = await request.Body.ReadAsync(new byte[1], 0, 1) != -1;
-
-            request.Body.Position = 0;
-
-            return hasBody;
+            return !firstByte.Buffer.IsEmpty;
         }
     }
 }

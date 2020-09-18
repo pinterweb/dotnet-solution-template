@@ -5,8 +5,6 @@ namespace BusinessApp.WebApi
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
-    using System.Runtime.Serialization;
     using System.Web;
     using BusinessApp.App;
     using BusinessApp.Data;
@@ -56,7 +54,8 @@ namespace BusinessApp.WebApi
                 var appClass = property.PropertyType.IsClass
                     && property.PropertyType.Namespace.StartsWith("BusinessApp");
 
-                if (appClass)
+                // prevent infinite recursion
+                if (appClass && typeof(T) != property.PropertyType)
                 {
                     RecurseAllProperties(property.PropertyType, prefix + property.Name + ".");
                 }

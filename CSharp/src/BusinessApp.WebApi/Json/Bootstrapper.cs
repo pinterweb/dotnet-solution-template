@@ -32,7 +32,8 @@
                         new EntityIdJsonConverter<string>(),
                         new EntityIdJsonConverter<int>(),
                         new LongToStringJsonConverter(),
-                        new IDictionaryJsonConverter()
+                        new IDictionaryJsonConverter(),
+                        new Newtonsoft.Json.Converters.StringEnumConverter(),
                     }
                 }
             );
