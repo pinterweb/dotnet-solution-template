@@ -142,14 +142,14 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Theory]
-            [InlineData("Byte", "number")]
-            [InlineData("Int16", "number")]
-            [InlineData("Int32", "number")]
-            [InlineData("Int64", "number")]
-            [InlineData("Double", "number")]
-            [InlineData("Decimal", "number")]
+            [InlineData("Byte", "byte")]
+            [InlineData("Int16", "short")]
+            [InlineData("Int32", "int")]
+            [InlineData("Int64", "long")]
+            [InlineData("Double", "decimal")]
+            [InlineData("Decimal", "decimal")]
             [InlineData("DateTime", "date")]
-            [InlineData("Single", "number")]
+            [InlineData("Boolean", "bool")]
             public void DetailMessage_InResponse(string dataType, string expectedReplacement)
             {
                 /* Arrange */
@@ -1013,16 +1013,21 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Fact]
-            public void DetailMessage_MappedFromStrig()
+            public void DetailMessage_MappedFromString()
             {
                 /* Act */
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
+#if DEBUG
+                Assert.Equal("Exception of type 'System.Exception' was thrown.",
+                    response.Detail);
+#else
                 Assert.Equal("An unexpected error has occurred in the system. " +
                     "The problem has been logged. Please contact support if this " +
                     "issue persists without our acknowledgment.",
                     response.Detail);
+#endif
             }
 
             [Fact]

@@ -32,14 +32,15 @@
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorType = "invalid-request";
                     detail = fe.Message
-                        .Replace("Byte", "number")
-                        .Replace("Int16", "number")
-                        .Replace("Int32", "number")
-                        .Replace("Int64", "number")
-                        .Replace("Double", "number")
-                        .Replace("Decimal", "number")
+                        .Replace("Byte", "byte")
+                        .Replace("Int16", "short")
+                        .Replace("Int32", "int")
+                        .Replace("Int64", "long")
+                        .Replace("Double", "decimal")
+                        .Replace("Decimal", "decimal")
                         .Replace("DateTime", "date")
-                        .Replace("Single", "number");
+                        .Replace("Single", "number")
+                        .Replace("Boolean", "bool");
                     title = "Invalid Request";
                     break;
                 case ArgumentException ae when ae.InnerException is FormatException:
@@ -159,8 +160,12 @@
                     }
                     errorType = "unexpected";
                     title = "An unexpected error has occurred in the system.";
+#if !DEBUG
                     detail = $"{title} The problem has been logged. Please contact support " +
                         "if this issue persists without our acknowledgment.";
+#else
+                    detail = exception.Message;
+#endif
                     break;
             }
 
