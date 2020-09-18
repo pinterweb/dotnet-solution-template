@@ -8,8 +8,6 @@ namespace BusinessApp.Test
     using Microsoft.Extensions.Configuration;
     using Microsoft.AspNetCore.Hosting;
     using BusinessApp.WebApi;
-    using FakeItEasy;
-    using BusinessApp.Domain;
     using Microsoft.EntityFrameworkCore.Infrastructure;
 
     public class DatabaseFixture : IDisposable
@@ -47,8 +45,7 @@ namespace BusinessApp.Test
                 new DbContextOptionsBuilder<BusinessAppDbContext>()
                     .UseLoggerFactory(EFDebugLoggerFactory)
                     .UseSqlServer(ConnectionStr)
-                    .Options,
-                A.Dummy<EventUnitOfWork>()
+                    .Options
             );
 
             DbContext.Database.Migrate();

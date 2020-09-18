@@ -7,6 +7,7 @@ namespace BusinessApp.Domain.UnitTest
     using BusinessApp.Domain;
     using Xunit;
     using System.Threading;
+    using System.Linq;
 
     public class EventUnitOfWorkTests
     {
@@ -51,7 +52,33 @@ namespace BusinessApp.Domain.UnitTest
         public class CommitAsync : EventUnitOfWorkTests
         {
             [Fact]
-            public async Task WithNewAggregateRoot_EventsPublishBeforeOnCommit()
+            public async Task BeforePublishing_CommittingEventInvoked()
+            {
+                /* Arrange */
+                var aggregate = new AggregateRootFake();
+                aggregate.AddEvent();
+                sut.Add(aggregate);
+                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                    .Invokes(ctx =>
+                    {
+                        aggregate.ClearEvents();
+                    });
+
+                int publishCalls = 1;
+                sut.Committing += (sender, args) =>
+                {
+                    publishCalls = Fake.GetCalls(publisher).Count();
+                };
+
+                /* Act */
+                await sut.CommitAsync(token);
+
+                /* Assert */
+                Assert.Equal(0, publishCalls);
+            }
+
+            [Fact]
+            public async Task WithNewAggregateRoot_EventsPublishOnCommit()
             {
                 /* Arrange */
                 var aggregate = new AggregateRootFake();
@@ -68,22 +95,6 @@ namespace BusinessApp.Domain.UnitTest
 
                 /* Assert */
                 A.CallTo(() => publisher.PublishAsync(aggregate, token))
-                    .MustHaveHappenedOnceExactly();
-            }
-
-            [Fact]
-            public async Task WithNewEventEmitter_EventsPublishBeforeOnCommit()
-            {
-                /* Arrange */
-                var emitter = A.Fake<IEventEmitter>();
-                A.CallTo(() => emitter.HasEvents()).Returns(true).Once();
-                sut.Add(emitter);
-
-                /* Act */
-                await sut.CommitAsync(token);
-
-                /* Assert */
-                A.CallTo(() => publisher.PublishAsync(emitter, token))
                     .MustHaveHappenedOnceExactly();
             }
 
@@ -115,19 +126,29 @@ namespace BusinessApp.Domain.UnitTest
             }
 
             [Fact]
-            public async Task WithEventEmitter_EventsPublishWhileExists()
+            public async Task AfterPublishing_CommittedCalled()
             {
                 /* Arrange */
-                var emitter = A.Fake<IEventEmitter>();
-                A.CallTo(() => emitter.HasEvents()).Returns(true).Twice();
-                sut.Add(emitter);
+                int publishCalls = 0;
+                var aggregate = new AggregateRootFake();
+                aggregate.AddEvent();
+                sut.Add(aggregate);
+                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                    .Invokes(ctx =>
+                    {
+                        aggregate.ClearEvents();
+                    });
+
+                sut.Committed += (sender, args) =>
+                {
+                    publishCalls = Fake.GetCalls(publisher).Count();
+                };
 
                 /* Act */
                 await sut.CommitAsync(token);
 
                 /* Assert */
-                A.CallTo(() => publisher.PublishAsync(emitter, token))
-                    .MustHaveHappenedOnceExactly();
+                Assert.Equal(1, publishCalls);
             }
         }
 

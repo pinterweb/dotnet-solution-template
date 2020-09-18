@@ -1,6 +1,5 @@
 namespace BusinessApp.Data.IntegrationTest
 {
-    using BusinessApp.Domain;
     using FakeItEasy;
     using Microsoft.EntityFrameworkCore;
 
@@ -11,8 +10,8 @@ namespace BusinessApp.Data.IntegrationTest
             return new BusinessAppDbContext(
                 new DbContextOptionsBuilder<BusinessAppDbContext>()
                     .UseSqlServer("Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar")
-                    .Options,
-                A.Dummy<EventUnitOfWork>());
+                    .Options
+            );
         }
 
         protected override BusinessAppDbContext Create() => Real();

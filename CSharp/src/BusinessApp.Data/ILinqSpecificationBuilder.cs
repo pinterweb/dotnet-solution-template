@@ -5,7 +5,7 @@ namespace BusinessApp.Data
     /// <summary>
     /// Interface to build a <see cref="LinqSpecification{}"/> from the query
     /// </summary>
-    public interface ILinqSpecificationBuilder<TQuery, TResult>
+    public interface ILinqSpecificationBuilder<in TQuery, TResult>
     {
         LinqSpecification<TResult> Build(TQuery query);
     }

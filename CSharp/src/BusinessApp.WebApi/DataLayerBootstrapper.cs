@@ -5,7 +5,6 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.Extensions.Configuration;
-    using System;
 //#if DEBUG
     using Microsoft.Extensions.Logging;
 //#endif
@@ -41,6 +40,8 @@
             GuardAgainst.Null(container, nameof(container));
 
             container.Register(typeof(IAggregateRootRepository<,>), Assembly);
+            container.Register(typeof(IQueryVisitor<>), Assembly);
+            container.RegisterConditional(typeof(IQueryVisitor<>), typeof(NullQueryVisitor<>), ctx => !ctx.Handled);
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
             container.Register(typeof(ILinqSpecificationBuilder<,>), typeof(AndSpecificationBuilder<,>));
             container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
@@ -54,6 +55,7 @@
 #endif
             });
 #if efcore
+            container.Register(typeof(IDatastore<>), typeof(EFDatastore<>));
             container.Register(typeof(IDbSetVisitorFactory<,>), Assembly);
             container.RegisterConditional(
                 typeof(IDbSetVisitorFactory<,>),
@@ -74,8 +76,9 @@
                 ctx => !ctx.Handled
             );
             container.Register<IEventRepository, EventRepository>();
-            container.Register<IUnitOfWork>(() => container.GetInstance<BusinessAppDbContext>());
-            container.Register<ITransactionFactory>(() => container.GetInstance<BusinessAppDbContext>());
+            container.Register<EFUnitOfWork>();
+            container.Register<IUnitOfWork>(() => container.GetInstance<EFUnitOfWork>());
+            container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
             RegisterDbContext<BusinessAppDbContext>(container, options.WriteConnectionString);
 #endif
@@ -100,18 +103,7 @@
 
                 optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
 
-                return new BusinessAppDbContext(
-                    optionsBuilder.Options,
-                    new EventUnitOfWork(new NullEventPublisher()));
-            }
-
-            private sealed class NullEventPublisher : BusinessApp.Domain.IEventPublisher
-            {
-                public System.Threading.Tasks.Task PublishAsync(IEventEmitter emitter,
-                    System.Threading.CancellationToken cancellationToken)
-                {
-                    throw new NotImplementedException();
-                }
+                return new BusinessAppDbContext(optionsBuilder.Options);
             }
         }
 
