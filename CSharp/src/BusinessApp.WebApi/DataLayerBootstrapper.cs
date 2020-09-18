@@ -49,6 +49,7 @@
             container.Collection.Register(typeof(IQueryVisitorFactory<,>), new[]
             {
                 typeof(AndSpecificationBuilder<,>),
+                typeof(ConstructedQueryVisitorFactory<,>),
 #if efcore
                 typeof(EFQueryVisitorFactory<,>),
                 typeof(EFQueryFieldsVisitorFactory<,>)
