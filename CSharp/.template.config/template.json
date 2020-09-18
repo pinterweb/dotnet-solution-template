@@ -146,8 +146,10 @@
                     "exclude": [
                         "src/docker-compose.yml",
                         "src/Dockerfile",
+                        "src/.env",
                         "src/docker_run.cmd",
-                        "src/.dockerignore"
+                        "src/.dockerignore",
+                        "src/BusinessApp.WebApi/.env.docker"
                     ]
                 }
             ]
