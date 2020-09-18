@@ -24,7 +24,7 @@
             {
                 var endpoints = new IEndpointConventionBuilder[]
                 {
-                    //endpoint.MapGet("/api/<aggregate>", async ctx =>
+                    //endpoint.MapGet("/api/<resource>", async ctx =>
                     //    await container
                     //        .GetInstance<IResourceHandler<SomeQuery, IEnumerable<BusinessContract>>>()
                     //        .HandleAsync(ctx, default)
