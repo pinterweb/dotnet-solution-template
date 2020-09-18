@@ -36,5 +36,20 @@ namespace ShelLife.Domain.UnitTest
                 Assert.Equal(expected, result.Kind);
             }
         }
+
+        public class Test : InvariantsTests
+        {
+            [Theory]
+            [InlineData("", Result.Failure)]
+            [InlineData("foo", Result.Ok)]
+            public void ValueTestedAgainstExpression_FailedWhenFalse(string val, Result expected)
+            {
+                /* Act */
+                var result = Invariants.Test(val, val => val == "foo");
+
+                /* Assert */
+                Assert.Equal(expected, result.Kind);
+            }
+        }
     }
 }

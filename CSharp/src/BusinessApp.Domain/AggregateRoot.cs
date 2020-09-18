@@ -6,7 +6,7 @@
     /// <summary>
     /// The root entity within an aggregate, without an exposed Id
     /// </summary>
-    public class AggregateRoot : IEventEmitter
+    public abstract class AggregateRoot : IEventEmitter
     {
         protected ICollection<IDomainEvent> Events { get; }
             = new List<IDomainEvent>();
@@ -25,7 +25,7 @@
     /// <summary>
     /// The root entity within an aggregate, with an exposed Id
     /// </summary>
-    public class AggregateRoot<TId> : AggregateRoot
+    public abstract class AggregateRoot<TId> : AggregateRoot
         where TId : IEntityId
     {
         private TId id;

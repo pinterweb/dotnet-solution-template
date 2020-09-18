@@ -1,5 +1,8 @@
 ﻿namespace BusinessApp.Domain
 {
+    using System;
+    using System.Linq.Expressions;
+
     /// <summary>
     /// Helper classes for enforcing invariants
     /// </summary>
@@ -12,6 +15,9 @@
             CreateNotNullSpec<string>()
             & new LinqSpecification<string>(v => v.Trim().Length != 0)
         ).Test(value);
+
+        public static Result<T> Test<T>(T value, Expression<Func<T, bool>> test) =>
+            new LinqSpecification<T>(test).Test(value);
 
         private static LinqSpecification<T> CreateNotNullSpec<T>() =>
             new LinqSpecification<T>(v => v != null);
