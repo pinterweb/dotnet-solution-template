@@ -23,7 +23,31 @@ namespace BusinessApp.App.UnitTest
     }
 
     public class QueryStub : IQuery<ResponseStub>
-    {}
+    {
+        public int Id { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is QueryStub other)
+            {
+                return other.Id == Id;
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                // Choose large primes to avoid hashing collisions
+                const int HashingBase = (int)2166136261;
+                const int HashingMultiplier = 16777619;
+
+                return (HashingBase * HashingMultiplier) ^  Id.GetHashCode();
+            }
+        }
+    }
 
     public class ResponseStub
     {}
