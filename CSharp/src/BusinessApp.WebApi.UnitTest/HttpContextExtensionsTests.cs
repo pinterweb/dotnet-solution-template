@@ -19,7 +19,7 @@ namespace BusinessApp.WebApi.UnitTest
 
         public HttpContextExtensionsTests()
         {
-            context = HttpContextFakeFactory.New();
+            context = A.Fake<HttpContext>();
             token = A.Dummy<CancellationToken>();
             A.CallTo(() => context.Request.QueryString).Returns(new QueryString(""));
         }

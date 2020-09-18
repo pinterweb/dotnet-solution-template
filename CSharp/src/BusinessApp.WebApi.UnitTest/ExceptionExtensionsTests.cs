@@ -20,7 +20,7 @@ namespace BusinessApp.WebApi.UnitTest
 
         public ExceptionExtensionsTests()
         {
-            http = HttpContextFakeFactory.New();
+            http = A.Fake<HttpContext>();
         }
 
         public class OnArgumentException : ExceptionExtensionsTests

@@ -1,22 +1,17 @@
 namespace BusinessApp.WebApi.UnitTest
 {
-  using System.Security.Claims;
-  using FakeItEasy;
+    using System.Security.Claims;
+    using FakeItEasy;
+    using FakeItEasy.Creation;
 
-  public static class ClaimsPrincipalFakeFactory
-  {
-    public static ClaimsPrincipal New(ClaimsIdentity identity = null)
+    public class ClaimsPrincipalFakeFactory : FakeOptionsBuilder<ClaimsPrincipal>
     {
-      var fakeCp = A.Fake<ClaimsPrincipal>();
-
-      if (identity == null)
-      {
-        identity = ClaimsIdentityFakeFactory.New();
-      }
-
-      A.CallTo(() => fakeCp.Identity).Returns(identity);
-
-      return fakeCp;
+        protected override void BuildOptions(IFakeOptions<ClaimsPrincipal> options)
+        {
+            options.ConfigureFake(fake =>
+            {
+                A.CallTo(() => fake.Identity).Returns(A.Fake<ClaimsIdentity>());
+            });
+        }
     }
-  }
 }
