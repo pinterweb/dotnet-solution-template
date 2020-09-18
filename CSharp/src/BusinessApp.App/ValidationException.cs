@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel.DataAnnotations;
+    using System.Linq;
     using BusinessApp.Domain;
 
     /// <summary>
@@ -15,9 +16,16 @@
         {
             Result = GuardAgainst.Null(result, nameof(result));
 
-            foreach (var member in Result.MemberNames)
+            if (Result.MemberNames.Any())
             {
-                Data.Add(member, Result.ErrorMessage);
+                foreach (var member in Result.MemberNames)
+                {
+                    Data.Add(member, Result.ErrorMessage);
+                }
+            }
+            else
+            {
+                Data.Add("", Result.ErrorMessage);
             }
         }
 

@@ -141,6 +141,25 @@ namespace BusinessApp.App.UnitTest
                         Assert.Equal("bar", d.Value);
                     });
             }
+
+
+            [Fact]
+            public void WithNoMemberNames_MessageStillAdded()
+            {
+                /* Arrange */
+                var result = new ValidationResult("foo");
+
+                /* Act */
+                var ex = new ValidationException(result, A.Dummy<Exception>());
+
+                /* Assert */
+                Assert.Collection(ex.Data.Cast<DictionaryEntry>(),
+                    d =>
+                    {
+                        Assert.Equal("", d.Key);
+                        Assert.Equal("foo", d.Value);
+                    });
+            }
         }
     }
 }
