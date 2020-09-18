@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.Domain
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -18,18 +19,23 @@
             this.eventPublisher = GuardAgainst.Null(eventPublisher, nameof(eventPublisher));
         }
 
-        public void Add(IEventEmitter emitter)
+        public event EventHandler Committing = delegate { };
+        public event EventHandler Committed = delegate { };
+
+        public virtual void Add(AggregateRoot aggregate)
         {
-            emitters.Add(emitter);
+            emitters.Add(aggregate);
         }
 
-        public void Add(AggregateRoot aggregate)
+        public virtual void Track(AggregateRoot aggregate)
         {
             emitters.Add(aggregate);
         }
 
         public virtual async Task CommitAsync(CancellationToken cancellationToken)
         {
+            Volatile.Read(ref Committing).Invoke(this, EventArgs.Empty);
+
             do
             {
                 var pending = emitters.Where(i => i.HasEvents()).ToArray();
@@ -39,6 +45,8 @@
                     await eventPublisher.PublishAsync(pending[a], cancellationToken);
                 }
             } while (emitters.Any(i => i.HasEvents()));
+
+            Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
         public virtual void Remove(AggregateRoot aggregate)

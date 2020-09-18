@@ -71,6 +71,42 @@ namespace BusinessApp.Data.IntegrationTest
         {
             public Visit(DatabaseFixture fixture) : base(fixture) {}
 
+            [Fact]
+            public void WithExpand_DataIncluded()
+            {
+                /* Arrange */
+                var query = new QueryStub
+                {
+                    Expand = new [] { nameof(ResponseStub.ChildResponseStubs) }
+                };
+                sut = new EFQueryVisitor<ResponseStub>(query);
+
+                /* Act */
+                var newQuery = sut.Visit(db.Set<ResponseStub>());
+
+                /* Assert - if not included children would be null */
+                var queryResults = newQuery.ToList();
+                Assert.Empty(queryResults.SelectMany(q => q.ChildResponseStubs));
+            }
+
+            [Fact]
+            public void WithEmbed_DataIncluded()
+            {
+                /* Arrange */
+                var query = new QueryStub
+                {
+                    Embed = new [] { nameof(ResponseStub.ChildResponseStubs) }
+                };
+                sut = new EFQueryVisitor<ResponseStub>(query);
+
+                /* Act */
+                var newQuery = sut.Visit(db.Set<ResponseStub>());
+
+                /* Assert - if not included children would be null */
+                var queryResults = newQuery.ToList();
+                Assert.Empty(queryResults.SelectMany(q => q.ChildResponseStubs));
+            }
+
             [Theory]
             [InlineData(0)]
             [InlineData(null)]

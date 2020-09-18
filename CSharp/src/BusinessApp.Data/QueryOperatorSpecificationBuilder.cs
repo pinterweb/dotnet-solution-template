@@ -7,11 +7,15 @@ namespace BusinessApp.Data
     using System.Linq.Expressions;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using System.Collections.Concurrent;
 
     public class QueryOperatorSpecificationBuilder<TQuery, TContract> :
         ILinqSpecificationBuilder<TQuery, TContract>
     {
-        protected static readonly ICollection<PropertyInfo> Filters =
+        private static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>> RuntimeFilterCache =
+            new ConcurrentDictionary<Type, ICollection<PropertyInfo>>();
+
+        private static readonly ICollection<PropertyInfo> FilterCache =
             typeof(TQuery)
             .GetProperties()
             .Where(p => p.GetCustomAttributes(typeof(QueryOperatorAttribute)).Any())
@@ -19,12 +23,35 @@ namespace BusinessApp.Data
 
         public LinqSpecification<TContract> Build(TQuery query)
         {
-            var filters = Filters.Select(p => CreateSpecFromQuery(query, p));
+            var filters = (
+                FilterCache.Any()
+                    ? FilterCache
+                    : CreateRuntimeFilters(query)
+            ).Select(p => CreateSpecFromQuery(query, p));
 
             return
                 !filters.Any() ?
                 new NullSpecification<TContract>(true) :
                 filters.Aggregate((current, next) => current & next);
+        }
+
+        // support for inheritance since the interface is contravariant
+        private static ICollection<PropertyInfo> CreateRuntimeFilters(TQuery query)
+        {
+            var childType = query.GetType();
+
+            if (!RuntimeFilterCache.TryGetValue(childType, out ICollection<PropertyInfo> props))
+            {
+                props =
+                    childType
+                    .GetProperties()
+                    .Where(p => p.GetCustomAttributes(typeof(QueryOperatorAttribute)).Any())
+                    .ToList();
+
+                var _ = RuntimeFilterCache.TryAdd(childType, props);
+            }
+
+            return props;
         }
 
         private static LinqSpecification<TContract> CreateSpecFromQuery(TQuery query, PropertyInfo p)

@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Runtime.Serialization;
     using BusinessApp.App;
     using BusinessApp.Domain;
     using Microsoft.EntityFrameworkCore;
@@ -22,7 +21,7 @@
                    prop.PropertyType.IsGenericIEnumerable() ?
                    prop.PropertyType.GetGenericArguments()[0] :
                    prop.PropertyType
-               ).GetCustomAttribute<DataContractAttribute>() != null
+               ) != null
            )
            .Select(p => p.Name)
            .ToList();

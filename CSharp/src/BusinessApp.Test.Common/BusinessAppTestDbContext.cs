@@ -1,23 +1,19 @@
 namespace BusinessApp.Test
 {
     using BusinessApp.Data;
-    using BusinessApp.Domain;
-    using FakeItEasy;
     using Microsoft.EntityFrameworkCore;
 
     public class BusinessAppTestDbContext : BusinessAppDbContext
     {
-        public BusinessAppTestDbContext(DbContextOptions<BusinessAppDbContext> opts,
-            EventUnitOfWork uow)
-            : base(opts, uow)
+        public BusinessAppTestDbContext(DbContextOptions<BusinessAppDbContext> opts)
+            : base(opts)
         { }
 
         public BusinessAppTestDbContext()
             : base(
                 new DbContextOptionsBuilder<BusinessAppDbContext>()
                     .UseSqlServer("Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar")
-                    .Options,
-                A.Dummy<EventUnitOfWork>()
+                    .Options
             )
         { }
 
@@ -26,6 +22,7 @@ namespace BusinessApp.Test
             // additional test models here
             modelBuilder.Entity<DomainEventStub>();
             modelBuilder.Entity<ResponseStub>();
+            modelBuilder.Entity<ChildResponseStub>();
             base.OnModelCreating(modelBuilder);
         }
     }
