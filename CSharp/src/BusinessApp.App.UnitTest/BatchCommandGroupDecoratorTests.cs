@@ -315,10 +315,8 @@ namespace BusinessApp.App.UnitTest
                     new[] { commands.Last() }
                 };
                 A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.First(), token))
-                    .Throws(exception1);
-                A.CallTo(() => inner.HandleAsync(groups.Last(), token))
-                    .Throws(exception2);
+                A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, token))
+                    .Throws(exception1).Once().Then.Throws(exception2);
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
