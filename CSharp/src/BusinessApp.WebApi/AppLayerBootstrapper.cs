@@ -41,6 +41,13 @@
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EFTrackingQueryDecorator<,>));
 #endif
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EntityNotFoundQueryDecorator<,>));
+            container.RegisterDecorator(
+                typeof(IQueryHandler<,>),
+                typeof(AuthorizationQueryDecorator<,>),
+                c => c.ServiceType
+                      .GetGenericArguments()[0]
+                      .GetCustomAttributes(typeof(AuthorizeAttribute))
+                      .Any());
 
             container.Register(typeof(IBatchGrouper<>), Assembly);
             container.RegisterConditional(typeof(IBatchGrouper<>),
