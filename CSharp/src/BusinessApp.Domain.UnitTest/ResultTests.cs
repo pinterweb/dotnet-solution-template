@@ -48,19 +48,19 @@ namespace ShelLife.Domain.UnitTest
             }
         }
 
-        public class FailureFactory : ResultTests
+        public class ErrorFactory : ResultTests
         {
             [Fact]
-            public void KindProperty_IsFailure()
+            public void KindProperty_IsError()
             {
                 /* Arrange */
                 string value = A.Dummy<string>();
 
                 /* Act */
-                var sut = Result<string>.Failure(value);
+                var sut = Result<string>.Error(value);
 
                 /* Assert */
-                Assert.Equal(Result.Failure, sut.Kind);
+                Assert.Equal(Result.Error, sut.Kind);
             }
 
             [Fact]
@@ -68,7 +68,7 @@ namespace ShelLife.Domain.UnitTest
             {
                 /* Arrange */
                 string value = "foo";
-                var sut = Result<string>.Failure(value);
+                var sut = Result<string>.Error(value);
 
                 /* Act */
                 var ex = Record.Exception(() => (string)sut);
@@ -85,7 +85,7 @@ namespace ShelLife.Domain.UnitTest
             {
                 /* Arrange */
                 string value = "foo";
-                var sut = Result<string>.Failure(value);
+                var sut = Result<string>.Error(value);
 
                 /* Act */
                 var ex = Record.Exception(() => sut.Expect("Some message"));
@@ -101,16 +101,16 @@ namespace ShelLife.Domain.UnitTest
         public class CastToResult : ResultTests
         {
             [Fact]
-            public void Failure_FailureKindReturned()
+            public void Error_ErrorKindReturned()
             {
                 /* Arrange */
-                var sut = Result<string>.Failure(A.Dummy<string>());
+                var sut = Result<string>.Error(A.Dummy<string>());
 
                 /* Act */
                 Result result = sut;
 
                 /* Assert */
-                Assert.Equal(Result.Failure, result);
+                Assert.Equal(Result.Error, result);
             }
 
             [Fact]
@@ -130,10 +130,10 @@ namespace ShelLife.Domain.UnitTest
         public class CastToBool : ResultTests
         {
             [Fact]
-            public void Failure_FalseReturned()
+            public void Error_FalseReturned()
             {
                 /* Arrange */
-                var sut = Result<string>.Failure(A.Dummy<string>());
+                var sut = Result<string>.Error(A.Dummy<string>());
 
                 /* Act */
                 bool result = sut;

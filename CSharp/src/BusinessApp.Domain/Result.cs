@@ -6,7 +6,7 @@
     public enum Result
     {
         Ok,
-        Failure
+        Error
     }
 
     /// <summary>
@@ -19,7 +19,7 @@
         public readonly Result Kind;
 
         public static Result<T> Ok(T value) => new Result<T>(value, Result.Ok);
-        public static Result<T> Failure(T value) => new Result<T>(value, Result.Failure);
+        public static Result<T> Error(T value) => new Result<T>(value, Result.Error);
 
         private Result(T value, Result result)
         {
@@ -41,7 +41,7 @@
 
         public static implicit operator T(Result<T> result)
         {
-            if (result.Kind is Result.Failure)
+            if (result.Kind is Result.Error)
             {
                 throw new BadStateException(
                     "Cannot get the value because it is invalid in the current context"

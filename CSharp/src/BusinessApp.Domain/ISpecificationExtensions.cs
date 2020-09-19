@@ -12,7 +12,7 @@
         /// <returns></returns>
         public static Result<T> Test<T>(this ISpecification<T> spec, T value)
         {
-            if (!spec.IsSatisfiedBy(value)) return Result<T>.Failure(value);
+            if (!spec.IsSatisfiedBy(value)) return Result<T>.Error(value);
 
             return Result<T>.Ok(value);
         }

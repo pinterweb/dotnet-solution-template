@@ -8,10 +8,10 @@ namespace ShelLife.Domain.UnitTest
         public class NotNull : InvariantsTests
         {
             [Theory]
-            [InlineData(null, Result.Failure)]
+            [InlineData(null, Result.Error)]
             [InlineData("", Result.Ok)]
             [InlineData("foo", Result.Ok)]
-            public void ValueIsNull_FailureResultReturned(string val, Result expected)
+            public void ValueIsNull_ErrorResultReturned(string val, Result expected)
             {
                 /* Act */
                 var result = Invariants.NotNull(val);
@@ -24,10 +24,10 @@ namespace ShelLife.Domain.UnitTest
         public class NotEmptyString : InvariantsTests
         {
             [Theory]
-            [InlineData(null, Result.Failure)]
-            [InlineData("", Result.Failure)]
+            [InlineData(null, Result.Error)]
+            [InlineData("", Result.Error)]
             [InlineData("foo", Result.Ok)]
-            public void ValueIsEmpty_FailureResultReturned(string val, Result expected)
+            public void ValueIsEmpty_ErrorResultReturned(string val, Result expected)
             {
                 /* Act */
                 var result = Invariants.NotEmpty(val);
@@ -40,7 +40,7 @@ namespace ShelLife.Domain.UnitTest
         public class Test : InvariantsTests
         {
             [Theory]
-            [InlineData("", Result.Failure)]
+            [InlineData("", Result.Error)]
             [InlineData("foo", Result.Ok)]
             public void ValueTestedAgainstExpression_FailedWhenFalse(string val, Result expected)
             {
