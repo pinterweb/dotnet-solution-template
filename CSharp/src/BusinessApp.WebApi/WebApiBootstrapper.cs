@@ -23,8 +23,6 @@
             AppLayerBootstrapper.Bootstrap(container, env, options);
             DataLayerBootstrapper.Bootstrap(container, options);
 
-            container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(ResourceNotFoundRequestDecorator<,>));
-
 #if json
             Json.Bootstrapper.Bootstrap(container);
 #endif

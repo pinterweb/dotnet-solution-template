@@ -364,11 +364,14 @@ namespace BusinessApp.WebApi.UnitTest
             [Fact]
             public void DetailMessage_ExceptionMessageMappedInResponse()
             {
+                /* Arrange */
+                A.CallTo(() => http.Request.Path).Returns("/foobar");
+
                 /* Act */
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Equal("foo", response.Detail);
+                Assert.Equal("No resource was found at /foobar", response.Detail);
             }
 
             [Fact]
@@ -392,13 +395,13 @@ namespace BusinessApp.WebApi.UnitTest
             }
         }
 
-        public class OnResourceNotFoundException : ExceptionExtensionsTests
+        public class OnEntityNotFoundException : ExceptionExtensionsTests
         {
-            private readonly ResourceNotFoundException ex;
+            private readonly EntityNotFoundException ex;
 
-            public OnResourceNotFoundException()
+            public OnEntityNotFoundException()
             {
-                ex = new ResourceNotFoundException("foo");
+                ex = new EntityNotFoundException("foo message");
             }
 
             [Fact]
@@ -425,11 +428,14 @@ namespace BusinessApp.WebApi.UnitTest
             [Fact]
             public void DetailMessage_ExceptionMessageMappedInResponse()
             {
+                /* Arrange */
+                A.CallTo(() => http.Request.Path).Returns("/foobar");
+
                 /* Act */
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Equal("foo", response.Detail);
+                Assert.Equal("No resource was found at /foobar", response.Detail);
             }
 
             [Fact]
@@ -443,13 +449,19 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Fact]
-            public void Errors_NotInResponse()
+            public void Errors_MappedFromExceptionData()
             {
-                /* Arrange */
+                /*  */
+                var expected = new Dictionary<string, IEnumerable<string>>
+                {
+                    { "", new[] { "foo message" } }
+                };
+
+                /* Act */
                 var response = ex.MapToWebResponse(http);
 
                 /* Assert */
-                Assert.Null(response.Errors);
+                Assert.Equal(expected, response.Errors);
             }
         }
 
@@ -506,7 +518,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Fact]
             public void Errors_ResourceAndMessageInResponse()
             {
-                /*  */
+                /* Arrange */
                 var expected = new Dictionary<string, IEnumerable<string>>
                 {
                     { "foo", new[] { "bar" } }

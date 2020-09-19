@@ -57,10 +57,11 @@
                     title = "Invalid Data";
                     break;
                 case ActivationException _:
-                case ResourceNotFoundException _:
+                case EntityNotFoundException _:
                     context.Response.StatusCode = (int)HttpStatusCode.NotFound;
                     errorType = "not-found";
                     title = "Resource not found";
+                    detail = $"No resource was found at {context.Request.Path}";
                     break;
                 case SecurityResourceException sre:
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
