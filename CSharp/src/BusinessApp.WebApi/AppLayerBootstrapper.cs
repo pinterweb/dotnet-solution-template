@@ -36,6 +36,7 @@
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
             container.Register(typeof(IQueryHandler<,>), Assembly);
+            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(ValidationQueryDecorator<,>));
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(QueryLifetimeCacheDecorator<,>));
 #if efcore
             container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EFTrackingQueryDecorator<,>));
