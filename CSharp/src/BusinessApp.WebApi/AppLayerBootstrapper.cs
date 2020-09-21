@@ -62,6 +62,7 @@
             foreach (var type in handlerTypes) container.Register(type);
 
             container.Register(typeof(ICommandHandler<>), typeof(BatchCommandHandler<>));
+            container.Register(typeof(ICommandHandler<>), typeof(BatchMacroCommandDecorator<,>));
 
             // XXX Order of decorator registration matters.
             // First decorator wraps the real instance
