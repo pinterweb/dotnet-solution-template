@@ -9,6 +9,7 @@
     {
         public int? Limit { get; set; }
         public int? Offset { get; set; }
+        public IEnumerable<string> Sort { get; set; } = new List<string>();
         public IEnumerable<string> Embed { get; set; } = new List<string>();
         public IEnumerable<string> Expand { get; set; } = new List<string>();
         public IEnumerable<string> Fields { get; set; } = new List<string>();

@@ -72,6 +72,40 @@ namespace BusinessApp.Data.IntegrationTest
             public Visit(DatabaseFixture fixture) : base(fixture) {}
 
             [Fact]
+            public void UnknownEmbedFields_IgnoresThem()
+            {
+                /* Arrange */
+                var query = new QueryStub
+                {
+                    Embed = new [] { "foobar" }
+                };
+                sut = new EFQueryVisitor<ResponseStub>(query);
+
+                /* Act */
+                var ex = Record.Exception(() => sut.Visit(db.Set<ResponseStub>()));
+
+                /* Assert */
+                Assert.Null(ex);
+            }
+
+            [Fact]
+            public void UnknownExpandFields_IgnoresThem()
+            {
+                /* Arrange */
+                var query = new QueryStub
+                {
+                    Expand = new [] { "foobar" }
+                };
+                sut = new EFQueryVisitor<ResponseStub>(query);
+
+                /* Act */
+                var ex = Record.Exception(() => sut.Visit(db.Set<ResponseStub>()));
+
+                /* Assert */
+                Assert.Null(ex);
+            }
+
+            [Fact]
             public void WithExpand_DataIncluded()
             {
                 /* Arrange */

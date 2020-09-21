@@ -9,6 +9,13 @@ namespace BusinessApp.Data
         where TQuery : Query
         where TResult : class
     {
-        public IQueryVisitor<TResult> Create(TQuery query) => new EFQueryVisitor<TResult>(query);
+        public IQueryVisitor<TResult> Create(TQuery query) =>
+            new CompositeQueryVisitor<TResult>(new IQueryVisitor<TResult>[]
+            {
+                // order matters, .Where().OrderBy().Select()
+                new EFQueryVisitor<TResult>(query),
+                new EFQuerySortVisitor<TResult>(query),
+                new EFQueryFieldsVisitor<TResult>(query)
+            });
     }
 }
