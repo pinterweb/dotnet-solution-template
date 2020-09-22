@@ -47,7 +47,7 @@ namespace BusinessApp.App.UnitTest
                 var exception = Record.Exception(create);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(exception);
+                Assert.IsType<BadStateException>(exception);
             }
         }
 

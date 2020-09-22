@@ -15,14 +15,14 @@
             ICommandHandler<TCommand> inner,
             PostCommitRegister register)
         {
-            this.inner = GuardAgainst.Null(inner, nameof(inner));
-            this.transactionFactory = GuardAgainst.Null(transactionFactory, nameof(transactionFactory));
-            this.register = GuardAgainst.Null(register, nameof(register));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
+            this.transactionFactory = Guard.Against.Null(transactionFactory).Expect(nameof(transactionFactory));
+            this.register = Guard.Against.Null(register).Expect(nameof(register));
         }
 
         public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(command, nameof(command));
+            Guard.Against.Null(command).Expect(nameof(command));
 
             var trans = transactionFactory.Begin();
 

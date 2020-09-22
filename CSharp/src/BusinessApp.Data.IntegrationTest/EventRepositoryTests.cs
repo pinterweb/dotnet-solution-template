@@ -6,6 +6,7 @@ namespace BusinessApp.Data.IntegrationTest
     using System.Linq;
     using Microsoft.EntityFrameworkCore;
     using BusinessApp.Test;
+    using BusinessApp.Domain;
 
     [Collection(nameof(DatabaseCollection))]
     public class EventRepositoryTests : IDisposable
@@ -48,9 +49,8 @@ namespace BusinessApp.Data.IntegrationTest
                 var ex = Record.Exception((Action)shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
+                Assert.IsType<BadStateException>(ex);
             }
-
         }
 
         public class Add : EventRepositoryTests
@@ -67,7 +67,7 @@ namespace BusinessApp.Data.IntegrationTest
                 var exception = Record.Exception(add);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(exception);
+                Assert.IsType<BadStateException>(exception);
             }
 
             [Fact]

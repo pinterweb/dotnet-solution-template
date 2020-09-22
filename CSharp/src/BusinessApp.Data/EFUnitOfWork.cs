@@ -16,8 +16,8 @@ namespace BusinessApp.Data
 
         public EFUnitOfWork(BusinessAppDbContext db, EventUnitOfWork inner)
         {
-            this.db = GuardAgainst.Null(db, nameof(db));
-            this.inner = GuardAgainst.Null(inner, nameof(inner));
+            this.db = Guard.Against.Null(db).Expect(nameof(db));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
         }
 
         public event EventHandler Committing = delegate {};

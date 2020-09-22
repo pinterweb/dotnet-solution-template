@@ -11,7 +11,7 @@
 
         public AggregateRootRepository(IUnitOfWork uow)
         {
-            this.uow = GuardAgainst.Null(uow, nameof(uow));
+            this.uow = Guard.Against.Null(uow).Expect(nameof(uow));
         }
 
         public virtual void Add(TAggregate aggregate) => uow.Add(aggregate);

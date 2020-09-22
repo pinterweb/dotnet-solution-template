@@ -13,7 +13,7 @@
 
         public static void Bootstrap(Container container)
         {
-            GuardAgainst.Null(container, nameof(container));
+            Guard.Against.Null(container).Expect(nameof(container));
 
             container.Collection.Register(typeof(IEventHandler<>), new[]
             {

@@ -21,7 +21,7 @@ namespace BusinessApp.App
         /// <param name="policy">The roles required for authorization.</param>
         public AuthorizeAttribute(params string[] roles)
         {
-            Roles = GuardAgainst.Null(roles, nameof(roles));
+            Roles = Guard.Against.Null(roles).Expect(nameof(roles));
         }
 
         /// <summary>

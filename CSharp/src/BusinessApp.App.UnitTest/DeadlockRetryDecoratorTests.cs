@@ -8,6 +8,7 @@ namespace BusinessApp.App.UnitTest
     using BusinessApp.App;
     using Xunit;
     using System.Threading;
+    using BusinessApp.Domain;
 
     public class DeadlockRetryDecoratorTests
     {
@@ -43,8 +44,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
-
+                Assert.IsType<BadStateException>(ex);
             }
         }
 

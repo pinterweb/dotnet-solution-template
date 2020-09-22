@@ -13,7 +13,7 @@ namespace BusinessApp.Data
 
         public ConstructedQueryVisitorFactory(IQueryVisitor<TResult> visitor)
         {
-            this.visitor = GuardAgainst.Null(visitor, nameof(visitor));
+            this.visitor = Guard.Against.Null(visitor).Expect(nameof(visitor));
         }
 
         public IQueryVisitor<TResult> Create(TQuery query) => visitor;

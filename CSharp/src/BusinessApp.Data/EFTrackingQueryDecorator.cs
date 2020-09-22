@@ -14,14 +14,13 @@ namespace BusinessApp.Data
     public class EFTrackingQueryDecorator<TQuery, TResult> : IQueryHandler<TQuery, TResult>
         where TQuery : Query, IQuery<TResult>
     {
-        private readonly BusinessAppDbContext db;
         private readonly IQueryHandler<TQuery, TResult> inner;
 
         public EFTrackingQueryDecorator(BusinessAppDbContext db,
             IQueryHandler<TQuery, TResult> inner)
         {
-            GuardAgainst.Null(db, nameof(db));
-            this.inner = GuardAgainst.Null(inner, nameof(inner));
+            Guard.Against.Null(db).Expect(nameof(db));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
 
             db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }

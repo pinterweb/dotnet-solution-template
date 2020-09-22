@@ -18,14 +18,14 @@ namespace BusinessApp.App
         public ValidationBatchCommandDecorator(IValidator<TCommand> singleValidator,
             ICommandHandler<IEnumerable<TCommand>> handler)
         {
-            this.singleValidator = GuardAgainst.Null(singleValidator, nameof(singleValidator));
-            this.handler = GuardAgainst.Null(handler, nameof(handler));
+            this.singleValidator = Guard.Against.Null(singleValidator).Expect(nameof(singleValidator));
+            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
         public async Task HandleAsync(IEnumerable<TCommand> command,
             CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(command, nameof(command));
+            Guard.Against.Null(command).Expect(nameof(command));
             var errors = new List<ValidationException>();
 
             for (int i = 0; i < command.Count(); i++)

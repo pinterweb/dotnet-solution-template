@@ -14,8 +14,8 @@ namespace BusinessApp.App
         public ApplicationScopeBatchDecorator(IAppScope scope,
             Func<ICommandHandler<IEnumerable<TCommand>>> factory)
         {
-            this.scope = GuardAgainst.Null(scope, nameof(scope));
-            this.factory = GuardAgainst.Null(factory, nameof(factory));
+            this.scope = Guard.Against.Null(scope).Expect(nameof(scope));
+            this.factory = Guard.Against.Null(factory).Expect(nameof(factory));
         }
 
         public async Task HandleAsync(IEnumerable<TCommand> command, CancellationToken cancellationToken)

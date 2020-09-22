@@ -11,12 +11,12 @@
 
         public EventRepository(BusinessAppDbContext db)
         {
-            this.db = GuardAgainst.Null(db, nameof(db));
+            this.db = Guard.Against.Null(db).Expect(nameof(db));
         }
 
         public void Add(IDomainEvent @event)
         {
-            GuardAgainst.Null(@event, nameof(@event));
+            Guard.Against.Null(@event).Expect(nameof(@event));
 
             db.Add(@event);
         }

@@ -17,8 +17,8 @@
             IAuthorizer<TCommand> authorizer
         )
         {
-            this.decoratedHandler = GuardAgainst.Null(decoratedHandler, nameof(decoratedHandler));
-            this.authorizer = GuardAgainst.Null(authorizer, nameof(authorizer));
+            this.decoratedHandler = Guard.Against.Null(decoratedHandler).Expect(nameof(decoratedHandler));
+            this.authorizer = Guard.Against.Null(authorizer).Expect(nameof(authorizer));
         }
 
         public Task HandleAsync(TCommand command, CancellationToken cancellationToken)

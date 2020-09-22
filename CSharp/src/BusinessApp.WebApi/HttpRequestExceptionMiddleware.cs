@@ -15,7 +15,7 @@
 
         public HttpRequestExceptionMiddleware(ILogger logger)
         {
-            this.logger = GuardAgainst.Null(logger, nameof(logger));
+            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)

@@ -15,13 +15,13 @@ namespace BusinessApp.App
 
         public ValidationQueryDecorator(IValidator<TQuery> validator, IQueryHandler<TQuery, TResult> inner)
         {
-            this.validator = GuardAgainst.Null(validator, nameof(validator));
-            this.inner = GuardAgainst.Null(inner, nameof(inner));
+            this.validator = Guard.Against.Null(validator).Expect(nameof(validator));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
         }
 
         public async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(query, nameof(query));
+            Guard.Against.Null(query).Expect(nameof(query));
 
             await validator.ValidateAsync(query, cancellationToken);
 

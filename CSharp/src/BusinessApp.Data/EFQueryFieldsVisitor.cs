@@ -35,7 +35,7 @@
 
         public EFQueryFieldsVisitor(Query query)
         {
-            this.query = GuardAgainst.Null(query, nameof(query));
+            this.query = Guard.Against.Null(query).Expect(nameof(query));
         }
 
         public IQueryable<TResult> Visit(IQueryable<TResult> queryable)

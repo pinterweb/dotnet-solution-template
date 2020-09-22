@@ -16,13 +16,13 @@ namespace BusinessApp.App
 
         public SerializedLogEntryFormatter(ISerializer serializer)
         {
-            this.serializer = GuardAgainst.Null(serializer, nameof(serializer));
+            this.serializer = Guard.Against.Null(serializer).Expect(nameof(serializer));
             messageCache = new ConcurrentDictionary<LogEntry, string>();
         }
 
         public string Format(LogEntry entry)
         {
-            GuardAgainst.Null(entry, nameof(entry));
+            Guard.Against.Null(entry).Expect(nameof(entry));
 
             if (messageCache.TryGetValue(entry, out string msg))
             {

@@ -19,8 +19,8 @@
 
         public AuthorizeAttributeHandler(IPrincipal currentUser, ILogger logger)
         {
-            this.currentUser = GuardAgainst.Null(currentUser, nameof(logger));
-            this.logger = GuardAgainst.Null(logger, nameof(logger));
+            this.currentUser = Guard.Against.Null(currentUser).Expect(nameof(logger));
+            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
         }
 
         public void AuthorizeObject(T instance)

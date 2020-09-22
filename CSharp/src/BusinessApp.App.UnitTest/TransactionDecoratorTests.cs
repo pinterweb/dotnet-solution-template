@@ -59,7 +59,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
+                Assert.IsType<BadStateException>(ex);
             }
         }
 

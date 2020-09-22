@@ -18,8 +18,8 @@
         public JsonResponseDecorator(IResourceHandler<TRequest, TResponse> decorated,
             JsonSerializerSettings jsonSettings)
         {
-            this.decorated = GuardAgainst.Null(decorated, nameof(decorated));
-            this.jsonSettings = GuardAgainst.Null(jsonSettings, nameof(jsonSettings));
+            this.decorated = Guard.Against.Null(decorated).Expect(nameof(decorated));
+            this.jsonSettings = Guard.Against.Null(jsonSettings).Expect(nameof(jsonSettings));
         }
 
         public async Task<TResponse> HandleAsync(HttpContext context, CancellationToken cancellationToken)
@@ -52,7 +52,7 @@
 
         public virtual Task WriteResponseAsync(HttpContext context, TResponse model)
         {
-            GuardAgainst.Null(context, nameof(context));
+            Guard.Against.Null(context).Expect(nameof(context));
             context.Response.ContentType = "application/json";
 
             // check that the response code was not already set
@@ -74,8 +74,8 @@
 
         public virtual Task WriteResponseErrorAsync(HttpContext context, Exception exception)
         {
-            GuardAgainst.Null(context, nameof(context));
-            GuardAgainst.Null(exception, nameof(exception));
+            Guard.Against.Null(context).Expect(nameof(context));
+            Guard.Against.Null(exception).Expect(nameof(exception));
 
             var model = exception.MapToWebResponse(context);
 

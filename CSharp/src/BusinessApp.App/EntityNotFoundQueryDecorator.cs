@@ -14,7 +14,7 @@
 
         public EntityNotFoundQueryDecorator(IQueryHandler<TQuery, TResult> decorated)
         {
-            this.decorated = GuardAgainst.Null(decorated, nameof(decorated));
+            this.decorated = Guard.Against.Null(decorated).Expect(nameof(decorated));
         }
 
         public async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)

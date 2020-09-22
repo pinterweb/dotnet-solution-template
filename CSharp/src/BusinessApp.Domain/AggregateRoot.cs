@@ -38,7 +38,7 @@
         public TId Id
         {
             get => id;
-            set => id = GuardAgainst.Null(value, nameof(Id));
+            set => id = Guard.Against.Null(value).Expect(nameof(Id));
         }
     }
 }

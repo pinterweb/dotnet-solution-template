@@ -37,7 +37,7 @@
 
         public static void Bootstrap(Container container, BootstrapOptions options)
         {
-            GuardAgainst.Null(container, nameof(container));
+            Guard.Against.Null(container).Expect(nameof(container));
 
             container.Register(typeof(IAggregateRootRepository<,>), Assembly);
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
