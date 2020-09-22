@@ -23,7 +23,9 @@
 
             if (result == null)
             {
-                throw new EntityNotFoundException(typeof(TResult).Name);
+                throw new EntityNotFoundException("The data you tried to search for was not " +
+                    "found based on your search critiera. Try to change your criteria and search again. " +
+                    "If the data is still found, it may have been deleted.");
             }
 
             return result;

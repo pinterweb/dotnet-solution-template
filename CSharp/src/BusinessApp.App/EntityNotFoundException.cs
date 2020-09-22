@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.Domain
+﻿namespace BusinessApp.App
 {
     using System;
 

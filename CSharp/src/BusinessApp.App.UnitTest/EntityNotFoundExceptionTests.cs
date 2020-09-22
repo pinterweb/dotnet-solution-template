@@ -1,7 +1,6 @@
-namespace BusinessApp.Domain.UnitTest
+namespace BusinessApp.App.UnitTest
 {
     using Xunit;
-    using BusinessApp.Domain;
     using System.Collections;
 
     public class EntityNotFoundExceptionTests
