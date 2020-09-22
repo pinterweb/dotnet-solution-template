@@ -13,7 +13,7 @@ namespace BusinessApp.WebApi
 
         public HttpUserContext(IHttpContextAccessor httpContextAccessor)
         {
-            this.httpContextAccessor = GuardAgainst.Null(httpContextAccessor, nameof(httpContextAccessor));
+            this.httpContextAccessor = Guard.Against.Null(httpContextAccessor).Expect(nameof(httpContextAccessor));
         }
 
         public IIdentity Identity => Principal.Identity;

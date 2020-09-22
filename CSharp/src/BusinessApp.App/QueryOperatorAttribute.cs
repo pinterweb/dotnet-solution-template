@@ -9,7 +9,7 @@ namespace BusinessApp.App
         public QueryOperatorAttribute(string targetProp, string operatorToUse = QueryOperators.Equal)
         {
             OperatorToUse = operatorToUse ?? QueryOperators.Equal;
-            TargetProp = GuardAgainst.Empty(targetProp, nameof(targetProp));
+            TargetProp = Guard.Against.Empty(targetProp).Expect(nameof(targetProp));
         }
 
         public string OperatorToUse { get; }

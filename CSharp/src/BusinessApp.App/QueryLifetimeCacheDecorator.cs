@@ -16,7 +16,7 @@ namespace BusinessApp.App
 
         public QueryLifetimeCacheDecorator(IQueryHandler<TQuery, TResult> inner)
         {
-            this.inner = GuardAgainst.Null(inner, nameof(inner));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
             cache = new ConcurrentDictionary<TQuery, TResult>();
         }
 

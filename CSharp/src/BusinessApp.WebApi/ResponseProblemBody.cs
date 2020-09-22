@@ -12,8 +12,8 @@
     {
         public ResponseProblemBody(int status, string title, Uri type)
         {
-            Detail = Title = GuardAgainst.Empty(title, nameof(title));
-            Type = GuardAgainst.Null(type, nameof(type));
+            Detail = Title = Guard.Against.Empty(title).Expect(nameof(title));
+            Type = Guard.Against.Null(type).Expect(nameof(type));
             Status = status;
             Errors = new Dictionary<string, IEnumerable<string>>();
         }

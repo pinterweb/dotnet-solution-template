@@ -21,7 +21,7 @@ namespace BusinessApp.App.UnitTest
             {
                 var ex = Record.Exception(() => sut.Format(null));
 
-                Assert.IsType<ArgumentNullException>(ex);
+                Assert.IsType<BadStateException>(ex);
             }
 
             [Fact]

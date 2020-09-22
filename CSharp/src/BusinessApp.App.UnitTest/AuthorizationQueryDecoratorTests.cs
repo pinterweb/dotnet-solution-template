@@ -2,9 +2,9 @@ namespace BusinessApp.App.UnitTest
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessApp.Domain;
     using FakeItEasy;
     using Xunit;
 
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
                 var exception = Record.Exception(create);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(exception);
+                Assert.IsType<BadStateException>(exception);
             }
         }
 

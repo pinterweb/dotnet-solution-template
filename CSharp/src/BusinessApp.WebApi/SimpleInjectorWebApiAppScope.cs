@@ -12,7 +12,7 @@ namespace BusinessApp.WebApi
 
         public SimpleInjectorWebApiAppScope(Container container)
         {
-            this.container = GuardAgainst.Null(container, nameof(container));
+            this.container = Guard.Against.Null(container).Expect(nameof(container));
         }
 
         public IDisposable NewScope() => AsyncScopedLifestyle.BeginScope(container);

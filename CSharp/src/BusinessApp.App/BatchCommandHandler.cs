@@ -13,13 +13,13 @@
 
         public BatchCommandHandler(ICommandHandler<TCommand> inner)
         {
-            this.inner = GuardAgainst.Null(inner, nameof(inner));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
         }
 
         public async Task HandleAsync(IEnumerable<TCommand> command,
             CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(command, nameof(command));
+            Guard.Against.Null(command).Expect(nameof(command));
 
             var errors = new List<Exception>();
 

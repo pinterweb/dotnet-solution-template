@@ -17,7 +17,7 @@ namespace BusinessApp.App
 
         public DeadlockRetryDecorator(ICommandHandler<TCommand> decoratee)
         {
-            this.decoratee = GuardAgainst.Null(decoratee, nameof(decoratee));
+            this.decoratee = Guard.Against.Null(decoratee).Expect(nameof(decoratee));
         }
 
         public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)

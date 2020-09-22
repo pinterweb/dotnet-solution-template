@@ -5,6 +5,7 @@ namespace BusinessApp.Data.IntegrationTest
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessApp.Domain;
     using BusinessApp.Test;
     using FakeItEasy;
     using Microsoft.EntityFrameworkCore;
@@ -84,7 +85,7 @@ namespace BusinessApp.Data.IntegrationTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
+                Assert.IsType<BadStateException>(ex);
             }
         }
 

@@ -14,7 +14,7 @@ namespace BusinessApp.App
 
         public CompositeValidator(IEnumerable<IValidator<T>> validators)
         {
-            this.validators = GuardAgainst.Null(validators, nameof(validators));
+            this.validators = Guard.Against.Null(validators).Expect(nameof(validators));
         }
 
         public async Task ValidateAsync(T instance, CancellationToken cancellationToken)

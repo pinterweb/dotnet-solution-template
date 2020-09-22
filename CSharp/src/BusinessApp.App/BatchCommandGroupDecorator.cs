@@ -18,14 +18,14 @@ namespace BusinessApp.App
             IBatchGrouper<TCommand> grouper,
             ICommandHandler<IEnumerable<TCommand>> handler)
         {
-            this.grouper = GuardAgainst.Null(grouper, nameof(grouper));
-            this.handler = GuardAgainst.Null(handler, nameof(handler));
+            this.grouper = Guard.Against.Null(grouper).Expect(nameof(grouper));
+            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
         public async Task HandleAsync(IEnumerable<TCommand> command,
             CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(command, nameof(command));
+            Guard.Against.Null(command).Expect(nameof(command));
 
             var payloads = await grouper.GroupAsync(command, cancellationToken);
 

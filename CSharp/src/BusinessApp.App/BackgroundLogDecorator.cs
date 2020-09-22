@@ -18,8 +18,8 @@ namespace BusinessApp.App
         public BackgroundLogDecorator(ILogger logger,
             ConsoleLogger fallback)
         {
-            this.logger = GuardAgainst.Null(logger, nameof(logger));
-            this.fallback = GuardAgainst.Null(fallback, nameof(fallback));
+            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
+            this.fallback = Guard.Against.Null(fallback).Expect(nameof(fallback));
         }
 
         public void Log(LogEntry entry) => EnQueue(entry);

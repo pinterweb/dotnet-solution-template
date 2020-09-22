@@ -14,13 +14,13 @@
 
         public ValidationCommandDecorator(IValidator<TCommand> validator, ICommandHandler<TCommand> handler)
         {
-            this.validator = GuardAgainst.Null(validator, nameof(validator));
-            this.handler = GuardAgainst.Null(handler, nameof(handler));
+            this.validator = Guard.Against.Null(validator).Expect(nameof(validator));
+            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
         public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(command, nameof(command));
+            Guard.Against.Null(command).Expect(nameof(command));
 
             await validator.ValidateAsync(command, cancellationToken);
 

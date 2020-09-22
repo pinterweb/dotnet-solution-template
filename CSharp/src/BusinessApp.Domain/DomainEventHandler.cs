@@ -13,7 +13,7 @@
 
         public DomainEventHandler(IEventRepository repo)
         {
-            this.repo = GuardAgainst.Null(repo, nameof(repo));
+            this.repo = Guard.Against.Null(repo).Expect(nameof(repo));
         }
 
         public Task HandleAsync(TEvent @event, CancellationToken cancellationToken)

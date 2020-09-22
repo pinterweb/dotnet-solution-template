@@ -22,9 +22,9 @@
             IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
             IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
-            this.db = GuardAgainst.Null(db, nameof(db));
-            this.queryVisitorFactory = GuardAgainst.Null(queryVisitorFactory, nameof(queryVisitorFactory));
-            this.dbSetFactory = GuardAgainst.Null(dbSetFactory, nameof(dbSetFactory));
+            this.db = Guard.Against.Null(db).Expect(nameof(db));
+            this.queryVisitorFactory = Guard.Against.Null(queryVisitorFactory).Expect(nameof(queryVisitorFactory));
+            this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
         }
 
         public virtual async Task<IEnumerable<TResult>> HandleAsync(TQuery query, CancellationToken cancellationToken)
@@ -52,9 +52,9 @@
             IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
             IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
-            this.db = GuardAgainst.Null(db, nameof(db));
-            this.queryVisitorFactory = GuardAgainst.Null(queryVisitorFactory, nameof(queryVisitorFactory));
-            this.dbSetFactory = GuardAgainst.Null(dbSetFactory, nameof(dbSetFactory));
+            this.db = Guard.Against.Null(db).Expect(nameof(db));
+            this.queryVisitorFactory = Guard.Against.Null(queryVisitorFactory).Expect(nameof(queryVisitorFactory));
+            this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
         }
 
         public virtual async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)

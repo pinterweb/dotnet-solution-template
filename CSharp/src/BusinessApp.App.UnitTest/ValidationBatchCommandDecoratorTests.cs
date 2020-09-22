@@ -7,6 +7,7 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using Xunit;
     using System.Threading;
+    using BusinessApp.Domain;
 
     public class ValidationBatchCommandDecoratorTests
     {
@@ -44,7 +45,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
+                Assert.IsType<BadStateException>(ex);
             }
         }
 

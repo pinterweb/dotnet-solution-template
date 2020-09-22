@@ -14,7 +14,7 @@ namespace BusinessApp.App
 
         public ConsoleLogger(ILogEntryFormatter formatter)
         {
-            this.formatter = GuardAgainst.Null(formatter, nameof(formatter));
+            this.formatter = Guard.Against.Null(formatter).Expect(nameof(formatter));
         }
 
         public virtual void Log(LogEntry entry)

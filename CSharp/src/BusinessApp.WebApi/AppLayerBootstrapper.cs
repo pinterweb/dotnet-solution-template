@@ -23,7 +23,7 @@
             IWebHostEnvironment env,
             BootstrapOptions options)
         {
-            GuardAgainst.Null(container, nameof(container));
+            Guard.Against.Null(container).Expect(nameof(container));
 
             container.Collection.Register(typeof(IValidator<>), new[] { Assembly });
 

@@ -12,7 +12,7 @@
 
         public LinqSpecificationQueryVisitor(LinqSpecification<T> spec)
         {
-            this.spec = GuardAgainst.Null(spec, nameof(spec));
+            this.spec = Guard.Against.Null(spec).Expect(nameof(spec));
         }
 
         public IQueryable<T> Visit(IQueryable<T> query) => query.Where(spec.Predicate);

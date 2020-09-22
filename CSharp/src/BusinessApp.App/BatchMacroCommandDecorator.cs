@@ -16,13 +16,13 @@ namespace BusinessApp.App
             IBatchMacro<TMacro, TCommand> expander,
             ICommandHandler<IEnumerable<TCommand>> handler)
         {
-            this.expander = GuardAgainst.Null(expander, nameof(expander));
-            this.handler = GuardAgainst.Null(handler, nameof(handler));
+            this.expander = Guard.Against.Null(expander).Expect(nameof(expander));
+            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
         public async Task HandleAsync(TMacro command, CancellationToken cancellationToken)
         {
-            GuardAgainst.Null(command, nameof(command));
+            Guard.Against.Null(command).Expect(nameof(command));
 
             var payloads = await expander.ExpandAsync(command, cancellationToken);
 

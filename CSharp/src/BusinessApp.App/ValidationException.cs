@@ -14,7 +14,7 @@
         public ValidationException(ValidationResult result, Exception inner = null)
             :base(result.ErrorMessage, inner)
         {
-            Result = GuardAgainst.Null(result, nameof(result));
+            Result = Guard.Against.Null(result).Expect(nameof(result));
 
             if (Result.MemberNames.Any())
             {

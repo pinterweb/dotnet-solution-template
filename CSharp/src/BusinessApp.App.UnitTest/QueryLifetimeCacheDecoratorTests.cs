@@ -1,12 +1,12 @@
 namespace BusinessApp.App.UnitTest
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using FakeItEasy;
     using BusinessApp.App;
     using Xunit;
     using System.Threading;
+    using BusinessApp.Domain;
 
     public class QueryLifetimeCacheDecoratorTests
     {
@@ -42,8 +42,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
-
+                Assert.IsType<BadStateException>(ex);
             }
         }
 

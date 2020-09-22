@@ -16,7 +16,7 @@
 
         public EventUnitOfWork(IEventPublisher eventPublisher)
         {
-            this.eventPublisher = GuardAgainst.Null(eventPublisher, nameof(eventPublisher));
+            this.eventPublisher = Guard.Against.Null(eventPublisher).Expect(nameof(eventPublisher));
         }
 
         public event EventHandler Committing = delegate { };

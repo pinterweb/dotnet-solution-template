@@ -20,8 +20,8 @@
             ISerializer serializer
         )
         {
-            this.handler = GuardAgainst.Null(handler, nameof(handler));
-            this.serializer = GuardAgainst.Null(serializer, nameof(serializer));
+            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
+            this.serializer = Guard.Against.Null(serializer).Expect(nameof(serializer));
         }
 
         public async Task<TRequest> HandleAsync(HttpContext context, CancellationToken cancellationToken)

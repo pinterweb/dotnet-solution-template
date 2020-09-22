@@ -1,6 +1,5 @@
 namespace BusinessApp.App.UnitTest
 {
-    using System;
     using System.Collections.Generic;
     using BusinessApp.Domain;
     using FakeItEasy;
@@ -34,7 +33,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<ArgumentNullException>(ex);
+                Assert.IsType<BadStateException>(ex);
             }
         }
 

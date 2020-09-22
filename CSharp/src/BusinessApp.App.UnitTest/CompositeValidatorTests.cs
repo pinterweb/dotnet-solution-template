@@ -1,12 +1,12 @@
 namespace BusinessApp.App.UnitTest
 {
-    using System;
     using Xunit;
     using System.Collections.Generic;
     using FakeItEasy;
     using System.Threading.Tasks;
     using System.Linq;
     using System.Threading;
+    using BusinessApp.Domain;
 
     public class ValidationStub {  }
 
@@ -39,7 +39,7 @@ namespace BusinessApp.App.UnitTest
             var ex = Record.Exception(shouldThrow);
 
             /* Assert */
-            Assert.IsType<ArgumentNullException>(ex);
+            Assert.IsType<BadStateException>(ex);
         }
 
         [Fact]
