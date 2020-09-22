@@ -321,6 +321,7 @@ namespace BusinessApp.App.UnitTest
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
+                await Task.Delay(1000);
 
                 /* Assert - cannot guarantee order, just that they exist */
                 var multiErr = Assert.IsType<AggregateException>(ex);
