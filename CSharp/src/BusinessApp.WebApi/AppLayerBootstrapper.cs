@@ -27,11 +27,14 @@
 
             container.Collection.Register(typeof(IValidator<>), new[] { Assembly });
 
+            container.Register(typeof(IBatchMacro<,>), Assembly);
+
 #if fluentvalidation
             container.Collection.Register(typeof(FluentValidation.IValidator<>), Assembly);
             container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
+
             container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
@@ -109,7 +112,7 @@
                 (
                     ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<>) ||
                     (
-                        ctx.ImplementationType.GetGenericTypeDefinition() != typeof(HandlerWrapper<,>) && 
+                        ctx.ImplementationType.GetGenericTypeDefinition() != typeof(HandlerWrapper<,>) &&
                         ctx.ImplementationType.GetGenericTypeDefinition() != typeof(BatchMacroCommandDecorator<,>)
                     )
                 );
