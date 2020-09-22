@@ -3,12 +3,12 @@
     using System.Reflection;
     using System.Security.Principal;
     using BusinessApp.Domain;
-    using BusinessApp.App;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
 #if !json
     using System.IO;
+    using BusinessApp.App;
 #endif
 
     /// <summary>

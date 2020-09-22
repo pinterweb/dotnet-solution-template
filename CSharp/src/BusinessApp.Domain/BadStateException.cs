@@ -21,7 +21,7 @@
 
         public override string ToString()
         {
-            return this.ToString("", CultureInfo.CurrentCulture);
+            return this.ToString("G", CultureInfo.CurrentCulture);
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
