@@ -6,6 +6,10 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
+#if !json
+    using System.IO;
+    using BusinessApp.App;
+#endif
 
     /// <summary>
     /// Allows registering all types that are defined in the web api layer
@@ -25,10 +29,13 @@
 
 #if json
             Json.Bootstrapper.Bootstrap(container);
+#else
+            container.RegisterSingleton<ISerializer, NullSerializer>();
 #endif
 
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
+            container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
             container.Register(typeof(IResourceHandler<,>), Assembly);
             container.RegisterConditional(
@@ -48,5 +55,19 @@
 
             return container;
         }
+#if !json
+        private sealed class NullSerializer : ISerializer
+        {
+            public T Deserialize<T>(Stream serializationStream)
+            {
+                throw new System.NotImplementedException();
+            }
+
+            public void Serialize(Stream serializationStream, object graph)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
+#endif
     }
 }

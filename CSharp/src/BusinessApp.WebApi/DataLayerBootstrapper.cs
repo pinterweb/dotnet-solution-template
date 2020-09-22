@@ -8,11 +8,11 @@
 //#if DEBUG
     using Microsoft.Extensions.Logging;
 //#endif
-    using BusinessApp.App;
 #endif
     using System.Reflection;
     using BusinessApp.Data;
     using BusinessApp.Domain;
+    using BusinessApp.App;
 
     /// <summary>
     /// Allows registering all types that are defined in the data layer
@@ -83,6 +83,8 @@
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
             RegisterDbContext<BusinessAppDbContext>(container, options.WriteConnectionString);
+#else
+            container.Register<ITransactionFactory, NullTransactionFactory>();
 #endif
         }
 
@@ -123,6 +125,15 @@
                     .UseSqlServer(connectionString)
                     .Options
             );
+        }
+#else
+        // TODO - until i can implement Dapper as opposed to EF
+        public sealed class NullTransactionFactory : ITransactionFactory
+        {
+            public IUnitOfWork Begin()
+            {
+                throw new System.NotImplementedException();
+            }
         }
 #endif
     }

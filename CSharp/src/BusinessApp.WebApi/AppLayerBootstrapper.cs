@@ -93,7 +93,7 @@
                 c =>
                 {
                     var handler = handlerTypes.First(t => t.GetInterfaces().Any(i => i == c.ServiceType));
-                    var cmd = handler.GetInterfaces().First().GetGenericArguments()[0];
+                    var cmd = c.ServiceType.GetGenericArguments()[0];
 
                     return c.Consumer.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<>)
                         ? typeof(HandlerWrapper<,>).MakeGenericType(handler, cmd)
@@ -106,8 +106,13 @@
         private static bool HasTransactionScope(DecoratorPredicateContext ctx)
         {
             return !ctx.ImplementationType.IsConstructedGenericType ||
-                (ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<>) ||
-                ctx.ImplementationType.GetGenericTypeDefinition() != typeof(HandlerWrapper<,>));
+                (
+                    ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<>) ||
+                    (
+                        ctx.ImplementationType.GetGenericTypeDefinition() != typeof(HandlerWrapper<,>) && 
+                        ctx.ImplementationType.GetGenericTypeDefinition() != typeof(BatchMacroCommandDecorator<,>)
+                    )
+                );
         }
 
         public sealed class HandlerWrapper<TConsumer, T> : ICommandHandler<T>

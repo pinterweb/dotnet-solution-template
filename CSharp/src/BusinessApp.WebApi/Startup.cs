@@ -25,7 +25,7 @@
         private readonly Container container = new Container();
         private readonly BootstrapOptions options = new BootstrapOptions();
 
-        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        public Startup(IConfiguration configuration)
         {
             container.Options.ResolveUnregisteredConcreteTypes = false;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
