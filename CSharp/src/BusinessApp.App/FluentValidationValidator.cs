@@ -1,7 +1,6 @@
 namespace BusinessApp.App
 {
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -21,21 +20,17 @@ namespace BusinessApp.App
 
         public async Task ValidateAsync(T instance, CancellationToken cancellationToken)
         {
-            var errors = new List<ValidationResult>();
-
             foreach (var validator in validators)
             {
                 var result = await validator.ValidateAsync(instance);
 
                 if (!result.IsValid)
                 {
-                    errors.AddRange(
+                    throw new ModelValidationException(
+                        "Model failed validation. See errors for more detials",
                         result.Errors
-                            .GroupBy(e => e.ErrorMessage)
-                            .Select(g =>
-                                new ValidationResult(g.Key, g.Select(v => v.PropertyName))
-                            )
-                    );
+                            .GroupBy(e => e.PropertyName)
+                            .Select(g => new MemberValidationException(g.Key, g.Select(v => v.ErrorMessage))));
                 }
             }
         }

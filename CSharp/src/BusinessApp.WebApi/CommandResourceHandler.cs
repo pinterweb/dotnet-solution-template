@@ -30,7 +30,7 @@
 
             if (command == null)
             {
-                throw new ValidationException("No Data found");
+                throw new BusinessAppWebApiException("Your request was cancelled because there was no data to process");
             }
 
             await handler.HandleAsync(command, cancellationToken);
