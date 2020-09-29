@@ -28,8 +28,9 @@ namespace BusinessApp.App
 
             if (!payloads.Any())
             {
-                throw new ValidationException(
-                    "The request expected to change records, but no records were found."
+                throw new BusinessAppAppException(
+                    "The macro you ran expected to find records to change, but none were " +
+                    "found"
                 );
             }
 

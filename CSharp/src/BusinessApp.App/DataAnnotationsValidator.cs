@@ -1,7 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BusinessApp.App
+﻿namespace BusinessApp.App
 {
+    using System.ComponentModel.DataAnnotations;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,7 +12,7 @@ namespace BusinessApp.App
     /// </summary>
     public class DataAnnotationsValidator<T> : IValidator<T>
     {
-        Task IValidator<T>.ValidateAsync(T instance, CancellationToken cancellationToken)
+        public Task ValidateAsync(T instance, CancellationToken cancellationToken)
         {
             var context = new ValidationContext(instance);
             var errors = new List<ValidationResult>();
@@ -21,14 +20,22 @@ namespace BusinessApp.App
 
             if (!isValid)
             {
-                if (errors.Count == 1)
+                var members = errors.SelectMany(e => e.MemberNames).Distinct();
+
+                if (errors.Any(e => !e.MemberNames.Any()))
                 {
-                    throw new ValidationException(errors[0]);
+                    throw new BusinessAppAppException("All errors must have a member name. " +
+                        "If the attribute does not support this, please create or extend the attribute");
                 }
-                else
-                {
-                    throw new AggregateException(errors.Select(e => new ValidationException(e)));
-                }
+
+                var memberMsgs = (members.Any() ? members : new[] { "" })
+                    .ToDictionary(
+                        m => m,
+                        m => errors.Where(e => e.MemberNames.Contains(m)).Select(e => e.ErrorMessage));
+
+                throw new ModelValidationException(
+                    "The model did not pass validation. See erros for more details",
+                    memberMsgs.Select(kvp => new MemberValidationException(kvp.Key, kvp.Value)));
             }
 
             return Task.CompletedTask;

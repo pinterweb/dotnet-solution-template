@@ -15,6 +15,9 @@ namespace BusinessApp.App.UnitTest
 
     public class DataAnnotatedCommandStub
     {
+        [Compare(nameof(Bar))]
+        public string CompareToBar { get; set; } = "lorem";
+
         [StringLength(10)]
         public string Foo { get; set; }
 

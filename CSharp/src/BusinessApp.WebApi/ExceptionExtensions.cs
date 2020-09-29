@@ -49,7 +49,7 @@
                     response.Errors = errors;
 
                     return response;
-                case ValidationException ve:
+                case ModelValidationException ve:
                 case BadStateException _:
                     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorType = "invalid-data";
@@ -195,9 +195,17 @@
         private static IDictionary<string, IEnumerable<string>> ToResponseProblemErrors(IDictionary data)
         {
             return data.Keys.Count == 0 ? null : data.Cast<DictionaryEntry>()
-                         .Where(de => de.Key is string && de.Value is string)
-                         .ToDictionary(de => (string)de.Key,
-                                       de => (IEnumerable<string>)new[] { (string)de.Value });
+                         .Where(de => de.Key is string && (de.Value is string || de.Value is IEnumerable<string>))
+                         .ToDictionary(
+                             de => (string)de.Key,
+                             de =>
+                             {
+                                return de.Value switch
+                                {
+                                    string strVal => (IEnumerable<string>)new[] { strVal },
+                                    IEnumerable<string> ieVal => ieVal
+                                };
+                             });
         }
     }
 }

@@ -26,7 +26,7 @@ namespace BusinessApp.App
             CancellationToken cancellationToken)
         {
             Guard.Against.Null(command).Expect(nameof(command));
-            var errors = new List<ValidationException>();
+            var errors = new List<ModelValidationException>();
 
             for (int i = 0; i < command.Count(); i++)
             {
@@ -39,15 +39,15 @@ namespace BusinessApp.App
                 catch (AggregateException ex)
                 {
                     var invalids = ex.Flatten().InnerExceptions
-                        .Where(e => e is ValidationException)
-                        .Cast<ValidationException>();
+                        .Where(e => e is ModelValidationException)
+                        .Cast<ModelValidationException>();
 
                     foreach (var invalid in invalids)
                     {
                         AddError(invalid, i, errors);
                     }
                 }
-                catch (ValidationException ex)
+                catch (ModelValidationException ex)
                 {
                     AddError(ex, i, errors);
                 }
@@ -65,12 +65,12 @@ namespace BusinessApp.App
             await handler.HandleAsync(command, cancellationToken);
         }
 
-        private static void AddError(ValidationException ex, int index,
-            List<ValidationException> errors)
+        private static void AddError(ModelValidationException ex, int index,
+            List<ModelValidationException> errors)
         {
-            var indexResult = ex.Result.CreateWithIndexName(index);
+            var indexedPropertyExceptions = ex.Select(member => member.CreateWithIndexName(index));
 
-            errors.Add(new ValidationException(indexResult, ex.InnerException));
+            errors.Add(new ModelValidationException(ex.Message, indexedPropertyExceptions));
         }
     }
 }

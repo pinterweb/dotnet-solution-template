@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace BusinessApp.WebApi.UnitTest
 {
     using System;
@@ -190,13 +188,13 @@ namespace BusinessApp.WebApi.UnitTest
             }
         }
 
-        public class OnValidationException : ExceptionExtensionsTests
+        public class OnModelValidationException : ExceptionExtensionsTests
         {
-            private readonly ValidationException ex;
+            private readonly ModelValidationException ex;
 
-            public OnValidationException()
+            public OnModelValidationException()
             {
-                ex = new ValidationException("foo", "bar");
+                ex = new ModelValidationException("foo", A.CollectionOfDummy<MemberValidationException>(1));
             }
 
             [Fact]
@@ -246,12 +244,15 @@ namespace BusinessApp.WebApi.UnitTest
             public void Errors_InResponse()
             {
                 /* Arrange */
-                var result = new ValidationResult("foo", new[] { "bar", "lorem" });
-                var ex = new ValidationException(result);
+                var ex = new ModelValidationException("foo", new[]
+                {
+                    new MemberValidationException("bar", new[] { "foo" }),
+                    new MemberValidationException("lorem", new[] { "ipsum" }),
+                });
                 var expected = new Dictionary<string, IEnumerable<string>>
                 {
                     { "bar", new[] { "foo" } },
-                    { "lorem", new[] { "foo" } },
+                    { "lorem", new[] { "ipsum" } },
                 };
 
                 /* Act */
@@ -911,7 +912,7 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 ex = new AggregateException(new Exception[]
                 {
-                    new ValidationException("foo", "bar"),
+                    new BadStateException("foo"),
                     new InvalidOperationException("lorem")
                 });
             }
@@ -922,7 +923,7 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Act */
                 ex = new AggregateException(new Exception[]
                 {
-                    new ValidationException("foo", "bar"),
+                    new BadStateException("foo"),
                     new SecurityException("ipsum"),
                 });
 
@@ -971,7 +972,10 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Arrange */
                 ex = new AggregateException(new Exception[]
                 {
-                    new ValidationException("foo", "bar"),
+                    new ModelValidationException("foo", new[]
+                    {
+                        new MemberValidationException("foo", new[] { "bar" }),
+                    }),
                     new InvalidOperationException("lorem"),
                     new TaskCanceledException("lorem")
                 });

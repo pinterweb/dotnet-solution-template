@@ -1,7 +1,5 @@
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using FakeItEasy;
@@ -10,7 +8,7 @@ namespace BusinessApp.App.UnitTest
     public class DataAnnotationsValidatorTests
     {
         private readonly CancellationToken token;
-        private readonly IValidator<DataAnnotatedCommandStub> sut;
+        private readonly DataAnnotationsValidator<DataAnnotatedCommandStub> sut;
 
         public DataAnnotationsValidatorTests()
         {
@@ -18,27 +16,10 @@ namespace BusinessApp.App.UnitTest
             sut = new DataAnnotationsValidator<DataAnnotatedCommandStub>();
         }
 
-        public class ValidateObject_WithOneError : DataAnnotationsValidatorTests
+        public class ValidateAsync : DataAnnotationsValidatorTests
         {
             [Fact]
-            public async Task ValidationExceptionThrown()
-            {
-                /* Arrange */
-                var instance = new DataAnnotatedCommandStub { Foo = new string('a', 11) };
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
-
-                /* Assert */
-                Assert.IsType<ValidationException>(ex);
-                Assert.Equal("The field Foo must be a string with a maximum length of 10.", ex.Message);
-            }
-        }
-
-        public class ValidateObject_WithNoError : DataAnnotationsValidatorTests
-        {
-            [Fact]
-            public async Task NoExceptionThrown()
+            public async Task InstanceIsValid_NoExceptionThrown()
             {
                 /* Arrange */
                 var instance = new DataAnnotatedCommandStub { Foo = new string('a', 10) };
@@ -49,57 +30,89 @@ namespace BusinessApp.App.UnitTest
                 /* Assert */
                 Assert.Null(ex);
             }
-        }
-
-        public class ValidateObject_WithMultipleErrors : DataAnnotationsValidatorTests
-        {
-            DataAnnotatedCommandStub instance;
-
-            public ValidateObject_WithMultipleErrors()
-            {
-                instance = new DataAnnotatedCommandStub { Bar = null, Foo = new string('a', 11) };
-            }
 
             [Fact]
-            public async Task AggregateExceptionThrown()
-            {
-                /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
-
-                /* Assert */
-                Assert.IsType<AggregateException>(ex);
-            }
-
-            [Fact]
-            public async Task ContainsLenghtInnerValidationException()
+            public async Task InstanceHasErrors_ModelExceptionThrown()
             {
                 /* Arrange */
-                var instance = new DataAnnotatedCommandStub { Bar = null, Foo = new string('a', 11) };
+                var instance = new DataAnnotatedCommandStub
+                {
+                    CompareToBar = null,
+                    Bar = null,
+                    Foo = new string('a', 11)
+                };
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
 
                 /* Assert */
-                var aggregateEx = Assert.IsType<AggregateException>(ex);
+                Assert.IsType<ModelValidationException>(ex);
                 Assert.Equal(
-                    "The field Foo must be a string with a maximum length of 10.",
-                    aggregateEx.Flatten().InnerExceptions.First().Message);
+                    "The model did not pass validation. See erros for more details",
+                    ex.Message
+                );
+            }
+
+            [Theory]
+            [InlineData("Bar")]
+            [InlineData("Foo")]
+            public async Task InstanceHasManyErrors_ModelExceptionHasMemberNames(string memberName)
+            {
+                /* Arrange */
+                var instance = new DataAnnotatedCommandStub
+                {
+                   CompareToBar = null,
+                   Bar = null,
+                   Foo = new string('a', 11)
+                };
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+
+                /* Assert */
+                var modelError = Assert.IsType<ModelValidationException>(ex);
+                Assert.Single(modelError, e => e.MemberName == memberName);
+            }
+
+            [Theory]
+            [InlineData("Bar", "The Bar field is required.")]
+            [InlineData("Foo", "The field Foo must be a string with a maximum length of 10.")]
+            public async Task InstanceHasManyErrors_ModelExceptionHasMemberMessage(string memberName,
+                string associatedMsg)
+            {
+                /* Arrange */
+                var instance = new DataAnnotatedCommandStub
+                {
+                    CompareToBar = null,
+                    Bar = null,
+                    Foo = new string('a', 11)
+                };
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+
+                /* Assert */
+                var modelError = Assert.IsType<ModelValidationException>(ex);
+                var memberError = Assert.Single(modelError, e => e.MemberName == memberName);
+                Assert.Contains(associatedMsg, memberError.Errors);
             }
 
             [Fact]
-            public async Task ContainsRequiredInnerValidationException()
+            public async Task NoMemberNames_ExceptionThrown()
             {
                 /* Arrange */
-                var instance = new DataAnnotatedCommandStub { Bar = null, Foo = new string('a', 11) };
+                var instance = new DataAnnotatedCommandStub { Bar = "a", CompareToBar = "aaaa" };
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
 
                 /* Assert */
-                var aggregateEx = Assert.IsType<AggregateException>(ex);
+                var modelError = Assert.IsType<BusinessAppAppException>(ex);
                 Assert.Equal(
-                    "The Bar field is required.",
-                    aggregateEx.Flatten().InnerExceptions.Last().Message);
+                    "All errors must have a member name. " +
+                    "If the attribute does not support this, please create or extend the attribute",
+                    ex.Message
+                );
             }
         }
     }

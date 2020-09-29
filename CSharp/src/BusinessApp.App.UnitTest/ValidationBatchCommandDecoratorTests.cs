@@ -52,7 +52,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : ValidationBatchCommandDecoratorTests
         {
             [Fact]
-            public async Task WithoutCommand_ExceptionThrown()
+            public async Task WithoutCommandArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -65,7 +65,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithCommands_ValidationCalledBeforeHandeler()
+            public async Task WithCommandArg_ValidationCalledBeforeHandeler()
             {
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
@@ -81,7 +81,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithTwoCommands_ValidatedTwice()
+            public async Task WithTwoCommandArgss_ValidatedTwice()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
@@ -97,7 +97,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithTwoCommands_HandledOnce()
+            public async Task WithTwoCommandArgs_HandledOnce()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
@@ -111,70 +111,57 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task ValidationException_MemberNameHasIndex()
+            public async Task ModelValidationExceptionThrown_MemberNameHasIndex()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
+                var memberError = new MemberValidationException("foo", A.CollectionOfDummy<string>(1));
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
-                    .Throws(new ValidationException("foo", "bar"));
+                    .Throws(new ModelValidationException("foomsg", new[] { memberError }));
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
-                var invalid = Assert.IsType<ValidationException>(ex);
-                var member = Assert.Single(invalid.Result.MemberNames);
-                Assert.Equal("[1].foo", member);
+                var modelError = Assert.IsType<ModelValidationException>(ex);
+                Assert.Collection(modelError,
+                    e => Assert.Equal("[1].foo", e.MemberName)
+                );
             }
 
             [Fact]
-            public async Task ValidationException_SameMessageUsed()
+            public async Task ModelValidationExceptionThrown_SameErrorsUsed()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
+                var memberError = new MemberValidationException("foo", new[] { "bar" });
 
                 A.CallTo(() => validator.ValidateAsync(commands.First(), token))
-                    .Throws(new ValidationException("foo", "bar"));
+                    .Throws(new ModelValidationException("foomsg", new[] { memberError }));
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
 
                 /* Assert */
-                var invalid = Assert.IsType<ValidationException>(ex);
-                Assert.Equal("bar", invalid.Result.ErrorMessage);
+                var modelError = Assert.IsType<ModelValidationException>(ex);
+                Assert.Collection(modelError,
+                    e => Assert.Equal(new[] { "bar" }, e.Errors)
+                );
             }
 
             [Fact]
-            public async Task ValidationException_InnerExceptionUsed()
-            {
-                /* Arrange */
-                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
-                var innerException = new ValidationException("lorem", "ipsum");
-
-                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
-                    .Throws(new ValidationException("foo", "bar", innerException));
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                var invalid = Assert.IsType<ValidationException>(ex);
-                Assert.Same(innerException, invalid.InnerException);
-            }
-
-            [Fact]
-            public async Task AggregateException_HasMultipleValidationExceptions()
+            public async Task AggregateExceptionThrown_HasMultipleModelValidationExceptions()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
-                            {
-                                new ValidationException("foo", "bar"),
-                                new ValidationException("lorem", "ipsum"),
-                            }));
+                    {
+                        new ModelValidationException("foo", A.CollectionOfDummy<MemberValidationException>(1)),
+                        new ModelValidationException("lorem", A.CollectionOfDummy<MemberValidationException>(1)),
+                    }));
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
@@ -185,17 +172,23 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task AggregateException_MemberNamesHasIndex()
+            public async Task AggregateExceptionThrown_MemberNamesHasIndex()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
-                            {
-                                new ValidationException("foo", "bar"),
-                                new ValidationException("lorem", "ipsum"),
-                            }));
+                    {
+                        new ModelValidationException(
+                            "foomsg",
+                            new[] { new MemberValidationException("foo", A.CollectionOfDummy<string>(1)) }
+                        ),
+                        new ModelValidationException(
+                            "loremmsg",
+                            new[] { new MemberValidationException("lorem", A.CollectionOfDummy<string>(1)) }
+                        ),
+                    }));
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
@@ -204,22 +197,23 @@ namespace BusinessApp.App.UnitTest
                 var aggregate = Assert.IsType<AggregateException>(ex);
                 Assert.Collection(
                     aggregate.Flatten().InnerExceptions,
-                    i => Assert.Contains("[1].foo", Assert.IsType<ValidationException>(i).Result.MemberNames),
-                    i => Assert.Contains("[1].lorem", Assert.IsType<ValidationException>(i).Result.MemberNames));
+                    i => Assert.Contains("[1].foo", Assert.IsType<ModelValidationException>(i).Select(m => m.MemberName)),
+                    i => Assert.Contains("[1].lorem", Assert.IsType<ModelValidationException>(i).Select(m => m.MemberName))
+                );
             }
 
             [Fact]
-            public async Task AggregateException_SameMessageUsed()
+            public async Task AggregateExceptionThrown_SameMessageUsed()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
                     .Throws(new AggregateException(new[]
-                            {
-                                new ValidationException("foo", "bar"),
-                                new ValidationException("lorem", "ipsum"),
-                            }));
+                    {
+                        new ModelValidationException("bar", A.CollectionOfDummy<MemberValidationException>(1)),
+                        new ModelValidationException("ipsum", A.CollectionOfDummy<MemberValidationException>(1)),
+                    }));
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
@@ -230,32 +224,6 @@ namespace BusinessApp.App.UnitTest
                     aggregate.Flatten().InnerExceptions,
                     i => Assert.Contains("bar", i.Message),
                     i => Assert.Contains("ipsum", i.Message));
-            }
-
-            [Fact]
-            public async Task AggregateException_ValidationException_InnerExceptionUsed()
-            {
-                /* Arrange */
-                var firstInner = new Exception();
-                var secondInner = new Exception();
-                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
-
-                A.CallTo(() => validator.ValidateAsync(commands.Last(), token))
-                    .Throws(new AggregateException(new[]
-                            {
-                                new ValidationException("foo", "bar", firstInner),
-                                new ValidationException("lorem", "ipsum", secondInner),
-                            }));
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                var aggregate = Assert.IsType<AggregateException>(ex);
-                Assert.Collection(
-                    aggregate.Flatten().InnerExceptions,
-                    i => Assert.Same(firstInner, i.InnerException),
-                    i => Assert.Same(secondInner, i.InnerException));
             }
         }
     }

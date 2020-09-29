@@ -82,8 +82,9 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Equal(
-                    "The request expected to change records, but no records were found.",
-                    Assert.IsType<ValidationException>(ex)?.Message
+                    "The macro you ran expected to find records to change, but none were " +
+                    "found",
+                    Assert.IsType<BusinessAppAppException>(ex)?.Message
                 );
             }
 
