@@ -77,5 +77,19 @@ namespace BusinessApp.App.UnitTest
                 );
             }
         }
+
+        public class IFormattableImpl : CommunicationExceptionTests
+        {
+            [Fact]
+            public void ToString_MessageReturned()
+            {
+                /* Act */
+                var ex = new ModelValidationException("foomsg",
+                    A.CollectionOfDummy<MemberValidationException>(1));
+
+                /* Assert */
+                Assert.Equal("foomsg", ex.ToString());
+            }
+        }
     }
 }

@@ -61,5 +61,18 @@ namespace BusinessApp.App.UnitTest
                 Assert.Equal("bar", data.Value);
             }
         }
+
+        public class IFormattableImpl : EntityNotFoundExceptionTests
+        {
+            [Fact]
+            public void ToString_MessageReturned()
+            {
+                /* Act */
+                var ex = new EntityNotFoundException("foo");
+
+                /* Assert */
+                Assert.Equal("foo", ex.ToString());
+            }
+        }
     }
 }

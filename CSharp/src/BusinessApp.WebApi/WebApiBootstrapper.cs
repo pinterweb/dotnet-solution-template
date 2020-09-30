@@ -7,6 +7,7 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
+    using BusinessApp.WebApi.ProblemDetails;
 #if !json
     using System.IO;
 #endif
@@ -36,6 +37,10 @@
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
+            container.RegisterSingleton<IResponseWriter, HttpResponseWriter>();
+            container.RegisterSingleton<IProblemDetailFactory, ProblemDetailFactory>();
+            container.RegisterDecorator<IProblemDetailFactory, ProblemDetailFactoryHttpDecorator>(
+                Lifestyle.Singleton);
 
             container.Register(typeof(IResourceHandler<,>), Assembly);
             container.RegisterConditional(

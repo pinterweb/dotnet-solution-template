@@ -8,7 +8,7 @@
     using BusinessApp.App;
     using Microsoft.AspNetCore.Http;
 
-    public static class HttpContextExtensions
+    public static partial class HttpContextExtensions
     {
         /// <summary>
         /// Deserializes the uri or body depending on the request method
@@ -38,14 +38,5 @@
 
             return default(T);
         }
-
-        /// <summary>
-        /// Helper class to create the <see cref="ResponseProblemBody.Type"/>
-        /// </summary>
-        /// <param name="context"></param>
-        /// <param name="errorType"></param>
-        /// <returns></returns>
-        public static Uri CreateProblemUri(this HttpContext context, string errorType)
-            => new Uri($"{context.Request.Scheme}://{context.Request.Host}/docs/errors/{errorType}");
     }
 }

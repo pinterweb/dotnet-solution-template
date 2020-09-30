@@ -1,7 +1,11 @@
 ﻿namespace BusinessApp.WebApi.Json
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using BusinessApp.App;
     using BusinessApp.App.Json;
+    using BusinessApp.WebApi.ProblemDetails;
+    using Microsoft.AspNetCore.Http;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using SimpleInjector;
@@ -15,6 +19,10 @@
         {
             container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(JsonResponseDecorator<,>));
             container.RegisterSingleton<ISerializer, NewtonsoftJsonSerializer>();
+
+            container.RegisterInstance(
+                new HashSet<ProblemDetailOptions>(
+                    ProblemDetailOptionBootstrap.KnownProblems.Concat(KnownProblems)));
 
             container.RegisterInstance(
                 new JsonSerializerSettings
@@ -38,5 +46,15 @@
                 }
             );
         }
+
+        public static HashSet<ProblemDetailOptions> KnownProblems = new HashSet<ProblemDetailOptions>
+        {
+            new ProblemDetailOptions
+            {
+                ProblemType = typeof(JsonException),
+                StatusCode = StatusCodes.Status400BadRequest,
+                MessageOverride = "Data is not in the correct format"
+            },
+        };
     }
 }
