@@ -7,9 +7,10 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
-    using BusinessApp.WebApi.ProblemDetails;
 #if !json
     using System.IO;
+    using System.Collections.Generic;
+    using BusinessApp.WebApi.ProblemDetails;
 #endif
 
     /// <summary>
@@ -32,6 +33,8 @@
             Json.Bootstrapper.Bootstrap(container);
 #else
             container.RegisterSingleton<ISerializer, NullSerializer>();
+            container.RegisterInstance(
+                new HashSet<ProblemDetailOptions>(ProblemDetailOptionBootstrap.KnownProblems));
 #endif
 
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
