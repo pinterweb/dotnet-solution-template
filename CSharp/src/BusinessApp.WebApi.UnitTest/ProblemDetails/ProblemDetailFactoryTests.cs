@@ -149,7 +149,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void ArgumentTypeIsException_ExtensionsAdded()
+            public void ArgumentTypeIsExceptionWithStringKey_ExtensionsAdded()
             {
                 /* Arrange */
                 var error = new FormattableExceptionStub();
@@ -160,6 +160,37 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 
                 /* Assert */
                 Assert.Equal("bar", problem["foo"]);
+            }
+
+            [Fact]
+            public void ArgumentTypeIsExceptionIFormattableKey_ExtensionsAdded()
+            {
+                /* Arrange */
+                var key = A.Fake<IFormattable>();
+                A.CallTo(() => key.ToString("g", null)).Returns("foo");
+                var error = new FormattableExceptionStub();
+                error.Data.Add(key, "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["foo"]);
+            }
+
+            [Theory]
+            [InlineData("")]
+            public void ArgumentTypeIsExceptionWithoutKeyString_ExtensionsNotAdded(object key)
+            {
+                /* Arrange */
+                var error = new FormattableExceptionStub();
+                error.Data.Add(key, "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.False(problem.TryGetValue(key.ToString(), out object _));
             }
 
             [Fact]
@@ -289,6 +320,54 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                     p => Assert.False(p.TryGetValue("foo", out object _)),
                     p => Assert.Equal("bar", p["foo"])
                 );
+            }
+
+            [Fact]
+            public void ArgumentTypeIsAMixOfErrorsWithIFormattableKey_ExceptionExtensionsAdded()
+            {
+                /* Arrange */
+                var key = A.Fake<IFormattable>();
+                var innerError = new FormattableExceptionStub();
+                A.CallTo(() => key.ToString("g", null)).Returns("foo");
+                innerError.Data.Add(key, "bar");
+                var results = new Result<_, IFormattable>[]
+                {
+                    Result<_, IFormattable>.Ok(new _()),
+                    Result<_, IFormattable>.Error(innerError)
+                };
+                var error = new CompositeError(results);
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                var problems = Assert.IsType<CompositeProblemDetail>(problem);
+                Assert.Collection<ProblemDetail>(problems,
+                    p => Assert.False(p.TryGetValue("foo", out object _)),
+                    p => Assert.Equal("bar", p["foo"])
+                );
+            }
+
+            [Theory]
+            [InlineData(1)]
+            [InlineData("")]
+            public void ArgumentTypeIsAMixOfExceptionWithoutStringKey_ExtensionsNotAdded(object key)
+            {
+                /* Arrange */
+                var innerError = new FormattableExceptionStub();
+                innerError.Data.Add(key, "bar");
+                var results = new Result<_, IFormattable>[]
+                {
+                    Result<_, IFormattable>.Ok(new _()),
+                    Result<_, IFormattable>.Error(innerError)
+                };
+                var error = new CompositeError(results);
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.False(problem.TryGetValue(key.ToString(), out object _));
             }
         }
 

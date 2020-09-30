@@ -11,12 +11,17 @@ namespace BusinessApp.WebApi.ProblemDetails
         public CompositeProblemDetail(IEnumerable<ProblemDetail> problems, Uri type = null)
             : base(StatusCodes.Status207MultiStatus, type)
         {
-            Problems = Guard.Against.Empty(problems).Expect(nameof(problems));
+            Responses = Guard.Against.Empty(problems).Expect(nameof(problems));
+
+           this[nameof(Responses)]  = Responses;
         }
 
-        public IEnumerable<ProblemDetail> Problems { get; set; }
+        /// <summary>
+        /// All responses in one array. Can have a mix of ok statuses with bad statuses
+        /// </summary>
+        public IEnumerable<ProblemDetail> Responses { get; }
 
-        IEnumerator<ProblemDetail> IEnumerable<ProblemDetail>.GetEnumerator() => Problems.GetEnumerator();
+        IEnumerator<ProblemDetail> IEnumerable<ProblemDetail>.GetEnumerator() => Responses.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }

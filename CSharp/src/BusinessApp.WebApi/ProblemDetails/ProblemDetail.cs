@@ -83,11 +83,11 @@
         }
 
 #region IDictionary implementation
-        public ICollection<string> Keys => props.Keys.Concat(props.Keys).ToList();
+        public ICollection<string> Keys => props.Keys;
 
-        public ICollection<object> Values => props.Values.Concat(props.Values).ToList();
+        public ICollection<object> Values => props.Values;
 
-        public int Count => props.Count + props.Count;
+        public int Count => props.Count;
 
         public bool IsReadOnly => props.IsReadOnly;
 
@@ -108,25 +108,22 @@
 
         public bool Contains(KeyValuePair<string, object> item)
         {
-            return props.Contains(item) || props.Contains(item);
+            return props.Contains(item);
         }
 
         public bool ContainsKey(string key)
         {
-            return props.ContainsKey(key) || props.ContainsKey(key);
+            return props.ContainsKey(key);
         }
 
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            props.Concat(props)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)
-                .ToList()
-                .CopyTo(array, arrayIndex);
+            props.CopyTo(array, arrayIndex);
         }
 
         public virtual IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            return props.Concat(props).GetEnumerator();
+            return props.GetEnumerator();
         }
 
         public bool Remove(string key)
@@ -141,9 +138,7 @@
 
         public bool TryGetValue(string key, [MaybeNullWhen(false)] out object value)
         {
-            var hasExt = props.TryGetValue(key, out value);
-
-            return hasExt ? props.TryGetValue(key, out value) : hasExt;
+            return props.TryGetValue(key, out value);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

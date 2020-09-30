@@ -54,9 +54,16 @@ namespace BusinessApp.WebApi.ProblemDetails
             {
                 foreach (DictionaryEntry entry in e.Data)
                 {
-                    if (entry.Key is string key)
+                    string keyVal = entry.Key switch
                     {
-                        problem.Add(key, entry.Value);
+                        IFormattable f => f.ToString("g", null),
+                        string k => k,
+                        _ => null
+                    };
+
+                    if (!string.IsNullOrWhiteSpace(keyVal))
+                    {
+                        problem.Add(keyVal, entry.Value);
                     }
                 }
             }

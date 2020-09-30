@@ -35,7 +35,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var sut = new CompositeProblemDetail(problems);
 
                 /* Assert */
-                Assert.Same(problems, sut.Problems);
+                Assert.Same(problems, sut.Responses);
             }
 
             [Fact]
