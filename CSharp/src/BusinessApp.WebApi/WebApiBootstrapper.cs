@@ -4,11 +4,13 @@
     using System.Security.Principal;
     using BusinessApp.Domain;
     using BusinessApp.App;
+    using BusinessApp.WebApi.ProblemDetails;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
 #if !json
     using System.IO;
+    using System.Collections.Generic;
 #endif
 
     /// <summary>
@@ -31,11 +33,17 @@
             Json.Bootstrapper.Bootstrap(container);
 #else
             container.RegisterSingleton<ISerializer, NullSerializer>();
+            container.RegisterInstance(
+                new HashSet<ProblemDetailOptions>(ProblemDetailOptionBootstrap.KnownProblems));
 #endif
 
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
+            container.RegisterSingleton<IResponseWriter, HttpResponseWriter>();
+            container.RegisterSingleton<IProblemDetailFactory, ProblemDetailFactory>();
+            container.RegisterDecorator<IProblemDetailFactory, ProblemDetailFactoryHttpDecorator>(
+                Lifestyle.Singleton);
 
             container.Register(typeof(IResourceHandler<,>), Assembly);
             container.RegisterConditional(

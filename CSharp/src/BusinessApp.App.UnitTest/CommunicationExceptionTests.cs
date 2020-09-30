@@ -42,5 +42,18 @@ namespace BusinessApp.App.UnitTest
                 Assert.Equal("foo", data.Value);
             }
         }
+
+        public class IFormattableImpl : CommunicationExceptionTests
+        {
+            [Fact]
+            public void ToString_MessageReturned()
+            {
+                /* Act */
+                var ex = new CommunicationException("foo");
+
+                /* Assert */
+                Assert.Equal("foo", ex.ToString());
+            }
+        }
     }
 }
