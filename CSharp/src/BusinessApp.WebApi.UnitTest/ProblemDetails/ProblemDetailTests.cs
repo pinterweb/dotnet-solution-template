@@ -123,5 +123,46 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 Assert.Equal("/foo/bar", sut[nameof(ProblemDetail.Instance)].ToString());
             }
         }
+
+        public class IDictionaryImpl : ProblemDetailTests
+        {
+            [Fact]
+            public void Count_HasRequiredProperties()
+            {
+                /* Act */
+                var sut = new ProblemDetail(A.Dummy<int>());
+
+                /* Assert */
+                Assert.Equal(3, sut.Count);
+            }
+
+            [Fact]
+            public void Keys_HasRequiredProperties()
+            {
+                /* Act */
+                var sut = new ProblemDetail(A.Dummy<int>());
+
+                /* Assert */
+                Assert.Collection(sut.Keys,
+                    key => Assert.Equal(key, nameof(ProblemDetail.StatusCode)),
+                    key => Assert.Equal(key, nameof(ProblemDetail.Title)),
+                    key => Assert.Equal(key, nameof(ProblemDetail.Type))
+                );
+            }
+
+            [Fact]
+            public void Enumeration_HasAllInCollection()
+            {
+                /* Act */
+                var sut = new ProblemDetail(A.Dummy<int>());
+
+                /* Assert */
+                Assert.Collection(sut,
+                    kvp => Assert.Equal(kvp.Key, nameof(ProblemDetail.StatusCode)),
+                    kvp => Assert.Equal(kvp.Key, nameof(ProblemDetail.Title)),
+                    kvp => Assert.Equal(kvp.Key, nameof(ProblemDetail.Type))
+                );
+            }
+        }
     }
 }
