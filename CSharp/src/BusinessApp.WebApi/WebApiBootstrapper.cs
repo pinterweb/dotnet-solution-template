@@ -4,13 +4,13 @@
     using System.Security.Principal;
     using BusinessApp.Domain;
     using BusinessApp.App;
+    using BusinessApp.WebApi.ProblemDetails;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using SimpleInjector;
 #if !json
     using System.IO;
     using System.Collections.Generic;
-    using BusinessApp.WebApi.ProblemDetails;
 #endif
 
     /// <summary>
