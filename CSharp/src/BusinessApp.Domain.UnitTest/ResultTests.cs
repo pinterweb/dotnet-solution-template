@@ -42,7 +42,7 @@ namespace ShelLife.Domain.UnitTest
         public class ImplicitCastToValue
         {
             [Fact]
-            public void CastToValue_ValueReturned()
+            public void ResultIsValue_ValueReturned()
             {
                 /* Arrange */
                 string value = "foo";
@@ -55,7 +55,7 @@ namespace ShelLife.Domain.UnitTest
             }
 
             [Fact]
-            public void CastToValue_BadStateExceptionThrown()
+            public void ResultIsError_BadStateExceptionThrown()
             {
                 /* Arrange */
                 IFormattable value = $"foo";
@@ -67,7 +67,7 @@ namespace ShelLife.Domain.UnitTest
                 /* Assert */
                 Assert.IsType<BadStateException>(ex);
                 Assert.Equal(
-                    "Cannot get the results value because it is in an error state.",
+                    "Cannot implictly get the value because it is an error: foo",
                     ex.Message);
             }
         }
@@ -75,11 +75,11 @@ namespace ShelLife.Domain.UnitTest
         public class Expect
         {
             [Fact]
-            public void Expect_BadStateExceptionThrown()
+            public void IsErrorResult_BadStateExceptionThrown()
             {
                 /* Arrange */
-                IFormattable value = $"foo";
-                var sut = Result<_, IFormattable>.Error(value);
+                IFormattable error = $"foo";
+                var sut = Result<_, IFormattable>.Error(error);
 
                 /* Act */
                 var ex = Record.Exception(() => sut.Expect("Some message"));
@@ -89,6 +89,20 @@ namespace ShelLife.Domain.UnitTest
                 Assert.Equal(
                     "Some message: foo",
                     ex.Message);
+            }
+
+            [Fact]
+            public void IsOkResult_ValueReturned()
+            {
+                /* Arrange */
+                var value = "foo";
+                var sut = Result<string, IFormattable>.Ok(value);
+
+                /* Act */
+                var okVal = sut.Expect("Some message");
+
+                /* Assert */
+                Assert.Equal("foo", okVal);
             }
 
             [Fact]
@@ -124,6 +138,106 @@ namespace ShelLife.Domain.UnitTest
                 Assert.Equal(
                     "Some message: foobar",
                     ex.Message);
+            }
+        }
+
+        public class ExpectError
+        {
+            [Fact]
+            public void IsOkResult_BadStateExceptionThrown()
+            {
+                /* Arrange */
+                var value = $"foo";
+                var sut = Result<string, _>.Ok(value);
+
+                /* Act */
+                var ex = Record.Exception(() => sut.ExpectError("Some message"));
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal(
+                    "Some message: foo",
+                    ex.Message);
+            }
+
+            [Fact]
+            public void IsErrorResult_ErrorReturned()
+            {
+                /* Arrange */
+                FormattableString error = $"foo";
+                var sut = Result<_, FormattableString>.Error(error);
+
+                /* Act */
+                var errVal = sut.ExpectError(A.Dummy<string>());
+
+                /* Assert */
+                Assert.Equal("foo", FormattableString.Invariant(errVal));
+            }
+        }
+
+        public class UnwrapError
+        {
+            [Fact]
+            public void IsOkResult_BadStateExceptionThrown()
+            {
+                /* Arrange */
+                var value = $"foo";
+                var sut = Result<string, _>.Ok(value);
+
+                /* Act */
+                var ex = Record.Exception(() => sut.UnwrapError());
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal(
+                    "foo",
+                    ex.Message);
+            }
+
+            [Fact]
+            public void IsErrorResult_ErrorReturned()
+            {
+                /* Arrange */
+                FormattableString error = $"foo";
+                var sut = Result<_, FormattableString>.Error(error);
+
+                /* Act */
+                var errVal = sut.UnwrapError();
+
+                /* Assert */
+                Assert.Equal("foo", FormattableString.Invariant(errVal));
+            }
+        }
+
+        public class Unwrap
+        {
+            [Fact]
+            public void IsErrorResult_BadStateExceptionThrown()
+            {
+                /* Arrange */
+                FormattableString error = $"foo";
+                var sut = Result<_, FormattableString>.Error(error);
+
+                /* Act */
+                var ex = Record.Exception(() => sut.Unwrap());
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal("foo", ex.Message);
+            }
+
+            [Fact]
+            public void IsOkResult_ValueReturned()
+            {
+                /* Arrange */
+                var value = $"foo";
+                var sut = Result<string, _>.Ok(value);
+
+                /* Act */
+                var okVal = sut.Unwrap();
+
+                /* Assert */
+                Assert.Equal("foo", okVal);
             }
         }
 
@@ -216,6 +330,137 @@ namespace ShelLife.Domain.UnitTest
 
                 /* Assert */
                 Assert.True(result);
+            }
+        }
+
+        public class ImplicitCastToError
+        {
+            [Fact]
+            public void ResultIsError_ValueReturned()
+            {
+                /* Arrange */
+                FormattableString value = $"foo";
+
+                /* Act */
+                var sut = Result<_, IFormattable>.Error(value);
+
+                /* Assert */
+                Assert.Same(value, (FormattableString)sut);
+            }
+
+            [Fact]
+            public void ResultIsValue_BadStateExceptionThrown()
+            {
+                /* Arrange */
+                var sut = Result<string, _>.Ok("foo");
+
+                /* Act */
+                var ex = Record.Exception(() => (_)sut);
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal(
+                    "Cannot implictly get the error because it is a valid value: foo",
+                    ex.Message);
+            }
+        }
+
+        public class OrElse : ResultTests
+        {
+            [Fact]
+            public void ResultIsError_ResultOfFuncReturned()
+            {
+                /* Arrange */
+                FormattableString value = $"foo";
+                FormattableString another = $"bar";
+                var sut = Result<_,FormattableString>.Error(value);
+                var expectedResult = Result<_,FormattableString>.Error(another);
+                Func<FormattableString, Result<_, FormattableString>> onError =
+                    e => expectedResult;
+
+                /* Act */
+                var orElseResult = sut.OrElse(onError);
+
+                /* Assert */
+                Assert.Equal(expectedResult, orElseResult);
+            }
+
+            [Fact]
+            public void ResultIsOk_SameResultRetruned()
+            {
+                /* Arrange */
+                var sut = Result<string,_>.Ok("foo");
+
+                /* Act */
+                var orElseResult = sut.OrElse(A.Dummy<Func<_, Result<string, _>>>());
+
+                /* Assert */
+                Assert.Equal(sut, orElseResult);
+            }
+        }
+
+        public class Map : ResultTests
+        {
+            [Fact]
+            public void ResultIsError_ErrorKept()
+            {
+                /* Arrange */
+                FormattableString value = $"foo";
+                var sut = Result<_,FormattableString>.Error(value);
+                Func<_, string> onOk = e => "bar";
+
+                /* Act */
+                var orElseResult = sut.Map(onOk);
+
+                /* Assert */
+                Assert.Same(value, orElseResult.UnwrapError());
+            }
+
+            [Fact]
+            public void ResultIsOk_NewValueMapped()
+            {
+                /* Arrange */
+                var sut = Result<int,FormattableString>.Ok(1);
+                Func<int, string> onOk = e => "bar";
+
+                /* Act */
+                var orElseResult = sut.Map(onOk);
+
+                /* Assert */
+                Assert.Equal("bar", orElseResult.Unwrap());
+            }
+        }
+
+        public class MapOrElse : ResultTests
+        {
+            [Fact]
+            public void ResultIsError_ErrorFunctionCalled()
+            {
+                /* Arrange */
+                FormattableString value = $"bar";
+                var sut = Result<_,FormattableString>.Error(value);
+                Func<FormattableString, string> onError = e => $"foo {e}";
+
+                /* Act */
+                var mapOrElseResult = sut.MapOrElse(onError, A.Dummy<Func<_, string>>());
+
+                /* Assert */
+                Assert.Equal("foo bar", mapOrElseResult);
+            }
+
+            [Fact]
+            public void ResultIsOk_OkFunctionCalled()
+            {
+                /* Arrange */
+                FormattableString value = $"foo";
+                var sut = Result<int,FormattableString>.Ok(1);
+                Func<int, int> onOk = e => e + 2;
+
+                /* Act */
+                var mapOrElseResult = sut.MapOrElse(A.Dummy<Func<FormattableString, int>>(), onOk);
+
+                /* Assert */
+                Assert.Equal(3, mapOrElseResult);
             }
         }
 

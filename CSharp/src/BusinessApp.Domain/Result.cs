@@ -12,7 +12,7 @@
     }
 
     /// <summary>
-    /// A value type for an "ignored" type
+    /// A value type for an "ignored" type. Null pattern for a throw away type/value
     /// </summary>
     public struct _ : IFormattable
     {
@@ -45,20 +45,25 @@
 
         public T Expect(string message)
         {
-            switch (Kind)
+            return Kind switch
             {
-                case Result.Ok:
-                    return value;
-                default:
-                    throw new BadStateException($"{message}: {error}");
-            }
+                Result.Ok => value,
+                Result.Error => throw new BadStateException($"{message}: {error}"),
+                    _ => throw new NotImplementedException(),
+            };
         }
 
         public T Expect<TException>(string message) where TException : Exception
         {
             try
             {
-                throw (TException)Activator.CreateInstance(typeof(TException), $"{message}: {error}");
+                return Kind switch
+                {
+                    Result.Ok => value,
+                    Result.Error =>
+                        throw (TException)Activator.CreateInstance(typeof(TException), $"{message}: {error}"),
+                    _ => throw new NotImplementedException(),
+                };
             }
             catch (MissingMethodException)
             {
@@ -68,38 +73,84 @@
             }
         }
 
+        public E ExpectError(string message)
+        {
+            return Kind switch
+            {
+                Result.Ok => throw new BadStateException($"{message}: {value}"),
+                Result.Error => error,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public E UnwrapError()
+        {
+            return Kind switch
+            {
+                Result.Ok => throw new BadStateException($"{value}"),
+                Result.Error => error,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
         public T Unwrap()
         {
-            switch (Kind)
+            return Kind switch
             {
-                case Result.Ok:
-                    return value;
-                default:
-                    throw new BadStateException($"{error}");
-            }
+                Result.Ok => value,
+                Result.Error => throw new BadStateException($"{error}"),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         public Result<T, E> AndThen(Func<T, Result<T, E>> next)
         {
-            switch (Kind)
+            return Kind switch
             {
-                case Result.Ok:
-                    return next(value);
-                default:
-                    return this;
-            }
+                Result.Ok => next(value),
+                Result.Error => this,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public Result<T, E> OrElse(Func<E, Result<T, E>> onError)
+        {
+            return Kind switch
+            {
+                Result.Error => onError(error),
+                Result.Ok => this,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public Result<R, E> Map<R>(Func<T, R> onOk)
+        {
+            return Kind switch
+            {
+                Result.Error => Result<R, E>.Error(error),
+                Result.Ok => Result<R, E>.Ok(onOk(value)),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public R MapOrElse<R>(Func<E, R> onError, Func<T, R> onOk)
+        {
+            return Kind switch
+            {
+                Result.Error => onError(error),
+                Result.Ok => onOk(value),
+                _ => throw new NotImplementedException(),
+            };
         }
 
         public static implicit operator T(Result<T, E> result)
         {
-            if (result.Kind is Result.Error)
-            {
-                throw new BadStateException(
-                    "Cannot get the results value because it is in an error state."
-                );
-            }
+            return result.Expect("Cannot implictly get the value because it is an error");
+        }
 
-            return result.value;
+        public static implicit operator E(Result<T, E> result)
+        {
+            return result.ExpectError("Cannot implictly get the error because it is a valid value");
         }
 
         public static implicit operator Result(Result<T, E> result) => result.Kind;
