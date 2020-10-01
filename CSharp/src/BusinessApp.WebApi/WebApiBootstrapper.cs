@@ -45,22 +45,21 @@
             container.RegisterDecorator<IProblemDetailFactory, ProblemDetailFactoryHttpDecorator>(
                 Lifestyle.Singleton);
 
-            container.Register(typeof(IResourceHandler<,>), Assembly);
+            container.Register(typeof(IHttpRequestHandler<,>), Assembly);
             container.RegisterConditional(
-                typeof(IResourceHandler<,>),
+                typeof(IHttpRequestHandler<,>),
                 typeof(EnvelopeQueryResourceHandler<,>),
                 ctx => !ctx.Handled);
             container.RegisterConditional(
-                typeof(IResourceHandler<,>),
+                typeof(IHttpRequestHandler<,>),
                 typeof(QueryResourceHandler<,>),
                 ctx => !ctx.Handled
             );
             container.RegisterConditional(
-                typeof(IResourceHandler<,>),
+                typeof(IHttpRequestHandler<,>),
                 typeof(CommandResourceHandler<>),
                 ctx => !ctx.Handled
             );
-
             return container;
         }
 #if !json

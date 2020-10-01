@@ -20,35 +20,39 @@ namespace BusinessApp.App
             this.decoratee = Guard.Against.Null(decoratee).Expect(nameof(decoratee));
         }
 
-        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public async Task<Result<TCommand, IFormattable>> HandleAsync(
+            TCommand command,
+            CancellationToken cancellationToken)
         {
-            await HandleWithRetry(command, cancellationToken);
+            return await HandleWithRetry(command, cancellationToken);
         }
 
-        private async Task HandleWithRetry(TCommand command, CancellationToken cancellationToken)
+        private async Task<Result<TCommand, IFormattable>> HandleWithRetry(
+            TCommand command,
+            CancellationToken cancellationToken)
         {
             try
             {
-                await decoratee.HandleAsync(command, cancellationToken);
+                return await decoratee.HandleAsync(command, cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (IsDeadlockException(ex))
             {
-                if (!IsDeadlockException(ex)) throw;
-
                 retries--;
 
                 if (retries <= 0)
                 {
-                    throw new CommunicationException(
+                    return Result<TCommand, IFormattable>.Error(
+                        new CommunicationException(
                         "There was a conflict saving your data. Please retry your " +
                         "operation again. If you continue to see this message, please " +
-                        "contact support.", ex);
+                        "contact support.", ex)
+                    );
 
                 }
 
                 Thread.Sleep(sleepBetweenRetries);
 
-                await HandleWithRetry(command, cancellationToken);
+                return await HandleWithRetry(command, cancellationToken);
             }
         }
 

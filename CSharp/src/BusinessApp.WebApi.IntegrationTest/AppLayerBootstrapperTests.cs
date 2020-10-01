@@ -11,6 +11,8 @@ namespace BusinessApp.WebApi.IntegrationTest
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Http;
     using System.Collections.Generic;
+    using BusinessApp.Domain;
+    using System;
 
     public class AppLayerBootstrapperTests
     {
@@ -191,7 +193,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         private sealed class CommandHandlerStub : ICommandHandler<CommandStub>
         {
-            public Task HandleAsync(CommandStub command, CancellationToken cancellationToken)
+            public Task<Result<CommandStub, IFormattable>> HandleAsync(CommandStub command, CancellationToken cancellationToken)
             {
                 throw new System.NotImplementedException();
             }

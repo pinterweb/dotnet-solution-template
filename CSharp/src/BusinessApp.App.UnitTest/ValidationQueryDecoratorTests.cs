@@ -8,6 +8,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.Threading;
     using BusinessApp.Domain;
+    using System;
 
     public class ValidationQueryDecoratorTests
     {
@@ -52,7 +53,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : ValidationQueryDecoratorTests
         {
             [Fact]
-            public async Task WithoutQuery_ExceptionThrown()
+            public async Task WithoutQueryArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -65,7 +66,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithQuery_ValidationCalledBeforeHandeler()
+            public async Task WithQueryArg_ValidationCalledBeforeHandeler()
             {
                 /* Arrange */
                 var handlerCallsBeforeValidate = 0;
@@ -74,7 +75,7 @@ namespace BusinessApp.App.UnitTest
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
-                await sut.HandleAsync(query, token);
+                var _ = await sut.HandleAsync(query, token);
 
                 /* Assert */
                 A.CallTo(() => validator.ValidateAsync(query, token)).MustHaveHappened()
@@ -82,33 +83,49 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithQuery_ValidatedOnce()
+            public async Task WithQueryArg_ValidatedOnce()
             {
                 /* Arrange */
-                var command = A.Dummy<QueryStub>();
+                var query = A.Dummy<QueryStub>();
 
                 /* Act */
-                await sut.HandleAsync(command, token);
+                var _ = await sut.HandleAsync(query, token);
 
                 /* Assert */
-                A.CallTo(() => validator.ValidateAsync(command, token))
+                A.CallTo(() => validator.ValidateAsync(query, token))
                     .MustHaveHappenedOnceExactly();
             }
 
             [Fact]
-            public async Task WithQuery_HandledOnce()
+            public async Task WithQueryArg_HandledOnce()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
-                var command = A.Dummy<QueryStub>();
-
+                var query = A.Dummy<QueryStub>();
 
                 /* Act */
-                await sut.HandleAsync(command, token);
+                var _ = await sut.HandleAsync(query, token);
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(command, token))
+                A.CallTo(() => inner.HandleAsync(query, token))
                     .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task WithQueryArg_InnerResultsReturned()
+            {
+                /* Arrange */
+                var token = A.Dummy<CancellationToken>();
+                var query = A.Dummy<QueryStub>();
+                var innerResults = A.Dummy<Result<ResponseStub, IFormattable>>();
+                A.CallTo(() => inner.HandleAsync(query, token))
+                    .Returns(innerResults);
+
+                /* Act */
+                var results = await sut.HandleAsync(query, token);
+
+                /* Assert */
+                Assert.Equal(innerResults, results);
             }
         }
     }

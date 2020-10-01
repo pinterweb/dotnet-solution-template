@@ -102,7 +102,7 @@ namespace BusinessApp.App.UnitTest
             public async Task ReturnsDecoratedResult()
             {
                 /* Arrange */
-                var expectedResponse = new ResponseStub();
+                var expectedResponse = A.Dummy<Result<ResponseStub, IFormattable>>();
                 var token = new CancellationToken();
                 A.CallTo(() => decorated.HandleAsync(query, token))
                     .Returns(Task.FromResult(expectedResponse));
@@ -111,7 +111,7 @@ namespace BusinessApp.App.UnitTest
                 var actualResponse = await sut.HandleAsync(query, token);
 
                 /* Assert */
-                Assert.Same(expectedResponse, actualResponse);
+                Assert.Equal(expectedResponse, actualResponse);
             }
         }
     }

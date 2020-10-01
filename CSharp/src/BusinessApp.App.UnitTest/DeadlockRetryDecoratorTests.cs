@@ -51,7 +51,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : DeadlockRetryDecoratorTests
         {
             [Fact]
-            public async Task NormalException_DoesNothing()
+            public async Task NormalException_DoesNotHandle()
             {
                 /* Arrange */
                 var command = A.Dummy<CommandStub>();
@@ -61,11 +61,12 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappened();
+                Assert.NotNull(ex);
+                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappenedOnceExactly();
             }
 
             [Fact]
-            public async Task DbExceptionNotADeadlock_DoesNothing()
+            public async Task DbExceptionNotADeadlock_DoesNotHandle()
             {
                 /* Arrange */
                 var command = A.Dummy<CommandStub>();
@@ -76,7 +77,8 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappened();
+                Assert.NotNull(ex);
+                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappenedOnceExactly();
             }
 
             [Fact]
@@ -97,7 +99,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task DbExceptionIsDeadlockAfterFiveTimes_ThrowsCommunicationException()
+            public async Task DbExceptionIsDeadlockAfterFiveTimes_ReturnsErrorResultCommunicationException()
             {
                 /* Arrange */
                 var command = A.Dummy<CommandStub>();
@@ -106,15 +108,15 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception).NumberOfTimes(5);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
+                var ex = await sut.HandleAsync(command, token);
 
                 /* Assert */
-                Assert.IsType<CommunicationException>(ex);
+                var error = Assert.IsType<CommunicationException>(ex.UnwrapError());
                 Assert.Equal(
                     "There was a conflict saving your data. Please retry your " +
                     "operation again. If you continue to see this message, please " +
                     "contact support.",
-                    ex.Message);
+                    error.Message);
             }
 
             [Fact]

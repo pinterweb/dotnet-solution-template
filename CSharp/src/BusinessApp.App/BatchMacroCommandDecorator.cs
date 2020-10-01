@@ -1,5 +1,6 @@
 namespace BusinessApp.App
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -20,11 +21,13 @@ namespace BusinessApp.App
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
-        public async Task HandleAsync(TMacro command, CancellationToken cancellationToken)
+        public async Task<Result<TMacro, IFormattable>> HandleAsync(
+            TMacro macro,
+            CancellationToken cancellationToken)
         {
-            Guard.Against.Null(command).Expect(nameof(command));
+            Guard.Against.Null(macro).Expect(nameof(macro));
 
-            var payloads = await expander.ExpandAsync(command, cancellationToken);
+            var payloads = await expander.ExpandAsync(macro, cancellationToken);
 
             if (!payloads.Any())
             {
@@ -34,7 +37,10 @@ namespace BusinessApp.App
                 );
             }
 
-            await handler.HandleAsync(payloads, cancellationToken);
+            return (await handler.HandleAsync(payloads, cancellationToken))
+                .MapOrElse(
+                    err => Result<TMacro, IFormattable>.Error(err),
+                    ok => Result<TMacro, IFormattable>.Ok(macro));
         }
     }
 }

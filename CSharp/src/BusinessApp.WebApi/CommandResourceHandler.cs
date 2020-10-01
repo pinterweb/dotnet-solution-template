@@ -5,12 +5,12 @@
     using Microsoft.AspNetCore.Http;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using System;
 
     /// <summary>
     /// Basic http handler for commands
     /// </summary>
-    public class CommandResourceHandler<TRequest> : IResourceHandler<TRequest, TRequest>
-        where TRequest : class, new()
+    public class CommandResourceHandler<TRequest> : IHttpRequestHandler<TRequest, TRequest>
     {
         private readonly ICommandHandler<TRequest> handler;
         private readonly ISerializer serializer;
@@ -24,18 +24,17 @@
             this.serializer = Guard.Against.Null(serializer).Expect(nameof(serializer));
         }
 
-        public async Task<TRequest> HandleAsync(HttpContext context, CancellationToken cancellationToken)
+        public async Task<Result<TRequest, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
         {
             var command = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
 
             if (command == null)
             {
-                throw new BusinessAppWebApiException("Your request was cancelled because there was no data to process");
+                return Result<TRequest, IFormattable>
+                    .Error(new ModelValidationException("Your requets was cancelled because there was no data to process"));
             }
 
-            await handler.HandleAsync(command, cancellationToken);
-
-            return command;
+            return await handler.HandleAsync(command, cancellationToken);
         }
     }
 }

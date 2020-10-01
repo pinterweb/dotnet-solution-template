@@ -8,6 +8,7 @@
     using Microsoft.AspNetCore.Hosting;
     using System.Threading.Tasks;
     using System.Threading;
+    using System;
 #if efcore
     using BusinessApp.Data;
 #endif
@@ -129,7 +130,8 @@
 
             }
 
-            public Task HandleAsync(T command, CancellationToken cancellationToken)
+            public Task<Result<T, IFormattable>> HandleAsync(T command,
+                CancellationToken cancellationToken)
             {
                 return inner.HandleAsync(command, cancellationToken);
             }

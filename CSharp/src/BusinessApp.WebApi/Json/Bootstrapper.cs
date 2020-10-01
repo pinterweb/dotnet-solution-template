@@ -17,7 +17,7 @@
     {
         public static void Bootstrap(Container container)
         {
-            container.RegisterDecorator(typeof(IResourceHandler<,>), typeof(JsonResponseDecorator<,>));
+            container.RegisterDecorator(typeof(IHttpRequestHandler<,>), typeof(JsonResponseDecorator<,>));
             container.RegisterSingleton<ISerializer, NewtonsoftJsonSerializer>();
 
             container.RegisterInstance(

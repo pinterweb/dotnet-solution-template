@@ -26,27 +26,27 @@
                 {
                     //endpoint.MapGet("/api/<resource>", async ctx =>
                     //    await container
-                    //        .GetInstance<IResourceHandler<SomeQuery, IEnumerable<BusinessContract>>>()
+                    //        .GetInstance<IHttpRequestHandler<SomeQuery, IEnumerable<BusinessContract>>>()
                     //        .HandleAsync(ctx, default)
                     //),
-                    //endpoint.MapGet("/api/<aggregate>/{id:long}", async ctx =>
+                    //endpoint.MapGet("/api/<resource>/{id:long}", async ctx =>
                     //    await container
-                    //        .GetInstance<IResourceHandler<SomeQuery, BusinessContract>>()
+                    //        .GetInstance<IHttpRequestHandler<SomeQuery, BusinessContract>>()
                     //        .HandleAsync(ctx, default)
                     //),
-                    //endpoint.MapPost("/api/<aggregate>", async ctx =>
+                    //endpoint.MapPost("/api/<resource>", async ctx =>
                     //    await container
-                    //        .GetInstance<IResourceHandler<BusinessCommand, BusinessCommand>>()
+                    //        .GetInstance<IHttpRequestHandler<BusinessCommand, BusinessCommand>>()
                     //        .HandleAsync(ctx, default)
                     //),
-                    //endpoint.MapPut("/api/<aggregate>/{id:long}", async ctx =>
+                    //endpoint.MapPut("/api/<resource>/{id:long}", async ctx =>
                     //    await container
-                    //        .GetInstance<IResourceHandler<BusinessCommand, BusinessCommand>>()
+                    //        .GetInstance<IHttpRequestHandler<BusinessCommand, BusinessCommand>>()
                     //        .HandleAsync(ctx, default)
                     //),
-                    //endpoint.MapDelete("/api/<aggregate>/{id:long}", async ctx =>
+                    //endpoint.MapDelete("/api/<resource>/{id:long}", async ctx =>
                     //    await container
-                    //        .GetInstance<IResourceHandler<DeleteCommand, DeleteCommand>>()
+                    //        .GetInstance<IHttpRequestHandler<DeleteCommand, DeleteCommand>>()
                     //        .HandleAsync(ctx, default)
                     //),
                 };

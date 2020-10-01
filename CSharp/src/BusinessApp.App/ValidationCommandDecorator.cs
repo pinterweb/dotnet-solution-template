@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.App
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
@@ -18,13 +19,14 @@
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
-        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public async Task<Result<TCommand, IFormattable>> HandleAsync(
+            TCommand command, CancellationToken cancellationToken)
         {
             Guard.Against.Null(command).Expect(nameof(command));
 
             await validator.ValidateAsync(command, cancellationToken);
 
-            await handler.HandleAsync(command, cancellationToken);
+            return await handler.HandleAsync(command, cancellationToken);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.Threading;
     using BusinessApp.Domain;
+    using System;
 
     public class ValidationCommandDecoratorTests
     {
@@ -30,7 +31,7 @@ namespace BusinessApp.App.UnitTest
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
                 new object[] { null, A.Dummy<ICommandHandler<CommandStub>>() },
-                new object[] { A.Fake<IValidator<CommandStub>>(), null },
+                new object[] { A.Dummy<IValidator<CommandStub>>(), null },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
@@ -52,7 +53,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : ValidationCommandDecoratorTests
         {
             [Fact]
-            public async Task WithoutCommand_ExceptionThrown()
+            public async Task WithoutCommandArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -74,20 +75,20 @@ namespace BusinessApp.App.UnitTest
                     .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
 
                 /* Act */
-                await sut.HandleAsync(command, token);
+                var _ = await sut.HandleAsync(command, token);
 
                 /* Assert */
                 Assert.Equal(0, handlerCallsBeforeValidate);
             }
 
             [Fact]
-            public async Task WithCommand_ValidatedOnce()
+            public async Task WithCommands_ValidatedOnce()
             {
                 /* Arrange */
                 var command = A.Dummy<CommandStub>();
 
                 /* Act */
-                await sut.HandleAsync(command, token);
+                var _ = await sut.HandleAsync(command, token);
 
                 /* Assert */
                 A.CallTo(() => validator.ValidateAsync(command, token))
@@ -95,19 +96,35 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithCommand_HandledOnce()
+            public async Task WithCommands_HandledOnce()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
                 var command = A.Dummy<CommandStub>();
 
-
                 /* Act */
-                await sut.HandleAsync(command, token);
+                var _ = await sut.HandleAsync(command, token);
 
                 /* Assert */
                 A.CallTo(() => inner.HandleAsync(command, token))
                     .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task WithCommands_InnerResultsReturned()
+            {
+                /* Arrange */
+                var token = A.Dummy<CancellationToken>();
+                var command = A.Dummy<CommandStub>();
+                var innerResults = A.Dummy<Result<CommandStub, IFormattable>>();
+                A.CallTo(() => inner.HandleAsync(command, token))
+                    .Returns(innerResults);
+
+                /* Act */
+                var results = await sut.HandleAsync(command, token);
+
+                /* Assert */
+                Assert.Equal(innerResults, results);
             }
         }
     }

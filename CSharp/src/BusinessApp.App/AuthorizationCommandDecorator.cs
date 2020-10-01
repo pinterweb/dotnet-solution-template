@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.App
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
@@ -21,7 +22,8 @@
             this.authorizer = Guard.Against.Null(authorizer).Expect(nameof(authorizer));
         }
 
-        public Task HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public Task<Result<TCommand, IFormattable>> HandleAsync(TCommand command,
+            CancellationToken cancellationToken)
         {
             authorizer.AuthorizeObject(command);
 

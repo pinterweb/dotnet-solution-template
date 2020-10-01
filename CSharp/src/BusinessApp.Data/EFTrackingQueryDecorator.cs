@@ -1,5 +1,6 @@
 namespace BusinessApp.Data
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.App;
@@ -25,7 +26,8 @@ namespace BusinessApp.Data
             db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        public Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
+        public Task<Result<TResult, IFormattable>> HandleAsync(TQuery query,
+            CancellationToken cancellationToken)
         {
             return inner.HandleAsync(query, cancellationToken);
         }

@@ -66,7 +66,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : TransactionDecoratorTests
         {
             [Fact]
-            public async Task WithoutCommand_ExceptionThrown()
+            public async Task WithoutCommandArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -79,7 +79,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task BeforeRegister_TransAndHandlerCalledInOrder()
+            public async Task BeforeRegister_ServicesCalledInOrder()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
@@ -88,7 +88,7 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => factory.Begin()).Returns(uow);
 
                 /* Act */
-                await sut.HandleAsync(command, token);
+                var _ = await sut.HandleAsync(command, token);
 
                 /* Assert */
                 A.CallTo(() => factory.Begin()).MustHaveHappenedOnceExactly()
@@ -109,7 +109,7 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => factory.Begin()).Returns(uow);
 
                 /* Act */
-                await sut.HandleAsync(A.Dummy<CommandStub>(), token);
+                var _ = await sut.HandleAsync(A.Dummy<CommandStub>(), token);
 
                 /* Assert */
                 A.CallTo(() => handler1()).MustHaveHappenedOnceExactly()
@@ -164,6 +164,25 @@ namespace BusinessApp.App.UnitTest
                     "transaction failed to save. As a result, some data may be in a invalid state." +
                     "Please verify your data before continuing",
                     ex.Message);
+            }
+
+            [Fact]
+            public async Task WhenSuccessful_InnerResultReturned()
+            {
+                /* Arrange */
+                var token = A.Dummy<CancellationToken>();
+                var command = A.Dummy<CommandStub>();
+                var innerResults = Result<CommandStub, IFormattable>.Ok(new CommandStub());
+                var uow = A.Fake<IUnitOfWork>();
+                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => inner.HandleAsync(command, token))
+                    .Returns(innerResults);
+
+                /* Act */
+                var results = await sut.HandleAsync(command, token);
+
+                /* Assert */
+                Assert.Equal(innerResults, results);
             }
         }
     }

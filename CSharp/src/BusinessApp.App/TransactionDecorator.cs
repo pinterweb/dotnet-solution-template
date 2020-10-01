@@ -20,13 +20,14 @@
             this.register = Guard.Against.Null(register).Expect(nameof(register));
         }
 
-        public async Task HandleAsync(TCommand command, CancellationToken cancellationToken)
+        public async Task<Result<TCommand, IFormattable>> HandleAsync(
+            TCommand command, CancellationToken cancellationToken)
         {
             Guard.Against.Null(command).Expect(nameof(command));
 
             var trans = transactionFactory.Begin();
 
-            await inner.HandleAsync(command, cancellationToken);
+            var result = await inner.HandleAsync(command, cancellationToken);
 
             await trans.CommitAsync(cancellationToken);
 
@@ -53,6 +54,8 @@
                         "Please verify your data before continuing", e);
                 }
             }
+
+            return result;
         }
     }
 }
