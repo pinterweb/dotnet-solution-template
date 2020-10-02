@@ -22,11 +22,13 @@ namespace BusinessApp.App
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
-        public async Task HandleAsync(IEnumerable<TCommand> command,
+        public async Task<Result<IEnumerable<TCommand>, IFormattable>> HandleAsync(
+            IEnumerable<TCommand> command,
             CancellationToken cancellationToken)
         {
             Guard.Against.Null(command).Expect(nameof(command));
-            var errors = new List<ModelValidationException>();
+
+            var results = new List<Result<IEnumerable<TCommand>, IFormattable>>();
 
             for (int i = 0; i < command.Count(); i++)
             {
@@ -44,33 +46,24 @@ namespace BusinessApp.App
 
                     foreach (var invalid in invalids)
                     {
-                        AddError(invalid, i, errors);
+                        results.Add(Result<IEnumerable<TCommand>, IFormattable>.Error(invalid));
                     }
                 }
                 catch (ModelValidationException ex)
                 {
-                    AddError(ex, i, errors);
+                    results.Add(Result<IEnumerable<TCommand>, IFormattable>.Error(ex));
                 }
             }
 
-            if (errors.Count == 1)
+            if (results.Any(r => r.Kind == Result.Error))
             {
-                throw errors.First();
+                return Result<IEnumerable<TCommand>, IFormattable>
+                    .Error(new BatchException(
+                        results.Select(o => o.IgnoreValue()
+                    )));
             }
-            else if (errors.Count > 1)
-            {
-                throw new AggregateException(errors);
-            }
 
-            await handler.HandleAsync(command, cancellationToken);
-        }
-
-        private static void AddError(ModelValidationException ex, int index,
-            List<ModelValidationException> errors)
-        {
-            var indexedPropertyExceptions = ex.Select(member => member.CreateWithIndexName(index));
-
-            errors.Add(new ModelValidationException(ex.Message, indexedPropertyExceptions));
+            return await handler.HandleAsync(command, cancellationToken);
         }
     }
 }

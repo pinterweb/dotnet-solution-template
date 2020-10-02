@@ -7,9 +7,10 @@ namespace BusinessApp.WebApi
     using Microsoft.Extensions.Primitives;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using System;
 
     public class EnvelopeQueryResourceHandler<TRequest, TResponse> :
-        IResourceHandler<TRequest, IEnumerable<TResponse>>
+        IHttpRequestHandler<TRequest, IEnumerable<TResponse>>
         where TRequest : IQuery<EnvelopeContract<TResponse>>, new()
     {
         private readonly IQueryHandler<TRequest, EnvelopeContract<TResponse>> handler;
@@ -23,7 +24,7 @@ namespace BusinessApp.WebApi
             this.serializer = Guard.Against.Null(serializer).Expect(nameof(serializer));
         }
 
-        public async Task<IEnumerable<TResponse>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
         {
             var query = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
 
@@ -32,13 +33,15 @@ namespace BusinessApp.WebApi
                 query = new TRequest();
             }
 
-            var resource = await handler.HandleAsync(query, cancellationToken);
+            return (await handler.HandleAsync(query, cancellationToken))
+                .Map(envelope =>
+                {
+                    context.Response.Headers.Add("Access-Control-Expose-Headers", new[] { "VND.parkeremg.pagination" });
+                    context.Response.Headers.Add("VND.parkeremg.pagination",
+                        new StringValues(envelope.Pagination.ToHeaderValue()));
 
-            context.Response.Headers.Add("Access-Control-Expose-Headers", new[] { "VND.parkeremg.pagination" });
-            context.Response.Headers.Add("VND.parkeremg.pagination",
-                new StringValues(resource.Pagination.ToHeaderValue()));
-
-            return resource.Data;
+                    return Result<IEnumerable<TResponse>, IFormattable>.Ok(envelope.Data);
+                });
         }
     }
 }

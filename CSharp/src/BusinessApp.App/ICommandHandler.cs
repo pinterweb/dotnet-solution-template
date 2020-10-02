@@ -1,13 +1,12 @@
 ﻿namespace BusinessApp.App
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Handles command data in the <typeparam name="TCommand">TCommand</typeparam>
     /// </summary>
-    public interface ICommandHandler<in TCommand>
+    /// <implementers>
+    /// Logic in this pipeline can modify data
+    /// </implementers>
+    public interface ICommandHandler<TCommand> : IRequestHandler<TCommand, TCommand>
     {
-        Task HandleAsync(TCommand command, CancellationToken cancellationToken);
     }
 }

@@ -30,5 +30,18 @@ namespace BusinessApp.Domain.UnitTest
                 Assert.Same(inner, ex.InnerException);
             }
         }
+
+        public class IFormattableImpl : BusinessAppExceptionTests
+        {
+            [Fact]
+            public void ToString_MessageReturned()
+            {
+                /* Act */
+                var ex = new BusinessAppException("foo");
+
+                /* Assert */
+                Assert.Equal("foo", ex.ToString());
+            }
+        }
     }
 }

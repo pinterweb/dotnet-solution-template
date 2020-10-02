@@ -5,55 +5,47 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
     using System.Threading;
-    using BusinessApp.App;
 
     /// <summary>
     /// Writes out the final response after handling the request
     /// </summary>
-    public class JsonResponseDecorator<TRequest, TResponse> : IResourceHandler<TRequest, TResponse>
+    public class JsonResponseDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
     {
-        private readonly IResourceHandler<TRequest, TResponse> decorated;
+        private readonly IHttpRequestHandler<TRequest, TResponse> inner;
         private readonly IResponseWriter modelWriter;
 
-        public JsonResponseDecorator(IResourceHandler<TRequest, TResponse> decorated,
+        public JsonResponseDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
             IResponseWriter modelWriter)
         {
-            this.decorated = Guard.Against.Null(decorated).Expect(nameof(decorated));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
             this.modelWriter = Guard.Against.Null(modelWriter).Expect(nameof(modelWriter));
         }
 
-        public async Task<TResponse> HandleAsync(HttpContext context, CancellationToken cancellationToken)
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
         {
-            try
+            var validContentType =
+                !string.IsNullOrWhiteSpace(context.Request.ContentType) &&
+                context.Request.ContentType.Contains("application/json");
+
+            var requestHasBody = await context.Request.HasBody();
+
+            if (requestHasBody && !validContentType)
             {
-                var validContentType =
-                    !string.IsNullOrWhiteSpace(context.Request.ContentType) &&
-                    context.Request.ContentType.Contains("application/json");
-
-                var requestHasBody = await context.Request.HasBody();
-
-                if (requestHasBody && !validContentType)
-                {
-                    context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
-                    throw new NotSupportedException("Expected content-type to be application/json");
-                }
-
-                var resource = await decorated.HandleAsync(context, cancellationToken);
-
-                await modelWriter.WriteResponseAsync(context, Result<TResponse, _>.Ok(resource));
-
-                return resource;
+                context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
+                return Result<TResponse, IFormattable>.Error($"Expected content-type to be application/json");
             }
-            catch (Exception e)
+
+            var result = await inner.HandleAsync(context, cancellationToken);
+
+            context.Response.ContentType = result.Kind switch
             {
-                await modelWriter.WriteResponseAsync(
-                    context,
-                    Result<TResponse, IFormattable>
-                    .Error(e is IFormattable f ? f : new UnhandledRequestException(e))
-                );
+                Result.Error => "application/problem+json",
+                _ => "application/json",
+            };
 
-                throw;
-            }
+            await modelWriter.WriteResponseAsync(context, result);
+
+            return result;
         }
     }
 }

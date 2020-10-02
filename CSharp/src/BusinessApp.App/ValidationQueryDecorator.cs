@@ -1,5 +1,6 @@
 namespace BusinessApp.App
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
@@ -19,7 +20,8 @@ namespace BusinessApp.App
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
         }
 
-        public async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
+        public async Task<Result<TResult, IFormattable>> HandleAsync(TQuery query,
+            CancellationToken cancellationToken)
         {
             Guard.Against.Null(query).Expect(nameof(query));
 

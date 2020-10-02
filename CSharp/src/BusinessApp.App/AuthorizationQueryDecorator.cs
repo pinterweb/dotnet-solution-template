@@ -1,32 +1,30 @@
 ﻿namespace BusinessApp.App
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    /// <summary>
-    /// Authorizes a user based on the <typeparam name="TQuery">TQuery</typeparam>
-    /// </summary>
     public class AuthorizationQueryDecorator<TQuery, TResult> : IQueryHandler<TQuery, TResult>
         where TQuery : IQuery<TResult>
     {
-        private readonly IQueryHandler<TQuery, TResult> decoratedHandler;
+        private readonly IQueryHandler<TQuery, TResult> inner;
         private readonly IAuthorizer<TQuery> authorizer;
 
         public AuthorizationQueryDecorator(
-            IQueryHandler<TQuery, TResult> decoratedHandler,
+            IQueryHandler<TQuery, TResult> inner,
             IAuthorizer<TQuery> authorizer
         )
         {
-            this.decoratedHandler = Guard.Against.Null(decoratedHandler).Expect(nameof(decoratedHandler));
+            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
             this.authorizer = Guard.Against.Null(authorizer).Expect(nameof(authorizer));
         }
 
-        public Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
+        public Task<Result<TResult, IFormattable>> HandleAsync(TQuery query, CancellationToken cancellationToken)
         {
             authorizer.AuthorizeObject(query);
 
-            return decoratedHandler.HandleAsync(query, cancellationToken);
+            return inner.HandleAsync(query, cancellationToken);
         }
     }
 }

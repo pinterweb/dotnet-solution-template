@@ -7,6 +7,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.Threading;
     using BusinessApp.Domain;
+    using System;
 
     public class QueryLifetimeCacheDecoratorTests
     {
@@ -69,16 +70,17 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = new QueryStub();
-                var firstResponse = new ResponseStub();
+                var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
                 A.CallTo(() => inner.HandleAsync(query, token))
-                    .Returns(firstResponse).Once();
+                    .Returns(firstResponse)
+                    .Once();
                 await sut.HandleAsync(query, token);
 
                 /* Act */
                 var secondResponse = await sut.HandleAsync(query, token);
 
                 /* Assert */
-                Assert.Same(firstResponse, secondResponse);
+                Assert.Equal(firstResponse, secondResponse);
             }
 
             [Fact]
@@ -87,16 +89,17 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query1 = new QueryStub { Id = 1 };
                 var query2 = new QueryStub { Id = 1 };
-                var firstResponse = new ResponseStub();
+                var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
                 A.CallTo(() => inner.HandleAsync(query1, token))
-                    .Returns(firstResponse);
+                    .Returns(firstResponse)
+                    .Once();
                 await sut.HandleAsync(query1, token);
 
                 /* Act */
                 var secondResponse = await sut.HandleAsync(query2, token);
 
                 /* Assert */
-                Assert.Same(firstResponse, secondResponse);
+                Assert.Equal(firstResponse, secondResponse);
             }
 
             [Fact]
@@ -105,8 +108,8 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query1 = new QueryStub { Id = 1 };
                 var query2 = new QueryStub { Id = 2 };
-                var firstResponse = new ResponseStub();
-                var secondResponse = new ResponseStub();
+                var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
+                var secondResponse = Result<ResponseStub, IFormattable>.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(query1, token))
                     .Returns(firstResponse);
                 A.CallTo(() => inner.HandleAsync(query2, token))
@@ -117,7 +120,7 @@ namespace BusinessApp.App.UnitTest
                 var secondResult = await sut.HandleAsync(query2, token);
 
                 /* Assert */
-                Assert.Same(secondResponse, secondResult);
+                Assert.Equal(secondResponse, secondResult);
             }
         }
     }

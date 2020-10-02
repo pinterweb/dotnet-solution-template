@@ -32,12 +32,12 @@ namespace BusinessApp.App.UnitTest
             {
                 new object[]
                 {
-                    A.Fake<IBatchGrouper<CommandStub>>(),
-                    null
+                    null,
+                    A.Dummy<ICommandHandler<IEnumerable<CommandStub>>>()
                 },
                 new object[]
                 {
-                    A.Fake<IBatchGrouper<CommandStub>>(),
+                    A.Dummy<IBatchGrouper<CommandStub>>(),
                     null
                 },
             };
@@ -94,263 +94,103 @@ namespace BusinessApp.App.UnitTest
                 /* Act */
                 await sut.HandleAsync(commands, token);
 
-                /* Assert cannot guarntee order */
+                /* Assert */
                 Assert.Collection(firstPayload,
                     p => Assert.Same(p, groups.First()));
                 Assert.Collection(secondPayload,
                     p => Assert.Same(p, groups.Last()));
             }
 
-            [Theory]
-            [InlineData(0, 0, "[2].foo")]
-            [InlineData(0, 1, "[0].foo")]
-            [InlineData(1, 0, "[1].foo")]
-            public async Task ExceptionWithIndexInDataKey_IndexChanged(int throwOnCommand,
-                int exceptionIndexKey, string actualIndexKey)
+            public class OnError : BatchCommandGroupDecoratorTests
+            {
+                private readonly Result<IEnumerable<CommandStub>, IFormattable> error;
+                private readonly Result<IEnumerable<CommandStub>, IFormattable> ok;
+                private readonly IEnumerable<CommandStub> commands;
+
+                public OnError()
+                {
+                    commands = new[]
+                    {
+                        new CommandStub(),
+                        new CommandStub(),
+                        new CommandStub(),
+                    };
+                    var groups = new[]
+                    {
+                        new[] { commands.Last(), commands.First() },
+                        new[] { commands.ElementAt(1) },
+                    };
+
+                    error = Result<IEnumerable<CommandStub>, IFormattable>
+                        .Error(DateTime.Now);
+                    ok = Result<IEnumerable<CommandStub>, IFormattable>
+                        .Ok(A.Dummy<IEnumerable<CommandStub>>());
+                    A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
+                    A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, token))
+                        .Returns(error).Once().Then.Returns(ok);
+                }
+
+                [Fact]
+                public async Task AllReturnedInBatchException()
+                {
+                    /* Act */
+                    var results = await sut.HandleAsync(commands, token);
+
+                    /* Assert */
+                    Assert.IsType<BatchException>(results.UnwrapError());
+                }
+
+                [Fact]
+                public async Task AllReturnedInBatchExceptionInOrder()
+                {
+                    /* Act */
+                    var results = await sut.HandleAsync(commands, token);
+
+                    /* Assert */
+                    var ex = Assert.IsType<BatchException>(results.UnwrapError());
+                    Assert.Collection(ex.Results,
+                        r => Assert.Equal(error.UnwrapError(), r.UnwrapError()),
+                        r => Assert.Equal(Result.Ok, r.Kind),
+                        r => Assert.Equal(error.UnwrapError(), r.UnwrapError())
+                    );
+                }
+            }
+
+            public async Task AllOkResults_ResultsReturned()
             {
                 /* Arrange */
-                var exception = new Exception();
-                exception.Data.Add("Index", exceptionIndexKey);
-                exception.Data.Add("foo", "bar");
                 var commands = new[]
                 {
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>()
+                    new CommandStub(),
+                    new CommandStub(),
+                    new CommandStub(),
                 };
                 var groups = new[]
                 {
                     new[] { commands.Last(), commands.First() },
                     new[] { commands.ElementAt(1) },
                 };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(throwOnCommand), token))
-                    .Throws(exception);
+                var result1 = new CommandStub[0];
+                var result2 = new CommandStub[0];
 
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
+                var ok1 = Result<IEnumerable<CommandStub>, IFormattable>
+                    .Ok(result1);
+                var ok2 = Result<IEnumerable<CommandStub>, IFormattable>
+                    .Ok(result2);
 
-                /* Assert */
-                Assert.NotNull(ex);
-                Assert.True(ex.Data.Contains(actualIndexKey));
-            }
-
-            [Fact]
-            public async Task AggregateExceptionWithIndexInDataKey_IndexChanged()
-            {
-                /* Arrange */
-                var exception1 = new Exception();
-                var exception2 = new Exception();
-                var aggregate = new AggregateException(new [] { exception2, exception1 });
-                exception1.Data.Add("Index", 1);
-                exception1.Data.Add("foo", "bar");
-                exception2.Data.Add("Index", 0);
-                exception2.Data.Add("lorem", "ipsum");
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>()
-                };
-                var groups = new[]
-                {
-                    new[] { commands.Last(), commands.First() },
-                };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(0), token))
-                    .Throws(aggregate);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                var thrownAggregate = Assert.IsType<AggregateException>(ex);
-                Assert.Collection(thrownAggregate.InnerExceptions,
-                    e => Assert.True(e.Data.Contains("[2].lorem")),
-                    e => Assert.True(e.Data.Contains("[0].foo")));
-            }
-
-            [Theory]
-            [InlineData(0, 0, "[0].foo", "[2].foo")]
-            [InlineData(0, 1, "[1].foo", "[0].foo")]
-            [InlineData(1, 0, "[0].foo", "[1].foo")]
-            public async Task ExceptionWithIndexedDataKey_IndexChanged(int throwOnCommand,
-                int innerHandlerIndex, string exceptionIndexKey, string actualIndexKey)
-            {
-                /* Arrange */
-                var exception = new Exception();
-                exception.Data.Add("Index", innerHandlerIndex);
-                exception.Data.Add(exceptionIndexKey, "bar message");
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>()
-                };
-                var groups = new[]
-                {
-                    new[] { commands.Last(), commands.First() },
-                    new[] { commands.ElementAt(1) },
-                };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(throwOnCommand), token))
-                    .Throws(exception);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                Assert.NotNull(ex);
-                Assert.True(ex.Data.Contains(actualIndexKey));
-            }
-
-            [Fact]
-            public async Task AggregateExceptionWithIndexedDataKey_IndexChanged()
-            {
-                /* Arrange */
-                var exception1 = new Exception();
-                var exception2 = new Exception();
-                var aggregate = new AggregateException(new [] { exception2, exception1 });
-                exception1.Data.Add("[1].foo", "bar");
-                exception2.Data.Add("[0].lorem", "ipsum");
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>()
-                };
-                var groups = new[]
-                {
-                    new[] { commands.Last(), commands.First() },
-                };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(0), token))
-                    .Throws(aggregate);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                var thrownAggregate = Assert.IsType<AggregateException>(ex);
-                Assert.Collection(thrownAggregate.InnerExceptions,
-                    e => Assert.True(e.Data.Contains("[2].lorem")),
-                    e => Assert.True(e.Data.Contains("[0].foo")));
-            }
-
-            [Fact]
-            public async Task ExceptionWithoutIndexNOrIndexKey_DoesNothing()
-            {
-                /* Arrange */
-                var exception = new Exception();
-                exception.Data.Add("foo", "bar");
-                exception.Data.Add("lorem", "ipsum");
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(), A.Dummy<CommandStub>()
-                };
-                var groups = new[]
-                {
-                    new[] { commands.First(), commands.Last() }
-                };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(0), token))
-                    .Throws(exception);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                Assert.NotNull(ex);
-                Assert.Equal(2, ex.Data.Count);
-                Assert.True(ex.Data.Contains("foo"));
-                Assert.Equal("bar", ex.Data["foo"]);
-                Assert.True(ex.Data.Contains("lorem"));
-                Assert.Equal("ipsum", ex.Data["lorem"]);
-            }
-
-            [Fact]
-            public async Task AggregateExceptionWithoutIndexNOrIndexKey_DoesNothing()
-            {
-                /* Arrange */
-                var exception1 = new Exception();
-                var exception2 = new Exception();
-                var aggregate = new AggregateException(new [] { exception2, exception1 });
-                exception1.Data.Add("lorem", "ipsum");
-                exception2.Data.Add("foo", "bar");
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(), A.Dummy<CommandStub>()
-                };
-                var groups = new[]
-                {
-                    new[] { commands.First(), commands.Last() }
-                };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(0), token))
-                    .Throws(aggregate);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                var thrownAggregate = Assert.IsType<AggregateException>(ex);
-                Assert.Collection(thrownAggregate.InnerExceptions,
-                    e => Assert.True(e.Data.Contains("foo")),
-                    e => Assert.True(e.Data.Contains("lorem")));
-            }
-
-            [Fact]
-            public async Task MultipleExceptions_ThrowsAsAggregate()
-            {
-                /* Arrange */
-                var exception1 = new Exception("foo");
-                var exception2 = new Exception("bar");
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(),
-                    A.Dummy<CommandStub>(),
-                };
-                var groups = new[]
-                {
-                    new[] { commands.First() },
-                    new[] { commands.Last() }
-                };
                 A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
                 A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, token))
-                    .Throws(exception1).Once().Then.Throws(exception2);
+                    .Returns(ok1).Once().Then.Returns(ok2);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-                await Task.Delay(1000);
-
-                /* Assert - cannot guarantee order, just that they exist */
-                var multiErr = Assert.IsType<AggregateException>(ex);
-                Assert.Contains(exception1, multiErr.InnerExceptions);
-                Assert.Contains(exception2, multiErr.InnerExceptions);
-            }
-
-            [Fact]
-            public async Task OneException_ThrowsIt()
-            {
-                /* Arrange */
-                var exception = new Exception();
-                var commands = new[]
-                {
-                    A.Dummy<CommandStub>(),
-                };
-                var groups = new[]
-                {
-                    new[] { commands.First() }
-                };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.ElementAt(0), token))
-                    .Throws(exception);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
+                var results = await sut.HandleAsync(commands, token);
 
                 /* Assert */
-                Assert.Same(exception, ex);
+                Assert.Collection(results.Unwrap(),
+                    v => Assert.Same(result1, v),
+                    v => Assert.Same(result2, v),
+                    v => Assert.Same(result1, v)
+                );
             }
         }
     }

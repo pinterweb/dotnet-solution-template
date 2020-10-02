@@ -22,132 +22,42 @@ namespace BusinessApp.App
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
-        public async Task HandleAsync(IEnumerable<TCommand> command,
+        public async Task<Result<IEnumerable<TCommand>, IFormattable>> HandleAsync(
+            IEnumerable<TCommand> command,
             CancellationToken cancellationToken)
         {
             Guard.Against.Null(command).Expect(nameof(command));
 
             var payloads = await grouper.GroupAsync(command, cancellationToken);
 
-            var errors = new List<Exception>();
+            var tasks = new List<(IEnumerable<TCommand>, Task<Result<IEnumerable<TCommand>, IFormattable>>)>();
 
-            // use Parallel so that work is batched into a smaller # of tasks
-            // https://stackoverflow.com/questions/19102966/parallel-foreach-vs-task-run-and-task-whenall
-            await Task.Run(() => Parallel.ForEach(payloads, async payload =>
+            foreach (var group in payloads)
             {
-                try
-                {
-                    await handler.HandleAsync(payload, cancellationToken);
-                }
-                catch (AggregateException ex)
-                {
-                    errors.Add(ex);
-
-                    foreach (var e in ex.InnerExceptions)
-                    {
-                        FindAndChangeIndexKey(e, payload, command);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    errors.Add(ex);
-
-                    foreach (var e in ex.Flatten())
-                    {
-                        FindAndChangeIndexKey(e, payload, command);
-                    }
-                }
-            }));
-
-            if (errors.Count == 1)
-            {
-                throw errors.First();
-            }
-            else if (errors.Count > 1)
-            {
-                throw new AggregateException(errors);
-            }
-        }
-
-        private static void FindAndChangeIndexKey(Exception e, IEnumerable<TCommand> payload,
-            IEnumerable<TCommand> originalCommands)
-        {
-            var wrongIndex = FindIndex(e);
-
-            if (wrongIndex != -1)
-            {
-                var rightIndex = NormalizeIndex(payload, originalCommands, wrongIndex);
-
-                if (wrongIndex != rightIndex)
-                {
-                    ChangePayloadIndex(rightIndex, e);
-                }
-            }
-        }
-
-        private static int FindIndex(Exception e)
-        {
-            if (e.Data.Contains("Index"))
-            {
-                // oh why thank you
-                if (int.TryParse(e.Data["Index"].ToString(), out int wrongIndex))
-                {
-                    return wrongIndex;
-                }
+                tasks.Add((group, handler.HandleAsync(group, cancellationToken)));
             }
 
-            // AAAh! what have you done!
-            foreach (var key in e.Data.Keys)
+            var _ = await Task.WhenAll(tasks.Select(s => s.Item2));
+
+            var orderedResults = new List<Result<IEnumerable<TCommand>, IFormattable>>();
+
+            foreach (var item in command)
             {
-                var match = regex.Match(key.ToString());
+                var target = tasks.Single(t => t.Item1.Contains(item));
 
-                if (match.Success)
-                {
-                    var indexMaybe = match.Groups[1].Value;
-
-                    if (int.TryParse(indexMaybe, out int wrongIndex))
-                    {
-                        return wrongIndex;
-                    }
-                }
+                orderedResults.Add(target.Item2.Result);
             }
 
-            return -1;
-        }
-
-        private static int NormalizeIndex(IEnumerable<TCommand> payload, IEnumerable<TCommand> original, int payloadIndex)
-        {
-            var payloadCommand = payload.ElementAt(payloadIndex);
-
-            return original.Select((o, i) => new { o, i })
-                .FirstOrDefault(p => ReferenceEquals(p.o, payloadCommand))
-                ?.i ?? -1;
-        }
-
-        private static void ChangePayloadIndex(int index, Exception e)
-        {
-            var wrongKeyMap = new Dictionary<object, string>();
-
-            foreach (var key in e.Data.Keys)
+            if (orderedResults.Any(r => r.Kind == Result.Error))
             {
-                var keyAsString = key.ToString();
-
-                if (regex.Match(keyAsString).Success)
-                {
-                    wrongKeyMap.Add(key,
-                        regex.Replace(keyAsString, m => $"[{index}]{m.Groups[2]}"));
-                }
-                else
-                {
-                    wrongKeyMap.Add(key, $"[{index}].{key}");
-                }
+                return Result<IEnumerable<TCommand>, IFormattable>
+                    .Error(new BatchException(
+                        orderedResults.Select(o => o.IgnoreValue()
+                    )));
             }
 
-            foreach (var kvp in wrongKeyMap)
-            {
-                e.Data.Add(kvp.Value, e.Data[kvp.Key]);
-                e.Data.Remove(kvp.Key);
-            }
+            return Result<IEnumerable<TCommand>, IFormattable>
+                .Ok(orderedResults.SelectMany(o => o.Unwrap()));
         }
     }
 }

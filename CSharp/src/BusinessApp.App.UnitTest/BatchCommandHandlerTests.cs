@@ -1,7 +1,6 @@
 namespace BusinessApp.App.UnitTest
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -48,7 +47,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : BatchCommandHandlerTests
         {
             [Fact]
-            public async Task WithoutCommand_ExceptionThrown()
+            public async Task WithoutCommandArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, token);
@@ -61,7 +60,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithCommands_EachCalled()
+            public async Task WithMultipleCommands_HandlerCalledForEach()
             {
                 /* Arrange */
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
@@ -74,101 +73,84 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => inner.HandleAsync(commands.Last(), token)).MustHaveHappenedOnceExactly();
             }
 
-            [Fact]
-            public async Task ExceptionThrown_IndexAddedToDataKey()
+            public class OnError : BatchCommandHandlerTests
             {
-                /* Arrange */
-                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
-                var thrownException = new Exception();
-                thrownException.Data.Add("foo", "bar");
+                private readonly Result<CommandStub, IFormattable> error;
+                private readonly Result<CommandStub, IFormattable> ok;
+                private readonly IEnumerable<CommandStub> commands;
 
-                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).Throws(thrownException);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                Assert.Collection(ex.Data.Cast<DictionaryEntry>(),
-                    d =>
+                public OnError()
+                {
+                    commands = new[]
                     {
-                        Assert.Equal("[1].foo", d.Key);
-                        Assert.Equal("bar", d.Value);
-                    },
-                    d =>
-                    {
-                        Assert.Equal("Index", d.Key);
-                        Assert.Equal(1, d.Value);
-                    });
+                        new CommandStub(),
+                        new CommandStub(),
+                        new CommandStub(),
+                    };
+
+                    error = Result<CommandStub, IFormattable>
+                        .Error(DateTime.Now);
+                    ok = Result<CommandStub, IFormattable>
+                        .Ok(A.Dummy<CommandStub>());
+                    A.CallTo(() => inner.HandleAsync(A<CommandStub>._, token))
+                        .Returns(error).Once().Then.Returns(ok).Once().Then.Returns(ok);
+                }
+
+                [Fact]
+                public async Task AllReturnedInBatchException()
+                {
+                    /* Act */
+                    var results = await sut.HandleAsync(commands, token);
+
+                    /* Assert */
+                    Assert.IsType<BatchException>(results.UnwrapError());
+                }
+
+                [Fact]
+                public async Task AllReturnedInBatchExceptionInOrder()
+                {
+                    /* Act */
+                    var results = await sut.HandleAsync(commands, token);
+
+                    /* Assert */
+                    var ex = Assert.IsType<BatchException>(results.UnwrapError());
+                    Assert.Collection(ex.Results,
+                        r => Assert.Equal(error.UnwrapError(), r.UnwrapError()),
+                        r => Assert.Equal(Result.Ok, r.Kind),
+                        r => Assert.Equal(Result.Ok, r.Kind)
+                    );
+                }
             }
 
-            [Fact]
-            public async Task WithInnerExceptions_IndexAddedToInnerException()
+            public async Task AllOkResults_ResultsReturned()
             {
                 /* Arrange */
-                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
-                var thrownInner = new Exception("foo");
-                var thrownException = new Exception("bar", thrownInner);
-                thrownException.Data.Add("lorem", "ipsum");
-                thrownInner.Data.Add("dolor", "ipsit");
+                var commands = new[]
+                {
+                    new CommandStub(),
+                    new CommandStub(),
+                    new CommandStub(),
+                };
+                var result1 = new CommandStub();
+                var result2 = new CommandStub();
 
-                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).Throws(thrownException);
+                var ok1 = Result<CommandStub, IFormattable>
+                    .Ok(result1);
+                var ok2 = Result<CommandStub, IFormattable>
+                    .Ok(result2);
 
-                /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
-
-                /* Assert */
-                Assert.Collection(ex.InnerException.Data.Cast<DictionaryEntry>(),
-                    d =>
-                    {
-                        Assert.Equal("[1].dolor", d.Key);
-                        Assert.Equal("ipsit", d.Value);
-                    },
-                    d =>
-                    {
-                        Assert.Equal("Index", d.Key);
-                        Assert.Equal(1, d.Value);
-                    });
-            }
-
-            [Fact]
-            public async Task MultipleExceptions_AggregateExceptionThrown()
-            {
-                /* Arrange */
-                var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
-                var firstEx = new Exception("ispit");
-                var secondEx = new Exception("ispit");
-                firstEx.Data.Add("foo", "bar");
-                secondEx.Data.Add("lorem", "ipsum");
-
-                A.CallTo(() => inner.HandleAsync(commands.First(), token)).Throws(firstEx);
-                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).Throws(secondEx);
+                A.CallTo(() => inner.HandleAsync(A<CommandStub>._, token))
+                    .Returns(ok1).Once().Then.Returns(ok2);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
+                var results = await sut.HandleAsync(commands, token);
 
                 /* Assert */
-                var manyErrs = Assert.IsType<AggregateException>(ex);
-                Assert.Collection(manyErrs.InnerExceptions.SelectMany(e => e.Data.Cast<DictionaryEntry>()),
-                    d =>
-                    {
-                        Assert.Equal("[0].foo", d.Key);
-                        Assert.Equal("bar", d.Value);
-                    },
-                    d =>
-                    {
-                        Assert.Equal("Index", d.Key);
-                        Assert.Equal(0, d.Value);
-                    },
-                    d =>
-                    {
-                        Assert.Equal("[1].lorem", d.Key);
-                        Assert.Equal("ipsum", d.Value);
-                    },
-                    d =>
-                    {
-                        Assert.Equal("Index", d.Key);
-                        Assert.Equal(1, d.Value);
-                    });
+                Assert.Collection(results.Unwrap(),
+                    v => Assert.Same(result1, v),
+                    v => Assert.Same(result2, v),
+                    v => Assert.Same(result1, v)
+                );
             }
         }
     }

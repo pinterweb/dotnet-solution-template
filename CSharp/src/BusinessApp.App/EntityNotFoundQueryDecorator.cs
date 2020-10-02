@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.App
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
@@ -17,18 +18,24 @@
             this.decorated = Guard.Against.Null(decorated).Expect(nameof(decorated));
         }
 
-        public async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
+        public async Task<Result<TResult, IFormattable>> HandleAsync(
+            TQuery query, CancellationToken cancellationToken)
         {
             var result = await decorated.HandleAsync(query, cancellationToken);
 
-            if (result == null)
+            return result.AndThen(val =>
             {
-                throw new EntityNotFoundException("The data you tried to search for was not " +
-                    "found based on your search critiera. Try to change your criteria and search again. " +
-                    "If the data is still found, it may have been deleted.");
-            }
+                if (val == null)
+                {
+                    return Result<TResult, IFormattable>.Error(
+                        new EntityNotFoundException("The data you tried to search for was not " +
+                            "found based on your search critiera. Try to change your criteria " +
+                            "and search again. If the data is still found, it may have been deleted.")
+                    );
+                }
 
-            return result;
+                return result;
+            });
         }
     }
 }

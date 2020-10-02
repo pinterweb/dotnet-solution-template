@@ -122,10 +122,10 @@ namespace BusinessApp.Data.IntegrationTest
                 query.Offset = offset;
 
                 /* Act */
-                var queryResults = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
+                var result = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
 
                 /* Assert */
-                Assert.Equal(3, queryResults.Data.Count());
+                Assert.Equal(3, result.Unwrap().Data.Count());
             }
 
             [Fact]
@@ -135,10 +135,10 @@ namespace BusinessApp.Data.IntegrationTest
                 query.Limit = 2;
 
                 /* Act */
-                var queryResults = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
+                var result = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
 
                 /* Assert */
-                Assert.Equal(2, queryResults.Data.Count());
+                Assert.Equal(2, result.Unwrap().Data.Count());
             }
 
             [Fact]
@@ -148,10 +148,10 @@ namespace BusinessApp.Data.IntegrationTest
                 query.Offset = 1;
 
                 /* Act */
-                var queryResults = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
+                var result = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
 
                 /* Assert */
-                Assert.Equal(2, queryResults.Data.Count());
+                Assert.Equal(2, result.Unwrap().Data.Count());
             }
 
             [Fact]
@@ -162,10 +162,10 @@ namespace BusinessApp.Data.IntegrationTest
                 query.Offset = 2;
 
                 /* Act */
-                var queryResults = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
+                var result = await sut.HandleAsync(query, A.Dummy<CancellationToken>());
 
                 /* Assert */
-                Assert.Equal(3, queryResults.Pagination.ItemCount);
+                Assert.Equal(3, result.Unwrap().Pagination.ItemCount);
             }
         }
     }

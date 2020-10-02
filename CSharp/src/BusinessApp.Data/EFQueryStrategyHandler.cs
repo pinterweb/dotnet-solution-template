@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.Data
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -27,13 +28,16 @@
             this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
         }
 
-        public virtual async Task<IEnumerable<TResult>> HandleAsync(TQuery query, CancellationToken cancellationToken)
+        public virtual async Task<Result<IEnumerable<TResult>, IFormattable>> HandleAsync(
+            TQuery query, CancellationToken cancellationToken)
         {
             var queryableFactory = dbSetFactory.Create(query);
             var queryVisitor = queryVisitorFactory.Create(query);
             var queryable = queryableFactory.Visit(db.Set<TResult>());
 
-            return await queryVisitor.Visit(queryable).ToListAsync();
+            var queryResults =  await queryVisitor.Visit(queryable).ToListAsync();
+
+            return Result<IEnumerable<TResult>, IFormattable>.Ok(queryResults);
         }
     }
 
@@ -57,13 +61,16 @@
             this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
         }
 
-        public virtual async Task<TResult> HandleAsync(TQuery query, CancellationToken cancellationToken)
+        public virtual async Task<Result<TResult, IFormattable>> HandleAsync(
+            TQuery query, CancellationToken cancellationToken)
         {
             var queryableFactory = dbSetFactory.Create(query);
             var queryVisitor = queryVisitorFactory.Create(query);
             var queryable = queryableFactory.Visit(db.Set<TResult>());
 
-            return await queryVisitor.Visit(queryable).SingleOrDefaultAsync();
+            var queryResults = await queryVisitor.Visit(queryable).SingleOrDefaultAsync();
+
+            return Result<TResult, IFormattable>.Ok(queryResults);
         }
     }
 }

@@ -1,5 +1,6 @@
 namespace BusinessApp.App.UnitTest
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -58,7 +59,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : BatchMacroCommandDecoratorTests
         {
             [Fact]
-            public async Task WithoutCommand_ExceptionThrown()
+            public async Task WithoutCommandArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -71,7 +72,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task NoReturnedPayloadsFromMacro_ValidationExceptionThrown()
+            public async Task NoReturnedPayloadsFromMacro_ExceptionThrown()
             {
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
@@ -81,10 +82,11 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, token));
 
                 /* Assert */
+                Assert.IsType<BusinessAppAppException>(ex);
                 Assert.Equal(
                     "The macro you ran expected to find records to change, but none were " +
                     "found",
-                    Assert.IsType<BusinessAppAppException>(ex)?.Message
+                    ex.Message
                 );
             }
 
@@ -101,6 +103,40 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 A.CallTo(() => inner.HandleAsync(commands, token)).MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task ErrorFromInnerHandler_ReturnedInNewResult()
+            {
+                /* Arrange */
+                var macro = A.Dummy<CommandMacro>();
+                var innerResult = Result<IEnumerable<CommandStub>, IFormattable>.Error(DateTime.Now);
+                var commands = new[] { A.Dummy<CommandStub>() };
+                A.CallTo(() => expander.ExpandAsync(macro, token)).Returns(commands);
+                A.CallTo(() => inner.HandleAsync(commands, token)).Returns(innerResult);
+
+                /* Act */
+                var result = await sut.HandleAsync(macro, token);
+
+                /* Assert */
+                Assert.Equal(innerResult.UnwrapError(), result.UnwrapError());
+            }
+
+            [Fact]
+            public async Task OkResultFromInnerHandler_MacroReturned()
+            {
+                /* Arrange */
+                var macro = A.Dummy<CommandMacro>();
+                var innerResult = Result<IEnumerable<CommandStub>, IFormattable>.Ok(new CommandStub[0]);
+                var commands = new[] { A.Dummy<CommandStub>() };
+                A.CallTo(() => expander.ExpandAsync(macro, token)).Returns(commands);
+                A.CallTo(() => inner.HandleAsync(commands, token)).Returns(innerResult);
+
+                /* Act */
+                var result = await sut.HandleAsync(macro, token);
+
+                /* Assert */
+                Assert.Same(macro, result.Unwrap());
             }
         }
 

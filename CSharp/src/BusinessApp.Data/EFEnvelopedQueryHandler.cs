@@ -6,6 +6,7 @@ namespace BusinessApp.Data
     using BusinessApp.Domain;
     using System.Linq;
     using System.Threading;
+    using System;
 
     public class EFEnvelopedQueryHandler<TQuery, TResult> : IQueryHandler<TQuery, EnvelopeContract<TResult>>
         where TQuery : Query, IQuery<EnvelopeContract<TResult>>
@@ -24,8 +25,8 @@ namespace BusinessApp.Data
             this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
         }
 
-        public async Task<EnvelopeContract<TResult>> HandleAsync(TQuery query,
-            CancellationToken cancellationToken)
+        public async Task<Result<EnvelopeContract<TResult>, IFormattable>> HandleAsync(
+            TQuery query, CancellationToken cancellationToken)
         {
             var dbSetVisitor = dbSetFactory.Create(query);
             var queryVisitor = queryVisitorFactory.Create(query);
@@ -40,7 +41,7 @@ namespace BusinessApp.Data
             var finalQuery = queryVisitor.Visit(queryable);
             var totalCount = await finalQuery.CountAsync(cancellationToken);
 
-            return new EnvelopeContract<TResult>
+            return Result<EnvelopeContract<TResult>, IFormattable>.Ok(new EnvelopeContract<TResult>
             {
                 // take must be greater than 0
                 Data = await finalQuery.Skip(skip).Take(take ?? (totalCount == 0 ? 1 : totalCount)).ToListAsync(),
@@ -48,7 +49,7 @@ namespace BusinessApp.Data
                 {
                     ItemCount = totalCount
                 }
-            };
+            });
         }
     }
 }

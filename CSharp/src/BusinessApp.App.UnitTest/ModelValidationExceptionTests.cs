@@ -18,7 +18,7 @@ namespace BusinessApp.App.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IEnumerable<MemberValidationException> errors)
+            public void InvalidMessageMembersCtorArgs_ExceptionThrown(IEnumerable<MemberValidationException> errors)
             {
                 /* Arrange */
                 void shouldThrow() => new ModelValidationException("foo", errors);
@@ -31,7 +31,27 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public void MessageArg_MappedToMessageProperty()
+            public void WithMessage_MappedToMessageProperty()
+            {
+                /* Act */
+                var ex = new ModelValidationException("foomsg");
+
+                /* Assert */
+                Assert.Equal("foomsg", ex.Message);
+            }
+
+            [Fact]
+            public void WithMessage_MembersSetToEmtpyList()
+            {
+                /* Act */
+                var ex = new ModelValidationException("foomsg");
+
+                /* Assert */
+                Assert.Empty(ex);
+            }
+
+            [Fact]
+            public void WithMessageAndMembers_MappedToMessageProperty()
             {
                 /* Act */
                 var ex = new ModelValidationException("foomsg",
@@ -42,14 +62,16 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public void MemberErrosArg_MemberNamesMappedToDataKeys()
+            public void WithMessageAndMembers_MemberNamesMappedToDataKeys()
             {
-                /* Act */
+                /* Arrange */
                 var memberErrors = new[]
                 {
                     new MemberValidationException("foobar", new[] { "bar" }),
                     new MemberValidationException("lorem", new[] { "ipsum", "dolor" }),
                 };
+
+                /* Act */
                 var ex = new ModelValidationException("foo", memberErrors);
 
                 /* Assert */
@@ -62,18 +84,43 @@ namespace BusinessApp.App.UnitTest
             [Fact]
             public void MemberErrosArg_ErrorMessagesMappedToDataKeys()
             {
-                /* Act */
+                /* Arrange */
                 var memberErrors = new[]
                 {
                     new MemberValidationException("foobar", new[] { "bar" }),
                     new MemberValidationException("lorem", new[] { "ipsum", "dolor" }),
                 };
+
+                /* Act */
                 var ex = new ModelValidationException("foo", memberErrors);
 
                 /* Assert */
                 Assert.Collection(ex.Data.Cast<DictionaryEntry>(),
                     e => Assert.Equal(new[] { "bar" }, e.Value),
                     e => Assert.Equal(new[] { "ipsum", "dolor" }, e.Value)
+                );
+            }
+        }
+
+        public class IEnumerableImpl : CommunicationExceptionTests
+        {
+            [Fact]
+            public void HasMembers_ThatListEnumerated()
+            {
+                /* Arrange */
+                var memberErrors = new[]
+                {
+                    new MemberValidationException("foobar", new[] { "bar" }),
+                    new MemberValidationException("lorem", new[] { "ipsum", "dolor" }),
+                };
+
+                /* Act */
+                var ex = new ModelValidationException("foomsg", memberErrors);
+
+                /* Assert */
+                Assert.Collection(ex,
+                    e => Assert.Same(memberErrors.First(), e),
+                    e => Assert.Same(memberErrors.Last(), e)
                 );
             }
         }
