@@ -40,7 +40,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = new BusinessAppException("foo");
 
                 /* Assert */
-                Assert.Equal("foomsg", ex.ToString());
+                Assert.Equal("foo", ex.ToString());
             }
         }
     }
