@@ -8,7 +8,7 @@ namespace BusinessApp.Data
     using System.Threading;
     using System;
 
-    public class EFEnvelopedQueryHandler<TQuery, TResult> : IQueryHandler<TQuery, EnvelopeContract<TResult>>
+    public class EFEnvelopedQueryHandler<TQuery, TResult> : IRequestHandler<TQuery, EnvelopeContract<TResult>>
         where TQuery : Query, IQuery<EnvelopeContract<TResult>>
         where TResult : class
     {

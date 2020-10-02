@@ -12,7 +12,7 @@ namespace BusinessApp.App.UnitTest
     public class ValidationBatchCommandDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly ValidationBatchCommandDecorator<CommandStub> sut;
+        private readonly ValidationBatchCommandDecorator<CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IValidator<CommandStub> validator;
 
@@ -22,7 +22,7 @@ namespace BusinessApp.App.UnitTest
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             validator = A.Fake<IValidator<CommandStub>>();
 
-            sut = new ValidationBatchCommandDecorator<CommandStub>(validator, inner);
+            sut = new ValidationBatchCommandDecorator<CommandStub, IEnumerable<CommandStub>>(validator, inner);
         }
 
         public class Constructor : ValidationBatchCommandDecoratorTests
@@ -39,7 +39,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<IEnumerable<CommandStub>> c)
             {
                 /* Arrange */
-                void shouldThrow() => new ValidationBatchCommandDecorator<CommandStub>(v, c);
+                void shouldThrow() => new ValidationBatchCommandDecorator<CommandStub, IEnumerable<CommandStub>>(v, c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);

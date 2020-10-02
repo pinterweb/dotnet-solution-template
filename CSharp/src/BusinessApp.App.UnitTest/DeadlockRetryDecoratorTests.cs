@@ -13,7 +13,7 @@ namespace BusinessApp.App.UnitTest
     public class DeadlockRetryDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly DeadlockRetryDecorator<CommandStub> sut;
+        private readonly DeadlockRetryDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
 
         public DeadlockRetryDecoratorTests()
@@ -21,7 +21,7 @@ namespace BusinessApp.App.UnitTest
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<CommandStub>>();
 
-            sut = new DeadlockRetryDecorator<CommandStub>(inner);
+            sut = new DeadlockRetryDecorator<CommandStub, CommandStub>(inner);
         }
 
         public class Constructor : DeadlockRetryDecoratorTests
@@ -38,7 +38,7 @@ namespace BusinessApp.App.UnitTest
             public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new DeadlockRetryDecorator<CommandStub>(c);
+                void shouldThrow() => new DeadlockRetryDecorator<CommandStub, CommandStub>(c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);

@@ -13,7 +13,7 @@ namespace BusinessApp.App.UnitTest
     public class BatchCommandGroupDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandGroupDecorator<CommandStub> sut;
+        private readonly BatchCommandGroupDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchGrouper<CommandStub> grouper;
 
@@ -23,7 +23,7 @@ namespace BusinessApp.App.UnitTest
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             grouper = A.Fake<IBatchGrouper<CommandStub>>();
 
-            sut = new BatchCommandGroupDecorator<CommandStub>(grouper, inner);
+            sut = new BatchCommandGroupDecorator<CommandStub, CommandStub>(grouper, inner);
         }
 
         public class Constructor : BatchCommandGroupDecoratorTests
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandGroupDecorator<CommandStub>(g, i);
+                void shouldThrow() => new BatchCommandGroupDecorator<CommandStub, CommandStub>(g, i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);

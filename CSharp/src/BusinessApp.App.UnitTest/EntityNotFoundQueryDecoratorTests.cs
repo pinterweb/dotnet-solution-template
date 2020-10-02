@@ -2,7 +2,6 @@ namespace BusinessApp.App.UnitTest
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Common;
     using System.Threading.Tasks;
     using FakeItEasy;
     using BusinessApp.App;

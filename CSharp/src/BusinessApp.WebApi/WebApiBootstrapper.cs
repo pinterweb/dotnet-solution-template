@@ -52,12 +52,7 @@
                 ctx => !ctx.Handled);
             container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
-                typeof(QueryResourceHandler<,>),
-                ctx => !ctx.Handled
-            );
-            container.RegisterConditional(
-                typeof(IHttpRequestHandler<,>),
-                typeof(CommandResourceHandler<>),
+                typeof(HttpRequestHandler<,>),
                 ctx => !ctx.Handled
             );
             return container;

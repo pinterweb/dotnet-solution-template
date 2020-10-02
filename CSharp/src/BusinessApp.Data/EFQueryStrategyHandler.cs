@@ -11,7 +11,7 @@
     /// <summary>
     /// Entity Framework query handler for many record sets
     /// </summary>
-    public class EFQueryStrategyHandler<TQuery, TResult> : IQueryHandler<TQuery, IEnumerable<TResult>>
+    public class EFQueryStrategyHandler<TQuery, TResult> : IRequestHandler<TQuery, IEnumerable<TResult>>
         where TQuery : Query, IQuery<IEnumerable<TResult>>
         where TResult : class
     {
@@ -44,7 +44,7 @@
     /// <summary>
     /// Entity Framework query handler for one record set
     /// </summary>
-    public class EFSingleQueryStrategyHandler<TQuery, TResult> : IQueryHandler<TQuery, TResult>
+    public class EFSingleQueryStrategyHandler<TQuery, TResult> : IRequestHandler<TQuery, TResult>
         where TQuery : Query, IQuery<TResult>
         where TResult : class
     {

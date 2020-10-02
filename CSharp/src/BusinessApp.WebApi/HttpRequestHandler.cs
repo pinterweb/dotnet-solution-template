@@ -8,7 +8,7 @@ namespace BusinessApp.WebApi
     using System;
 
     public class HttpRequestHandler<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
-        where TRequest : new()
+        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> handler;
         private readonly ISerializer serializer;
@@ -28,7 +28,7 @@ namespace BusinessApp.WebApi
 
             if (query == null)
             {
-                query = new TRequest();
+                throw new BusinessAppWebApiException("Query cannot be null");
             }
 
             return await handler.HandleAsync(query, cancellationToken);

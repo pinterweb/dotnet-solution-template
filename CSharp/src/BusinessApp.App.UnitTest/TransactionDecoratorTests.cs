@@ -10,7 +10,7 @@ namespace BusinessApp.App.UnitTest
 
     public class TransactionDecoratorTests
     {
-        private readonly TransactionDecorator<CommandStub> sut;
+        private readonly TransactionDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
         private readonly ITransactionFactory factory;
         private readonly PostCommitRegister register;
@@ -21,7 +21,7 @@ namespace BusinessApp.App.UnitTest
             factory = A.Fake<ITransactionFactory>();
             register = new PostCommitRegister();
 
-            sut = new TransactionDecorator<CommandStub>(factory, inner, register);
+            sut = new TransactionDecorator<CommandStub, CommandStub>(factory, inner, register);
         }
 
         public class Constructor : TransactionDecoratorTests
@@ -53,7 +53,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<CommandStub> c, PostCommitRegister r)
             {
                 /* Arrange */
-                void shouldThrow() => new TransactionDecorator<CommandStub>(v, c, r);
+                void shouldThrow() => new TransactionDecorator<CommandStub, CommandStub>(v, c, r);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);

@@ -7,21 +7,22 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class BatchMacroCommandDecorator<TMacro, TCommand> : ICommandHandler<TMacro>
-        where TMacro : IMacro<TCommand>
+    public class BatchMacroCommandDecorator<TMacro, TRequest, TResponse>
+        : IRequestHandler<TMacro, TResponse>
+        where TMacro : IMacro<TRequest>
     {
-        private readonly IBatchMacro<TMacro, TCommand> expander;
-        private readonly ICommandHandler<IEnumerable<TCommand>> handler;
+        private readonly IBatchMacro<TMacro, TRequest> expander;
+        private readonly IRequestHandler<IEnumerable<TRequest>, TResponse> handler;
 
         public BatchMacroCommandDecorator(
-            IBatchMacro<TMacro, TCommand> expander,
-            ICommandHandler<IEnumerable<TCommand>> handler)
+            IBatchMacro<TMacro, TRequest> expander,
+            IRequestHandler<IEnumerable<TRequest>, TResponse> handler)
         {
             this.expander = Guard.Against.Null(expander).Expect(nameof(expander));
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
-        public async Task<Result<TMacro, IFormattable>> HandleAsync(
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(
             TMacro macro,
             CancellationToken cancellationToken)
         {
@@ -37,10 +38,7 @@ namespace BusinessApp.App
                 );
             }
 
-            return (await handler.HandleAsync(payloads, cancellationToken))
-                .MapOrElse(
-                    err => Result<TMacro, IFormattable>.Error(err),
-                    ok => Result<TMacro, IFormattable>.Ok(macro));
+            return await handler.HandleAsync(payloads, cancellationToken);
         }
     }
 }

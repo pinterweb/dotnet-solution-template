@@ -12,13 +12,13 @@ namespace BusinessApp.Data
     /// none for query the inner handler. This will results in faster queries since
     /// we are not worried about saving any entities during this transaction
     /// </summary>
-    public class EFTrackingQueryDecorator<TQuery, TResult> : IQueryHandler<TQuery, TResult>
+    public class EFTrackingQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
         where TQuery : Query, IQuery<TResult>
     {
-        private readonly IQueryHandler<TQuery, TResult> inner;
+        private readonly IRequestHandler<TQuery, TResult> inner;
 
         public EFTrackingQueryDecorator(BusinessAppDbContext db,
-            IQueryHandler<TQuery, TResult> inner)
+            IRequestHandler<TQuery, TResult> inner)
         {
             Guard.Against.Null(db).Expect(nameof(db));
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));

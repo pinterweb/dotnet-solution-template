@@ -8,29 +8,30 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class BatchCommandGroupDecorator<TCommand> : ICommandHandler<IEnumerable<TCommand>>
+    public class BatchCommandGroupDecorator<TRequest, TResponse>
+        : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
         private static readonly Regex regex = new Regex(@"^\[(\d+)\](\..*)$");
-        private readonly IBatchGrouper<TCommand> grouper;
-        private readonly ICommandHandler<IEnumerable<TCommand>> handler;
+        private readonly IBatchGrouper<TRequest> grouper;
+        private readonly IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler;
 
         public BatchCommandGroupDecorator(
-            IBatchGrouper<TCommand> grouper,
-            ICommandHandler<IEnumerable<TCommand>> handler)
+            IBatchGrouper<TRequest> grouper,
+            IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler)
         {
             this.grouper = Guard.Against.Null(grouper).Expect(nameof(grouper));
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
         }
 
-        public async Task<Result<IEnumerable<TCommand>, IFormattable>> HandleAsync(
-            IEnumerable<TCommand> command,
+        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
+            IEnumerable<TRequest> request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(command).Expect(nameof(command));
+            Guard.Against.Null(request).Expect(nameof(request));
 
-            var payloads = await grouper.GroupAsync(command, cancellationToken);
+            var payloads = await grouper.GroupAsync(request, cancellationToken);
 
-            var tasks = new List<(IEnumerable<TCommand>, Task<Result<IEnumerable<TCommand>, IFormattable>>)>();
+            var tasks = new List<(IEnumerable<TRequest>, Task<Result<IEnumerable<TResponse>, IFormattable>>)>();
 
             foreach (var group in payloads)
             {
@@ -39,9 +40,9 @@ namespace BusinessApp.App
 
             var _ = await Task.WhenAll(tasks.Select(s => s.Item2));
 
-            var orderedResults = new List<Result<IEnumerable<TCommand>, IFormattable>>();
+            var orderedResults = new List<Result<IEnumerable<TResponse>, IFormattable>>();
 
-            foreach (var item in command)
+            foreach (var item in request)
             {
                 var target = tasks.Single(t => t.Item1.Contains(item));
 
@@ -50,13 +51,13 @@ namespace BusinessApp.App
 
             if (orderedResults.Any(r => r.Kind == Result.Error))
             {
-                return Result<IEnumerable<TCommand>, IFormattable>
+                return Result<IEnumerable<TResponse>, IFormattable>
                     .Error(new BatchException(
                         orderedResults.Select(o => o.IgnoreValue()
                     )));
             }
 
-            return Result<IEnumerable<TCommand>, IFormattable>
+            return Result<IEnumerable<TResponse>, IFormattable>
                 .Ok(orderedResults.SelectMany(o => o.Unwrap()));
         }
     }
