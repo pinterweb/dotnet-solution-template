@@ -8,24 +8,24 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using Xunit;
 
-    public class BatchMacroCommandDecoratorTests
+    public class MacroBatchRequestDelegatorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchMacroCommandDecorator<CommandMacro, CommandStub, IEnumerable<CommandStub>> sut;
+        private readonly MacroBatchRequestDelegator<CommandMacro, CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchMacro<CommandMacro, CommandStub> expander;
 
-        public BatchMacroCommandDecoratorTests()
+        public MacroBatchRequestDelegatorTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             expander = A.Fake<IBatchMacro<CommandMacro, CommandStub>>();
 
-            sut = new BatchMacroCommandDecorator<CommandMacro, CommandStub, IEnumerable<CommandStub>>(
+            sut = new MacroBatchRequestDelegator<CommandMacro, CommandStub, IEnumerable<CommandStub>>(
                 expander, inner);
         }
 
-        public class Constructor : BatchMacroCommandDecoratorTests
+        public class Constructor : MacroBatchRequestDelegatorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -47,7 +47,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchMacroCommandDecorator<CommandMacro, CommandStub, IEnumerable<CommandStub>>(g, i);
+                void shouldThrow() => new MacroBatchRequestDelegator<CommandMacro, CommandStub, IEnumerable<CommandStub>>(g, i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -57,7 +57,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : BatchMacroCommandDecoratorTests
+        public class HandleAsync : MacroBatchRequestDelegatorTests
         {
             [Fact]
             public async Task WithoutCommandArg_ExceptionThrown()

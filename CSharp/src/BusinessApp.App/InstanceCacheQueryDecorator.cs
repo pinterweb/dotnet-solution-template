@@ -9,13 +9,13 @@ namespace BusinessApp.App
     /// <summary>
     /// Caches the query results for the lifetime of the class
     /// </summary>
-    public class QueryLifetimeCacheDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
+    public class InstanceCacheQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
         where TQuery : IQuery<TResult>
     {
         private readonly ConcurrentDictionary<TQuery, Result<TResult, IFormattable>> cache;
         private readonly IRequestHandler<TQuery, TResult> inner;
 
-        public QueryLifetimeCacheDecorator(IRequestHandler<TQuery, TResult> inner)
+        public InstanceCacheQueryDecorator(IRequestHandler<TQuery, TResult> inner)
         {
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
             cache = new ConcurrentDictionary<TQuery, Result<TResult, IFormattable>>();

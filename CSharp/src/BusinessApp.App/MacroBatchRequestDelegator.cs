@@ -7,14 +7,14 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class BatchMacroCommandDecorator<TMacro, TRequest, TResponse>
+    public class MacroBatchRequestDelegator<TMacro, TRequest, TResponse>
         : IRequestHandler<TMacro, TResponse>
         where TMacro : IMacro<TRequest>
     {
         private readonly IBatchMacro<TMacro, TRequest> expander;
         private readonly IRequestHandler<IEnumerable<TRequest>, TResponse> handler;
 
-        public BatchMacroCommandDecorator(
+        public MacroBatchRequestDelegator(
             IBatchMacro<TMacro, TRequest> expander,
             IRequestHandler<IEnumerable<TRequest>, TResponse> handler)
         {

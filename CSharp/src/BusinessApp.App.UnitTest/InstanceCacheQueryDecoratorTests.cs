@@ -9,21 +9,21 @@ namespace BusinessApp.App.UnitTest
     using BusinessApp.Domain;
     using System;
 
-    public class QueryLifetimeCacheDecoratorTests
+    public class InstanceCacheQueryDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly QueryLifetimeCacheDecorator<QueryStub, ResponseStub> sut;
+        private readonly InstanceCacheQueryDecorator<QueryStub, ResponseStub> sut;
         private readonly IQueryHandler<QueryStub, ResponseStub> inner;
 
-        public QueryLifetimeCacheDecoratorTests()
+        public InstanceCacheQueryDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
 
-            sut = new QueryLifetimeCacheDecorator<QueryStub, ResponseStub>(inner);
+            sut = new InstanceCacheQueryDecorator<QueryStub, ResponseStub>(inner);
         }
 
-        public class Constructor : QueryLifetimeCacheDecoratorTests
+        public class Constructor : InstanceCacheQueryDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -37,7 +37,7 @@ namespace BusinessApp.App.UnitTest
             public void InvalidCtorArgs_ExceptionThrown(IQueryHandler<QueryStub, ResponseStub> q)
             {
                 /* Arrange */
-                void shouldThrow() => new QueryLifetimeCacheDecorator<QueryStub, ResponseStub>(q);
+                void shouldThrow() => new InstanceCacheQueryDecorator<QueryStub, ResponseStub>(q);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -47,7 +47,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : QueryLifetimeCacheDecoratorTests
+        public class HandleAsync : InstanceCacheQueryDecoratorTests
         {
             [Fact]
             public async Task SameQueryInstanceRunTwice_InnerHandlerNotRun()

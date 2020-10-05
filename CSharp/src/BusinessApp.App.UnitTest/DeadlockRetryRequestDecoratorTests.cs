@@ -10,21 +10,21 @@ namespace BusinessApp.App.UnitTest
     using System.Threading;
     using BusinessApp.Domain;
 
-    public class DeadlockRetryDecoratorTests
+    public class DeadlockRetryRequestDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly DeadlockRetryDecorator<CommandStub, CommandStub> sut;
+        private readonly DeadlockRetryRequestDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
 
-        public DeadlockRetryDecoratorTests()
+        public DeadlockRetryRequestDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<CommandStub>>();
 
-            sut = new DeadlockRetryDecorator<CommandStub, CommandStub>(inner);
+            sut = new DeadlockRetryRequestDecorator<CommandStub, CommandStub>(inner);
         }
 
-        public class Constructor : DeadlockRetryDecoratorTests
+        public class Constructor : DeadlockRetryRequestDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -38,7 +38,7 @@ namespace BusinessApp.App.UnitTest
             public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new DeadlockRetryDecorator<CommandStub, CommandStub>(c);
+                void shouldThrow() => new DeadlockRetryRequestDecorator<CommandStub, CommandStub>(c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : DeadlockRetryDecoratorTests
+        public class HandleAsync : DeadlockRetryRequestDecoratorTests
         {
             [Fact]
             public async Task NormalException_DoesNotHandle()

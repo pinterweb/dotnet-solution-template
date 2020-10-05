@@ -8,14 +8,14 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class BatchCommandGroupDecorator<TRequest, TResponse>
+    public class GroupedBatchRequestDecorator<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
         private static readonly Regex regex = new Regex(@"^\[(\d+)\](\..*)$");
         private readonly IBatchGrouper<TRequest> grouper;
         private readonly IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler;
 
-        public BatchCommandGroupDecorator(
+        public GroupedBatchRequestDecorator(
             IBatchGrouper<TRequest> grouper,
             IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler)
         {

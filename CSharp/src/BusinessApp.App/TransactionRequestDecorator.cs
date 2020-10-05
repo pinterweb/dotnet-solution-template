@@ -5,13 +5,13 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class TransactionDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+    public class TransactionRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     {
         private readonly IRequestHandler<TRequest, TResponse> inner;
         private readonly ITransactionFactory transactionFactory;
         private readonly PostCommitRegister register;
 
-        public TransactionDecorator(ITransactionFactory transactionFactory,
+        public TransactionRequestDecorator(ITransactionFactory transactionFactory,
             IRequestHandler<TRequest, TResponse> inner,
             PostCommitRegister register)
         {

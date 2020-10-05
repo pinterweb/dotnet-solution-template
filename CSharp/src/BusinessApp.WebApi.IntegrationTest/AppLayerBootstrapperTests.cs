@@ -67,10 +67,10 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(DeadlockRetryDecorator<CommandStub, CommandStub>),
+                        typeof(DeadlockRetryRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(TransactionDecorator<CommandStub, CommandStub>),
+                        typeof(TransactionRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -108,10 +108,10 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(DeadlockRetryDecorator<AuthCommandStub, AuthCommandStub>),
+                        typeof(DeadlockRetryRequestDecorator<AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(TransactionDecorator<AuthCommandStub, AuthCommandStub>),
+                        typeof(TransactionRequestDecorator<AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(AuthCommandHandlerStub),
@@ -150,19 +150,19 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandGroupDecorator<CommandStub, CommandStub>),
+                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>),
+                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(DeadlockRetryDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(TransactionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandHandler<CommandStub, CommandStub>),
+                        typeof(BatchRequestDelegator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
@@ -210,19 +210,19 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandGroupDecorator<AuthCommandStub, AuthCommandStub>),
+                        typeof(GroupedBatchRequestDecorator<AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(ApplicationScopeBatchDecorator<AuthCommandStub, IEnumerable<AuthCommandStub>>),
+                        typeof(ScopedBatchRequestProxy<AuthCommandStub, IEnumerable<AuthCommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(DeadlockRetryDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        typeof(DeadlockRetryRequestDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(TransactionDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        typeof(TransactionRequestDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandHandler<AuthCommandStub, AuthCommandStub>),
+                        typeof(BatchRequestDelegator<AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<AuthCommandStub, AuthCommandStub>),
@@ -269,28 +269,28 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchMacroCommandDecorator<MacroStub, CommandStub, IEnumerable<CommandStub>>),
+                        typeof(MacroBatchRequestDelegator<MacroStub, CommandStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandGroupDecorator<CommandStub, CommandStub>),
+                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>),
+                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(DeadlockRetryDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(TransactionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(AppLayerBootstrapper.MacroScopeWrappingHandler<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandHandler<CommandStub, CommandStub>),
+                        typeof(BatchRequestDelegator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
@@ -340,28 +340,28 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<AuthMacroStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchMacroCommandDecorator<AuthMacroStub, CommandStub, IEnumerable<CommandStub>>),
+                        typeof(MacroBatchRequestDelegator<AuthMacroStub, CommandStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandGroupDecorator<CommandStub, CommandStub>),
+                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>),
+                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(DeadlockRetryDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(TransactionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(AppLayerBootstrapper.MacroScopeWrappingHandler<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(BatchCommandHandler<CommandStub, CommandStub>),
+                        typeof(BatchRequestDelegator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
@@ -405,7 +405,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(EntityNotFoundQueryDecorator<QueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(QueryLifetimeCacheDecorator<QueryStub, ResponseStub>),
+                        typeof(InstanceCacheQueryDecorator<QueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(QueryHandlerStub),
@@ -446,7 +446,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(EntityNotFoundQueryDecorator<AuthQueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(QueryLifetimeCacheDecorator<AuthQueryStub, ResponseStub>),
+                        typeof(InstanceCacheQueryDecorator<AuthQueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(AuthQueryHandlerStub),
