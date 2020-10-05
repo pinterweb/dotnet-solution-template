@@ -64,21 +64,21 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 Assert.Equal(500, problem.StatusCode);
             }
 
-            [Fact]
-            public void UnknownArgumentType_InternalErrorDetailReturned()
+            [Theory]
+            [InlineData(null, "An unknown error has occurred. Please try again or contact support")]
+            [InlineData("foobar", "foobar")]
+            public void UnknownArgumentType_InternalErrorDetailReturnedWhenToStringIsNull(
+                string formattableString, string expectedMsg)
             {
                 /* Arrange */
                 var unknown = A.Dummy<IFormattable>();
+                A.CallTo(() => unknown.ToString("G", null)).Returns(formattableString);
 
                 /* Act */
                 var problem = sut.Create(unknown);
 
                 /* Assert */
-                Assert.Equal(
-                     "An unknown error has occurred. Please try again or " +
-                    "contact support",
-                    problem.Detail
-                );
+                Assert.Equal(expectedMsg, problem.Detail);
             }
 
             [Fact]

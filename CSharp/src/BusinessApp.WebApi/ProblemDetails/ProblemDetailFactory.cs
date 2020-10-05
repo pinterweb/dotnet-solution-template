@@ -23,7 +23,9 @@ namespace BusinessApp.WebApi.ProblemDetails
 
             var option = new ProblemDetailOptions()
             {
-                MessageOverride = "An unknown error has occurred. Please try again or " +
+                MessageOverride =
+                    error.ToString("G", null) ??
+                    "An unknown error has occurred. Please try again or " +
                     "contact support",
                 StatusCode = StatusCodes.Status500InternalServerError,
                 ProblemType = error.GetType()
@@ -86,7 +88,10 @@ namespace BusinessApp.WebApi.ProblemDetails
                     )
                 );
 
-            return new CompositeProblemDetail(responses);
+            return new CompositeProblemDetail(responses)
+            {
+                Detail = errors is IFormattable ? errors.ToString() : null
+            };
         }
     }
 }

@@ -144,9 +144,9 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 
                 /* Assert */
                 Assert.Collection(sut.Keys,
-                    key => Assert.Equal(key, nameof(ProblemDetail.StatusCode)),
-                    key => Assert.Equal(key, nameof(ProblemDetail.Title)),
-                    key => Assert.Equal(key, nameof(ProblemDetail.Type))
+                    key => Assert.Equal(nameof(ProblemDetail.StatusCode), key),
+                    key => Assert.Equal(nameof(ProblemDetail.Title), key),
+                    key => Assert.Equal(nameof(ProblemDetail.Type), key)
                 );
             }
 
@@ -158,9 +158,9 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 
                 /* Assert */
                 Assert.Collection(sut,
-                    kvp => Assert.Equal(kvp.Key, nameof(ProblemDetail.StatusCode)),
-                    kvp => Assert.Equal(kvp.Key, nameof(ProblemDetail.Title)),
-                    kvp => Assert.Equal(kvp.Key, nameof(ProblemDetail.Type))
+                    kvp => Assert.Equal(nameof(ProblemDetail.StatusCode), kvp.Key),
+                    kvp => Assert.Equal(nameof(ProblemDetail.Title), kvp.Key),
+                    kvp => Assert.Equal(nameof(ProblemDetail.Type), kvp.Key)
                 );
             }
         }
