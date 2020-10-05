@@ -5,6 +5,7 @@
 #if efcore
     using Microsoft.EntityFrameworkCore;
 #endif
+    using BusinessApp.Domain;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using SimpleInjector;
@@ -15,18 +16,19 @@
 #endif
 //#if DEBUG
     using Microsoft.Extensions.Logging;
-//#endif
+    //#endif
 #if winauth
     using Microsoft.AspNetCore.Server.HttpSys;
 #endif
 
     public class Startup
     {
-        private readonly Container container = new Container();
+        private readonly Container container;
         private readonly BootstrapOptions options = new BootstrapOptions();
 
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, Container container)
         {
+            this.container = Guard.Against.Null(container).Expect(nameof(container));
             container.Options.ResolveUnregisteredConcreteTypes = false;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();

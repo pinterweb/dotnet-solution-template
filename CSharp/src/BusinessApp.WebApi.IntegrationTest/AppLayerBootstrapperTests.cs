@@ -15,6 +15,7 @@ namespace BusinessApp.WebApi.IntegrationTest
     using System;
     using SimpleInjector.Lifestyles;
     using BusinessApp.Domain;
+    using Microsoft.Extensions.Configuration;
 
     public class AppLayerBootstrapperTests
     {
@@ -36,9 +37,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             public Bootstrap()
             {
                 container = new Container();
-                container.Options.DefaultLifestyle = Lifestyle.Scoped;
-                container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
-
+                new Startup(A.Dummy<IConfiguration>(), container);
                 scope = AsyncScopedLifestyle.BeginScope(container);
             }
 
@@ -46,22 +45,20 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void NotABatchCommand_NoBatchDecoratorsInHandlers()
             {
                 /* Arrange */
-                container.Register(
-                    typeof(IRequestHandler<CommandStub, CommandStub>),
-                    typeof(CommandHandlerStub)
-                );
+                container.Register<CommandHandlerStub>();
                 CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<CommandStub, CommandStub>);
 
                 /* Act */
-                container.Verify();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(typeof(IRequestHandler<CommandStub, CommandStub>));
+                /* Assert */
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i => typeof(IRequestHandler<CommandStub, CommandStub>).IsAssignableFrom(i.ServiceType))
                     .Prepend(firstType);
-
-                /* Assert */
                 Assert.Collection(handlers,
                     rel => Assert.Equal(
                         typeof(RequestExceptionDecorator<CommandStub, CommandStub>),
@@ -85,16 +82,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void NonBatchAuthCommand_AuthDecoratorAddedWithoutBatchDecorators()
             {
                 /* Arrange */
-                container.Register(
-                    typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>),
-                    typeof(AuthCommandHandlerStub)
-                );
+                container.Register<AuthCommandHandlerStub>();
                 CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>);
 
                 /* Act */
-                container.Verify();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i => typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>).IsAssignableFrom(i.ServiceType))
@@ -127,18 +123,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void IsABatchCommand_BatchDecoratorsInHandlers()
             {
                 /* Arrange */
-                container.Register(
-                   typeof(IRequestHandler<CommandStub, CommandStub>),
-                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>)
-               );
-               CreateRegistrations(container);
+                container.Register<CommandHandlerStub>();
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>);
 
                 /* Act */
-                container.Verify();
-                var _ = container.GetInstance<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i =>
@@ -187,18 +180,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void IsABatchAuthCommand_BatchDecoratorsWithAuthInHandlers()
             {
                 /* Arrange */
-                container.Register(
-                   typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>),
-                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<AuthCommandHandlerStub, AuthCommandStub, AuthCommandStub>)
-               );
-               CreateRegistrations(container);
+                container.Register<AuthCommandHandlerStub>();
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>);
 
                 /* Act */
-                container.Verify();
-                var _ = container.GetInstance<IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>>();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(
-                    typeof(IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i =>
@@ -251,18 +241,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 /* Arrange */
                 container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
-                container.Register(
-                   typeof(IRequestHandler<CommandStub, CommandStub>),
-                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
-                   Lifestyle.Scoped
-               );
-               CreateRegistrations(container);
+                container.Register<CommandHandlerStub>();
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>);
 
                 /* Act */
-                container.Verify();
-                var _ = container.GetInstance<IRequestHandler<MacroStub, IEnumerable<CommandStub>>>();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i =>
@@ -322,18 +309,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 /* Arrange */
                 container.RegisterInstance(A.Fake<IBatchMacro<AuthMacroStub, CommandStub>>());
-                container.Register(
-                   typeof(IRequestHandler<CommandStub, CommandStub>),
-                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
-                   Lifestyle.Scoped
-               );
-               CreateRegistrations(container);
+                container.Register<CommandHandlerStub>();
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>);
 
                 /* Act */
-                container.Verify();
-                var _ = container.GetInstance<IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>>();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(typeof(IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i =>
@@ -395,16 +379,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void QueryRequest_QueryDecoratorsAdded()
             {
                 /* Arrange */
-                container.Register(
-                    typeof(IRequestHandler<QueryStub, ResponseStub>),
-                    typeof(QueryHandlerStub)
-                );
+                container.Register<QueryHandlerStub>();
                 CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<QueryStub, ResponseStub>);
 
                 /* Act */
-                container.Verify();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(typeof(IRequestHandler<QueryStub, ResponseStub>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i => typeof(IRequestHandler<QueryStub, ResponseStub>).IsAssignableFrom(i.ServiceType))
@@ -434,16 +417,15 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void QueryRequestWithAuth_AuthQueryDecoratorsAdded()
             {
                 /* Arrange */
-                container.Register(
-                    typeof(IRequestHandler<AuthQueryStub, ResponseStub>),
-                    typeof(QueryHandlerStub)
-                );
+                container.Register<AuthQueryHandlerStub>();
                 CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<AuthQueryStub, ResponseStub>);
 
                 /* Act */
-                container.Verify();
+                var _ = container.GetInstance(serviceType);
 
-                var firstType = container.GetRegistration(typeof(IRequestHandler<AuthQueryStub, ResponseStub>));
+                var firstType = container.GetRegistration(serviceType);
                 var handlers = firstType
                     .GetDependencies()
                     .Where(i => typeof(IRequestHandler<AuthQueryStub, ResponseStub>).IsAssignableFrom(i.ServiceType))
@@ -467,7 +449,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(QueryLifetimeCacheDecorator<AuthQueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(QueryHandlerStub),
+                        typeof(AuthQueryHandlerStub),
                         rel.Registration.ImplementationType)
                 );
             }
@@ -499,13 +481,21 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
         }
 
-        public sealed class CommandStub {}
+        private sealed class AuthQueryHandlerStub : IQueryHandler<AuthQueryStub, ResponseStub>
+        {
+            public Task<Result<ResponseStub, IFormattable>> HandleAsync(AuthQueryStub request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public sealed class CommandStub { }
         [Authorize]
-        public sealed class AuthCommandStub {}
+        public sealed class AuthCommandStub { }
         [Authorize]
-        public sealed class AuthQueryStub : QueryStub {}
+        public sealed class AuthQueryStub : QueryStub { }
         [Authorize]
-        public sealed class AuthMacroStub : IMacro<CommandStub> {}
-        public sealed class MacroStub : IMacro<CommandStub> {}
+        public sealed class AuthMacroStub : IMacro<CommandStub> { }
+        public sealed class MacroStub : IMacro<CommandStub> { }
     }
 }

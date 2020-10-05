@@ -47,15 +47,18 @@
 
             container.RegisterLoggers(env, options);
 
-            var handlerTypes = container.GetTypesToRegister(typeof(IRequestHandler<,>),
-                new[] { Assembly },
-                new TypesToRegisterOptions
-                {
-                    IncludeGenericTypeDefinitions = true,
-                    IncludeComposites = false,
-                });
+            IEnumerable<Type> GetTypesToRegister()
+            {
+                return container.GetTypesToRegister(typeof(IRequestHandler<,>),
+                    new[] { Assembly },
+                    new TypesToRegisterOptions
+                    {
+                        IncludeGenericTypeDefinitions = true,
+                        IncludeComposites = false,
+                    });
+            };
 
-            foreach (var handlerType in handlerTypes) container.Register(handlerType);
+            foreach (var handlerType in GetTypesToRegister()) container.Register(handlerType);
 
             // XXX Order of decorator registration matters.
             // First decorator wraps the real instance
@@ -63,7 +66,7 @@
 
             container.RegisterQueryDecorator(typeof(QueryLifetimeCacheDecorator<,>));
 #if efcore
-                        container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
+            container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
 #endif
             container.RegisterQueryDecorator(typeof(EntityNotFoundQueryDecorator<,>));
 
@@ -89,7 +92,7 @@
                 {
                     var requestType = ctx.ServiceType.GetGenericArguments()[0];
 
-                    bool HasAuthAttribute(Type targetType)
+                    static bool HasAuthAttribute(Type targetType)
                     {
                         return targetType
                               .GetCustomAttributes(typeof(AuthorizeAttribute))
@@ -132,21 +135,20 @@
                     var requestType = c.ServiceType.GetGenericArguments()[0];
                     var responseType = c.ServiceType.GetGenericArguments()[1];
 
-                    var handler =
-                        handlerTypes.FirstOrDefault(t => t.GetInterfaces().Any(i => i == c.ServiceType)) ??
-                        handlerTypes.Where(h => h.GetGenericArguments().Length == 2)
-                            .FirstOrDefault(t => t.MakeGenericType(requestType, responseType).GetInterfaces().Any(i => i == c.ServiceType));
+                    var concreteType = container.GetRootRegistrations()
+                        .FirstOrDefault(reg => reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
+                        .ServiceType;
 
-                    if (handler == null)
+                    if (concreteType == null)
                     {
                         throw new BusinessAppWebApiException(
                             $"No command handler is setup for command '{requestType.Name}'. Please set one up.");
                     }
                     else
                     {
-                        return c.Consumer.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<,>)
-                            ? typeof(BatchScopeWrappingHandler<,,>).MakeGenericType(handler, requestType, responseType)
-                            : handler;
+                        return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<,>)
+                            ? typeof(BatchScopeWrappingHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
+                            : concreteType;
                     }
                 },
                 Lifestyle.Scoped,
@@ -171,7 +173,6 @@
             );
         }
 
-
         public sealed class MacroScopeWrappingHandler<TRequest, TResponse> :
             BatchScopeWrappingHandler<BatchCommandHandler<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
         {
@@ -182,21 +183,12 @@
         }
 
         public class BatchScopeWrappingHandler<TConsumer, TRequest, TResponse> :
-            DefaultScopeWrappingHandler<TConsumer, TRequest, TResponse>
-            where TConsumer : IRequestHandler<TRequest, TResponse>
-        {
-            public BatchScopeWrappingHandler(TConsumer inner) : base(inner)
-            {
-            }
-        }
-
-        public class DefaultScopeWrappingHandler<TConsumer, TRequest, TResponse> :
             IRequestHandler<TRequest, TResponse>
             where TConsumer : IRequestHandler<TRequest, TResponse>
         {
             private readonly TConsumer inner;
 
-            public DefaultScopeWrappingHandler(TConsumer inner)
+            public BatchScopeWrappingHandler(TConsumer inner)
             {
                 this.inner = inner;
             }
