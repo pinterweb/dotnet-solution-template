@@ -14,6 +14,7 @@ namespace BusinessApp.WebApi.IntegrationTest
     using System.Collections.Generic;
     using System;
     using SimpleInjector.Lifestyles;
+    using BusinessApp.Domain;
 
     public class AppLayerBootstrapperTests
     {
@@ -27,14 +28,18 @@ namespace BusinessApp.WebApi.IntegrationTest
                 A.Dummy<BootstrapOptions>());
         }
 
-        public class Bootstrap : AppLayerBootstrapperTests
+        public class Bootstrap : AppLayerBootstrapperTests, IDisposable
         {
             private readonly Container container;
+            private readonly Scope scope;
 
             public Bootstrap()
             {
                 container = new Container();
+                container.Options.DefaultLifestyle = Lifestyle.Scoped;
                 container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+
+                scope = AsyncScopedLifestyle.BeginScope(container);
             }
 
             [Fact]
@@ -77,12 +82,54 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
 
             [Fact]
+            public void NonBatchAuthCommand_AuthDecoratorAddedWithoutBatchDecorators()
+            {
+                /* Arrange */
+                container.Register(
+                    typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>),
+                    typeof(AuthCommandHandlerStub)
+                );
+                CreateRegistrations(container);
+
+                /* Act */
+                container.Verify();
+
+                var firstType = container.GetRegistration(typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>));
+                var handlers = firstType
+                    .GetDependencies()
+                    .Where(i => typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>).IsAssignableFrom(i.ServiceType))
+                    .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(RequestExceptionDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AuthorizationRequestDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(DeadlockRetryDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(TransactionDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AuthCommandHandlerStub),
+                        rel.Registration.ImplementationType)
+                );
+            }
+
+            [Fact]
             public void IsABatchCommand_BatchDecoratorsInHandlers()
             {
                 /* Arrange */
                 container.Register(
                    typeof(IRequestHandler<CommandStub, CommandStub>),
-                   typeof(AppLayerBootstrapper.HandlerWrapper<CommandHandlerStub, CommandStub, CommandStub>)
+                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>)
                );
                CreateRegistrations(container);
 
@@ -110,9 +157,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(ValidationBatchCommandDecorator<CommandStub, IEnumerable<CommandStub>>),
-                        rel.Registration.ImplementationType),
-                    rel => Assert.Equal(
                         typeof(BatchCommandGroupDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
@@ -128,10 +172,76 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(BatchCommandHandler<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.HandlerWrapper<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(CommandHandlerStub),
+                        rel.Registration.ImplementationType)
+                );
+            }
+
+            [Fact]
+            public void IsABatchAuthCommand_BatchDecoratorsWithAuthInHandlers()
+            {
+                /* Arrange */
+                container.Register(
+                   typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>),
+                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<AuthCommandHandlerStub, AuthCommandStub, AuthCommandStub>)
+               );
+               CreateRegistrations(container);
+
+                /* Act */
+                container.Verify();
+                var _ = container.GetInstance<IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>>();
+
+                var firstType = container.GetRegistration(
+                    typeof(IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>));
+                var handlers = firstType
+                    .GetDependencies()
+                    .Where(i =>
+                        typeof(IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>)
+                            .IsAssignableFrom(i.ServiceType) ||
+                        typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>).IsAssignableFrom(i.ServiceType)
+                    )
+                    .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(RequestExceptionDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AuthorizationRequestDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(BatchCommandGroupDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ApplicationScopeBatchDecorator<AuthCommandStub, IEnumerable<AuthCommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(DeadlockRetryDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(TransactionDecorator<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(BatchCommandHandler<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<AuthCommandHandlerStub, AuthCommandStub, AuthCommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AuthCommandHandlerStub),
                         rel.Registration.ImplementationType)
                 );
             }
@@ -143,7 +253,8 @@ namespace BusinessApp.WebApi.IntegrationTest
                 container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
                 container.Register(
                    typeof(IRequestHandler<CommandStub, CommandStub>),
-                   typeof(AppLayerBootstrapper.HandlerWrapper<CommandHandlerStub, CommandStub, CommandStub>)
+                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                   Lifestyle.Scoped
                );
                CreateRegistrations(container);
 
@@ -177,7 +288,78 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(ValidationBatchCommandDecorator<CommandStub, IEnumerable<CommandStub>>),
+                        typeof(BatchCommandGroupDecorator<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(DeadlockRetryDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(TransactionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AppLayerBootstrapper.MacroScopeWrappingHandler<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(BatchCommandHandler<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(CommandHandlerStub),
+                        rel.Registration.ImplementationType)
+                );
+            }
+
+            [Fact]
+            public void IsABatchMacroAuthCommand_BatchMacroWithAuthDecoratorsInHandlers()
+            {
+                /* Arrange */
+                container.RegisterInstance(A.Fake<IBatchMacro<AuthMacroStub, CommandStub>>());
+                container.Register(
+                   typeof(IRequestHandler<CommandStub, CommandStub>),
+                   typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                   Lifestyle.Scoped
+               );
+               CreateRegistrations(container);
+
+                /* Act */
+                container.Verify();
+                var _ = container.GetInstance<IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>>();
+
+                var firstType = container.GetRegistration(typeof(IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>));
+                var handlers = firstType
+                    .GetDependencies()
+                    .Where(i =>
+                        typeof(IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>).IsAssignableFrom(i.ServiceType) ||
+                        typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>)
+                            .IsAssignableFrom(i.ServiceType) ||
+                        typeof(IRequestHandler<CommandStub, CommandStub>).IsAssignableFrom(i.ServiceType)
+                    )
+                    .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(RequestExceptionDecorator<AuthMacroStub, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AuthorizationRequestDecorator<AuthMacroStub, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<AuthMacroStub, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(BatchMacroCommandDecorator<AuthMacroStub, CommandStub, IEnumerable<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(BatchCommandGroupDecorator<CommandStub, CommandStub>),
@@ -192,10 +374,16 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(TransactionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
+                        typeof(AppLayerBootstrapper.MacroScopeWrappingHandler<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
                         typeof(BatchCommandHandler<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.HandlerWrapper<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -209,7 +397,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 /* Arrange */
                 container.Register(
                     typeof(IRequestHandler<QueryStub, ResponseStub>),
-                    typeof(CommandHandlerStub)
+                    typeof(QueryHandlerStub)
                 );
                 CreateRegistrations(container);
 
@@ -235,6 +423,9 @@ namespace BusinessApp.WebApi.IntegrationTest
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(QueryLifetimeCacheDecorator<QueryStub, ResponseStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(QueryHandlerStub),
                         rel.Registration.ImplementationType)
                 );
             }
@@ -245,7 +436,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 /* Arrange */
                 container.Register(
                     typeof(IRequestHandler<AuthQueryStub, ResponseStub>),
-                    typeof(CommandHandlerStub)
+                    typeof(QueryHandlerStub)
                 );
                 CreateRegistrations(container);
 
@@ -274,9 +465,14 @@ namespace BusinessApp.WebApi.IntegrationTest
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(QueryLifetimeCacheDecorator<AuthQueryStub, ResponseStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(QueryHandlerStub),
                         rel.Registration.ImplementationType)
                 );
             }
+
+            public void Dispose() => scope.Dispose();
         }
 
         private sealed class CommandHandlerStub : ICommandHandler<CommandStub>
@@ -287,8 +483,29 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
         }
 
+        private sealed class AuthCommandHandlerStub : ICommandHandler<AuthCommandStub>
+        {
+            public Task RunAsync(AuthCommandStub request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private sealed class QueryHandlerStub : IQueryHandler<QueryStub, ResponseStub>
+        {
+            public Task<Result<ResponseStub, IFormattable>> HandleAsync(QueryStub request, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public sealed class CommandStub {}
+        [Authorize]
+        public sealed class AuthCommandStub {}
+        [Authorize]
         public sealed class AuthQueryStub : QueryStub {}
+        [Authorize]
+        public sealed class AuthMacroStub : IMacro<CommandStub> {}
         public sealed class MacroStub : IMacro<CommandStub> {}
     }
 }

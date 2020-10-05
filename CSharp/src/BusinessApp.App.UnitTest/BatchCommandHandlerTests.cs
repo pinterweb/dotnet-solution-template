@@ -122,12 +122,12 @@ namespace BusinessApp.App.UnitTest
                 }
             }
 
+            [Fact]
             public async Task AllOkResults_ResultsReturned()
             {
                 /* Arrange */
                 var commands = new[]
                 {
-                    new CommandStub(),
                     new CommandStub(),
                     new CommandStub(),
                 };
@@ -148,8 +148,7 @@ namespace BusinessApp.App.UnitTest
                 /* Assert */
                 Assert.Collection(results.Unwrap(),
                     v => Assert.Same(result1, v),
-                    v => Assert.Same(result2, v),
-                    v => Assert.Same(result1, v)
+                    v => Assert.Same(result2, v)
                 );
             }
         }

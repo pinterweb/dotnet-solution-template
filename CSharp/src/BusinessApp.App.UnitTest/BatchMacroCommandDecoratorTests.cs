@@ -137,7 +137,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.HandleAsync(macro, token);
 
                 /* Assert */
-                Assert.Same(macro, result.Unwrap());
+                Assert.Equal(innerResult, result);
             }
         }
 

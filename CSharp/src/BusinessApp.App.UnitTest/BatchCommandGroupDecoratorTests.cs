@@ -156,6 +156,7 @@ namespace BusinessApp.App.UnitTest
                 }
             }
 
+            [Fact]
             public async Task AllOkResults_ResultsReturned()
             {
                 /* Arrange */
@@ -170,8 +171,14 @@ namespace BusinessApp.App.UnitTest
                     new[] { commands.Last(), commands.First() },
                     new[] { commands.ElementAt(1) },
                 };
-                var result1 = new CommandStub[0];
-                var result2 = new CommandStub[0];
+                var result1 = new[]
+                {
+                    new CommandStub(),
+                };
+                var result2 = new[]
+                {
+                    new CommandStub()
+                };
 
                 var ok1 = Result<IEnumerable<CommandStub>, IFormattable>
                     .Ok(result1);
@@ -187,9 +194,9 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Collection(results.Unwrap(),
-                    v => Assert.Same(result1, v),
-                    v => Assert.Same(result2, v),
-                    v => Assert.Same(result1, v)
+                    v => Assert.Same(result1.First(), v),
+                    v => Assert.Same(result2.First(), v),
+                    v => Assert.Same(result1.First(), v)
                 );
             }
         }
