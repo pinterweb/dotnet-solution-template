@@ -64,22 +64,22 @@
             // First decorator wraps the real instance
             #region Decoration Registration
 
-            container.RegisterQueryDecorator(typeof(QueryLifetimeCacheDecorator<,>));
+            container.RegisterQueryDecorator(typeof(InstanceCacheQueryDecorator<,>));
 #if efcore
             container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
 #endif
             container.RegisterQueryDecorator(typeof(EntityNotFoundQueryDecorator<,>));
 
-            container.RegisterCommandDecorator(typeof(TransactionDecorator<,>),
+            container.RegisterCommandDecorator(typeof(TransactionRequestDecorator<,>),
                 ctx => HasTransactionScope(ctx));
 
-            container.RegisterCommandDecorator(typeof(DeadlockRetryDecorator<,>),
+            container.RegisterCommandDecorator(typeof(DeadlockRetryRequestDecorator<,>),
                 ctx => HasTransactionScope(ctx));
 
-            container.RegisterCommandDecorator(typeof(ApplicationScopeBatchDecorator<,>),
+            container.RegisterCommandDecorator(typeof(ScopedBatchRequestProxy<,>),
                 lifestyle: Lifestyle.Singleton);
 
-            container.RegisterCommandDecorator(typeof(BatchCommandGroupDecorator<,>));
+            container.RegisterCommandDecorator(typeof(GroupedBatchRequestDecorator<,>));
 
             container.RegisterDecorator(
                 typeof(IRequestHandler<,>),
@@ -117,16 +117,16 @@
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
                 typeof(MacroScopeWrappingHandler<,>),
-                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchMacroCommandDecorator<,,>));
+                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestDelegator<,,>));
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                typeof(BatchCommandHandler<,>),
-                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() != typeof(BatchMacroCommandDecorator<,,>));
+                typeof(BatchRequestDelegator<,>),
+                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() != typeof(MacroBatchRequestDelegator<,,>));
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                typeof(BatchMacroCommandDecorator<,,>),
+                typeof(MacroBatchRequestDelegator<,,>),
                 ctx => !ctx.Handled);
 
             container.RegisterConditional(typeof(IRequestHandler<,>),
@@ -146,7 +146,7 @@
                     }
                     else
                     {
-                        return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<,>)
+                        return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchRequestDelegator<,>)
                             ? typeof(BatchScopeWrappingHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
                             : concreteType;
                     }
@@ -159,7 +159,7 @@
         {
             return !ctx.ImplementationType.IsConstructedGenericType ||
             (
-                ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<,>) ||
+                ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchRequestDelegator<,>) ||
                 ctx.ImplementationType.GetGenericTypeDefinition() == typeof(MacroScopeWrappingHandler<,>)
             );
         }
@@ -174,9 +174,9 @@
         }
 
         public sealed class MacroScopeWrappingHandler<TRequest, TResponse> :
-            BatchScopeWrappingHandler<BatchCommandHandler<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
+            BatchScopeWrappingHandler<BatchRequestDelegator<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
         {
-            public MacroScopeWrappingHandler(BatchCommandHandler<TRequest, TResponse> inner)
+            public MacroScopeWrappingHandler(BatchRequestDelegator<TRequest, TResponse> inner)
                 : base(inner)
             {
             }

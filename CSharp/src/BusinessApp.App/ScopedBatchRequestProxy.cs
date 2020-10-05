@@ -6,13 +6,13 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class ApplicationScopeBatchDecorator<TRequest, TResponse>
+    public class ScopedBatchRequestProxy<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, TResponse>
     {
         private readonly IAppScope scope;
         private readonly Func<IRequestHandler<IEnumerable<TRequest>, TResponse>> factory;
 
-        public ApplicationScopeBatchDecorator(IAppScope scope,
+        public ScopedBatchRequestProxy(IAppScope scope,
             Func<IRequestHandler<IEnumerable<TRequest>, TResponse>> factory)
         {
             this.scope = Guard.Against.Null(scope).Expect(nameof(scope));

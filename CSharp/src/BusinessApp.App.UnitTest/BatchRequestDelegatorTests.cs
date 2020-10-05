@@ -9,21 +9,21 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using Xunit;
 
-    public class BatchCommandHandlerTests
+    public class BatchRequestDelegatorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandHandler<CommandStub, CommandStub> sut;
+        private readonly BatchRequestDelegator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
 
-        public BatchCommandHandlerTests()
+        public BatchRequestDelegatorTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<CommandStub>>();
 
-            sut = new BatchCommandHandler<CommandStub, CommandStub>(inner);
+            sut = new BatchRequestDelegator<CommandStub, CommandStub>(inner);
         }
 
-        public class Constructor : BatchCommandHandlerTests
+        public class Constructor : BatchRequestDelegatorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -34,7 +34,7 @@ namespace BusinessApp.App.UnitTest
             public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandHandler<CommandStub, CommandStub>(c);
+                void shouldThrow() => new BatchRequestDelegator<CommandStub, CommandStub>(c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -44,7 +44,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : BatchCommandHandlerTests
+        public class HandleAsync : BatchRequestDelegatorTests
         {
             [Fact]
             public async Task WithoutCommandArg_ExceptionThrown()
@@ -73,7 +73,7 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => inner.HandleAsync(commands.Last(), token)).MustHaveHappenedOnceExactly();
             }
 
-            public class OnError : BatchCommandHandlerTests
+            public class OnError : BatchRequestDelegatorTests
             {
                 private readonly Result<CommandStub, IFormattable> error;
                 private readonly Result<CommandStub, IFormattable> ok;

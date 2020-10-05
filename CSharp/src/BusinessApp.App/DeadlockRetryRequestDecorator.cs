@@ -9,13 +9,13 @@ namespace BusinessApp.App
     /// <summary>
     /// Retries handling logic if a deadlock raised an exception
     /// </summary>
-    public class DeadlockRetryDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+    public class DeadlockRetryRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     {
         private readonly IRequestHandler<TRequest, TResponse> decoratee;
         private readonly int sleepBetweenRetries = 500;
         private int retries = 5;
 
-        public DeadlockRetryDecorator(IRequestHandler<TRequest, TResponse> decoratee)
+        public DeadlockRetryRequestDecorator(IRequestHandler<TRequest, TResponse> decoratee)
         {
             this.decoratee = Guard.Against.Null(decoratee).Expect(nameof(decoratee));
         }

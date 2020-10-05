@@ -8,23 +8,23 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.Threading;
 
-    public class TransactionDecoratorTests
+    public class TransactionRequestDecoratorTests
     {
-        private readonly TransactionDecorator<CommandStub, CommandStub> sut;
+        private readonly TransactionRequestDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
         private readonly ITransactionFactory factory;
         private readonly PostCommitRegister register;
 
-        public TransactionDecoratorTests()
+        public TransactionRequestDecoratorTests()
         {
             inner = A.Fake<ICommandHandler<CommandStub>>();
             factory = A.Fake<ITransactionFactory>();
             register = new PostCommitRegister();
 
-            sut = new TransactionDecorator<CommandStub, CommandStub>(factory, inner, register);
+            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, register);
         }
 
-        public class Constructor : TransactionDecoratorTests
+        public class Constructor : TransactionRequestDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -53,7 +53,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<CommandStub> c, PostCommitRegister r)
             {
                 /* Arrange */
-                void shouldThrow() => new TransactionDecorator<CommandStub, CommandStub>(v, c, r);
+                void shouldThrow() => new TransactionRequestDecorator<CommandStub, CommandStub>(v, c, r);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -63,7 +63,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : TransactionDecoratorTests
+        public class HandleAsync : TransactionRequestDecoratorTests
         {
             [Fact]
             public async Task WithoutCommandArg_ExceptionThrown()

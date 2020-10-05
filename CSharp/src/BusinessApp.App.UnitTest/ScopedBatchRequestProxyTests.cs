@@ -8,25 +8,25 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using Xunit;
 
-    public class ApplicationScopeBatchDecoratorTests
+    public class ScopedBatchRequestProxyTests
     {
         private readonly CancellationToken token;
-        private readonly ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>> sut;
+        private readonly ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IAppScope scope;
 
-        public ApplicationScopeBatchDecoratorTests()
+        public ScopedBatchRequestProxyTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             scope = A.Fake<IAppScope>();
 
-            sut = new ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>(
+            sut = new ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>(
                 scope,
                 () => inner);
         }
 
-        public class Constructor : ApplicationScopeBatchDecoratorTests
+        public class Constructor : ScopedBatchRequestProxyTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 void shouldThrow() =>
-                    new ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>(a, f);
+                    new ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>(a, f);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -58,7 +58,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : ApplicationScopeBatchDecoratorTests
+        public class HandleAsync : ScopedBatchRequestProxyTests
         {
             [Fact]
             public async Task WithinANewScope_CallsInnerHandler()

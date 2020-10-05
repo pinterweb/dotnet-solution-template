@@ -10,23 +10,23 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using Xunit;
 
-    public class BatchCommandGroupDecoratorTests
+    public class GroupedBatchRequestDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandGroupDecorator<CommandStub, CommandStub> sut;
+        private readonly GroupedBatchRequestDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchGrouper<CommandStub> grouper;
 
-        public BatchCommandGroupDecoratorTests()
+        public GroupedBatchRequestDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             grouper = A.Fake<IBatchGrouper<CommandStub>>();
 
-            sut = new BatchCommandGroupDecorator<CommandStub, CommandStub>(grouper, inner);
+            sut = new GroupedBatchRequestDecorator<CommandStub, CommandStub>(grouper, inner);
         }
 
-        public class Constructor : BatchCommandGroupDecoratorTests
+        public class Constructor : GroupedBatchRequestDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandGroupDecorator<CommandStub, CommandStub>(g, i);
+                void shouldThrow() => new GroupedBatchRequestDecorator<CommandStub, CommandStub>(g, i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -58,7 +58,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : BatchCommandGroupDecoratorTests
+        public class HandleAsync : GroupedBatchRequestDecoratorTests
         {
             [Fact]
             public async Task WithoutCommand_ExceptionThrown()
@@ -101,7 +101,7 @@ namespace BusinessApp.App.UnitTest
                     p => Assert.Same(p, groups.Last()));
             }
 
-            public class OnError : BatchCommandGroupDecoratorTests
+            public class OnError : GroupedBatchRequestDecoratorTests
             {
                 private readonly Result<IEnumerable<CommandStub>, IFormattable> error;
                 private readonly Result<IEnumerable<CommandStub>, IFormattable> ok;
