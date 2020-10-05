@@ -12,7 +12,7 @@ namespace BusinessApp.App.UnitTest
     public class BatchCommandHandlerTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandHandler<CommandStub> sut;
+        private readonly BatchCommandHandler<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
 
         public BatchCommandHandlerTests()
@@ -20,7 +20,7 @@ namespace BusinessApp.App.UnitTest
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<CommandStub>>();
 
-            sut = new BatchCommandHandler<CommandStub>(inner);
+            sut = new BatchCommandHandler<CommandStub, CommandStub>(inner);
         }
 
         public class Constructor : BatchCommandHandlerTests
@@ -34,7 +34,7 @@ namespace BusinessApp.App.UnitTest
             public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandHandler<CommandStub>(c);
+                void shouldThrow() => new BatchCommandHandler<CommandStub, CommandStub>(c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -122,12 +122,12 @@ namespace BusinessApp.App.UnitTest
                 }
             }
 
+            [Fact]
             public async Task AllOkResults_ResultsReturned()
             {
                 /* Arrange */
                 var commands = new[]
                 {
-                    new CommandStub(),
                     new CommandStub(),
                     new CommandStub(),
                 };
@@ -148,8 +148,7 @@ namespace BusinessApp.App.UnitTest
                 /* Assert */
                 Assert.Collection(results.Unwrap(),
                     v => Assert.Same(result1, v),
-                    v => Assert.Same(result2, v),
-                    v => Assert.Same(result1, v)
+                    v => Assert.Same(result2, v)
                 );
             }
         }

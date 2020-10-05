@@ -7,6 +7,10 @@ namespace BusinessApp.Test
     {
     }
 
+    public class QueryStub : Query, IQuery<ResponseStub>
+    {
+    }
+
     public class ResponseStub
     {
         public int Id { get; set; }

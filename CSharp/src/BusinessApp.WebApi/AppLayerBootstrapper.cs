@@ -9,6 +9,7 @@
     using System.Threading.Tasks;
     using System.Threading;
     using System;
+    using System.Collections.Generic;
 #if efcore
     using BusinessApp.Data;
 #endif
@@ -39,21 +40,6 @@
             container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
-            container.Register(typeof(IQueryHandler<,>), Assembly);
-            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(ValidationQueryDecorator<,>));
-            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(QueryLifetimeCacheDecorator<,>));
-#if efcore
-            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EFTrackingQueryDecorator<,>));
-#endif
-            container.RegisterDecorator(typeof(IQueryHandler<,>), typeof(EntityNotFoundQueryDecorator<,>));
-            container.RegisterDecorator(
-                typeof(IQueryHandler<,>),
-                typeof(AuthorizationQueryDecorator<,>),
-                c => c.ServiceType
-                      .GetGenericArguments()[0]
-                      .GetCustomAttributes(typeof(AuthorizeAttribute))
-                      .Any());
-
             container.Register(typeof(IBatchGrouper<>), Assembly);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
@@ -61,47 +47,109 @@
 
             container.RegisterLoggers(env, options);
 
-            var handlerTypes = container.GetTypesToRegister(typeof(ICommandHandler<>), Assembly);
+            IEnumerable<Type> GetTypesToRegister()
+            {
+                return container.GetTypesToRegister(typeof(IRequestHandler<,>),
+                    new[] { Assembly },
+                    new TypesToRegisterOptions
+                    {
+                        IncludeGenericTypeDefinitions = true,
+                        IncludeComposites = false,
+                    });
+            };
 
-            foreach (var type in handlerTypes) container.Register(type);
-
-            container.Register(typeof(ICommandHandler<>), typeof(BatchCommandHandler<>));
-            container.Register(typeof(ICommandHandler<>), typeof(BatchMacroCommandDecorator<,>));
+            foreach (var handlerType in GetTypesToRegister()) container.Register(handlerType);
 
             // XXX Order of decorator registration matters.
             // First decorator wraps the real instance
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(TransactionDecorator<>),
+            #region Decoration Registration
+
+            container.RegisterQueryDecorator(typeof(QueryLifetimeCacheDecorator<,>));
+#if efcore
+            container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
+#endif
+            container.RegisterQueryDecorator(typeof(EntityNotFoundQueryDecorator<,>));
+
+            container.RegisterCommandDecorator(typeof(TransactionDecorator<,>),
                 ctx => HasTransactionScope(ctx));
 
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(DeadlockRetryDecorator<>),
+            container.RegisterCommandDecorator(typeof(DeadlockRetryDecorator<,>),
                 ctx => HasTransactionScope(ctx));
 
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(ApplicationScopeBatchDecorator<>),
-                Lifestyle.Singleton);
+            container.RegisterCommandDecorator(typeof(ApplicationScopeBatchDecorator<,>),
+                lifestyle: Lifestyle.Singleton);
 
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(BatchCommandGroupDecorator<>));
+            container.RegisterCommandDecorator(typeof(BatchCommandGroupDecorator<,>));
 
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(ValidationBatchCommandDecorator<>));
+            container.RegisterDecorator(
+                typeof(IRequestHandler<,>),
+                typeof(ValidationRequestDecorator<,>));
 
-            container.RegisterDecorator(typeof(ICommandHandler<>),
-                typeof(ValidationCommandDecorator<>),
-                ctx => !ctx.ImplementationType.IsConstructedGenericType ||
-                    ctx.ImplementationType.GetGenericTypeDefinition() != typeof(HandlerWrapper<,>));
+            container.RegisterDecorator(
+                typeof(IRequestHandler<,>),
+                typeof(AuthorizationRequestDecorator<,>),
+                ctx =>
+                {
+                    var requestType = ctx.ServiceType.GetGenericArguments()[0];
 
-            container.RegisterConditional(typeof(ICommandHandler<>),
+                    static bool HasAuthAttribute(Type targetType)
+                    {
+                        return targetType
+                              .GetCustomAttributes(typeof(AuthorizeAttribute))
+                              .Any();
+                    }
+
+                    while(!HasAuthAttribute(requestType) && requestType.IsConstructedGenericType)
+                    {
+                        requestType = requestType.GetGenericArguments()[0];
+                    }
+
+                    return HasAuthAttribute(requestType) && IsOuterScope(ctx);
+                });
+
+            container.RegisterDecorator(
+                typeof(IRequestHandler<,>),
+                typeof(RequestExceptionDecorator<,>),
+                ctx => IsOuterScope(ctx));
+
+            #endregion
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(MacroScopeWrappingHandler<,>),
+                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchMacroCommandDecorator<,,>));
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(BatchCommandHandler<,>),
+                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() != typeof(BatchMacroCommandDecorator<,,>));
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(BatchMacroCommandDecorator<,,>),
+                ctx => !ctx.Handled);
+
+            container.RegisterConditional(typeof(IRequestHandler<,>),
                 c =>
                 {
-                    var handler = handlerTypes.First(t => t.GetInterfaces().Any(i => i == c.ServiceType));
-                    var cmd = c.ServiceType.GetGenericArguments()[0];
+                    var requestType = c.ServiceType.GetGenericArguments()[0];
+                    var responseType = c.ServiceType.GetGenericArguments()[1];
 
-                    return c.Consumer.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<>)
-                        ? typeof(HandlerWrapper<,>).MakeGenericType(handler, cmd)
-                        : handler;
+                    var concreteType = container.GetRootRegistrations()
+                        .FirstOrDefault(reg => reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
+                        .ServiceType;
+
+                    if (concreteType == null)
+                    {
+                        throw new BusinessAppWebApiException(
+                            $"No command handler is setup for command '{requestType.Name}'. Please set one up.");
+                    }
+                    else
+                    {
+                        return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<,>)
+                            ? typeof(BatchScopeWrappingHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
+                            : concreteType;
+                    }
                 },
                 Lifestyle.Scoped,
                 c => !c.Handled);
@@ -110,27 +158,42 @@
         private static bool HasTransactionScope(DecoratorPredicateContext ctx)
         {
             return !ctx.ImplementationType.IsConstructedGenericType ||
-                (
-                    ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<>) ||
-                    (
-                        ctx.ImplementationType.GetGenericTypeDefinition() != typeof(HandlerWrapper<,>) &&
-                        ctx.ImplementationType.GetGenericTypeDefinition() != typeof(BatchMacroCommandDecorator<,>)
-                    )
-                );
+            (
+                ctx.ImplementationType.GetGenericTypeDefinition() == typeof(BatchCommandHandler<,>) ||
+                ctx.ImplementationType.GetGenericTypeDefinition() == typeof(MacroScopeWrappingHandler<,>)
+            );
         }
 
-        public sealed class HandlerWrapper<TConsumer, T> : ICommandHandler<T>
-            where TConsumer : ICommandHandler<T>
+        private static bool IsOuterScope(DecoratorPredicateContext ctx)
+        {
+            return !ctx.ImplementationType.IsConstructedGenericType ||
+            (
+                ctx.ImplementationType.GetGenericTypeDefinition() != typeof(BatchScopeWrappingHandler<,,>) &&
+                ctx.ImplementationType.GetGenericTypeDefinition() != typeof(MacroScopeWrappingHandler<,>)
+            );
+        }
+
+        public sealed class MacroScopeWrappingHandler<TRequest, TResponse> :
+            BatchScopeWrappingHandler<BatchCommandHandler<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
+        {
+            public MacroScopeWrappingHandler(BatchCommandHandler<TRequest, TResponse> inner)
+                : base(inner)
+            {
+            }
+        }
+
+        public class BatchScopeWrappingHandler<TConsumer, TRequest, TResponse> :
+            IRequestHandler<TRequest, TResponse>
+            where TConsumer : IRequestHandler<TRequest, TResponse>
         {
             private readonly TConsumer inner;
 
-            public HandlerWrapper(TConsumer inner)
+            public BatchScopeWrappingHandler(TConsumer inner)
             {
                 this.inner = inner;
-
             }
 
-            public Task<Result<T, IFormattable>> HandleAsync(T command,
+            public Task<Result<TResponse, IFormattable>> HandleAsync(TRequest command,
                 CancellationToken cancellationToken)
             {
                 return inner.HandleAsync(command, cancellationToken);

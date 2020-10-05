@@ -8,12 +8,12 @@
     /// <summary>
     /// Throws a business exception if no entity is found from the query
     /// </summary>
-    public class EntityNotFoundQueryDecorator<TQuery, TResult> : IQueryHandler<TQuery, TResult>
+    public class EntityNotFoundQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
         where TQuery : IQuery<TResult>
     {
-        private readonly IQueryHandler<TQuery, TResult> decorated;
+        private readonly IRequestHandler<TQuery, TResult> decorated;
 
-        public EntityNotFoundQueryDecorator(IQueryHandler<TQuery, TResult> decorated)
+        public EntityNotFoundQueryDecorator(IRequestHandler<TQuery, TResult> decorated)
         {
             this.decorated = Guard.Against.Null(decorated).Expect(nameof(decorated));
         }

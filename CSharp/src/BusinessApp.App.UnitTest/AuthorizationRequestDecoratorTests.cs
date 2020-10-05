@@ -8,21 +8,21 @@ namespace BusinessApp.App.UnitTest
     using FakeItEasy;
     using Xunit;
 
-    public class AuthorizationQueryDecoratorTests
+    public class AuthorizationRequestDecoratorTests
     {
-        private readonly AuthorizationQueryDecorator<QueryStub, ResponseStub> sut;
-        private readonly IQueryHandler<QueryStub, ResponseStub> decorated;
+        private readonly AuthorizationRequestDecorator<QueryStub, ResponseStub> sut;
+        private readonly IRequestHandler<QueryStub, ResponseStub> decorated;
         private readonly IAuthorizer<QueryStub> authorizer;
 
-        public AuthorizationQueryDecoratorTests()
+        public AuthorizationRequestDecoratorTests()
         {
-            decorated = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
+            decorated = A.Fake<IRequestHandler<QueryStub, ResponseStub>>();
             authorizer = A.Fake<IAuthorizer<QueryStub>>();
 
-            sut = new AuthorizationQueryDecorator<QueryStub, ResponseStub>(decorated, authorizer);
+            sut = new AuthorizationRequestDecorator<QueryStub, ResponseStub>(decorated, authorizer);
         }
 
-        public class Constructor : AuthorizationQueryDecoratorTests
+        public class Constructor : AuthorizationRequestDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs
             {
@@ -31,18 +31,18 @@ namespace BusinessApp.App.UnitTest
                     return new []
                     {
                         new object[] { null, A.Dummy<IAuthorizer<QueryStub>>() },
-                        new object[] { A.Dummy<IQueryHandler<QueryStub, ResponseStub>>(), null }
+                        new object[] { A.Dummy<IRequestHandler<QueryStub, ResponseStub>>(), null }
                     };
                 }
             }
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void WithAnyNullService_ExceptionThrown(
-                IQueryHandler<QueryStub, ResponseStub> d,
+                IRequestHandler<QueryStub, ResponseStub> d,
                 IAuthorizer<QueryStub> a)
             {
                 /* Arrange */
-                Action create = () => new AuthorizationQueryDecorator<QueryStub, ResponseStub>(d, a);
+                Action create = () => new AuthorizationRequestDecorator<QueryStub, ResponseStub>(d, a);
 
                 /* Act */
                 var exception = Record.Exception(create);
@@ -53,7 +53,7 @@ namespace BusinessApp.App.UnitTest
         }
 
 
-        public class HandleAsync : AuthorizationQueryDecoratorTests
+        public class HandleAsync : AuthorizationRequestDecoratorTests
         {
             QueryStub query;
 

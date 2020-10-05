@@ -10,23 +10,23 @@ namespace BusinessApp.App.UnitTest
     using BusinessApp.Domain;
     using System;
 
-    public class ValidationQueryDecoratorTests
+    public class ValidationRequestDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly ValidationQueryDecorator<QueryStub, ResponseStub> sut;
+        private readonly ValidationRequestDecorator<QueryStub, ResponseStub> sut;
         private readonly IQueryHandler<QueryStub, ResponseStub> inner;
         private readonly IValidator<QueryStub> validator;
 
-        public ValidationQueryDecoratorTests()
+        public ValidationRequestDecoratorTests()
         {
             token = A.Dummy<CancellationToken>();
             inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
             validator = A.Fake<IValidator<QueryStub>>();
 
-            sut = new ValidationQueryDecorator<QueryStub, ResponseStub>(validator, inner);
+            sut = new ValidationRequestDecorator<QueryStub, ResponseStub>(validator, inner);
         }
 
-        public class Constructor : ValidationQueryDecoratorTests
+        public class Constructor : ValidationRequestDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -40,7 +40,7 @@ namespace BusinessApp.App.UnitTest
                 IQueryHandler<QueryStub, ResponseStub> c)
             {
                 /* Arrange */
-                void shouldThrow() => new ValidationQueryDecorator<QueryStub, ResponseStub>(v, c);
+                void shouldThrow() => new ValidationRequestDecorator<QueryStub, ResponseStub>(v, c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -50,7 +50,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : ValidationQueryDecoratorTests
+        public class HandleAsync : ValidationRequestDecoratorTests
         {
             [Fact]
             public async Task WithoutQueryArg_ExceptionThrown()

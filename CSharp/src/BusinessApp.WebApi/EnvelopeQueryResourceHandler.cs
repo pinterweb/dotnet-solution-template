@@ -13,11 +13,11 @@ namespace BusinessApp.WebApi
         IHttpRequestHandler<TRequest, IEnumerable<TResponse>>
         where TRequest : IQuery<EnvelopeContract<TResponse>>, new()
     {
-        private readonly IQueryHandler<TRequest, EnvelopeContract<TResponse>> handler;
+        private readonly IRequestHandler<TRequest, EnvelopeContract<TResponse>> handler;
         private readonly ISerializer serializer;
 
         public EnvelopeQueryResourceHandler(
-            IQueryHandler<TRequest, EnvelopeContract<TResponse>> handler,
+            IRequestHandler<TRequest, EnvelopeContract<TResponse>> handler,
             ISerializer serializer)
         {
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));

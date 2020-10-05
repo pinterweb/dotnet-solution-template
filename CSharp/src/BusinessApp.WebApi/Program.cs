@@ -8,8 +8,10 @@
     using Microsoft.AspNetCore.Server.HttpSys;
 //#endif
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using SimpleInjector;
 
     public class Program
     {
@@ -48,6 +50,7 @@
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureServices(sc => sc.AddSingleton<Container>(new Container()))
                 .ConfigureAppConfiguration(builder =>
                 {
                     builder.AddCommandLine(args);

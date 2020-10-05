@@ -13,7 +13,7 @@ namespace BusinessApp.App.UnitTest
     public class BatchCommandGroupDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchCommandGroupDecorator<CommandStub> sut;
+        private readonly BatchCommandGroupDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchGrouper<CommandStub> grouper;
 
@@ -23,7 +23,7 @@ namespace BusinessApp.App.UnitTest
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             grouper = A.Fake<IBatchGrouper<CommandStub>>();
 
-            sut = new BatchCommandGroupDecorator<CommandStub>(grouper, inner);
+            sut = new BatchCommandGroupDecorator<CommandStub, CommandStub>(grouper, inner);
         }
 
         public class Constructor : BatchCommandGroupDecoratorTests
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchCommandGroupDecorator<CommandStub>(g, i);
+                void shouldThrow() => new BatchCommandGroupDecorator<CommandStub, CommandStub>(g, i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -156,6 +156,7 @@ namespace BusinessApp.App.UnitTest
                 }
             }
 
+            [Fact]
             public async Task AllOkResults_ResultsReturned()
             {
                 /* Arrange */
@@ -170,8 +171,14 @@ namespace BusinessApp.App.UnitTest
                     new[] { commands.Last(), commands.First() },
                     new[] { commands.ElementAt(1) },
                 };
-                var result1 = new CommandStub[0];
-                var result2 = new CommandStub[0];
+                var result1 = new[]
+                {
+                    new CommandStub(),
+                };
+                var result2 = new[]
+                {
+                    new CommandStub()
+                };
 
                 var ok1 = Result<IEnumerable<CommandStub>, IFormattable>
                     .Ok(result1);
@@ -187,9 +194,9 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Collection(results.Unwrap(),
-                    v => Assert.Same(result1, v),
-                    v => Assert.Same(result2, v),
-                    v => Assert.Same(result1, v)
+                    v => Assert.Same(result1.First(), v),
+                    v => Assert.Same(result2.First(), v),
+                    v => Assert.Same(result1.First(), v)
                 );
             }
         }

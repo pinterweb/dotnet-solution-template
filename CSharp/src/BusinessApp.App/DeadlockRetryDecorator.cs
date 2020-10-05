@@ -9,26 +9,26 @@ namespace BusinessApp.App
     /// <summary>
     /// Retries handling logic if a deadlock raised an exception
     /// </summary>
-    public class DeadlockRetryDecorator<TCommand> : ICommandHandler<TCommand>
+    public class DeadlockRetryDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     {
-        private readonly ICommandHandler<TCommand> decoratee;
+        private readonly IRequestHandler<TRequest, TResponse> decoratee;
         private readonly int sleepBetweenRetries = 500;
         private int retries = 5;
 
-        public DeadlockRetryDecorator(ICommandHandler<TCommand> decoratee)
+        public DeadlockRetryDecorator(IRequestHandler<TRequest, TResponse> decoratee)
         {
             this.decoratee = Guard.Against.Null(decoratee).Expect(nameof(decoratee));
         }
 
-        public async Task<Result<TCommand, IFormattable>> HandleAsync(
-            TCommand command,
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(
+            TRequest command,
             CancellationToken cancellationToken)
         {
             return await HandleWithRetry(command, cancellationToken);
         }
 
-        private async Task<Result<TCommand, IFormattable>> HandleWithRetry(
-            TCommand command,
+        private async Task<Result<TResponse, IFormattable>> HandleWithRetry(
+            TRequest command,
             CancellationToken cancellationToken)
         {
             try
@@ -41,7 +41,7 @@ namespace BusinessApp.App
 
                 if (retries <= 0)
                 {
-                    return Result<TCommand, IFormattable>.Error(
+                    return Result<TResponse, IFormattable>.Error(
                         new CommunicationException(
                         "There was a conflict saving your data. Please retry your " +
                         "operation again. If you continue to see this message, please " +

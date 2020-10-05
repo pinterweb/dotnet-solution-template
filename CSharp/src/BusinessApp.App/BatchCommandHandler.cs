@@ -7,37 +7,38 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class BatchCommandHandler<TCommand> : ICommandHandler<IEnumerable<TCommand>>
+    public class BatchCommandHandler<TRequest, TResponse>
+        : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
-        private readonly ICommandHandler<TCommand> inner;
+        private readonly IRequestHandler<TRequest, TResponse> inner;
 
-        public BatchCommandHandler(ICommandHandler<TCommand> inner)
+        public BatchCommandHandler(IRequestHandler<TRequest, TResponse> inner)
         {
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
         }
 
-        public async Task<Result<IEnumerable<TCommand>, IFormattable>> HandleAsync(
-            IEnumerable<TCommand> command,
+        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
+            IEnumerable<TRequest> request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(command).Expect(nameof(command));
+            Guard.Against.Null(request).Expect(nameof(request));
 
-            var results = new List<Result<TCommand, IFormattable>>();
+            var results = new List<Result<TResponse, IFormattable>>();
 
-            foreach(var msg in command)
+            foreach(var msg in request)
             {
                 results.Add(await inner.HandleAsync(msg, cancellationToken));
             }
 
             if (results.Any(r => r.Kind == Result.Error))
             {
-                return Result<IEnumerable<TCommand>, IFormattable>
+                return Result<IEnumerable<TResponse>, IFormattable>
                     .Error(new BatchException(
                         results.Select(o => o.IgnoreValue()
                     )));
             }
 
-            return Result<IEnumerable<TCommand>, IFormattable>
+            return Result<IEnumerable<TResponse>, IFormattable>
                 .Ok(results.Select(o => o.Unwrap()));
         }
     }

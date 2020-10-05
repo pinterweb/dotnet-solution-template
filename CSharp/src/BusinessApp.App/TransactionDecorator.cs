@@ -5,14 +5,14 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class TransactionDecorator<TCommand> : ICommandHandler<TCommand>
+    public class TransactionDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     {
-        private readonly ICommandHandler<TCommand> inner;
+        private readonly IRequestHandler<TRequest, TResponse> inner;
         private readonly ITransactionFactory transactionFactory;
         private readonly PostCommitRegister register;
 
         public TransactionDecorator(ITransactionFactory transactionFactory,
-            ICommandHandler<TCommand> inner,
+            IRequestHandler<TRequest, TResponse> inner,
             PostCommitRegister register)
         {
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
@@ -20,8 +20,8 @@
             this.register = Guard.Against.Null(register).Expect(nameof(register));
         }
 
-        public async Task<Result<TCommand, IFormattable>> HandleAsync(
-            TCommand command, CancellationToken cancellationToken)
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(
+            TRequest command, CancellationToken cancellationToken)
         {
             Guard.Against.Null(command).Expect(nameof(command));
 

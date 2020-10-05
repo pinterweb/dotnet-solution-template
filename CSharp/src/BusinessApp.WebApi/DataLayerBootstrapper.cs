@@ -64,15 +64,15 @@
                 ctx => !ctx.Handled);
 
             container.RegisterConditional(
-                typeof(IQueryHandler<,>),
+                typeof(IRequestHandler<,>),
                 typeof(EFQueryStrategyHandler<,>),
                 ctx => !ctx.Handled
             );
-            container.RegisterConditional(typeof(IQueryHandler<,>),
+            container.RegisterConditional(typeof(IRequestHandler<,>),
                 typeof(EFEnvelopedQueryHandler<,>),
                 ctx => !ctx.Handled);
             container.RegisterConditional(
-                typeof(IQueryHandler<,>),
+                typeof(IRequestHandler<,>),
                 typeof(EFSingleQueryStrategyHandler<,>),
                 ctx => !ctx.Handled
             );

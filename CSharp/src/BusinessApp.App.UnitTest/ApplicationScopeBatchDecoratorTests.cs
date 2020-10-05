@@ -11,7 +11,7 @@ namespace BusinessApp.App.UnitTest
     public class ApplicationScopeBatchDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly ApplicationScopeBatchDecorator<CommandStub> sut;
+        private readonly ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IAppScope scope;
 
@@ -21,7 +21,9 @@ namespace BusinessApp.App.UnitTest
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             scope = A.Fake<IAppScope>();
 
-            sut = new ApplicationScopeBatchDecorator<CommandStub>(scope, () => inner);
+            sut = new ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>(
+                scope,
+                () => inner);
         }
 
         public class Constructor : ApplicationScopeBatchDecoratorTests
@@ -45,7 +47,8 @@ namespace BusinessApp.App.UnitTest
                 Func<ICommandHandler<IEnumerable<CommandStub>>> f)
             {
                 /* Arrange */
-                void shouldThrow() => new ApplicationScopeBatchDecorator<CommandStub>(a, f);
+                void shouldThrow() =>
+                    new ApplicationScopeBatchDecorator<CommandStub, IEnumerable<CommandStub>>(a, f);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);

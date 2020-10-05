@@ -11,7 +11,7 @@ namespace BusinessApp.App.UnitTest
     public class BatchMacroCommandDecoratorTests
     {
         private readonly CancellationToken token;
-        private readonly BatchMacroCommandDecorator<CommandMacro, CommandStub> sut;
+        private readonly BatchMacroCommandDecorator<CommandMacro, CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchMacro<CommandMacro, CommandStub> expander;
 
@@ -21,7 +21,8 @@ namespace BusinessApp.App.UnitTest
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             expander = A.Fake<IBatchMacro<CommandMacro, CommandStub>>();
 
-            sut = new BatchMacroCommandDecorator<CommandMacro, CommandStub>(expander, inner);
+            sut = new BatchMacroCommandDecorator<CommandMacro, CommandStub, IEnumerable<CommandStub>>(
+                expander, inner);
         }
 
         public class Constructor : BatchMacroCommandDecoratorTests
@@ -46,7 +47,7 @@ namespace BusinessApp.App.UnitTest
                 ICommandHandler<IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
-                void shouldThrow() => new BatchMacroCommandDecorator<CommandMacro, CommandStub>(g, i);
+                void shouldThrow() => new BatchMacroCommandDecorator<CommandMacro, CommandStub, IEnumerable<CommandStub>>(g, i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -136,7 +137,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.HandleAsync(macro, token);
 
                 /* Assert */
-                Assert.Same(macro, result.Unwrap());
+                Assert.Equal(innerResult, result);
             }
         }
 
