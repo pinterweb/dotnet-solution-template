@@ -1,11 +1,16 @@
 namespace BusinessApp.App
 {
+    using System.Collections;
     using System.Collections.Generic;
 
-    public class EnvelopeContract<TContract>
+    public class EnvelopeContract<TData> : IEnumerable<TData>
     {
-        public IEnumerable<TContract> Data { get; set; }
+        public IEnumerable<TData> Data { get; set; }
 
         public Pagination Pagination { get; set; }
+
+        public IEnumerator<TData> GetEnumerator() => Data.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }
