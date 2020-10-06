@@ -17,26 +17,27 @@
             ISerializer serializer,
             CancellationToken cancellationToken)
         {
-            if (context.Request.Method.Equals("get", StringComparison.OrdinalIgnoreCase) ||
-                context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase))
-            {
-                // TODO might not be able to do Sync. Deserialization see ShelfLife 3.1 commit
-                using (var stream = GenericSerializationHelpers<T>.DeserializeUri(context, serializer))
-                {
-                    return serializer.Deserialize<T>(stream);
-                }
-            }
-            else if (context.Request.ContentLength == null || context.Request.ContentLength > 0)
+            if (!context.Request.Method.Equals("get", StringComparison.OrdinalIgnoreCase) &&
+                !context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase) &&
+                (context.Request.ContentLength == null || context.Request.ContentLength > 0)
+            )
             {
                 var body = await context.Request.BodyReader.ReadAsync(cancellationToken);
 
-                using (var ms = new MemoryStream(body.Buffer.ToArray()))
+                using var ms = new MemoryStream(body.Buffer.ToArray());
+                var model = serializer.Deserialize<T>(ms);
+
+
+                if (context.Request.RouteValues.Count > 0)
                 {
-                    return serializer.Deserialize<T>(ms);
+                    GenericSerializationHelpers<T>.SetProperties(model, context.Request.RouteValues);
                 }
             }
 
-            return default(T);
+            using (var stream = GenericSerializationHelpers<T>.DeserializeUri(context, serializer))
+            {
+                return serializer.Deserialize<T>(stream);
+            }
         }
     }
 }

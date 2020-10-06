@@ -5,6 +5,8 @@ namespace BusinessApp.WebApi
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
     using System.Web;
     using BusinessApp.App;
     using BusinessApp.Data;
@@ -14,34 +16,59 @@ namespace BusinessApp.WebApi
     public static class GenericSerializationHelpers<T>
     {
         private static readonly IDictionary<string, Type> propertyCache;
+        private static readonly IDictionary<string, (Type, Action<T, object>)> setterCache;
 
         static GenericSerializationHelpers()
         {
             propertyCache = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+            setterCache = new Dictionary<string, (Type, Action<T, object>)>(StringComparer.OrdinalIgnoreCase);
 
             RecurseAllProperties(typeof(T), "");
         }
 
         public static Stream DeserializeUri(HttpContext context, ISerializer serializer)
         {
+            var queryArgs = new Dictionary<string, object>(context.GetRouteData().Values);
             var collection = HttpUtility.ParseQueryString(context.Request.QueryString.Value);
 
-            foreach (var r in context.GetRouteData().Values)
+            foreach (string r in collection)
             {
-                collection.Add(r.Key, r.Value.ToString());
+                if (!queryArgs.ContainsKey(r))
+                {
+                    queryArgs.Add(r, collection[r]);
+                }
             }
 
             var stream = new MemoryStream();
 
             serializer.Serialize(
                 stream,
-                CreateDictionary("", collection.AllKeys
-                .Where(key => !string.IsNullOrWhiteSpace(key) && propertyCache.ContainsKey(key))
-                .ToDictionary(key => key, key => collection[key])));
+                CreateDictionary("", queryArgs
+                .Where(kvp => !string.IsNullOrWhiteSpace(kvp.Key) && propertyCache.ContainsKey(kvp.Key))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)));
 
             stream.Position = 0;
 
             return stream;
+        }
+
+        public static void SetProperties(T target, IDictionary<string, object> properties)
+        {
+            foreach (var kvp in properties)
+            {
+                if (setterCache.TryGetValue(kvp.Key, out (Type, Action<T, object>) setterGetter))
+                {
+                    var converter = TypeDescriptor.GetConverter(setterGetter.Item1);
+
+                    if (converter.CanConvertFrom(kvp.Value.GetType()))
+                    {
+                        setterGetter.Item2(
+                            target,
+                            converter.ConvertFrom(kvp.Value)
+                        );
+                    }
+                }
+            }
         }
 
         private static void RecurseAllProperties(Type type, string prefix)
@@ -58,13 +85,14 @@ namespace BusinessApp.WebApi
                 }
                 else
                 {
+                    var _ = setterCache.TryAdd(property.Name, (property.PropertyType, BuildSetter(property)));
                     propertyCache.Add(prefix + property.Name, property.PropertyType);
                 }
             }
         }
 
         private static IDictionary<string, object> CreateDictionary(string prefix,
-            IDictionary<string, string> dictionary)
+            IDictionary<string, object> dictionary)
         {
             var data =
                 from kvp in dictionary
@@ -72,37 +100,52 @@ namespace BusinessApp.WebApi
                  group kvp by properties[0] into parent
                  select !parent.First().Key.Contains(".")
                      ? new KeyValuePair<string, object>(parent.Key,
-                         ConvertStringToType(prefix + parent.Key, parent.First().Value))
+                         ConvertToType(prefix + parent.Key, parent.First().Value))
                      : new KeyValuePair<string, object>(parent.Key,
                          CreateDictionary(prefix + parent.Key + ".", FilterByPropertyName(dictionary, parent.Key)));
 
             return data.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        private static object ConvertStringToType(string key, string val)
+        private static object ConvertToType(string key, object val)
         {
             var cachedType = propertyCache[key];
             bool isIEnumerable = cachedType.IsGenericIEnumerable();
 
-            if (isIEnumerable)
+            if (isIEnumerable && val is string v)
             {
-                var manyItems = val.Contains(',') ? val.Split(',') : new[] { val };
+                var manyItems = v.Contains(',') ? v.Split(',') : new[] { v };
                 var singItemConverter = TypeDescriptor.GetConverter(
                     cachedType.GetGenericArguments()[0]);
                 return manyItems.Select(i => singItemConverter.ConvertFromInvariantString(i));
             }
 
             var converter = TypeDescriptor.GetConverter(cachedType);
-            return converter.ConvertFromInvariantString(val);
+            return converter.ConvertFrom(val);
         }
 
-        private static IDictionary<string, string> FilterByPropertyName(
-            IDictionary<string, string> dictionary, string propertyName)
+        private static IDictionary<string, object> FilterByPropertyName(
+            IDictionary<string, object> dictionary, string propertyName)
         {
             string prefix = propertyName + ".";
             return dictionary.Keys
                 .Where(key => key.StartsWith(prefix))
                 .ToDictionary(key => key.Substring(prefix.Length), key => dictionary[key]);
+        }
+
+        public static Action<T, object> BuildSetter(PropertyInfo p)
+        {
+            var instance = Expression.Parameter(p.DeclaringType, "instance");
+
+            var setter = p.GetSetMethod(true);
+            var valParam = Expression.Parameter(typeof(object), "p");
+            var caller = Expression.Call(instance,
+                    setter,
+                    Expression.Convert(valParam, p.PropertyType));
+
+            var lambda = Expression.Lambda<Action<T, object>>(caller, instance, valParam);
+
+            return lambda.Compile();
         }
     }
 }
