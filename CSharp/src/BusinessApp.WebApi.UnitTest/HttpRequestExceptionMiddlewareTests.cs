@@ -6,16 +6,43 @@ namespace BusinessApp.WebApi.UnitTest
     using Xunit;
     using System;
     using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using BusinessApp.App;
+    using BusinessApp.WebApi.ProblemDetails;
 
     public class HttpRequestExceptionMiddlewareTests
     {
         private readonly ILogger logger;
+        private readonly IResponseWriter writer;
         public readonly HttpRequestExceptionMiddleware sut;
 
         public HttpRequestExceptionMiddlewareTests()
         {
             logger = A.Fake<ILogger>();
-            sut = new HttpRequestExceptionMiddleware(logger);
+            writer = A.Fake<IResponseWriter>();
+            sut = new HttpRequestExceptionMiddleware(logger, writer);
+        }
+
+        public class Constructor : HttpRequestExceptionMiddlewareTests
+        {
+            public static IEnumerable<object[]> InvalidCtorArgs => new[]
+            {
+                new object[] { null, A.Dummy<IResponseWriter>() },
+                new object[] { A.Dummy<ILogger>(), null },
+            };
+
+            [Theory, MemberData(nameof(InvalidCtorArgs))]
+            public void InvalidCtorArgs_ExceptionThrown(ILogger l, IResponseWriter w)
+            {
+                /* Arrange */
+                void shouldThrow() => new HttpRequestExceptionMiddleware(l, w);
+
+                /* Act */
+                var ex = Record.Exception(shouldThrow);
+
+                /* Assert */
+                Assert.NotNull(ex);
+            }
         }
 
         public class InvokeAsync : HttpRequestExceptionMiddlewareTests
@@ -117,6 +144,40 @@ namespace BusinessApp.WebApi.UnitTest
 
                 /* Assert */
                 Assert.Same(exception, entry.Exception);
+            }
+
+            [Fact]
+            public async Task ResponseNotStarted_SetsStatusTo500()
+            {
+                /* Arrange */
+                var context = A.Fake<HttpContext>();
+                var next = A.Dummy<RequestDelegate>();
+                A.CallTo(() => context.Response.HasStarted).Returns(false);
+                A.CallTo(() => next.Invoke(context)).Throws<Exception>();
+
+                /* Act */
+                await sut.InvokeAsync(context, next);
+
+                /* Assert */
+                A.CallToSet(() => context.Response.StatusCode).To(500)
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task ResponseNotStarted_WritesResponse()
+            {
+                /* Arrange */
+                var context = A.Dummy<HttpContext>();
+                var next = A.Dummy<RequestDelegate>();
+                A.CallTo(() => context.Response.HasStarted).Returns(false);
+                A.CallTo(() => next.Invoke(context)).Throws<Exception>();
+
+                /* Act */
+                await sut.InvokeAsync(context, next);
+
+                /* Assert */
+                A.CallTo(() => writer.WriteResponseAsync(context))
+                    .MustHaveHappenedOnceExactly();
             }
         }
     }

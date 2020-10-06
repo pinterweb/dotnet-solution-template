@@ -18,16 +18,14 @@ namespace BusinessApp.WebApi.ProblemDetails
 
         public ProblemDetail Create(IFormattable error)
         {
-            Guard.Against.Null(error).Expect(nameof(error));
-
             var option = new ProblemDetailOptions()
             {
                 MessageOverride =
-                    error.ToString("G", null) ??
+                    error?.ToString("G", null) ??
                     "An unknown error has occurred. Please try again or " +
                     "contact support",
                 StatusCode = StatusCodes.Status500InternalServerError,
-                ProblemType = error.GetType()
+                ProblemType = error?.GetType()
             };
 
             if (options.TryGetValue(option, out ProblemDetailOptions actualValue))
@@ -48,7 +46,7 @@ namespace BusinessApp.WebApi.ProblemDetails
             var type = option.AbsoluteType == null ? null : new Uri(option.AbsoluteType);
             var problem = new ProblemDetail(option.StatusCode, type)
             {
-                Detail = option.MessageOverride ?? error.ToString("g", null),
+                Detail = option.MessageOverride ?? error?.ToString("g", null),
             };
 
             if (error is Exception e)

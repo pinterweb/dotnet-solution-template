@@ -52,6 +52,48 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         public class Create : ProblemDetailFactoryTests
         {
             [Fact]
+            public void NullArgument_DefaultInternalErrorStatusReturned()
+            {
+                /* Arrange */
+                IFormattable unknown = null;
+
+                /* Act */
+                var problem = sut.Create(unknown);
+
+                /* Assert */
+                Assert.Equal(500, problem.StatusCode);
+            }
+
+            [Fact]
+            public void NullArgument_InternalErrorDetailReturnedWhenToStringIsNull()
+            {
+                /* Arrange */
+                IFormattable unknown = null;
+
+                /* Act */
+                var problem = sut.Create(unknown);
+
+                /* Assert */
+                Assert.Equal(
+                    "An unknown error has occurred. Please try again or contact support",
+                    problem.Detail
+                );
+            }
+
+            [Fact]
+            public void NullArgument_AboutBlankTypeReturned()
+            {
+                /* Arrange */
+                IFormattable unknown = null;
+
+                /* Act */
+                var problem = sut.Create(unknown);
+
+                /* Assert */
+                Assert.Equal("about:blank", problem.Type.ToString());
+            }
+
+            [Fact]
             public void UnknownArgumentType_InternalErrorStatusReturned()
             {
                 /* Arrange */

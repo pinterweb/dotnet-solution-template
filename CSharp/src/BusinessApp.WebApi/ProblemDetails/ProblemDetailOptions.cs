@@ -13,7 +13,7 @@ namespace BusinessApp.WebApi.ProblemDetails
         {
             if (obj is ProblemDetailOptions other)
             {
-                return ProblemType.Equals(other.ProblemType);
+                return ProblemType?.Equals(other.ProblemType) ?? false;
             }
 
             return base.Equals(obj);

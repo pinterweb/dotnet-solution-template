@@ -11,10 +11,12 @@
     public sealed class HttpRequestExceptionMiddleware : IMiddleware
     {
         private readonly ILogger logger;
+        private readonly IResponseWriter writer;
 
-        public HttpRequestExceptionMiddleware(ILogger logger)
+        public HttpRequestExceptionMiddleware(ILogger logger, IResponseWriter writer)
         {
             this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
+            this.writer = Guard.Against.Null(writer).Expect(nameof(writer));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -26,6 +28,12 @@
             catch (Exception exception)
             {
                 logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
+
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    await writer.WriteResponseAsync(context);
+                }
             }
         }
     }

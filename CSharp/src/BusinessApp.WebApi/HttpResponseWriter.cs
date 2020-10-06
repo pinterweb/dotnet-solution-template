@@ -21,11 +21,7 @@ namespace BusinessApp.WebApi
         public Task WriteResponseAsync<T, E>(HttpContext context, Result<T, E> result)
             where E : IFormattable
         {
-            if (context.Response.HasStarted)
-            {
-                throw new BusinessAppWebApiException("The response has already started. You cannot " +
-                    "write it more than once");
-            }
+            StartResponse(context);
 
             object model = result.Kind switch
             {
@@ -33,6 +29,32 @@ namespace BusinessApp.WebApi
                 ValueKind.Ok => result.Unwrap(),
                 _ => throw new NotImplementedException(),
             };
+
+            serializer.Serialize(context.Response.Body, model);
+
+            return Task.CompletedTask;
+        }
+
+        public Task WriteResponseAsync(HttpContext context)
+        {
+            StartResponse(context);
+
+            if (!context.Response.IsSuccess())
+            {
+                var model = problemFactory.Create(null);
+                serializer.Serialize(context.Response.Body, model);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private static void StartResponse(HttpContext context)
+        {
+            if (context.Response.HasStarted)
+            {
+                throw new BusinessAppWebApiException("The response has already started. You cannot " +
+                    "write it more than once");
+            }
 
             if (
                 context.Response.StatusCode == 200 &&
@@ -42,10 +64,6 @@ namespace BusinessApp.WebApi
             {
                 context.Response.StatusCode = StatusCodes.Status204NoContent;
             }
-
-            serializer.Serialize(context.Response.Body, model);
-
-            return Task.CompletedTask;
         }
     }
 }
