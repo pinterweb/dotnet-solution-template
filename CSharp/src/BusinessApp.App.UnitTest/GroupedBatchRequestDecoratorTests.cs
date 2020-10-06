@@ -149,9 +149,9 @@ namespace BusinessApp.App.UnitTest
                     /* Assert */
                     var ex = Assert.IsType<BatchException>(results.UnwrapError());
                     Assert.Collection(ex.Results,
-                        r => Assert.Equal(error.UnwrapError(), r.UnwrapError()),
-                        r => Assert.Equal(Result.Ok, r.Kind),
-                        r => Assert.Equal(error.UnwrapError(), r.UnwrapError())
+                        r => Assert.Equal(error.UnwrapError(), r.Into().UnwrapError()),
+                        r => Assert.Equal(ValueKind.Ok, r.Kind),
+                        r => Assert.Equal(error.UnwrapError(), r.Into().UnwrapError())
                     );
                 }
             }

@@ -197,9 +197,9 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void ArgumentTypeACompositeOfAllOkResults_ExceptionThrown()
             {
                 /* Arrange */
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _())
+                    Result.Ok
                 };
                 var error = new CompositeError(results);
 
@@ -218,10 +218,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void ArgumentTypeIsAMixOfErrors_CompositeProblemReturned()
             {
                 /* Arrange */
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(1)
+                    Result.Ok,
+                    Result.Error(1)
                 };
                 var error = new CompositeError(results);
 
@@ -236,10 +236,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void ArgumentTypeIsAMixOfErrors_ManyStatusesReturned()
             {
                 /* Arrange */
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(1)
+                    Result.Ok,
+                    Result.Error(1)
                 };
                 var error = new CompositeError(results);
 
@@ -258,10 +258,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void ArgumentTypeIsAMixOfErrors_ManyTypesReturned()
             {
                 /* Arrange */
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(new ProblemTypeStub())
+                    Result.Ok,
+                    Result.Error(new ProblemTypeStub())
                 };
                 var error = new CompositeError(results);
 
@@ -280,10 +280,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void ArgumentTypeIsAMixOfErrors_ManyMessagesReturned()
             {
                 /* Arrange */
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(new ProblemTypeStub())
+                    Result.Ok,
+                    Result.Error(new ProblemTypeStub())
                 };
                 var error = new CompositeError(results);
 
@@ -304,10 +304,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var innerError = new FormattableExceptionStub();
                 innerError.Data.Add("foo", "bar");
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(innerError)
+                    Result.Ok,
+                    Result.Error(innerError)
                 };
                 var error = new CompositeError(results);
 
@@ -330,10 +330,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var innerError = new FormattableExceptionStub();
                 A.CallTo(() => key.ToString("g", null)).Returns("foo");
                 innerError.Data.Add(key, "bar");
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(innerError)
+                    Result.Ok,
+                    Result.Error(innerError)
                 };
                 var error = new CompositeError(results);
 
@@ -356,10 +356,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var innerError = new FormattableExceptionStub();
                 innerError.Data.Add(key, "bar");
-                var results = new Result<_, IFormattable>[]
+                var results = new[]
                 {
-                    Result<_, IFormattable>.Ok(new _()),
-                    Result<_, IFormattable>.Error(innerError)
+                    Result.Ok,
+                    Result.Error(innerError)
                 };
                 var error = new CompositeError(results);
 
@@ -387,16 +387,16 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
         }
 
-        private sealed class CompositeError : IFormattable, IEnumerable<Result<_, IFormattable>>
+        private sealed class CompositeError : IFormattable, IEnumerable<Result>
         {
-            private readonly IEnumerable<Result<_, IFormattable>> results;
+            private readonly IEnumerable<Result> results;
 
-            public CompositeError(IEnumerable<Result<_, IFormattable>> results)
+            public CompositeError(IEnumerable<Result> results)
             {
                 this.results = results;
             }
 
-            public IEnumerator<Result<_, IFormattable>> GetEnumerator() => results.GetEnumerator();
+            public IEnumerator<Result> GetEnumerator() => results.GetEnumerator();
 
             public string ToString(string format, IFormatProvider formatProvider)
             {

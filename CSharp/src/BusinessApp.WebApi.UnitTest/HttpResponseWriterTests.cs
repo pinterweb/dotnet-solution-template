@@ -10,6 +10,8 @@ namespace BusinessApp.WebApi.UnitTest
     using BusinessApp.Test;
     using System;
 
+    using _ = System.Int16;
+
     public class HttpResponseWriterTests
     {
         private readonly IProblemDetailFactory problemFactory;

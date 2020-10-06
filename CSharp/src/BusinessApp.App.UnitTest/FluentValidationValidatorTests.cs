@@ -3,6 +3,7 @@ namespace BusinessApp.App.UnitTest
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessApp.Domain;
     using FakeItEasy;
     using FluentValidation.Results;
     using Xunit;
@@ -25,17 +26,17 @@ namespace BusinessApp.App.UnitTest
         public class ValidateAsync : FluentValidationValidatorTests
         {
             [Fact]
-            public async Task NotValidators_NoExceptionThrown()
+            public async Task EmptyValidators_OkResultReturned()
             {
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                Assert.Null(ex);
+                Assert.Equal(Result.Ok, result);
             }
 
             [Fact]
-            public async Task ValidResultFromAllValidators_NoExceptionThrown()
+            public async Task ValidResultFromAllValidators_OkResultReturned()
             {
                 /* Arrange */
                 var firstValidator = A.Fake<FluentValidation.IValidator<CommandStub>>();
@@ -47,14 +48,14 @@ namespace BusinessApp.App.UnitTest
                 validators.AddRange(new[] { firstValidator, secondValidator });
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                Assert.Null(ex);
+                Assert.Equal(Result.Ok, result);
             }
 
             [Fact]
-            public async Task InValidResultsFromValidator_ModelExceptionGroupsByMember()
+            public async Task InValidResultsFromOneValidator_ModelExceptionGroupsByMember()
             {
                 /* Arrange */
                 var failures = new[]
@@ -68,10 +69,10 @@ namespace BusinessApp.App.UnitTest
                 validators.Add(validator);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                var modelError = Assert.IsType<ModelValidationException>(ex);
+                var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
                 Assert.Collection(modelError,
                     e => Assert.Equal("foo", e.MemberName)
                 );
