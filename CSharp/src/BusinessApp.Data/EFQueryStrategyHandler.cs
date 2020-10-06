@@ -12,7 +12,7 @@
     /// Entity Framework query handler for many record sets
     /// </summary>
     public class EFQueryStrategyHandler<TQuery, TResult> : IRequestHandler<TQuery, IEnumerable<TResult>>
-        where TQuery : Query, IQuery<IEnumerable<TResult>>
+        where TQuery : IQuery
         where TResult : class
     {
         private readonly BusinessAppDbContext db;
@@ -45,7 +45,7 @@
     /// Entity Framework query handler for one record set
     /// </summary>
     public class EFSingleQueryStrategyHandler<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : Query, IQuery<TResult>
+        where TQuery : IQuery
         where TResult : class
     {
         private readonly BusinessAppDbContext db;

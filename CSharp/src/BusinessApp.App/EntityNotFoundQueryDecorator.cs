@@ -9,7 +9,7 @@
     /// Throws a business exception if no entity is found from the query
     /// </summary>
     public class EntityNotFoundQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : IQuery<TResult>
+        where TQuery : IQuery
     {
         private readonly IRequestHandler<TQuery, TResult> decorated;
 

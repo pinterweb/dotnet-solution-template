@@ -16,12 +16,12 @@ namespace BusinessApp.Data
     /// <remarks>Use in your repositories</remarks>
     public class EFDatastore<TEntity> : IDatastore<TEntity> where TEntity : class
     {
-        private readonly ILinqSpecificationBuilder<Query, TEntity> linqBuilder;
-        private readonly IQueryVisitorFactory<Query, TEntity> queryVisitorFactory;
+        private readonly ILinqSpecificationBuilder<IQuery, TEntity> linqBuilder;
+        private readonly IQueryVisitorFactory<IQuery, TEntity> queryVisitorFactory;
         private readonly BusinessAppDbContext db;
 
-        public EFDatastore(ILinqSpecificationBuilder<Query, TEntity> linqBuilder,
-            IQueryVisitorFactory<Query, TEntity> queryVisitorFactory,
+        public EFDatastore(ILinqSpecificationBuilder<IQuery, TEntity> linqBuilder,
+            IQueryVisitorFactory<IQuery, TEntity> queryVisitorFactory,
             BusinessAppDbContext db)
         {
             this.linqBuilder = Guard.Against.Null(linqBuilder).Expect(nameof(linqBuilder));
@@ -29,7 +29,7 @@ namespace BusinessApp.Data
             this.db = Guard.Against.Null(db).Expect(nameof(db));
         }
 
-        public async Task<IEnumerable<TEntity>> QueryAsync(Query query, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TEntity>> QueryAsync(IQuery query, CancellationToken cancellationToken)
         {
             var filter = linqBuilder.Build(query);
             var entities = FindInIdentityMap(filter.Predicate.Compile());

@@ -9,7 +9,7 @@ namespace BusinessApp.Data
     using System;
 
     public class EFEnvelopedQueryHandler<TQuery, TResult> : IRequestHandler<TQuery, EnvelopeContract<TResult>>
-        where TQuery : Query, IQuery<EnvelopeContract<TResult>>
+        where TQuery : IQuery
         where TResult : class
     {
         private readonly BusinessAppDbContext db;

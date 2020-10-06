@@ -8,12 +8,12 @@
     using Microsoft.EntityFrameworkCore;
 
     /// <summary>
-    /// Runs Entity Framework specific logic based on the <see cref="Query"/> data
+    /// Runs Entity Framework specific logic based on the <see cref="IQuery"/> data
     /// </summary>
     public class EFQueryVisitor<TResult> : IQueryVisitor<TResult>
         where TResult : class
     {
-        private readonly Query query;
+        private readonly IQuery query;
         private static IEnumerable<string> IncludablePropNames = typeof(TResult)
            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
            .Where(prop =>
@@ -26,7 +26,7 @@
            .Select(p => p.Name)
            .ToList();
 
-        public EFQueryVisitor(Query query)
+        public EFQueryVisitor(IQuery query)
         {
             this.query = Guard.Against.Null(query).Expect(nameof(query));
         }

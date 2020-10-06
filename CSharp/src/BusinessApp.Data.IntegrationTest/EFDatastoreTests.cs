@@ -16,14 +16,14 @@ namespace BusinessApp.Data.IntegrationTest
     public class EFDatastoreTests : IDisposable
     {
         private readonly BusinessAppDbContext db;
-        private readonly ILinqSpecificationBuilder<Query, ResponseStub> linqBuilder;
-        private readonly IQueryVisitorFactory<Query, ResponseStub> queryVisitorFactory;
+        private readonly ILinqSpecificationBuilder<IQuery, ResponseStub> linqBuilder;
+        private readonly IQueryVisitorFactory<IQuery, ResponseStub> queryVisitorFactory;
         private readonly EFDatastore<ResponseStub> sut;
 
         public EFDatastoreTests(DatabaseFixture fixture)
         {
-            linqBuilder = A.Fake<ILinqSpecificationBuilder<Query, ResponseStub>>();
-            queryVisitorFactory = A.Fake<IQueryVisitorFactory<Query, ResponseStub>>();
+            linqBuilder = A.Fake<ILinqSpecificationBuilder<IQuery, ResponseStub>>();
+            queryVisitorFactory = A.Fake<IQueryVisitorFactory<IQuery, ResponseStub>>();
             db = fixture.DbContext;
             sut = new EFDatastore<ResponseStub>(linqBuilder, queryVisitorFactory, db);
         }
@@ -46,27 +46,27 @@ namespace BusinessApp.Data.IntegrationTest
                 new object[]
                 {
                     null,
-                    A.Dummy<IQueryVisitorFactory<Query, ResponseStub>>(),
+                    A.Dummy<IQueryVisitorFactory<IQuery, ResponseStub>>(),
                     A.Dummy<BusinessAppDbContext>(),
                 },
                 new object[]
                 {
-                    A.Dummy<ILinqSpecificationBuilder<Query, ResponseStub>>(),
+                    A.Dummy<ILinqSpecificationBuilder<IQuery, ResponseStub>>(),
                     null,
                     A.Dummy<BusinessAppDbContext>(),
                 },
                 new object[]
                 {
-                    A.Dummy<ILinqSpecificationBuilder<Query, ResponseStub>>(),
-                    A.Dummy<IQueryVisitorFactory<Query, ResponseStub>>(),
+                    A.Dummy<ILinqSpecificationBuilder<IQuery, ResponseStub>>(),
+                    A.Dummy<IQueryVisitorFactory<IQuery, ResponseStub>>(),
                     null
                 }
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
-                ILinqSpecificationBuilder<Query, ResponseStub> l,
-                IQueryVisitorFactory<Query, ResponseStub> q,
+                ILinqSpecificationBuilder<IQuery, ResponseStub> l,
+                IQueryVisitorFactory<IQuery, ResponseStub> q,
                 BusinessAppDbContext d)
             {
                 /* Arrange */

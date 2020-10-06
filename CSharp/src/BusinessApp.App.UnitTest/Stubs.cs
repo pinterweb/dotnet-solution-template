@@ -1,5 +1,6 @@
 namespace BusinessApp.App.UnitTest
 {
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
     public class CommandStub
@@ -25,9 +26,15 @@ namespace BusinessApp.App.UnitTest
         public string Bar { get; set; } = "lorem";
     }
 
-    public class QueryStub : IQuery<ResponseStub>
+    public class QueryStub : IQuery
     {
         public int Id { get; set; }
+        public int? Limit { get; set; }
+        public int? Offset { get; set; }
+        public IEnumerable<string> Sort { get; set; }
+        public IEnumerable<string> Embed { get; set; }
+        public IEnumerable<string> Expand { get; set; }
+        public IEnumerable<string> Fields { get; set; }
 
         public override bool Equals(object obj)
         {

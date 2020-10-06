@@ -5,7 +5,7 @@
     /// <summary>
     /// Add metadata to a query to support filtering, paging etc.
     /// </summary>
-    public abstract class Query
+    public abstract class Query : IQuery
     {
         public int? Limit { get; set; }
         public int? Offset { get; set; }

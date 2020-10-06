@@ -31,9 +31,9 @@
             IEnumerable<string>,
             Expression<Func<TResult, TResult>>>();
 
-        private readonly Query query;
+        private readonly IQuery query;
 
-        public EFQueryFieldsVisitor(Query query)
+        public EFQueryFieldsVisitor(IQuery query)
         {
             this.query = Guard.Against.Null(query).Expect(nameof(query));
         }

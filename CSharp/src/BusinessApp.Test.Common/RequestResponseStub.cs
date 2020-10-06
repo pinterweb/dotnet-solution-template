@@ -3,12 +3,24 @@ namespace BusinessApp.Test
     using System.Collections.Generic;
     using BusinessApp.App;
 
-    public class EnvelopeRequestStub : Query, IQuery<EnvelopeContract<ResponseStub>>
+    public class EnvelopeRequestStub : IQuery
     {
+        public int? Limit { get; set; }
+        public int? Offset { get; set; }
+        public IEnumerable<string> Sort { get; set; }
+        public IEnumerable<string> Embed { get; set; }
+        public IEnumerable<string> Expand { get; set; }
+        public IEnumerable<string> Fields { get; set; }
     }
 
-    public class QueryStub : Query, IQuery<ResponseStub>
+    public class QueryStub : IQuery
     {
+        public int? Limit { get; set; }
+        public int? Offset { get; set; }
+        public IEnumerable<string> Sort { get; set; }
+        public IEnumerable<string> Embed { get; set; }
+        public IEnumerable<string> Expand { get; set; }
+        public IEnumerable<string> Fields { get; set; }
     }
 
     public class ResponseStub
