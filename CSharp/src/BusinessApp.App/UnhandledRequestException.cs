@@ -6,7 +6,7 @@ namespace BusinessApp.App
 
     /// <summary>
     /// Wraps any exception that is thrown during a request so it can be formatted
-    /// a <see cref="Result"/> type
+    /// a <see cref="ValueKind"/> type
     /// </summary>
     [Serializable]
     public class UnhandledRequestException : Exception, IFormattable

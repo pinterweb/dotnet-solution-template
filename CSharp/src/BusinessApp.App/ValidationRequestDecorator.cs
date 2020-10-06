@@ -19,14 +19,19 @@ namespace BusinessApp.App
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
         }
 
-        public async Task<Result<TResult, IFormattable>> HandleAsync(TRequest query,
+        public async Task<Result<TResult, IFormattable>> HandleAsync(TRequest request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(query).Expect(nameof(query));
+            Guard.Against.Null(request).Expect(nameof(request));
 
-            await validator.ValidateAsync(query, cancellationToken);
+            var result = await validator.ValidateAsync(request, cancellationToken);
 
-            return await inner.HandleAsync(query, cancellationToken);
+            return result.Kind switch
+            {
+                ValueKind.Error => result.Into<TResult>(),
+                ValueKind.Ok => await inner.HandleAsync(request, cancellationToken),
+                _ => throw new NotImplementedException()
+            };
         }
     }
 }

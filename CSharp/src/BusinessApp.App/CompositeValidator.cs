@@ -17,12 +17,19 @@ namespace BusinessApp.App
             this.validators = Guard.Against.Null(validators).Expect(nameof(validators));
         }
 
-        public async Task ValidateAsync(T instance, CancellationToken cancellationToken)
+        public async Task<Result> ValidateAsync(T instance, CancellationToken cancellationToken)
         {
             foreach (var validator in validators)
             {
-                await validator.ValidateAsync(instance, cancellationToken);
+                var result = await validator.ValidateAsync(instance, cancellationToken);
+
+                if (result.Kind == ValueKind.Error)
+                {
+                    return result;
+                }
             }
+
+            return Result.Ok;
         }
     }
 }

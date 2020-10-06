@@ -29,47 +29,69 @@ namespace BusinessApp.App.UnitTest
             sut = new CompositeValidator<ValidationStub>(validators);
         }
 
-        [Fact]
-        public void Constructor_ExceptionThrown()
+        public class Constructor: CompositeValidatorTests
         {
-            /* Arrange */
-            void shouldThrow() => new CompositeValidator<ValidationStub>(null);
+            [Fact]
+            public void InvalidArgs_ExceptionThrown()
+            {
+                /* Arrange */
+                void shouldThrow() => new CompositeValidator<ValidationStub>(null);
 
-            /* Act */
-            var ex = Record.Exception(shouldThrow);
+                /* Act */
+                var ex = Record.Exception(shouldThrow);
 
-            /* Assert */
-            Assert.IsType<BadStateException>(ex);
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+            }
         }
 
-        [Fact]
-        public async Task ValidateAsync_NullValidators_NoExceptionThrown()
+        public class ValidateAsync : CompositeValidatorTests
         {
-            /* Arrange */
-            sut = new CompositeValidator<ValidationStub>(new IValidator<ValidationStub>[0]);
-            async Task shouldNotThrow() => await sut.ValidateAsync(A.Dummy<ValidationStub>(), token);
+            [Fact]
+            public async Task EmptyValidators_OkResultReturned()
+            {
+                /* Arrange */
+                sut = new CompositeValidator<ValidationStub>(new IValidator<ValidationStub>[0]);
 
-            /* Act */
-            var ex = await Record.ExceptionAsync(shouldNotThrow);
+                /* Act */
+                var result = await sut.ValidateAsync(A.Dummy<ValidationStub>(), token);
 
-            /* Assert */
-            Assert.Null(ex);
-        }
+                /* Assert */
+                Assert.Equal(Result.Ok, result);
+            }
 
-        [Fact]
-        public async Task ValidateAsync_MultipleValidators_AllCalled()
-        {
-            /* Arrange */
-            async Task shouldNotThrow() => await sut.ValidateAsync(instance, token);
+            [Fact]
+            public async Task MultipleValidators_FirstErrorReturned()
+            {
+                /* Arrange */
+                var error = Result.Error($"foobar");
+                A.CallTo(() => validators.First().ValidateAsync(instance, token))
+                    .Returns(Result.Error($"foobar"));
+                A.CallTo(() => validators.Last().ValidateAsync(instance, token))
+                    .Returns(Result.Ok);
 
-            /* Act */
-            var ex = await Record.ExceptionAsync(shouldNotThrow);
+                /* Act */
+                var result = await sut.ValidateAsync(instance, token);
 
-            /* Assert */
-            A.CallTo(() => validators.First().ValidateAsync(instance, token))
-                .MustHaveHappenedOnceExactly().Then(
-                    A.CallTo(() => validators.Last().ValidateAsync(instance, token))
-                        .MustHaveHappenedOnceExactly());
+                /* Assert */
+                Assert.Equal(error, result);
+            }
+
+            [Fact]
+            public async Task MultipleValidatorsAllOkResults_OkResultReturned()
+            {
+                /* Arrange */
+                A.CallTo(() => validators.First().ValidateAsync(instance, token))
+                    .Returns(Result.Ok);
+                A.CallTo(() => validators.Last().ValidateAsync(instance, token))
+                    .Returns(Result.Ok);
+
+                /* Act */
+                var result = await sut.ValidateAsync(instance, token);
+
+                /* Assert */
+                Assert.Equal(Result.Ok, result);
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 namespace BusinessApp.App.UnitTest
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using FakeItEasy;
     using BusinessApp.App;
@@ -53,7 +52,7 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : ValidationRequestDecoratorTests
         {
             [Fact]
-            public async Task WithoutQueryArg_ExceptionThrown()
+            public async Task WithoutRequestArg_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -66,42 +65,43 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithQueryArg_ValidationCalledBeforeHandeler()
+            public async Task InvalidRequest_ValidationResultErrorReturned()
             {
                 /* Arrange */
-                var handlerCallsBeforeValidate = 0;
                 var query = A.Dummy<QueryStub>();
                 A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, token))
-                    .Invokes(ctx => handlerCallsBeforeValidate += Fake.GetCalls(inner).Count());
+                    .Returns(Result.Error($"foobar"));
 
                 /* Act */
-                var _ = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, token);
 
                 /* Assert */
-                A.CallTo(() => validator.ValidateAsync(query, token)).MustHaveHappened()
-                    .Then(A.CallTo(() => inner.HandleAsync(query, token)).MustHaveHappened());
+                Assert.Equal(Result<ResponseStub, IFormattable>.Error($"foobar"), result);
             }
 
             [Fact]
-            public async Task WithQueryArg_ValidatedOnce()
+            public async Task InvalidRequest_InnerHandlerNotRun()
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
+                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, token))
+                    .Returns(Result.Error($"foobar"));
 
                 /* Act */
-                var _ = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, token);
 
                 /* Assert */
-                A.CallTo(() => validator.ValidateAsync(query, token))
-                    .MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .MustNotHaveHappened();
             }
 
             [Fact]
-            public async Task WithQueryArg_HandledOnce()
+            public async Task ValidRequest_HandledOnce()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
                 var query = A.Dummy<QueryStub>();
+                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, token))
+                    .Returns(Result.Ok);
 
                 /* Act */
                 var _ = await sut.HandleAsync(query, token);
@@ -112,7 +112,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithQueryArg_InnerResultsReturned()
+            public async Task WithRequestArg_InnerResultsReturned()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();

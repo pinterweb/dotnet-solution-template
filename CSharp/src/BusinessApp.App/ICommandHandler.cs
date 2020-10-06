@@ -14,11 +14,15 @@
     public interface ICommandHandler<TCommand> : IRequestHandler<TCommand, TCommand>
     {
         async Task<Result<TCommand, IFormattable>> IRequestHandler<TCommand, TCommand>.HandleAsync(TCommand request, CancellationToken cancellationToken)
-            {
-                await RunAsync(request, cancellationToken);
-                return Result<TCommand, IFormattable>.Ok(request);
-            }
+        {
+            var result = await RunAsync(request, cancellationToken);
 
-        Task RunAsync(TCommand request, CancellationToken cancellationToken);
+            return result.Into().MapOrElse(
+                err => Result<TCommand, IFormattable>.Error(err),
+                ok => Result<TCommand, IFormattable>.Ok(request)
+            );
+        }
+
+        Task<Result> RunAsync(TCommand request, CancellationToken cancellationToken);
     }
 }

@@ -7,7 +7,7 @@ namespace BusinessApp.App
 
     /// <summary>
     /// Handles uncaught errors during handling so it can transform the response into
-    /// a <see cref="Result"/> type
+    /// a <see cref="ValueKind"/> type
     /// </summary>
     public class RequestExceptionDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     {

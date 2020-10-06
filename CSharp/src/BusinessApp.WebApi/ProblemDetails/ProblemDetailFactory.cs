@@ -4,7 +4,6 @@ namespace BusinessApp.WebApi.ProblemDetails
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using BusinessApp.App;
     using BusinessApp.Domain;
     using Microsoft.AspNetCore.Http;
 
@@ -36,7 +35,7 @@ namespace BusinessApp.WebApi.ProblemDetails
                 option = actualValue;
             }
 
-            if (error is IEnumerable<Result<_, IFormattable>> f)
+            if (error is IEnumerable<Result> f)
             {
                 return CreateCompositeProblem(f);
             }
@@ -73,16 +72,16 @@ namespace BusinessApp.WebApi.ProblemDetails
             return problem;
         }
 
-        private ProblemDetail CreateCompositeProblem(IEnumerable<Result<_, IFormattable>> errors)
+        private ProblemDetail CreateCompositeProblem(IEnumerable<Result> errors)
         {
-            if (errors.All(e => e.Kind == Result.Ok))
+            if (errors.All(e => e.Kind == ValueKind.Ok))
             {
                 throw new BusinessAppWebApiException("A multi status problem should have at least one error");
             }
 
             var responses = errors
                 .Select(r =>
-                    r.MapOrElse(
+                    r.Into().MapOrElse(
                         err => Create(err),
                         ok => new ProblemDetail(StatusCodes.Status200OK)
                     )

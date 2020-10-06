@@ -18,7 +18,7 @@ namespace BusinessApp.App
             this.validators = Guard.Against.Null(validators).Expect(nameof(validators));
         }
 
-        public async Task ValidateAsync(T instance, CancellationToken cancellationToken)
+        public async Task<Result> ValidateAsync(T instance, CancellationToken cancellationToken)
         {
             foreach (var validator in validators)
             {
@@ -26,13 +26,17 @@ namespace BusinessApp.App
 
                 if (!result.IsValid)
                 {
-                    throw new ModelValidationException(
-                        "Model failed validation. See errors for more detials",
-                        result.Errors
-                            .GroupBy(e => e.PropertyName)
-                            .Select(g => new MemberValidationException(g.Key, g.Select(v => v.ErrorMessage))));
+                    return Result.Error(
+                        new ModelValidationException(
+                            "Model failed validation. See errors for more detials",
+                            result.Errors
+                                .GroupBy(e => e.PropertyName)
+                                .Select(g => new MemberValidationException(g.Key, g.Select(v => v.ErrorMessage))))
+                    );
                 }
             }
+
+            return Result.Ok;
         }
     }
 }

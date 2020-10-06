@@ -459,7 +459,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         private sealed class CommandHandlerStub : ICommandHandler<CommandStub>
         {
-            public Task RunAsync(CommandStub request, CancellationToken cancellationToken)
+            public Task<Result> RunAsync(CommandStub request, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }
@@ -467,7 +467,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         private sealed class AuthCommandHandlerStub : ICommandHandler<AuthCommandStub>
         {
-            public Task RunAsync(AuthCommandStub request, CancellationToken cancellationToken)
+            public Task<Result> RunAsync(AuthCommandStub request, CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
             }

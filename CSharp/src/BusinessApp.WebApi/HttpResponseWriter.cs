@@ -29,8 +29,8 @@ namespace BusinessApp.WebApi
 
             object model = result.Kind switch
             {
-                Result.Error => problemFactory.Create(result.UnwrapError()),
-                Result.Ok => result.Unwrap(),
+                ValueKind.Error => problemFactory.Create(result.UnwrapError()),
+                ValueKind.Ok => result.Unwrap(),
                 _ => throw new NotImplementedException(),
             };
 

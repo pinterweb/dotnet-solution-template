@@ -14,7 +14,7 @@ namespace BusinessApp.App.UnitTest
             public void WithoutResults_ExceptionThrown()
             {
                 /* Arrange */
-                BatchException create() => new BatchException(null);
+                static BatchException create() => new BatchException(null);
 
                 /* Act */
                 var ex = Record.Exception(create);
@@ -27,8 +27,8 @@ namespace BusinessApp.App.UnitTest
             public void WithEmptyResults_ExceptionThrown()
             {
                 /* Arrange */
-                var results = A.Dummy<IEnumerable<Result<_, IFormattable>>>();
-                BatchException create() => new BatchException(null);
+                var results = A.Dummy<IEnumerable<Result>>();
+                static BatchException create() => new BatchException(null);
 
                 /* Act */
                 var ex = Record.Exception(create);
@@ -41,7 +41,7 @@ namespace BusinessApp.App.UnitTest
             public void WithResults_PropertySet()
             {
                 /* Arrange */
-                var results = A.CollectionOfDummy<Result<_, IFormattable>>(1);
+                var results = A.CollectionOfDummy<Result>(1);
 
                 /* Act */
                 var sut = new BatchException(results);
@@ -54,16 +54,20 @@ namespace BusinessApp.App.UnitTest
             public void NoInnerBatchException_MaintainsResultOrder()
             {
                 /* Arrange */
-                var innerError = Result<_, IFormattable>.Error($"foobar");
-                var innerOk = Result<_, IFormattable>.Ok(new _());
+                var innerError = Result.Error($"foobar");
+                var innerOk = Result.Ok;
 
                 /* Act */
                 var sut = new BatchException(new[] { innerError, innerOk });
 
                 /* Assert */
-                Assert.Collection(sut,
+                Assert.Collection<Result>(sut,
                     s => Assert.Equal(innerError, s),
                     s => Assert.Equal(innerOk, s)
+                );
+                Assert.Collection<Result<IFormattable, IFormattable>>(sut,
+                    s => Assert.Equal(innerError.Into(), s),
+                    s => Assert.Equal(innerOk.Into(), s)
                 );
             }
 
@@ -71,17 +75,21 @@ namespace BusinessApp.App.UnitTest
             public void HasInnerBatchException_MaintainsResultOrder()
             {
                 /* Arrange */
-                var innerError = Result<_, IFormattable>.Error($"foobar");
-                var innerOk = Result<_, IFormattable>.Ok(new _());
-                var results = Result<_, IFormattable>.Error(new BatchException(new[] { innerError, innerOk }));
+                var innerError = Result.Error($"foobar");
+                var innerOk = Result.Ok;
+                var results = Result.Error(new BatchException(new[] { innerError, innerOk }));
 
                 /* Act */
                 var sut = new BatchException(new[] { results });
 
                 /* Assert */
-                Assert.Collection(sut,
+                Assert.Collection<Result>(sut,
                     s => Assert.Equal(innerError, s),
                     s => Assert.Equal(innerOk, s)
+                );
+                Assert.Collection<Result<IFormattable, IFormattable>>(sut,
+                    s => Assert.Equal(innerError.Into(), s),
+                    s => Assert.Equal(innerOk.Into(), s)
                 );
             }
 
@@ -89,23 +97,28 @@ namespace BusinessApp.App.UnitTest
             public void HasDeepInnerBatchException_MaintainsResultOrder()
             {
                 /* Arrange */
-                var innerError = Result<_, IFormattable>.Error($"foobar");
-                var innerOk = Result<_, IFormattable>.Ok(new _());
+                var innerError = Result.Error($"foobar");
+                var innerOk = Result.Ok;
                 var innerSut = new BatchException(new[] { innerError, innerOk });
-                var innerResults = Result<_, IFormattable>.Error(innerSut);
-                var outerError = Result<_, IFormattable>.Error(innerSut);
-                var outerOk = Result<_, IFormattable>.Ok(new _());
+                var innerResults = Result.Error(innerSut);
+                var outerError = Result.Error(innerSut);
+                var outerOk = Result.Ok;
                 var outerSut = new BatchException(new[] { outerError, outerOk });
-                var outerResults = Result<_, IFormattable>.Error(outerSut);
+                var outerResults = Result.Error(outerSut);
 
                 /* Act */
                 var sut = new BatchException(new[] { outerResults });
 
                 /* Assert */
-                Assert.Collection(sut,
+                Assert.Collection<Result>(sut,
                     s => Assert.Equal(innerError, s),
                     s => Assert.Equal(innerOk, s),
                     s => Assert.Equal(outerOk, s)
+                );
+                Assert.Collection<Result<IFormattable, IFormattable>>(sut,
+                    s => Assert.Equal(innerError.Into(), s),
+                    s => Assert.Equal(innerOk.Into(), s),
+                    s => Assert.Equal(outerOk.Into(), s)
                 );
             }
         }
@@ -118,9 +131,9 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var results = new[]
                 {
-                    Result<_, IFormattable>.Error(A.Dummy<IFormattable>()),
-                    Result<_, IFormattable>.Error(A.Dummy<IFormattable>()),
-                    Result<_, IFormattable>.Ok(new _())
+                    Result.Error(A.Dummy<IFormattable>()),
+                    Result.Error(A.Dummy<IFormattable>()),
+                    Result.Ok
                 };
 
                 /* Act */

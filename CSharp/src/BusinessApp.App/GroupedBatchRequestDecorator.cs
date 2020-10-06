@@ -49,11 +49,11 @@ namespace BusinessApp.App
                 orderedResults.Add(target.Item2.Result);
             }
 
-            if (orderedResults.Any(r => r.Kind == Result.Error))
+            if (orderedResults.Any(r => r.Kind == ValueKind.Error))
             {
                 return Result<IEnumerable<TResponse>, IFormattable>
                     .Error(new BatchException(
-                        orderedResults.Select(o => o.IgnoreValue()
+                        orderedResults.Select(o => o.Into()
                     )));
             }
 

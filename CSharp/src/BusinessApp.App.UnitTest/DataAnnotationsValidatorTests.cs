@@ -2,6 +2,7 @@ namespace BusinessApp.App.UnitTest
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessApp.Domain;
     using FakeItEasy;
     using Xunit;
 
@@ -19,20 +20,20 @@ namespace BusinessApp.App.UnitTest
         public class ValidateAsync : DataAnnotationsValidatorTests
         {
             [Fact]
-            public async Task InstanceIsValid_NoExceptionThrown()
+            public async Task InstanceIsValid_OkResultReturned()
             {
                 /* Arrange */
                 var instance = new DataAnnotatedCommandStub { Foo = new string('a', 10) };
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                Assert.Null(ex);
+                Assert.Equal(Result.Ok, result);
             }
 
             [Fact]
-            public async Task InstanceHasErrors_ModelExceptionThrown()
+            public async Task InstanceHasErrors_ModelExceptionUnwrapped()
             {
                 /* Arrange */
                 var instance = new DataAnnotatedCommandStub
@@ -43,13 +44,13 @@ namespace BusinessApp.App.UnitTest
                 };
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                Assert.IsType<ModelValidationException>(ex);
+                var error = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
                 Assert.Equal(
                     "The model did not pass validation. See erros for more details",
-                    ex.Message
+                    error.Message
                 );
             }
 
@@ -67,10 +68,10 @@ namespace BusinessApp.App.UnitTest
                 };
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                var modelError = Assert.IsType<ModelValidationException>(ex);
+                var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
                 Assert.Single(modelError, e => e.MemberName == memberName);
             }
 
@@ -89,10 +90,10 @@ namespace BusinessApp.App.UnitTest
                 };
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var result = await sut.ValidateAsync(instance, token);
 
                 /* Assert */
-                var modelError = Assert.IsType<ModelValidationException>(ex);
+                var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
                 var memberError = Assert.Single(modelError, e => e.MemberName == memberName);
                 Assert.Contains(associatedMsg, memberError.Errors);
             }

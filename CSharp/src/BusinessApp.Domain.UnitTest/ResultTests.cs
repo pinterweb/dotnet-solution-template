@@ -5,9 +5,336 @@ namespace ShelLife.Domain.UnitTest
     using FakeItEasy;
     using System;
 
+    using _ = System.Int16;
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+
+    public class TestData
+    {
+        public static IEnumerable<object[]> IFormattableArgs => new[]
+        {
+            new object[] { FormattableStringFactory.Create("foo"), FormattableStringFactory.Create("foo"), true },
+            new object[] { FormattableStringFactory.Create("foo"), FormattableStringFactory.Create("bar"), false },
+            new object[] { 1, 2, false },
+            new object[] { 2, 2, true }
+        };
+    }
+
     public class ResultTests
     {
-        public class OkFactory : ResultTests
+        public class OkFactory : GenericResultTests
+        {
+            [Fact]
+            public void KindProperty_IsOk()
+            {
+                /* Act */
+                var sut = Result.Ok;
+
+                /* Assert */
+                Assert.Equal(ValueKind.Ok, sut.Kind);
+            }
+        }
+
+        public class ErrorFactory : GenericResultTests
+        {
+            [Fact]
+            public void KindProperty_IsError()
+            {
+                /* Arrange */
+                var value = A.Dummy<IFormattable>();
+
+                /* Act */
+                var sut = Result.Error(value);
+
+                /* Assert */
+                Assert.Equal(ValueKind.Error, sut.Kind);
+            }
+        }
+
+        public class Into : ResultTests
+        {
+            [Fact]
+            public void OkValueAsIFormattable_EmptyStringReturned()
+            {
+                /* Act */
+                var sut = Result.Ok;
+
+                /* Assert */
+                Assert.Equal(Result<IFormattable, IFormattable>.Ok(null), sut.Into());
+            }
+
+            [Fact]
+            public void ErrorValueAsIFormattable_InnerErrorReturned()
+            {
+                /* Arrange */
+                IFormattable errVal = $"foobar";
+
+                /* Act */
+                var sut = Result.Error(errVal);
+
+                /* Assert */
+                Assert.Equal(Result<IFormattable, IFormattable>.Error(errVal), sut.Into());
+            }
+
+            [Fact]
+            public void GenericValue_DefaultValueUsed()
+            {
+                /* Act */
+                var sut = Result.Ok;
+
+                /* Assert */
+                Assert.Equal(Result<string, IFormattable>.Ok(null), sut.Into<string>());
+            }
+
+            [Fact]
+            public void GenericResult_InnerErrorReturned()
+            {
+                /* Arrange */
+                IFormattable errVal = $"foobar";
+
+                /* Act */
+                var sut = Result.Error(errVal);
+
+                /* Assert */
+                Assert.Equal(Result<string, IFormattable>.Error(errVal), sut.Into<string>());
+            }
+        }
+
+        public class IEquatableEquals : ResultTests
+        {
+            [Fact]
+            public void BothOkResults_AreEqual()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+                Result other = Result.Ok;
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.True(equal);
+            }
+
+            [Fact]
+            public void ResultsHaveDifferentKind_AreNotEqual()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+                Result other = Result.Error($"");
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData.IFormattableArgs), MemberType = typeof(TestData))]
+            public void ResultsAreErrorKind_InnerValueCompared(IFormattable a, IFormattable b, bool expectEquals)
+            {
+                /* Arrange */
+                Result sut = Result.Error(a);
+                Result other = Result.Error(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+        }
+
+        public class ObjectOverrideEquals : ResultTests
+        {
+            [Fact]
+            public void NotAResultArgument_AreEqual()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+
+                /* Act */
+                bool equal = sut.Equals("foo");
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Fact]
+            public void BothOkResults_AreEqual()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+                object other = Result.Ok;
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.True(equal);
+            }
+
+            [Fact]
+            public void ResultsHaveDifferentKind_AreNotEqual()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+                object other = Result.Error($"");
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData.IFormattableArgs), MemberType = typeof(TestData))]
+            public void ResultsAreaErrorKind_InnerValueCompared(IFormattable a, IFormattable b, bool expectEquals)
+            {
+                /* Arrange */
+                Result sut = Result.Error(a);
+                object other = Result.Error(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+        }
+
+        public class CompareTo
+        {
+            [Fact]
+            public void BothOkResults_ZeroReturned()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+                Result other = Result.Ok;
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(0, order);
+            }
+
+            [Fact]
+            public void ArgumentResultIsErrorAndInstanceIsOk_NegativeOneReturnedj()
+            {
+                /* Arrange */
+                Result sut = Result.Ok;
+                Result other = Result.Error($"");
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(-1, order);
+            }
+
+            [Fact]
+            public void ArgumentResultIsOkAndInstanceIsError_OneReturned()
+            {
+                /* Arrange */
+                Result sut = Result.Error($"");
+                Result other = Result.Ok;
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(1, order);
+            }
+
+            [Theory]
+            [InlineData(1, 1, 0)]
+            [InlineData(1, 2, -1)]
+            [InlineData(2, 1, 1)]
+            public void BothResultsAreErrorKind_InnerValueCompared(int a, int b,
+                int expectedOrder)
+            {
+                /* Arrange */
+                Result sut = Result.Error(a);
+                Result other = Result.Error(b);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(order, expectedOrder);
+            }
+        }
+
+        public class ToStringOverride : ResultTests
+        {
+            [Fact]
+            public void OkResult_ReturnsEmptyString()
+            {
+                /* Arrange */
+                var sut = Result.Ok;
+
+                /* Act */
+                var str = sut.ToString();
+
+                /* Assert */
+                Assert.Equal("", str);
+            }
+
+            [Fact]
+            public void ErrResult_CallsToString()
+            {
+                /* Arrange */
+                var formattable = A.Fake<IFormattable>();
+                var sut = Result.Error(formattable);
+                A.CallTo(() => formattable.ToString("G", null)).Returns("foobar");
+
+                /* Act */
+                var str = sut.ToString();
+
+                /* Assert */
+                Assert.Equal("foobar", str);
+            }
+        }
+
+        public class IFormattableToString : ResultTests
+        {
+            [Fact]
+            public void OkResult_ReturnsEmptyString()
+            {
+                /* Arrange */
+                var sut = Result.Ok;
+
+                /* Act */
+                var str = sut.ToString();
+
+                /* Assert */
+                Assert.Equal("", str);
+            }
+
+            [Fact]
+            public void ErrResult_CallsToString()
+            {
+                /* Arrange */
+                var formattable = A.Fake<IFormattable>();
+                var provider = A.Fake<IFormatProvider>();
+                var sut = Result.Error(formattable);
+                A.CallTo(() => formattable.ToString("z", provider)).Returns("foobar");
+
+                /* Act */
+                var str = sut.ToString("z", provider);
+
+                /* Assert */
+                Assert.Equal("foobar", str);
+            }
+        }
+    }
+
+    public class GenericResultTests
+    {
+        public class OkFactory : GenericResultTests
         {
             [Fact]
             public void KindProperty_IsOk()
@@ -19,11 +346,11 @@ namespace ShelLife.Domain.UnitTest
                 var sut = Result<string, _>.Ok(A.Dummy<string>());
 
                 /* Assert */
-                Assert.Equal(Result.Ok, sut.Kind);
+                Assert.Equal(ValueKind.Ok, sut.Kind);
             }
         }
 
-        public class ErrorFactory : ResultTests
+        public class ErrorFactory : GenericResultTests
         {
             [Fact]
             public void KindProperty_IsError()
@@ -35,11 +362,11 @@ namespace ShelLife.Domain.UnitTest
                 var sut = Result<_, IFormattable>.Error(value);
 
                 /* Assert */
-                Assert.Equal(Result.Error, sut.Kind);
+                Assert.Equal(ValueKind.Error, sut.Kind);
             }
         }
 
-        public class ImplicitCastToValue
+        public class ExplicitCastToValue
         {
             [Fact]
             public void ResultIsValue_ValueReturned()
@@ -67,7 +394,7 @@ namespace ShelLife.Domain.UnitTest
                 /* Assert */
                 Assert.IsType<BadStateException>(ex);
                 Assert.Equal(
-                    "Cannot implictly get the value because it is an error: foo",
+                    "Cannot get the value because it is an error: foo",
                     ex.Message);
             }
         }
@@ -275,7 +602,7 @@ namespace ShelLife.Domain.UnitTest
             }
         }
 
-        public class ImplicitCastToResult : ResultTests
+        public class ImplicitCastToResult : GenericResultTests
         {
             [Fact]
             public void Error_ErrorKindReturned()
@@ -284,10 +611,10 @@ namespace ShelLife.Domain.UnitTest
                 var sut = Result<_, IFormattable>.Error(A.Dummy<IFormattable>());
 
                 /* Act */
-                Result result = sut;
+                ValueKind result = sut;
 
                 /* Assert */
-                Assert.Equal(Result.Error, result);
+                Assert.Equal(ValueKind.Error, result);
             }
 
             [Fact]
@@ -297,14 +624,14 @@ namespace ShelLife.Domain.UnitTest
                 var sut = Result<string, _>.Ok(A.Dummy<string>());
 
                 /* Act */
-                Result result = sut;
+                ValueKind result = sut;
 
                 /* Assert */
-                Assert.Equal(Result.Ok, result);
+                Assert.Equal(ValueKind.Ok, result);
             }
         }
 
-        public class ImplicitCastToBool : ResultTests
+        public class ImplicitCastToBool : GenericResultTests
         {
             [Fact]
             public void Error_FalseReturned()
@@ -333,7 +660,7 @@ namespace ShelLife.Domain.UnitTest
             }
         }
 
-        public class ImplicitCastToError
+        public class ExplicitCastToError
         {
             [Fact]
             public void ResultIsError_ValueReturned()
@@ -360,12 +687,12 @@ namespace ShelLife.Domain.UnitTest
                 /* Assert */
                 Assert.IsType<BadStateException>(ex);
                 Assert.Equal(
-                    "Cannot implictly get the error because it is a valid value: foo",
+                    "Cannot get the error because it is a valid value: foo",
                     ex.Message);
             }
         }
 
-        public class OrElse : ResultTests
+        public class OrElse : GenericResultTests
         {
             [Fact]
             public void ResultIsError_ResultOfFuncReturned()
@@ -399,7 +726,7 @@ namespace ShelLife.Domain.UnitTest
             }
         }
 
-        public class Map : ResultTests
+        public class Map : GenericResultTests
         {
             [Fact]
             public void ResultIsError_ErrorKept()
@@ -431,7 +758,7 @@ namespace ShelLife.Domain.UnitTest
             }
         }
 
-        public class MapOrElse : ResultTests
+        public class MapOrElse : GenericResultTests
         {
             [Fact]
             public void ResultIsError_ErrorFunctionCalled()
@@ -464,7 +791,213 @@ namespace ShelLife.Domain.UnitTest
             }
         }
 
+        public class Into : GenericResultTests
+        {
+            [Fact]
+            public void OkValue_OkResultReturned()
+            {
+                /* Arrange */
+                IFormattable okVal = $"foobar";
+                var sut = Result<int,FormattableString>.Ok(1);
+
+                /* Act */
+                var result = sut.Into();
+
+                /* Assert */
+                Assert.Equal(Result.Ok, result);
+            }
+
+            [Fact]
+            public void ErrorValue_InnerErrorReturned()
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Error(1);
+
+                /* Act */
+                var result = sut.Into();
+
+                /* Assert */
+                Assert.Equal(Result.Error(1), result);
+            }
+        }
+
+        public class IEquatableEquals : GenericResultTests
+        {
+            [Theory]
+            [InlineData(1, 1, true)]
+            [InlineData(2, 1, false)]
+            public void BothOkResults_AreEqualWhenValuesEqual(int a, int b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(a);
+                var other = Result<int,int>.Ok(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+
+            [Fact]
+            public void ResultsHaveDifferentKind_AreNotEqual()
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(1);
+                var other = Result<int,int>.Error(2);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData.IFormattableArgs), MemberType = typeof(TestData))]
+            public void BothErrorResults_AreEqualWhenValuesEqual(IFormattable a, IFormattable b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int,IFormattable>.Error(a);
+                var other = Result<int,IFormattable>.Error(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+        }
+
+        public class ObjectOverrideEquals : GenericResultTests
+        {
+            [Fact]
+            public void NotAResultArgument_AreEqual()
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(1);
+
+                /* Act */
+                bool equal = sut.Equals("foo");
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [InlineData(1, 1, true)]
+            [InlineData(2, 1, false)]
+            public void BothOkResults_AreEqualWhenValuesEqual(int a, int b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(a);
+                object other = Result<int,int>.Ok(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+
+            [Fact]
+            public void ResultsHaveDifferentKind_AreNotEqual()
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(1);
+                object other = Result<int,int>.Error(2);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData.IFormattableArgs), MemberType = typeof(TestData))]
+            public void BothErrorResults_AreEqualWhenValuesEqual(IFormattable a, IFormattable b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int,IFormattable>.Error(a);
+                object other = Result<int,IFormattable>.Error(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+        }
+
+        public class CompareTo
+        {
+            [Theory]
+            [InlineData(1, 1, 0)]
+            [InlineData(1, 2, -1)]
+            [InlineData(2, 1, 1)]
+            public void BothOkResults_InnerValueCompared(int a, int b, int expectedOrder)
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(a);
+                var other = Result<int,int>.Ok(b);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(expectedOrder, order);
+            }
+
+            [Fact]
+            public void ArgumentResultIsErrorAndInstanceIsOk_NegativeOneReturnedj()
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Ok(1);
+                var other = Result<int,int>.Error(1);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(-1, order);
+            }
+
+            [Fact]
+            public void ArgumentResultIsOkAndInstanceIsError_OneReturned()
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Error(1);
+                var other = Result<int,int>.Ok(1);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(1, order);
+            }
+
+            [Theory]
+            [InlineData(1, 1, 0)]
+            [InlineData(1, 2, -1)]
+            [InlineData(2, 1, 1)]
+            public void BothResultsAreErrorKind_InnerValueCompared(int a, int b,
+                int expectedOrder)
+            {
+                /* Arrange */
+                var sut = Result<int,int>.Error(a);
+                var other = Result<int,int>.Error(b);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(order, expectedOrder);
+            }
+        }
+
         private sealed class InvalidFooException : Exception {  }
+
         private sealed class ValidFooException : Exception
         {
             public ValidFooException(string msg): base(msg)

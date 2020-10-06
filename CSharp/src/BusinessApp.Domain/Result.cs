@@ -1,54 +1,143 @@
 ﻿namespace BusinessApp.Domain
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Indicator for success/failure
+    /// Wraps an outcomes that disregards the value
+    /// while keeping the error
     /// </summary>
-    public enum Result
+    public struct Result : IEquatable<Result>, IComparable<Result>, IFormattable
     {
-        Ok,
-        Error
-    }
+        private readonly IFormattable error;
 
-    /// <summary>
-    /// A value type for an "ignored" type. Null pattern for a throw away type/value
-    /// </summary>
-    public struct _ : IFormattable
-    {
+        public static readonly Result Ok = new Result(null);
+
+        public static Result Error(IFormattable error)
+        {
+            Guard.Against.Null(error).Expect(nameof(error));
+
+            return new Result(error);
+        }
+
+        private Result(IFormattable error)
+        {
+            this.error = error;
+            Kind = error == null ? ValueKind.Ok : ValueKind.Error;
+        }
+
+        public ValueKind Kind { get; }
+
+        public Result<IFormattable, IFormattable> Into()
+        {
+            return Kind switch
+            {
+                ValueKind.Ok => Result<IFormattable, IFormattable>.Ok(null),
+                ValueKind.Error => Result<IFormattable, IFormattable>.Error(error),
+                _ => throw new NotImplementedException()
+            };
+        }
+        public Result<T, IFormattable> Into<T>()
+        {
+            return Kind switch
+            {
+                ValueKind.Ok => Result<T, IFormattable>.Ok(default),
+                ValueKind.Error => Result<T, IFormattable>.Error(error),
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        public bool Equals(Result other)
+        {
+            return Kind switch
+            {
+                ValueKind.Ok => other.Kind == ValueKind.Ok,
+                ValueKind.Error =>
+                    (error == null && other.error == null) ||
+                    error.ToString().Equals(other.error.ToString()),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public int CompareTo(Result other)
+        {
+            return Kind switch
+            {
+                ValueKind.Ok => other.Kind == ValueKind.Ok ? 0 : -1,
+                ValueKind.Error => other.Kind == ValueKind.Ok
+                    ? 1
+                    : error.ToString("G", null).CompareTo(other.error.ToString("G", null)),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Result other)
+            {
+                return Equals(other);
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                    // Choose large primes to avoid hashing collisions
+                const int HashingBase = (int)2166136261;
+                const int HashingMultiplier = 16777619;
+                int hash = (HashingBase * HashingMultiplier) ^ Kind.GetHashCode();
+
+                return (hash * HashingMultiplier) ^ error?.GetHashCode() ?? 0;
+            }
+        }
+
+        public override string ToString()
+        {
+            return ToString("G", null);
+        }
+
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            return "";
+            return Kind switch
+            {
+                ValueKind.Error => error.ToString(format, formatProvider),
+                ValueKind.Ok => "",
+                _ => throw new NotImplementedException()
+            };
         }
     }
 
     /// <summary>
     /// Wraps a value with the outcome, normally from enforcing invariants
-    /// and provides access to it or throws an exception
+    /// and provides access to it or can throw an exception
     /// </summary>
-    public struct Result<T, E> where E : IFormattable
+    public struct Result<T, E> : IEquatable<Result<T, E>>, IComparable<Result<T, E>>
+        where E : IFormattable
     {
         private readonly T value;
         private readonly E error;
 
-        public static Result<T, E> Ok(T value) => new Result<T, E>(value, default, Result.Ok);
-        public static Result<T, E> Error(E error) => new Result<T, E>(default, error, Result.Error);
+        public static Result<T, E> Ok(T value) => new Result<T, E>(value, default, ValueKind.Ok);
+        public static Result<T, E> Error(E error) => new Result<T, E>(default, error, ValueKind.Error);
 
-        private Result(T value = default, E error = default, Result result = default)
+        private Result(T value = default, E error = default, ValueKind result = default)
         {
             this.value = value;
             this.error = error;
             this.Kind = result;
         }
 
-        public Result Kind { get; }
+        public ValueKind Kind { get; }
 
         public T Expect(string message)
         {
             return Kind switch
             {
-                Result.Ok => value,
-                Result.Error => throw new BadStateException($"{message}: {error}"),
+                ValueKind.Ok => value,
+                ValueKind.Error => throw new BadStateException($"{message}: {error}"),
                     _ => throw new NotImplementedException(),
             };
         }
@@ -59,8 +148,8 @@
             {
                 return Kind switch
                 {
-                    Result.Ok => value,
-                    Result.Error =>
+                    ValueKind.Ok => value,
+                    ValueKind.Error =>
                         throw (TException)Activator.CreateInstance(typeof(TException), $"{message}: {error}"),
                     _ => throw new NotImplementedException(),
                 };
@@ -77,8 +166,8 @@
         {
             return Kind switch
             {
-                Result.Ok => throw new BadStateException($"{message}: {value}"),
-                Result.Error => error,
+                ValueKind.Ok => throw new BadStateException($"{message}: {value}"),
+                ValueKind.Error => error,
                 _ => throw new NotImplementedException(),
             };
         }
@@ -87,8 +176,8 @@
         {
             return Kind switch
             {
-                Result.Ok => throw new BadStateException($"{value}"),
-                Result.Error => error,
+                ValueKind.Ok => throw new BadStateException($"{value}"),
+                ValueKind.Error => error,
                 _ => throw new NotImplementedException(),
             };
         }
@@ -97,8 +186,8 @@
         {
             return Kind switch
             {
-                Result.Ok => value,
-                Result.Error => throw new BadStateException($"{error}"),
+                ValueKind.Ok => value,
+                ValueKind.Error => throw new BadStateException($"{error}"),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -107,8 +196,8 @@
         {
             return Kind switch
             {
-                Result.Ok => next(value),
-                Result.Error => this,
+                ValueKind.Ok => next(value),
+                ValueKind.Error => this,
                 _ => throw new NotImplementedException(),
             };
         }
@@ -117,8 +206,8 @@
         {
             return Kind switch
             {
-                Result.Error => onError(error),
-                Result.Ok => this,
+                ValueKind.Error => onError(error),
+                ValueKind.Ok => this,
                 _ => throw new NotImplementedException(),
             };
         }
@@ -127,8 +216,8 @@
         {
             return Kind switch
             {
-                Result.Error => Result<R, E>.Error(error),
-                Result.Ok => Result<R, E>.Ok(onOk(value)),
+                ValueKind.Error => Result<R, E>.Error(error),
+                ValueKind.Ok => Result<R, E>.Ok(onOk(value)),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -137,24 +226,90 @@
         {
             return Kind switch
             {
-                Result.Error => onError(error),
-                Result.Ok => onOk(value),
+                ValueKind.Error => onError(error),
+                ValueKind.Ok => onOk(value),
                 _ => throw new NotImplementedException(),
             };
         }
 
-        public static implicit operator T(Result<T, E> result)
+        public Result Into()
         {
-            return result.Expect("Cannot implictly get the value because it is an error");
+            return Kind switch
+            {
+                ValueKind.Ok => Result.Ok,
+                ValueKind.Error => Result.Error(error),
+                _ => throw new NotImplementedException()
+            };
         }
 
-        public static implicit operator E(Result<T, E> result)
+        public bool Equals(Result<T, E> other)
         {
-            return result.ExpectError("Cannot implictly get the error because it is a valid value");
+            if (other.Kind != Kind) return false;
+
+            return Kind switch
+            {
+                ValueKind.Ok =>
+                    (value == null && other.value == null) ||
+                    value.Equals(other.value),
+                ValueKind.Error =>
+                    (error == null && other.error == null) ||
+                    error.ToString().Equals(other.error.ToString()),
+                _ => throw new NotImplementedException(),
+            };
         }
 
-        public static implicit operator Result(Result<T, E> result) => result.Kind;
+        public int CompareTo(Result<T, E> other)
+        {
+            if (Kind != other.Kind) return Kind.CompareTo(other.Kind);
 
-        public static implicit operator bool(Result<T, E> result) => result.Kind == Result.Ok;
+            return Kind switch
+            {
+                ValueKind.Ok => Comparer<T>.Default.Compare(value, other.value),
+                ValueKind.Error => Comparer<E>.Default.Compare(error, other.error),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Result<T, E> other)
+            {
+                return Equals(other);
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                    // Choose large primes to avoid hashing collisions
+                const int HashingBase = (int)2166136261;
+                const int HashingMultiplier = 16777619;
+                int hash = (HashingBase * HashingMultiplier) ^ Kind.GetHashCode();
+
+                return (hash * HashingMultiplier) ^  Kind switch
+                {
+                    ValueKind.Error => error.GetHashCode(),
+                    ValueKind.Ok => value.GetHashCode(),
+                    _ => throw new NotImplementedException()
+                };
+            }
+        }
+
+        public static explicit operator T(Result<T, E> result)
+        {
+            return result.Expect("Cannot get the value because it is an error");
+        }
+
+        public static explicit operator E(Result<T, E> result)
+        {
+            return result.ExpectError("Cannot get the error because it is a valid value");
+        }
+
+        public static implicit operator ValueKind(Result<T, E> result) => result.Kind;
+
+        public static implicit operator bool(Result<T, E> result) => result.Kind == ValueKind.Ok;
     }
 }

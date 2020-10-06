@@ -11,19 +11,20 @@ namespace BusinessApp.App
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>
     [Serializable]
-    public class BatchException : Exception, IFormattable, IEnumerable<Result<_, IFormattable>>
+    public class BatchException : Exception, IFormattable, IEnumerable<Result>,
+        IEnumerable<Result<IFormattable, IFormattable>>
     {
-        public BatchException(IEnumerable<Result<_, IFormattable>> results)
+        public BatchException(IEnumerable<Result> results)
         {
             Guard.Against.Empty(results).Expect(nameof(results)).ToList();
 
-            var allResults = new List<Result<_, IFormattable>>();
+            var allResults = new List<Result>();
 
             foreach (var result in results)
             {
                 switch (result.Kind)
                 {
-                    case Result.Error when result.UnwrapError() is BatchException b:
+                    case ValueKind.Error when result.Into().UnwrapError() is BatchException b:
                         allResults.AddRange(b.Flatten().Results);
                         break;
                     default:
@@ -35,9 +36,12 @@ namespace BusinessApp.App
             Results = allResults;
         }
 
-        public IReadOnlyCollection<Result<_, IFormattable>> Results { get; }
+        public IReadOnlyCollection<Result> Results { get; }
 
-        public IEnumerator<Result<_, IFormattable>> GetEnumerator() => Results.GetEnumerator();
+        public IEnumerator<Result> GetEnumerator() => Results.GetEnumerator();
+
+        IEnumerator<Result<IFormattable, IFormattable>> IEnumerable<Result<IFormattable, IFormattable>>.GetEnumerator()
+            => Results.Select(r => r.Into()).GetEnumerator();
 
         public override string ToString() => ToString("G", null);
 
@@ -45,7 +49,7 @@ namespace BusinessApp.App
         {
             if (formatProvider == null) formatProvider = CultureInfo.CurrentCulture;
 
-            var errors = Results.Where(r => r.Kind == Result.Error).ToList();
+            var errors = Results.Where(r => r.Kind == ValueKind.Error).ToList();
 
             return string.Format(
                 formatProvider,
@@ -57,13 +61,13 @@ namespace BusinessApp.App
 
         private BatchException Flatten()
         {
-            var results = new List<Result<_, IFormattable>>();
+            var results = new List<Result>();
 
             foreach (var result in Results)
             {
                 switch (result.Kind)
                 {
-                    case Result.Error when result.UnwrapError() is BatchException b:
+                    case ValueKind.Error when result.Into().UnwrapError() is BatchException b:
                         results.AddRange(b.Flatten().Results);
                         break;
                     default:
@@ -74,6 +78,5 @@ namespace BusinessApp.App
 
             return new BatchException(results);
         }
-
     }
 }

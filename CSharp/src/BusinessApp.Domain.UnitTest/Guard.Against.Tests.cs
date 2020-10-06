@@ -10,9 +10,9 @@ namespace ShelLife.Domain.UnitTest
         {
             public static IEnumerable<object[]> EnumerableKindArgs => new[]
             {
-                new object[] { null, Result.Error },
-                new object[] { new List<int>(), Result.Error },
-                new object[] { new List<int> { 1 }, Result.Ok }
+                new object[] { null, ValueKind.Error },
+                new object[] { new List<int>(), ValueKind.Error },
+                new object[] { new List<int> { 1 }, ValueKind.Ok }
             };
 
             public static IEnumerable<object[]> EnumerableMsgArgs => new[]
@@ -22,10 +22,10 @@ namespace ShelLife.Domain.UnitTest
             };
 
             [Theory]
-            [InlineData(null, Result.Error)]
-            [InlineData("", Result.Ok)]
-            [InlineData("foo", Result.Ok)]
-            public void Null_WhenValueNull_ErrorKindReturned(string val, Result expected)
+            [InlineData(null, ValueKind.Error)]
+            [InlineData("", ValueKind.Ok)]
+            [InlineData("foo", ValueKind.Ok)]
+            public void Null_WhenValueNull_ErrorKindReturned(string val, ValueKind expected)
             {
                 /* Act */
                 var result = Guard.Against.Null(val);
@@ -47,10 +47,10 @@ namespace ShelLife.Domain.UnitTest
             }
 
             [Theory]
-            [InlineData(null, Result.Error)]
-            [InlineData("", Result.Error)]
-            [InlineData("foo", Result.Ok)]
-            public void StringEmpty_WhenValueIsEmpty_ErrorKindReturned(string val, Result expected)
+            [InlineData(null, ValueKind.Error)]
+            [InlineData("", ValueKind.Error)]
+            [InlineData("foo", ValueKind.Ok)]
+            public void StringEmpty_WhenValueIsEmpty_ErrorKindReturned(string val, ValueKind expected)
             {
                 /* Act */
                 var result = Guard.Against.Empty(val);
@@ -73,10 +73,10 @@ namespace ShelLife.Domain.UnitTest
             }
 
             [Theory]
-            [InlineData(0, Result.Error)]
-            [InlineData(1, Result.Ok)]
-            [InlineData(-1, Result.Ok)]
-            public void Defalt_WhenValueIsDefault_ErrorKindReturned(int val, Result expected)
+            [InlineData(0, ValueKind.Error)]
+            [InlineData(1, ValueKind.Ok)]
+            [InlineData(-1, ValueKind.Ok)]
+            public void Defalt_WhenValueIsDefault_ErrorKindReturned(int val, ValueKind expected)
             {
                 /* Act */
                 var result = Guard.Against.Default(val);
@@ -110,7 +110,7 @@ namespace ShelLife.Domain.UnitTest
             }
 
             [Theory, MemberData(nameof(EnumerableKindArgs))]
-            public void EnumerableEmpty_WhenValueIsEmpty_ErrorKindReturned(IEnumerable<int> vals, Result expected)
+            public void EnumerableEmpty_WhenValueIsEmpty_ErrorKindReturned(IEnumerable<int> vals, ValueKind expected)
             {
                 /* Act */
                 var result = Guard.Against.Empty(vals);

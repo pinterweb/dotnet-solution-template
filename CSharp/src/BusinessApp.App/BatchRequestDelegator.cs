@@ -30,11 +30,11 @@
                 results.Add(await inner.HandleAsync(msg, cancellationToken));
             }
 
-            if (results.Any(r => r.Kind == Result.Error))
+            if (results.Any(r => r.Kind == ValueKind.Error))
             {
                 return Result<IEnumerable<TResponse>, IFormattable>
                     .Error(new BatchException(
-                        results.Select(o => o.IgnoreValue()
+                        results.Select(o => o.Into()
                     )));
             }
 

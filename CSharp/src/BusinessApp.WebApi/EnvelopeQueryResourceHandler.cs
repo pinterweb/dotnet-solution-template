@@ -40,7 +40,7 @@ namespace BusinessApp.WebApi
                     context.Response.Headers.Add("VND.parkeremg.pagination",
                         new StringValues(envelope.Pagination.ToHeaderValue()));
 
-                    return Result<IEnumerable<TResponse>, IFormattable>.Ok(envelope.Data);
+                    return envelope.Data;
                 });
         }
     }

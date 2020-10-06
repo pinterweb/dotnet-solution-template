@@ -39,7 +39,7 @@
 
             context.Response.ContentType = result.Kind switch
             {
-                Result.Error => "application/problem+json",
+                ValueKind.Error => "application/problem+json",
                 _ => "application/json",
             };
 
