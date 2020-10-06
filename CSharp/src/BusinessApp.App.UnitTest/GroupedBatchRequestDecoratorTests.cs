@@ -101,6 +101,33 @@ namespace BusinessApp.App.UnitTest
                     p => Assert.Same(p, groups.Last()));
             }
 
+            [Fact]
+            public async Task OriginalCommandNotFound_ExceptionThrown()
+            {
+                /* Arrange */
+                var groups = new[]
+                {
+                    new[] { new CommandStub() }
+                };
+                var commands = new[]
+                {
+                    new CommandStub()
+                };
+                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
+
+                /* Assert */
+                Assert.IsType<BusinessAppAppException>(ex);
+                Assert.Equal(
+                    "Could not find the original command after " +
+                    "it was grouped. Consider overriding Equals if the batch grouper " +
+                    "creates new classes.",
+                    ex.Message
+                );
+            }
+
             public class OnError : GroupedBatchRequestDecoratorTests
             {
                 private readonly Result<IEnumerable<CommandStub>, IFormattable> error;

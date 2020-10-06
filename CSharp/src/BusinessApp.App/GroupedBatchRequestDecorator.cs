@@ -44,7 +44,14 @@ namespace BusinessApp.App
 
             foreach (var item in request)
             {
-                var target = tasks.Single(t => t.Item1.Contains(item));
+                var target = tasks.SingleOrDefault(t => t.Item1.Contains(item));
+
+                if (target == default)
+                {
+                    throw new BusinessAppAppException("Could not find the original command after " +
+                        "it was grouped. Consider overriding Equals if the batch grouper " +
+                        "creates new classes.");
+                }
 
                 orderedResults.Add(target.Item2.Result);
             }
