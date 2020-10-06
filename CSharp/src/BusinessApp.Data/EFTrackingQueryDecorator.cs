@@ -13,7 +13,7 @@ namespace BusinessApp.Data
     /// we are not worried about saving any entities during this transaction
     /// </summary>
     public class EFTrackingQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : Query, IQuery<TResult>
+        where TQuery : IQuery
     {
         private readonly IRequestHandler<TQuery, TResult> inner;
 

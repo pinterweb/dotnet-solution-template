@@ -19,7 +19,7 @@
     /// </summary>
     public static class AppLayerBootstrapper
     {
-        public static readonly Assembly Assembly = typeof(IQuery<>).Assembly;
+        public static readonly Assembly Assembly = typeof(IQuery).Assembly;
 
         public static void Bootstrap(Container container,
             IWebHostEnvironment env,

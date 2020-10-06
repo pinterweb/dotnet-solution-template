@@ -7,7 +7,7 @@ namespace BusinessApp.App
     /// Logic in this pipeline should not modify data
     /// </implementers>
     public interface IQueryHandler<in TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : IQuery<TResult>
+        where TQuery : IQuery
     {
     }
 }

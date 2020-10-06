@@ -11,7 +11,7 @@ namespace BusinessApp.WebApi
 
     public class EnvelopeQueryResourceHandler<TRequest, TResponse> :
         IHttpRequestHandler<TRequest, IEnumerable<TResponse>>
-        where TRequest : IQuery<EnvelopeContract<TResponse>>, new()
+        where TRequest : IQuery, new()
     {
         private readonly IRequestHandler<TRequest, EnvelopeContract<TResponse>> handler;
         private readonly ISerializer serializer;

@@ -10,7 +10,7 @@ namespace BusinessApp.App
     /// Caches the query results for the lifetime of the class
     /// </summary>
     public class InstanceCacheQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : IQuery<TResult>
+        where TQuery : IQuery
     {
         private readonly ConcurrentDictionary<TQuery, Result<TResult, IFormattable>> cache;
         private readonly IRequestHandler<TQuery, TResult> inner;

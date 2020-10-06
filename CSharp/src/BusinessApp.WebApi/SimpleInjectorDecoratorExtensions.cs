@@ -32,7 +32,7 @@ namespace BusinessApp.WebApi
 
         public static bool IsQueryType(this Type type)
         {
-            return typeof(Query).IsAssignableFrom(type);
+            return typeof(IQuery).IsAssignableFrom(type);
         }
     }
 }

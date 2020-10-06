@@ -11,13 +11,13 @@ namespace BusinessApp.Data
     using Microsoft.EntityFrameworkCore;
 
     /// <summary>
-    /// Runs Entity Framework specific logic based on the <see cref="Query"/> data
+    /// Runs Entity Framework specific logic based on the <see cref="IQuery"/> data
     /// </summary>
     public class EFQuerySortVisitor<TResult> : IQueryVisitor<TResult>
         where TResult : class
     {
         private const char DescendingChar = '-';
-        private readonly Query query;
+        private readonly IQuery query;
         private static IEnumerable<string> IncludablePropNames = typeof(TResult)
            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
            .Select(p => p.Name)
@@ -25,7 +25,7 @@ namespace BusinessApp.Data
         private static ConcurrentDictionary<string, Expression<Func<TResult, object>>> ExpressionCache
             = new ConcurrentDictionary<string, Expression<Func<TResult, object>>>();
 
-        public EFQuerySortVisitor(Query query)
+        public EFQuerySortVisitor(IQuery query)
         {
             this.query = Guard.Against.Null(query).Expect(nameof(query));
         }
