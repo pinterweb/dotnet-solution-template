@@ -33,16 +33,13 @@ namespace BusinessApp.WebApi
 
             var stream = new MemoryStream();
 
-            if (collection.HasKeys())
-            {
-                serializer.Serialize(
-                    stream,
-                    CreateDictionary("", collection.AllKeys
-                    .Where(key => !string.IsNullOrWhiteSpace(key) && propertyCache.ContainsKey(key))
-                    .ToDictionary(key => key, key => collection[key])));
+            serializer.Serialize(
+                stream,
+                CreateDictionary("", collection.AllKeys
+                .Where(key => !string.IsNullOrWhiteSpace(key) && propertyCache.ContainsKey(key))
+                .ToDictionary(key => key, key => collection[key])));
 
-                stream.Position = 0;
-            }
+            stream.Position = 0;
 
             return stream;
         }

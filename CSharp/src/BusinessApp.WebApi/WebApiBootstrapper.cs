@@ -26,8 +26,8 @@
             BootstrapOptions options)
         {
             DomainLayerBoostrapper.Bootstrap(container);
-            AppLayerBootstrapper.Bootstrap(container, env, options);
             DataLayerBootstrapper.Bootstrap(container, options);
+            AppLayerBootstrapper.Bootstrap(container, env, options);
 
 #if json
             Json.Bootstrapper.Bootstrap(container);

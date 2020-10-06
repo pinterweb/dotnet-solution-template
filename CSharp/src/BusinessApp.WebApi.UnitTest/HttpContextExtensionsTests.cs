@@ -68,23 +68,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public async Task  GetOrDeleteNoQueryStringOrRouteArgs_NotSerialized(string method)
-            {
-                /* Arrange */
-                A.CallTo(() => context.Request.Method).Returns(method);
-                A.CallTo(() => context.Request.ContentLength).Returns(0);
-
-                /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
-
-                /* Assert */
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<object>._)).MustNotHaveHappened();
-            }
-
-            [Theory]
-            [InlineData("get")]
-            [InlineData("DELETE")]
-            public async Task GetOrDeleteUnknownQueryStringKey_NotSerialized(string method)
+            public async Task GetOrDeleteUnknownQueryStringKey_EmptyDictionaryReturned(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -103,7 +87,7 @@ namespace BusinessApp.WebApi.UnitTest
             [Theory]
             [InlineData("get")]
             [InlineData("DELETE")]
-            public async Task GetOrDeleteInvalidQueryStringKey_NotSerialized(string method)
+            public async Task GetOrDeleteInvalidQueryStringKey_EmptyDictionaryReturned(string method)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
@@ -116,7 +100,7 @@ namespace BusinessApp.WebApi.UnitTest
                 await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
-                Assert.Null(serializedData);
+                Assert.Empty(serializedData);
             }
 
             [Theory]

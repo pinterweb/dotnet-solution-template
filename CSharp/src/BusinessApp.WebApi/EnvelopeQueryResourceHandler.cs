@@ -11,7 +11,7 @@ namespace BusinessApp.WebApi
 
     public class EnvelopeQueryResourceHandler<TRequest, TResponse> :
         IHttpRequestHandler<TRequest, IEnumerable<TResponse>>
-        where TRequest : IQuery, new()
+        where TRequest : IQuery
     {
         private readonly IRequestHandler<TRequest, EnvelopeContract<TResponse>> handler;
         private readonly ISerializer serializer;
@@ -30,7 +30,7 @@ namespace BusinessApp.WebApi
 
             if (query == null)
             {
-                query = new TRequest();
+                throw new BusinessAppWebApiException("Query cannot be null");
             }
 
             return (await handler.HandleAsync(query, cancellationToken))

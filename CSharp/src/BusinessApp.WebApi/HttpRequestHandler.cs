@@ -8,7 +8,6 @@ namespace BusinessApp.WebApi
     using System;
 
     public class HttpRequestHandler<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
-        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> handler;
         private readonly ISerializer serializer;
@@ -24,14 +23,14 @@ namespace BusinessApp.WebApi
         public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
             CancellationToken cancellationToken)
         {
-            var query = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
+            var request = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
 
-            if (query == null)
+            if (request == null)
             {
-                throw new BusinessAppWebApiException("Query cannot be null");
+                throw new BusinessAppWebApiException("Request cannot be null");
             }
 
-            return await handler.HandleAsync(query, cancellationToken);
+            return await handler.HandleAsync(request, cancellationToken);
         }
     }
 }
