@@ -8,23 +8,25 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.Threading;
 
-    public class TransactionRequestDecoratorTests
+    public class TransactionDecoratorTests
     {
         private readonly TransactionRequestDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
         private readonly ITransactionFactory factory;
+        private readonly ILogger logger;
         private readonly PostCommitRegister register;
 
-        public TransactionRequestDecoratorTests()
+        public TransactionDecoratorTests()
         {
             inner = A.Fake<ICommandHandler<CommandStub>>();
             factory = A.Fake<ITransactionFactory>();
             register = new PostCommitRegister();
+            logger = A.Fake<ILogger>();
 
-            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, register);
+            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, register, logger);
         }
 
-        public class Constructor : TransactionRequestDecoratorTests
+        public class Constructor : TransactionDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -32,28 +34,31 @@ namespace BusinessApp.App.UnitTest
                 {
                     null,
                     A.Dummy<ICommandHandler<CommandStub>>(),
-                    A.Dummy<PostCommitRegister>()
+                    A.Dummy<PostCommitRegister>(),
+                    A.Dummy<ILogger>()
                 },
                 new object[]
                 {
                     A.Fake<ITransactionFactory>(),
                     null,
-                    A.Dummy<PostCommitRegister>()
+                    A.Dummy<PostCommitRegister>(),
+                    A.Dummy<ILogger>()
                 },
                 new object[]
                 {
                     A.Fake<ITransactionFactory>(),
                     A.Dummy<ICommandHandler<CommandStub>>(),
                     null,
+                    A.Dummy<ILogger>()
                 },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(ITransactionFactory v,
-                ICommandHandler<CommandStub> c, PostCommitRegister r)
+                ICommandHandler<CommandStub> c, PostCommitRegister r, ILogger l)
             {
                 /* Arrange */
-                void shouldThrow() => new TransactionRequestDecorator<CommandStub, CommandStub>(v, c, r);
+                void shouldThrow() => new TransactionRequestDecorator<CommandStub, CommandStub>(v, c, r, l);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -63,10 +68,10 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : TransactionRequestDecoratorTests
+        public class HandleAsync : TransactionDecoratorTests
         {
             [Fact]
-            public async Task WithoutCommandArg_ExceptionThrown()
+            public async Task NullCommand_ExceptionThrown()
             {
                 /* Arrange */
                 Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
@@ -75,29 +80,32 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(shouldthrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BadStateException>(ex);
             }
 
             [Fact]
-            public async Task BeforeRegister_ServicesCalledInOrder()
+            public async Task BeforeRegister_TransFactoryAndHandlerCalledInOrder()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
+                var handler = A.Fake<Func<Task>>();
                 var command = A.Dummy<CommandStub>();
                 var uow = A.Fake<IUnitOfWork>();
                 A.CallTo(() => factory.Begin()).Returns(uow);
+                register.FinishHandlers.Add(handler);
 
                 /* Act */
-                var _ = await sut.HandleAsync(command, token);
+                await sut.HandleAsync(command, token);
 
                 /* Assert */
-                A.CallTo(() => factory.Begin()).MustHaveHappenedOnceExactly()
-                    .Then(A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappenedOnceExactly())
-                    .Then(A.CallTo(() => uow.CommitAsync(token)).MustHaveHappenedOnceExactly());
+                A.CallTo(() => factory.Begin()).MustHaveHappened()
+                    .Then(A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.CommitAsync(token)).MustHaveHappened())
+                    .Then(A.CallTo(() => handler.Invoke()).MustHaveHappened());
             }
 
             [Fact]
-            public async Task WithFinishHandlers_CommitRunAfterHandlers()
+            public async Task AfterFirstCommit_HandlersRunThenCommit()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
@@ -109,7 +117,7 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => factory.Begin()).Returns(uow);
 
                 /* Act */
-                var _ = await sut.HandleAsync(A.Dummy<CommandStub>(), token);
+                await sut.HandleAsync(A.Dummy<CommandStub>(), token);
 
                 /* Assert */
                 A.CallTo(() => handler1()).MustHaveHappenedOnceExactly()
@@ -118,7 +126,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithFinishHandlers_RevertRunAfterHandlerThrows()
+            public async Task FinishHandlersThrow_RevertRunsImmediately()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
@@ -141,48 +149,120 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task WithFinishHandlers_ThrowsIfFinalCommitFails()
+            public async Task SecondCommitThrows_RevertRunsImmediately()
             {
                 /* Arrange */
                 var token = A.Dummy<CancellationToken>();
-                var thrown = new Exception();
-                var handler1 = A.Fake<Func<Task>>();
+                var handler = A.Fake<Func<Task>>();
                 var uow = A.Fake<IUnitOfWork>();
                 A.CallTo(() => factory.Begin()).Returns(uow);
-                A.CallTo(() => uow.CommitAsync(token)).Returns(Task.CompletedTask).Once()
-                    .Then.Throws(thrown);
+                A.CallTo(() => uow.CommitAsync(token))
+                    .DoesNothing().Once().Then.Throws<Exception>();
+                register.FinishHandlers.Add(handler);
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
+
+                /* Assert */
+                Assert.NotNull(ex);
+                A.CallTo(() => handler.Invoke()).MustHaveHappened()
+                    .Then(A.CallTo(() => uow.CommitAsync(token)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.RevertAsync(token)).MustHaveHappened());
+            }
+
+            [Fact]
+            public async Task SecondCommitThrows_LaterHandlerNotRun()
+            {
+                /* Arrange */
+                var token = A.Dummy<CancellationToken>();
+                var handler1 = A.Fake<Func<Task>>();
+                var handler2 = A.Fake<Func<Task>>();
+                var uow = A.Fake<IUnitOfWork>();
+                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => uow.CommitAsync(token)).Throws<Exception>();
+                A.CallTo(() => handler1.Invoke())
+                    .Invokes(ctx => register.FinishHandlers.Add(handler2));
                 register.FinishHandlers.Add(handler1);
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
 
                 /* Assert */
-                Assert.IsType<CommunicationException>(ex);
-                Assert.Same(thrown, ex.InnerException);
-                Assert.Equal(
-                    "Some events generated by this business " +
-                    "transaction failed to save. As a result, some data may be in a invalid state." +
-                    "Please verify your data before continuing",
-                    ex.Message);
+                A.CallTo(() => handler2.Invoke()).MustNotHaveHappened();
             }
 
-            [Fact]
-            public async Task WhenSuccessful_InnerResultReturned()
+            public class RevertThrows : TransactionDecoratorTests
             {
-                /* Arrange */
-                var token = A.Dummy<CancellationToken>();
-                var command = A.Dummy<CommandStub>();
-                var innerResults = Result<CommandStub, IFormattable>.Ok(new CommandStub());
-                var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(uow);
-                A.CallTo(() => inner.HandleAsync(command, token))
-                    .Returns(innerResults);
+                private CancellationToken token;
+                private LogEntry logEntry;
+                private IUnitOfWork uow;
 
-                /* Act */
-                var results = await sut.HandleAsync(command, token);
+                public RevertThrows()
+                {
+                    uow = A.Fake<IUnitOfWork>();
+                    var handler1 = A.Fake<Func<Task>>();
+                    token = A.Dummy<CancellationToken>();
+                    logEntry = null;
+                    A.CallTo(() => factory.Begin()).Returns(uow);
+                    A.CallTo(() => handler1.Invoke()).Throws<Exception>();
+                    register.FinishHandlers.Add(handler1);
+                    A.CallTo(() => logger.Log(A<LogEntry>._))
+                        .Invokes(ctx => logEntry = ctx.GetArgument<LogEntry>(0));
+                }
 
-                /* Assert */
-                Assert.Equal(innerResults, results);
+                [Fact]
+                public async Task RevertThrows_CriticalErrorLogged()
+                {
+                    /* Arrange */
+                    A.CallTo(() => uow.RevertAsync(token)).Throws<Exception>();
+
+                    /* Act */
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
+
+                    /* Assert */
+                    Assert.Equal(LogSeverity.Critical, logEntry.Severity);
+                }
+
+                [Fact]
+                public async Task RevertThrows_ExceptionMessagLogged()
+                {
+                    /* Arrange */
+                    A.CallTo(() => uow.RevertAsync(token)).Throws(new Exception("foobar"));
+
+                    /* Act */
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
+
+                    /* Assert */
+                    Assert.Equal("foobar", logEntry.Message);
+                }
+
+                [Fact]
+                public async Task RevertThrows_ExceptionLogged()
+                {
+                    /* Arrange */
+                    var targetException = new Exception();
+                    A.CallTo(() => uow.RevertAsync(token)).Throws(targetException);
+
+                    /* Act */
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), token));
+
+                    /* Assert */
+                    Assert.Same(targetException, logEntry.Exception);
+                }
+
+                [Fact]
+                public async Task RevertThrows_CommandLogged()
+                {
+                    /* Arrange */
+                    var targetCmd = new CommandStub();
+                    A.CallTo(() => uow.RevertAsync(token)).Throws<Exception>();
+
+                    /* Act */
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(targetCmd, token));
+
+                    /* Assert */
+                    Assert.Same(targetCmd, logEntry.Data);
+                }
             }
         }
     }
