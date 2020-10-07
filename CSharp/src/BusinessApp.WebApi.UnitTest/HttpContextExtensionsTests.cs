@@ -11,14 +11,18 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading.Tasks;
     using System.Threading;
     using System.IO.Pipelines;
+    using Xunit.Abstractions;
+    using System.ComponentModel;
 
     public class HttpContextExtensionsTests
     {
         private HttpContext context;
         private CancellationToken token;
+        private ITestOutputHelper writer;
 
-        public HttpContextExtensionsTests()
+        public HttpContextExtensionsTests(ITestOutputHelper writer)
         {
+            this.writer = writer;
             context = A.Fake<HttpContext>();
             token = A.Dummy<CancellationToken>();
             A.CallTo(() => context.Request.QueryString).Returns(new QueryString(""));
@@ -28,23 +32,9 @@ namespace BusinessApp.WebApi.UnitTest
         {
             private readonly ISerializer serializer;
 
-            public DeserializeInto()
+            public DeserializeInto(ITestOutputHelper writer): base(writer)
             {
                 serializer = A.Fake<ISerializer>();
-            }
-
-            [Fact]
-            public async Task UnknownMethod_DefaultTReturned()
-            {
-                /* Arrange */
-                A.CallTo(() => context.Request.Method).Returns("foo");
-                A.CallTo(() => context.Request.ContentLength).Returns(0);
-
-                /* Act */
-                var result = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
-
-                /* Assert */
-                Assert.Null(result);
             }
 
             [Theory]
@@ -52,7 +42,7 @@ namespace BusinessApp.WebApi.UnitTest
             [InlineData("get")]
             [InlineData("delete")]
             [InlineData("DELETE")]
-            public async Task GetOrDelete_CaseIgnored(string method)
+            public async Task GetOrDeleteMethod_CaseIgnored(string method)
             {
                 /* Arrange */
                 A.CallTo(() => context.Request.Method).Returns(method);
@@ -62,39 +52,26 @@ namespace BusinessApp.WebApi.UnitTest
                 await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
-                A.CallTo(() => serializer.Deserialize<QueryStub>(A<Stream>._)).MustHaveHappened();
+                A.CallTo(() => serializer.Serialize(
+                        A<Stream>._,
+                        A<IDictionary<string, object>>._))
+                    .MustHaveHappenedOnceExactly();
             }
 
             [Theory]
-            [InlineData("get")]
-            [InlineData("DELETE")]
-            public async Task GetOrDeleteUnknownQueryStringKey_EmptyDictionaryReturned(string method)
+            [InlineData("get", "?blah=blah")]
+            [InlineData("DELETE", "?blah=blah")]
+            [InlineData("get", "?blahblah")]
+            [InlineData("DELETE", "?blahblah")]
+            public async Task GetOrDeleteUnknownQueryStringKey_EmptyDictionarySerialized(
+                string method, string queryString)
             {
                 /* Arrange */
                 IDictionary<string, object> serializedData = null;
                 A.CallTo(() => context.Request.Method).Returns(method);
                 A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
                     .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
-                A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?blah=blah"));
-
-                /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
-
-                /* Assert */
-                Assert.Empty(serializedData);
-            }
-
-            [Theory]
-            [InlineData("get")]
-            [InlineData("DELETE")]
-            public async Task GetOrDeleteInvalidQueryStringKey_EmptyDictionaryReturned(string method)
-            {
-                /* Arrange */
-                IDictionary<string, object> serializedData = null;
-                A.CallTo(() => context.Request.Method).Returns(method);
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
-                    .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
-                A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?blahblah"));
+                A.CallTo(() => context.Request.QueryString).Returns(new QueryString(queryString));
 
                 /* Act */
                 await context.DeserializeIntoAsync<QueryStub>(serializer, token);
@@ -141,8 +118,6 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
                     .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
                 A.CallTo(() => context.Request.RouteValues).Returns(routeData);
-                // the GetRouteData extension calls this
-                A.CallTo(() => context.Features.Get<IRoutingFeature>()).Returns(null);
 
                 /* Act */
                 await context.DeserializeIntoAsync<QueryStub>(serializer, token);
@@ -179,14 +154,18 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.IsType(expectedType, serializedData[key]);
             }
 
-            [Theory]
-            [InlineData("foo", typeof(string), "bar")]
-            [InlineData("int", typeof(int), 12)]
-            [InlineData("enum", typeof(EnumQueryStub), EnumQueryStub.Foobar)]
-            [InlineData("decimal", typeof(decimal), 1.2)]
-            [InlineData("bool", typeof(bool), true)]
-            [InlineData("double", typeof(double), 1.2)]
-            [InlineData("dateTime", typeof(DateTime), "2020-01-01")]
+            public static IEnumerable<object[]> RouteArguments => new[]
+            {
+                new object[] { "foo", typeof(string), "bar" },
+                new object[] { "int", typeof(int), 12 },
+                new object[] { "enum", typeof(EnumQueryStub), EnumQueryStub.Foobar },
+                new object[] { "decimal", typeof(decimal), 1.2m },
+                new object[] { "bool", typeof(bool), true },
+                new object[] { "double", typeof(double), 1.2 },
+                new object[] { "dateTime", typeof(DateTime), "2020-01-01" },
+            };
+
+            [Theory, MemberData(nameof(RouteArguments))]
             public async Task GetOnlyHasRouteArg_ConvertsToType(string key, Type expectedType, object value)
             {
                 /* Arrange */
@@ -199,8 +178,6 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
                     .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
                 A.CallTo(() => context.Request.RouteValues).Returns(routeData);
-                // the GetRouteData extension calls this
-                A.CallTo(() => context.Features.Get<IRoutingFeature>()).Returns(null);
 
                 /* Act */
                 await context.DeserializeIntoAsync<QueryStub>(serializer, token);
@@ -226,23 +203,6 @@ namespace BusinessApp.WebApi.UnitTest
 
                 /* Assert */
                 Assert.Equal(new float[] { 1, 2, 3 }, serializedData["enumerable"]);
-            }
-
-            [Fact]
-            public async Task AnyMethodWithBody_SerializedNestedClass()
-            {
-                /* Arrange - TODO no unit test on pipe reader, do functional test */
-                var reader = A.Dummy<PipeReader>();
-                var query = A.Fake<QueryStub>();
-                A.CallTo(() => context.Request.BodyReader).Returns(reader);
-                A.CallTo(() => serializer.Deserialize<QueryStub>(A<MemoryStream>._))
-                    .Returns(query);
-
-                /* Act */
-                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
-
-                /* Assert */
-                Assert.Same(query, returned);
             }
 
             [Theory]
@@ -329,6 +289,47 @@ namespace BusinessApp.WebApi.UnitTest
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
+            }
+
+            [Fact]
+            public async Task NotGetOrDeleteWithBody_BodyDeserialized()
+            {
+                /* Arrange */
+                var reader = A.Dummy<PipeReader>();
+                var query = A.Fake<QueryStub>();
+                A.CallTo(() => context.Request.BodyReader).Returns(reader);
+                A.CallTo(() => serializer.Deserialize<QueryStub>(A<MemoryStream>._))
+                    .Returns(query);
+
+                /* Act */
+                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+
+                /* Assert */
+                Assert.Same(query, returned);
+            }
+
+            [Fact]
+            public async Task NotGetOrDeleteWithBodyAndRouteData_AllDeserialized()
+            {
+                /* Arrange */
+                /* Arrange */
+                var routeData = new RouteValueDictionary
+                {
+                    { "foo", "bar" }
+                };
+                A.CallTo(() => context.Request.RouteValues).Returns(routeData);
+                var reader = A.Dummy<PipeReader>();
+                var query = new QueryStub { Bool = true, Foo = null };
+                A.CallTo(() => context.Request.BodyReader).Returns(reader);
+                A.CallTo(() => serializer.Deserialize<QueryStub>(A<MemoryStream>._))
+                    .Returns(query);
+
+                /* Act */
+                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+
+                /* Assert */
+                Assert.Equal("bar", returned.Foo);
+                Assert.True(returned.Bool);
             }
         }
     }
