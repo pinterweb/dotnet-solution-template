@@ -59,7 +59,7 @@ namespace BusinessApp.App.IntegrationTest
             public void Log_NewDirectory_CreatesIt()
             {
                 /* Arrange */
-                fixture.FilePath = $"{childDirectory}/log-file-test.log";
+                fixture.FilePath = $"{childDirectory}/Log_NewDirectory_CreatesIt.log";
                 A.CallTo(() => file.Name).Returns(fixture.FilePath);
 
                 /* Act */
@@ -74,6 +74,7 @@ namespace BusinessApp.App.IntegrationTest
             {
                 /* Arrange */
                 var entry = A.Dummy<LogEntry>();
+                fixture.FilePath = $"{childDirectory}/Log_WithLogEntry_LogsMessage.log";
                 A.CallTo(() => formatter.Format(entry)).Returns("foobar");
                 A.CallTo(() => file.Name).Returns(fixture.FilePath);
 
