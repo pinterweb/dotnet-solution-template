@@ -1,6 +1,8 @@
 ﻿namespace BusinessApp.WebApi
 {
+#if winauth
     using Microsoft.AspNetCore.Authorization;
+#endif
     using Microsoft.AspNetCore.Builder;
     using SimpleInjector;
 
