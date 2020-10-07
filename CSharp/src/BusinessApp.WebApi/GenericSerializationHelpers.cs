@@ -11,7 +11,6 @@ namespace BusinessApp.WebApi
     using BusinessApp.App;
     using BusinessApp.Data;
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Routing;
 
     public static class GenericSerializationHelpers<T>
     {
@@ -24,16 +23,17 @@ namespace BusinessApp.WebApi
             setterCache = new Dictionary<string, (Type, Action<T, object>)>(StringComparer.OrdinalIgnoreCase);
 
             RecurseAllProperties(typeof(T), "");
+            GetTopLevelProperties(typeof(T));
         }
 
-        public static Stream DeserializeUri(HttpContext context, ISerializer serializer)
+        public static Stream SerializeRouteAndQueryValues(HttpContext context, ISerializer serializer)
         {
-            var queryArgs = new Dictionary<string, object>(context.GetRouteData().Values);
+            var queryArgs = new Dictionary<string, object>(context.Request.RouteValues);
             var collection = HttpUtility.ParseQueryString(context.Request.QueryString.Value);
 
             foreach (string r in collection)
             {
-                if (!queryArgs.ContainsKey(r))
+                if (!string.IsNullOrWhiteSpace(r) && !queryArgs.ContainsKey(r))
                 {
                     queryArgs.Add(r, collection[r]);
                 }
@@ -85,9 +85,16 @@ namespace BusinessApp.WebApi
                 }
                 else
                 {
-                    var _ = setterCache.TryAdd(property.Name, (property.PropertyType, BuildSetter(property)));
                     propertyCache.Add(prefix + property.Name, property.PropertyType);
                 }
+            }
+        }
+
+        private static void GetTopLevelProperties(Type type)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                setterCache.Add(property.Name, (property.PropertyType, BuildSetter(property)));
             }
         }
 

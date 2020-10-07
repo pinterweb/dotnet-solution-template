@@ -27,14 +27,13 @@
                 using var ms = new MemoryStream(body.Buffer.ToArray());
                 var model = serializer.Deserialize<T>(ms);
 
-
                 if (context.Request.RouteValues.Count > 0)
                 {
                     GenericSerializationHelpers<T>.SetProperties(model, context.Request.RouteValues);
                 }
             }
 
-            using (var stream = GenericSerializationHelpers<T>.DeserializeUri(context, serializer))
+            using (var stream = GenericSerializationHelpers<T>.SerializeRouteAndQueryValues(context, serializer))
             {
                 return serializer.Deserialize<T>(stream);
             }
