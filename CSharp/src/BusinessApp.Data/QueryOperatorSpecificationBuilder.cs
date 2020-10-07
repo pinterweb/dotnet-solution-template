@@ -38,17 +38,17 @@ namespace BusinessApp.Data
         // support for inheritance since the interface is contravariant
         private static ICollection<PropertyInfo> CreateRuntimeFilters(TQuery query)
         {
-            var childType = query.GetType();
+            var queryType = query.GetType();
 
-            if (!RuntimeFilterCache.TryGetValue(childType, out ICollection<PropertyInfo> props))
+            if (!RuntimeFilterCache.TryGetValue(queryType, out ICollection<PropertyInfo> props))
             {
                 props =
-                    childType
+                    queryType
                     .GetProperties()
                     .Where(p => p.GetCustomAttributes(typeof(QueryOperatorAttribute)).Any())
                     .ToList();
 
-                var _ = RuntimeFilterCache.TryAdd(childType, props);
+                var _ = RuntimeFilterCache.TryAdd(queryType, props);
             }
 
             return props;

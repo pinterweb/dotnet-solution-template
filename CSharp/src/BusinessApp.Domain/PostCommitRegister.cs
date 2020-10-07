@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -9,18 +10,12 @@
     /// </summary>
     public class PostCommitRegister : IPostCommitRegister
     {
-        private readonly List<Func<Task>> finishHandlers
-            = new List<Func<Task>>();
-
-        public ICollection<Func<Task>> FinishHandlers
-        {
-            get => finishHandlers;
-        }
+        public ICollection<Func<Task>> FinishHandlers { get; } = new List<Func<Task>>();
 
         public async Task OnFinishedAsync()
         {
-            var handlersToRun = finishHandlers.ToArray();
-            finishHandlers.Clear();
+            var handlersToRun = FinishHandlers.ToArray();
+            FinishHandlers.Clear();
 
             for (int i = 0; i < handlersToRun.Length; i++)
             {
