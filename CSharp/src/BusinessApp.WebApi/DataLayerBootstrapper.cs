@@ -71,11 +71,6 @@
             container.RegisterConditional(typeof(IRequestHandler<,>),
                 typeof(EFEnvelopedQueryHandler<,>),
                 ctx => !ctx.Handled);
-            container.RegisterConditional(
-                typeof(IRequestHandler<,>),
-                typeof(EFSingleQueryStrategyHandler<,>),
-                ctx => !ctx.Handled
-            );
             container.Register<IEventRepository, EventRepository>();
             container.Register<EFUnitOfWork>();
             container.Register<IUnitOfWork>(() => container.GetInstance<EFUnitOfWork>());

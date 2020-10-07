@@ -40,37 +40,4 @@
             return Result<IEnumerable<TResult>, IFormattable>.Ok(queryResults);
         }
     }
-
-    /// <summary>
-    /// Entity Framework query handler for one record set
-    /// </summary>
-    public class EFSingleQueryStrategyHandler<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : IQuery
-        where TResult : class
-    {
-        private readonly BusinessAppDbContext db;
-        private readonly IDbSetVisitorFactory<TQuery, TResult> dbSetFactory;
-        private readonly IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory;
-
-        public EFSingleQueryStrategyHandler(BusinessAppDbContext db,
-            IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
-            IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
-        {
-            this.db = Guard.Against.Null(db).Expect(nameof(db));
-            this.queryVisitorFactory = Guard.Against.Null(queryVisitorFactory).Expect(nameof(queryVisitorFactory));
-            this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
-        }
-
-        public virtual async Task<Result<TResult, IFormattable>> HandleAsync(
-            TQuery query, CancellationToken cancellationToken)
-        {
-            var queryableFactory = dbSetFactory.Create(query);
-            var queryVisitor = queryVisitorFactory.Create(query);
-            var queryable = queryableFactory.Visit(db.Set<TResult>());
-
-            var queryResults = await queryVisitor.Visit(queryable).SingleOrDefaultAsync();
-
-            return Result<TResult, IFormattable>.Ok(queryResults);
-        }
-    }
 }

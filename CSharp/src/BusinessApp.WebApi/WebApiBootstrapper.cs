@@ -25,6 +25,12 @@
             Container container,
             BootstrapOptions options)
         {
+            // TODO need to register prior to Data layer. Probabl should put
+            // all request handling in one bootstrap file instead of layers
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(SingleQueryHandlerDelegator<,>),
+                ctx => ctx.Handled);
             DomainLayerBoostrapper.Bootstrap(container);
             DataLayerBootstrapper.Bootstrap(container, options);
             AppLayerBootstrapper.Bootstrap(container, env, options);
