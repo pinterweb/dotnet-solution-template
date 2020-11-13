@@ -1,8 +1,5 @@
 ﻿namespace BusinessApp.WebApi
 {
-    using System;
-    using System.Buffers;
-    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.App;
@@ -13,29 +10,25 @@
         /// <summary>
         /// Deserializes the uri or body depending on the request method
         /// </summary>
-        public static async Task<T> DeserializeIntoAsync<T>(this HttpContext context,
+        public static Task<T> DeserializeIntoAsync<T>(this HttpContext context,
             ISerializer serializer,
             CancellationToken cancellationToken)
         {
-            if (!context.Request.Method.Equals("get", StringComparison.OrdinalIgnoreCase) &&
-                !context.Request.Method.Equals("delete", StringComparison.OrdinalIgnoreCase) &&
-                (context.Request.ContentLength == null || context.Request.ContentLength > 0)
-            )
+            if (context.Request.MayHaveContent())
             {
-                var body = await context.Request.BodyReader.ReadAsync(cancellationToken);
-
-                using var ms = new MemoryStream(body.Buffer.ToArray());
-                var model = serializer.Deserialize<T>(ms);
+                var model = serializer.Deserialize<T>(context.Request.Body);
 
                 if (context.Request.RouteValues.Count > 0)
                 {
                     GenericSerializationHelpers<T>.SetProperties(model, context.Request.RouteValues);
                 }
+
+                return Task.FromResult(model);
             }
 
             using (var stream = GenericSerializationHelpers<T>.SerializeRouteAndQueryValues(context, serializer))
             {
-                return serializer.Deserialize<T>(stream);
+                return Task.FromResult(serializer.Deserialize<T>(stream));
             }
         }
     }

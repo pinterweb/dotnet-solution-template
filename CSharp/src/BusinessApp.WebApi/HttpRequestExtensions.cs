@@ -1,15 +1,21 @@
 namespace BusinessApp.WebApi
 {
-    using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
+    using System.Linq;
 
     public static class HttpRequestExtensions
     {
-        public static async Task<bool> HasBody(this HttpRequest request)
+        private static readonly string[] BodyMethods = new[]
         {
-            var firstByte = await request.BodyReader.ReadAsync();
+            HttpMethods.Patch,
+            HttpMethods.Post,
+            HttpMethods.Put
+        };
 
-            return !firstByte.Buffer.IsEmpty;
+        public static bool MayHaveContent(this HttpRequest request)
+        {
+            return BodyMethods.Contains(request.Method)
+                && (request.ContentLength == null || request.ContentLength > 0);
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿namespace BusinessApp.WebApi.Json
-{
-    using Microsoft.AspNetCore.Http;
-    using System;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using System.Threading;
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using System.Threading;
 
+namespace BusinessApp.WebApi.Json
+{
     /// <summary>
     /// Writes out the final response after handling the request
     /// </summary>
@@ -23,13 +23,10 @@
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
         {
-            var validContentType =
-                !string.IsNullOrWhiteSpace(context.Request.ContentType) &&
-                context.Request.ContentType.Contains("application/json");
+            var validContentType = !string.IsNullOrWhiteSpace(context.Request.ContentType)
+                && context.Request.ContentType.Contains("application/json");
 
-            var requestHasBody = await context.Request.HasBody();
-
-            if (requestHasBody && !validContentType)
+            if (context.Request.MayHaveContent() && !validContentType)
             {
                 context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
                 return Result<TResponse, IFormattable>.Error($"Expected content-type to be application/json");

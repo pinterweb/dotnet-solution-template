@@ -61,6 +61,17 @@
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseSimpleInjector(container);
+            // until ISerializer interface is changed
+            app.Use(async (ctx, next) =>
+            {
+                var syncIOFeature = ctx.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpBodyControlFeature>();
+                if (syncIOFeature != null)
+                {
+                    syncIOFeature.AllowSynchronousIO = true;
+                }
+                await next();
+            });
+
             app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
 
             app.SetupEndpoints(container);

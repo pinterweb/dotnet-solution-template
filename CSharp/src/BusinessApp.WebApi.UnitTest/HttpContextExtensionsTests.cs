@@ -10,9 +10,8 @@ namespace BusinessApp.WebApi.UnitTest
     using System;
     using System.Threading.Tasks;
     using System.Threading;
-    using System.IO.Pipelines;
     using Xunit.Abstractions;
-    using System.ComponentModel;
+    using System.Linq;
 
     public class HttpContextExtensionsTests
     {
@@ -37,52 +36,59 @@ namespace BusinessApp.WebApi.UnitTest
                 serializer = A.Fake<ISerializer>();
             }
 
-            [Theory]
-            [InlineData("GET")]
-            [InlineData("get")]
-            [InlineData("delete")]
-            [InlineData("DELETE")]
-            public async Task GetOrDeleteMethod_CaseIgnored(string method)
+            public static IEnumerable<object[]> QueryMethods => new[]
+            {
+                new object[] { HttpMethods.Get },
+                new object[] { HttpMethods.Delete }
+            };
+
+            public static IEnumerable<object[]> SaveMethods => new[]
+            {
+                new object[] { HttpMethods.Post },
+                new object[] { HttpMethods.Put },
+                new object[] { HttpMethods.Patch }
+            };
+
+            public static IEnumerable<object[]> AllMethods => SaveMethods.Concat(QueryMethods);
+
+            [Theory, MemberData(nameof(AllMethods))]
+            public async Task NoQueryStringRouteArgsOrBody_NewInstanceStillReturned(string method)
             {
                 /* Arrange */
                 A.CallTo(() => context.Request.Method).Returns(method);
                 A.CallTo(() => context.Request.ContentLength).Returns(0);
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                var result = await context.DeserializeIntoAsync<QueryStub>(serializer, default);
 
                 /* Assert */
-                A.CallTo(() => serializer.Serialize(
-                        A<Stream>._,
-                        A<IDictionary<string, object>>._))
-                    .MustHaveHappenedOnceExactly();
+                Assert.NotNull(result);
             }
 
-            [Theory]
-            [InlineData("get", "?blah=blah")]
-            [InlineData("DELETE", "?blah=blah")]
-            [InlineData("get", "?blahblah")]
-            [InlineData("DELETE", "?blahblah")]
-            public async Task GetOrDeleteUnknownQueryStringKey_EmptyDictionarySerialized(
+            public static IEnumerable<object[]> BadQueryStrings => new[]
+            {
+                new object[] { HttpMethods.Get, "?blah=blah" },
+                new object[] { HttpMethods.Get, "?blahblah" },
+                new object[] { HttpMethods.Delete, "?blah=blah" },
+                new object[] { HttpMethods.Delete, "?blahblah" },
+            };
+
+            [Theory, MemberData(nameof(BadQueryStrings))]
+            public async Task GetOrDeleteUnknownQueryStringKey_NewInstanceStillReturned(
                 string method, string queryString)
             {
                 /* Arrange */
-                IDictionary<string, object> serializedData = null;
                 A.CallTo(() => context.Request.Method).Returns(method);
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
-                    .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString(queryString));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                var result = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
 
                 /* Assert */
-                Assert.Empty(serializedData);
+                Assert.NotNull(result);
             }
 
-            [Theory]
-            [InlineData("get")]
-            [InlineData("DELETE")]
+            [Theory, MemberData(nameof(QueryMethods))]
             public async Task GetOrDeleteOnlyHasQueryString_SerializedAllWithDictionary(string method)
             {
                 /* Arrange */
@@ -102,9 +108,7 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal("ipsum", serializedData["lorem"]);
             }
 
-            [Theory]
-            [InlineData("get")]
-            [InlineData("DELETE")]
+            [Theory, MemberData(nameof(QueryMethods))]
             public async Task GetOrDeleteOnlyHasRouteArg_SerializedAllWithDictionary(string method)
             {
                 /* Arrange */
@@ -186,9 +190,32 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.IsType(expectedType, serializedData[key]);
             }
 
-            [Theory]
-            [InlineData("get")]
-            [InlineData("DELETE")]
+            [Theory, MemberData(nameof(QueryMethods))]
+            public async Task GetOrDeleteHasRouteArgAndQueryString_SerializedBoth(string method)
+            {
+                /* Arrange */
+                var routeData = new RouteValueDictionary
+                {
+                    { "bool", true }
+                };
+                IDictionary<string, object> serializedData = null;
+                A.CallTo(() => context.Request.Method).Returns(method);
+                A.CallTo(() => serializer.Serialize(A<Stream>._, A<IDictionary<string, object>>._))
+                    .Invokes(ctx => serializedData = ctx.GetArgument<IDictionary<string, object>>(1));
+                A.CallTo(() => context.Request.RouteValues).Returns(routeData);
+                // the GetRouteData extension calls this
+                A.CallTo(() => context.Features.Get<IRoutingFeature>()).Returns(null);
+                A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?foo=bar"));
+
+                /* Act */
+                await context.DeserializeIntoAsync<QueryStub>(serializer, default);
+
+                /* Assert */
+                Assert.Equal("bar", serializedData["foo"]);
+                Assert.Equal(true, serializedData["bool"]);
+            }
+
+            [Theory, MemberData(nameof(QueryMethods))]
             public async Task GetOrDeleteCSVQueryString_SerializedToIEnumerable(string method)
             {
                 /* Arrange */
@@ -205,9 +232,7 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal(new float[] { 1, 2, 3 }, serializedData["enumerable"]);
             }
 
-            [Theory]
-            [InlineData("GET")]
-            [InlineData("delete")]
+            [Theory, MemberData(nameof(QueryMethods))]
             public async Task GetOrDeleteNestedClassWithDot_SerializedToDictionary(string method)
             {
                 /* Arrange */
@@ -230,9 +255,7 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal(expectNestedDictionary, serializedData["singleNested"]);
             }
 
-            [Theory]
-            [InlineData("GET")]
-            [InlineData("delete")]
+            [Theory, MemberData(nameof(QueryMethods))]
             public async Task GetOrDeleteDeeplyNestedClassWithDot_SerializedToDictionary(string method)
             {
                 /* Arrange */
@@ -261,9 +284,7 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
             }
 
-            [Theory]
-            [InlineData("GET")]
-            [InlineData("delete")]
+            [Theory, MemberData(nameof(QueryMethods))]
             public async Task GetOrDeleteDeeplyNestedEnumerableWithDot_SerializedToDictionary(string method)
             {
                 /* Arrange */
@@ -291,14 +312,13 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
             }
 
-            [Fact]
-            public async Task NotGetOrDeleteWithBody_BodyDeserialized()
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBody_BodyDeserialized(string method)
             {
                 /* Arrange */
-                var reader = A.Dummy<PipeReader>();
                 var query = A.Fake<QueryStub>();
-                A.CallTo(() => context.Request.BodyReader).Returns(reader);
-                A.CallTo(() => serializer.Deserialize<QueryStub>(A<MemoryStream>._))
+                A.CallTo(() => context.Request.Method).Returns(method);
+                A.CallTo(() => serializer.Deserialize<QueryStub>(context.Request.Body))
                     .Returns(query);
 
                 /* Act */
@@ -308,20 +328,18 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Same(query, returned);
             }
 
-            [Fact]
-            public async Task NotGetOrDeleteWithBodyAndRouteData_AllDeserialized()
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBodyAndRouteData_BothDeserialized(string method)
             {
-                /* Arrange */
                 /* Arrange */
                 var routeData = new RouteValueDictionary
                 {
                     { "foo", "bar" }
                 };
+                A.CallTo(() => context.Request.Method).Returns(method);
                 A.CallTo(() => context.Request.RouteValues).Returns(routeData);
-                var reader = A.Dummy<PipeReader>();
                 var query = new QueryStub { Bool = true, Foo = null };
-                A.CallTo(() => context.Request.BodyReader).Returns(reader);
-                A.CallTo(() => serializer.Deserialize<QueryStub>(A<MemoryStream>._))
+                A.CallTo(() => serializer.Deserialize<QueryStub>(context.Request.Body))
                     .Returns(query);
 
                 /* Act */
