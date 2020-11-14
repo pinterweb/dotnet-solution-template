@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Threading.Tasks;
-using BusinessApp.Domain;
-using System.Threading;
-
-namespace BusinessApp.WebApi.Json
+﻿namespace BusinessApp.WebApi.Json
 {
+    using Microsoft.AspNetCore.Http;
+    using System;
+    using System.Threading.Tasks;
+    using BusinessApp.Domain;
+    using System.Threading;
+
     /// <summary>
     /// Writes out the final response after handling the request
     /// </summary>
@@ -21,7 +21,8 @@ namespace BusinessApp.WebApi.Json
             this.modelWriter = Guard.Against.Null(modelWriter).Expect(nameof(modelWriter));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
+            CancellationToken cancellationToken)
         {
             var validContentType = !string.IsNullOrWhiteSpace(context.Request.ContentType)
                 && context.Request.ContentType.Contains("application/json");
@@ -32,17 +33,25 @@ namespace BusinessApp.WebApi.Json
                 return Result<TResponse, IFormattable>.Error($"Expected content-type to be application/json");
             }
 
-            var result = await inner.HandleAsync(context, cancellationToken);
-
-            context.Response.ContentType = result.Kind switch
+            try
             {
-                ValueKind.Error => "application/problem+json",
-                _ => "application/json",
+                var result = await inner.HandleAsync(context, cancellationToken);
+
+                context.Response.ContentType = result.Kind switch
+                {
+                    ValueKind.Error => "application/problem+json",
+                    _ => "application/json",
+                };
+
+                await modelWriter.WriteResponseAsync(context, result);
+
+                return result;
+            }
+            catch
+            {
+                context.Response.ContentType = "application/problem+json";
+                throw;
             };
-
-            await modelWriter.WriteResponseAsync(context, result);
-
-            return result;
         }
     }
 }

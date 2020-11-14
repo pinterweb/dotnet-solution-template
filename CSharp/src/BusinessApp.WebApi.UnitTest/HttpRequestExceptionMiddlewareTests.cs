@@ -7,8 +7,6 @@ namespace BusinessApp.WebApi.UnitTest
     using System;
     using System.Threading.Tasks;
     using System.Collections.Generic;
-    using BusinessApp.App;
-    using BusinessApp.WebApi.ProblemDetails;
 
     public class HttpRequestExceptionMiddlewareTests
     {
@@ -178,6 +176,36 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Assert */
                 A.CallTo(() => writer.WriteResponseAsync(context))
                     .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task ResponseNotStarted_WritesIFormattableResponse()
+            {
+                /* Arrange */
+                var context = A.Dummy<HttpContext>();
+                var next = A.Dummy<RequestDelegate>();
+                var error = new FormattableException();
+                Result<IFormattable, IFormattable> result = default;
+                A.CallTo(() => context.Response.HasStarted).Returns(false);
+                A.CallTo(() => next.Invoke(context)).Throws(error);
+                A.CallTo(() => writer.WriteResponseAsync(
+                        context, A<Result<IFormattable, IFormattable>>._
+                    ))
+                    .Invokes(c => result = c.GetArgument<Result<IFormattable, IFormattable>>(1));
+
+                /* Act */
+                await sut.InvokeAsync(context, next);
+
+                /* Assert */
+                Assert.Same(error, result.UnwrapError());
+            }
+
+            class FormattableException : Exception, IFormattable
+            {
+                public string ToString(string format, IFormatProvider formatProvider)
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
     }

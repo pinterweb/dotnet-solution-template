@@ -32,7 +32,15 @@
                 if (!context.Response.HasStarted)
                 {
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    await writer.WriteResponseAsync(context);
+
+                    if (exception is IFormattable f)
+                    {
+                        await writer.WriteResponseAsync(context, Result.Error(f).Into());
+                    }
+                    else
+                    {
+                        await writer.WriteResponseAsync(context);
+                    }
                 }
             }
         }
