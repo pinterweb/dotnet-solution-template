@@ -4,6 +4,7 @@ namespace BusinessApp.App
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using BusinessApp.Domain;
 
     [Serializable]
@@ -22,10 +23,7 @@ namespace BusinessApp.App
         {
             this.memberErrors = Guard.Against.Empty(memberErrors).Expect(nameof(memberErrors));
 
-            foreach (var error in memberErrors)
-            {
-                Data.Add(error.MemberName, error.Errors);
-            }
+            Data.Add("ValidationErrors", memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
         }
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
