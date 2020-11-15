@@ -3,77 +3,78 @@
     using System;
     using System.ComponentModel;
     using System.Globalization;
-    using System.Linq.Expressions;
+    using System.Reflection;
 
     /// <summary>
-    /// Converts the <see cref="EntityId{T}"/> to the primitive type
+    /// Converts an <see cref="IEntityId"/> to its primitive type
     /// </summary>
     public class EntityIdTypeConverter<TId, T> : TypeConverter
-        where TId : EntityId<T>
-        where T : IComparable
+        where TId : IEntityId
     {
-        private static readonly Func<T, TId> Creator;
-        private static readonly Func<TId, T> Getter;
-        private static TypeConverter Inner;
+        private static readonly Type InnerType = typeof(T);
+        private static readonly Type IdType = typeof(TId);
+        private static readonly TypeConverter Inner;
+        private static readonly ConstructorInfo ConvertFromCtor;
 
         static EntityIdTypeConverter()
         {
-            var targetType = typeof(TId);
-
-            var idValueParam = Expression.Parameter(typeof(T), "id");
-            var ctor = Expression.New(targetType);
-            var idValueProp = targetType.GetProperty("Id");
-            var idValAssignment = Expression.Bind(idValueProp, idValueParam);
-            var memberInit = Expression.MemberInit(ctor, idValAssignment);
-
-            var getMethodInfo = idValueProp.GetGetMethod();
-            var exTarget = Expression.Parameter(targetType, "t");
-            var exBody = Expression.Call(exTarget, getMethodInfo);
-            var exBody2 = Expression.Convert(exBody, typeof(T));
-
-            Getter = Expression.Lambda<Func<TId, T>>(exBody2, exTarget).Compile();
-            Creator = Expression.Lambda<Func<T, TId>>(memberInit, idValueParam).Compile();
             Inner = TypeDescriptor.GetConverter(typeof(T));
+            ConvertFromCtor = IdType.GetConstructor(new[] { InnerType });
         }
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-            => typeof(T) == sourceType || Inner.CanConvertFrom(sourceType);
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            if (value is T)
+            if (ConvertFromCtor == null) return false;
+
+            return InnerType == sourceType || Inner.CanConvertFrom(sourceType);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture,
+            object value)
+        {
+            if (ConvertFromCtor == null)
             {
-                return Creator((T)value);
+                var sourceTypeName = value.GetType();
+                throw new BusinessAppException($"To convert from '{sourceTypeName}' to " +
+                    $"'{typeof(TId).Name}', the IEntityId needs a constructor that has an '{sourceTypeName}' " +
+                    "argument only");
             }
 
-            var innerValue = (T)Inner.ConvertFrom(context, culture, value);
+            if (value is T)
+            {
+                return ConvertFromCtor.Invoke(new object[] { value });
+            }
 
-            return Creator(innerValue);
+            var innerValue = Inner.ConvertFrom(context, culture, value);
+
+            return ConvertFromCtor.Invoke(new object[] { innerValue });
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            => typeof(T) == destinationType || Inner.CanConvertTo(context, destinationType);
+            => InnerType == destinationType || Inner.CanConvertTo(context, destinationType);
 
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture,
+            object value, Type destinationType)
         {
-            if (value is TId)
+            if (!(value is TId))
             {
-                return Getter((TId)value);
+                throw new BusinessAppException($"Source value must be '{IdType.Name}'");
             }
 
-            var innerValue = (TId)Inner.ConvertTo(context, culture, value, destinationType);
+            var innerValue = Convert.ChangeType(value, InnerType);
 
-            return Getter(innerValue);
+            if (InnerType == destinationType) return innerValue;
+
+            return Inner.ConvertTo(context, culture, innerValue, destinationType);
         }
 
         public override bool IsValid(ITypeDescriptorContext context, object value)
         {
-            if (value.GetType() == typeof(T)) return true;
-
             try
             {
-                Convert.ChangeType(value, typeof(T));
-                return true;
+                var valueType = value?.GetType();
+
+                return CanConvertFrom(context, valueType);
             }
             catch
             {

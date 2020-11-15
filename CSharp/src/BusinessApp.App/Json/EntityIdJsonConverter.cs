@@ -8,11 +8,23 @@
     /// <summary>
     /// Converts to and from the complex <see cref="EntityId{T}"/> and primitive {T} Id type
     /// </summary>
-    public class EntityIdJsonConverter<T> : JsonConverter
-        where T : IComparable
+    public class EntityIdJsonConverter : JsonConverter
     {
-        public override bool CanConvert(Type objectType)
-            => typeof(EntityId<T>).IsAssignableFrom(objectType);
+        private static TypeCode[] NumberTypeCodes = new[]
+        {
+            TypeCode.Int16,
+            TypeCode.Int32,
+            TypeCode.Int64,
+        };
+
+        private static readonly string ErrTemplate = "Cannot read value for '{0}' because the type is incorrect";
+
+        public override bool CanConvert(Type objectType) =>
+        (
+            typeof(IEntityId).IsAssignableFrom(objectType) ||
+            typeof(IEntityId).IsAssignableFrom(Nullable.GetUnderlyingType(objectType))
+        )
+            && objectType.IsValueType;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
@@ -21,38 +33,51 @@
 
             var converter = TypeDescriptor.GetConverter(objectType);
 
-            if (converter.CanConvertFrom(reader.ValueType))
+            try
             {
-                try
+                if (CanTryToConvertNumber(reader, converter))
                 {
-                    return converter.ConvertFrom(reader.Value);
+                    var defaultValue = (IEntityId)Activator.CreateInstance(
+                        Nullable.GetUnderlyingType(objectType) ?? objectType);
+
+                    return converter.ConvertFrom(Convert.ChangeType(reader.Value, defaultValue.GetTypeCode()));
                 }
-                catch
+                if (converter.CanConvertTo(reader.ValueType) || CanTryToConvertNumber(reader, converter))
                 {
-                    throw new FormatException($"Cannot read value for '{reader.Path}' because the " +
-                        $"type is incorrect. Expected a '{typeof(T).Name}'.");
+                        return converter.ConvertFrom(reader.Value);
                 }
             }
+            catch(Exception e)
+            {
+                throw new BusinessAppAppException(string.Format(ErrTemplate, reader.Path), e);
+            }
 
-            throw new FormatException($"Cannot read value for '{reader.Path}' because the " +
-                $"type is incorrect. Expected a '{typeof(T).Name}', but read a '{reader.ValueType.Name}'.");
+            throw new BusinessAppAppException(string.Format(ErrTemplate, reader.Path));
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var converter = TypeDescriptor.GetConverter(value);
-
-            if (converter.CanConvertTo(typeof(T)))
+            if (value is IEntityId id)
             {
-                var innerValue = converter.ConvertTo(value, typeof(T));
+                var innerValue = Convert.ChangeType(id, id.GetTypeCode());
 
                 serializer.Serialize(writer, innerValue);
             }
             else
             {
-                throw new NotSupportedException("Cannot write the EntityId to a json value. " +
-                    $"Cannot convert from '{value.GetType().Name}' to '{typeof(T).Name}'.");
+                throw new NotSupportedException("Cannot write the json value because the " +
+                    "source value is not an IEntityId");
             }
+        }
+
+        // all json values are long, so we need to convert to actual type
+        private static bool CanTryToConvertNumber(JsonReader reader, TypeConverter converter)
+        {
+            return reader.ValueType == typeof(long) &&
+            (
+                converter.CanConvertFrom(typeof(int)) ||
+                converter.CanConvertFrom(typeof(short))
+            );
         }
     }
 }

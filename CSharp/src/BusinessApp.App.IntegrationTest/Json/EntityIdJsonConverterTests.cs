@@ -12,11 +12,11 @@ namespace BusinessApp.App.IntegrationTest.Json
 
     public class EntityIdJsonConverterTests
     {
-        private readonly EntityIdJsonConverter<int> sut;
+        private readonly EntityIdJsonConverter sut;
 
         public EntityIdJsonConverterTests()
         {
-            sut = new EntityIdJsonConverter<int>();
+            sut = new EntityIdJsonConverter();
         }
 
         public class ReadJson : EntityIdJsonConverterTests
@@ -54,12 +54,13 @@ namespace BusinessApp.App.IntegrationTest.Json
             }
 
             [Theory]
-            [InlineData("true", "Boolean")]
-            [InlineData("'2010-01-01T11:01:11'", "DateTime")]
-            [InlineData("1.1", "Double")]
-            [InlineData("2147483648", "Int64")] // number too big
-            public void CannotReadValue_FormatExceptionThrown(string value,
-                string wrongTypeName)
+            [InlineData(typeof(EntityIntIdStub), "true")]
+            [InlineData(typeof(EntityIntIdStub), "'2010-01-01T11:01:11'")]
+            [InlineData(typeof(EntityIntIdStub), "1.1")]
+             // number too big, but will attempt to convert though. All json numbers are long
+            [InlineData(typeof(EntityIntIdStub), "2147483648")]
+            [InlineData(typeof(NullableEntityIntIdStub), "2147483648")]
+            public void CannotReadValue_AppExceptionThrown(Type idType, string value)
             {
                 /* Arrange */
                 string json = "{'id': " + value + " }";
@@ -75,47 +76,15 @@ namespace BusinessApp.App.IntegrationTest.Json
                     reader.Read();
 
                     ex = Record.Exception(() => sut.ReadJson(reader,
-                        typeof(EntityIntIdStub),
+                        idType,
                         A.Dummy<object>(),
                         serializer));
                 }
 
                 /* Assert */
-                Assert.IsType<FormatException>(ex);
+                Assert.IsType<BusinessAppAppException>(ex);
                 Assert.Equal(
-                    "Cannot read value for 'id' because the type is incorrect. " +
-                    $"Expected a 'Int32', but read a '{wrongTypeName}'.",
-                    ex.Message
-                );
-            }
-
-            [Fact]
-            public void CannotReadConvertableValue_FormatExceptionThrown()
-            {
-                /* Arrange */
-                string json = "{'id': 'SEkdUlMdVlcA' }";
-                var serializer = new JsonSerializer();
-                Exception ex = null;
-
-                /* Act */
-                using (var reader = new JsonTextReader(new StringReader(json)))
-                {
-                    // Start of object, then property name, then value
-                    reader.Read();
-                    reader.Read();
-                    reader.Read();
-
-                    ex = Record.Exception(() => sut.ReadJson(reader,
-                        typeof(EntityIntIdStub),
-                        A.Dummy<object>(),
-                        serializer));
-                }
-
-                /* Assert */
-                Assert.IsType<FormatException>(ex);
-                Assert.Equal(
-                    "Cannot read value for 'id' because the type is incorrect. Expected " +
-                    "a 'Int32'.",
+                    "Cannot read value for 'id' because the type is incorrect",
                     ex.Message
                 );
             }
@@ -143,14 +112,14 @@ namespace BusinessApp.App.IntegrationTest.Json
                 }
 
                 /* Assert */
-                Assert.Equal(new EntityIntIdStub { Id = 11 }, readObj);
+                Assert.Equal(new EntityIntIdStub(11), readObj);
             }
         }
 
         public class WriteJson : EntityIdJsonConverterTests
         {
             [Fact]
-            public void ConverterCanConvertToGenericType_WritesJson()
+            public void IsAssignableFromIEntity_WritesJson()
             {
                 /* Arrange */
                 var serializer = new JsonSerializer();
@@ -160,17 +129,20 @@ namespace BusinessApp.App.IntegrationTest.Json
                 /* Act */
                 using (var writer = new JsonTextWriter(sw))
                 {
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("Id");
                     sut.WriteJson(writer,
-                        new EntityIntIdStub() { Id = 1 },
+                        new EntityIntIdStub(1),
                         serializer);
+                    writer.WriteEndObject();
                 }
 
                 /* Assert */
-                Assert.Equal("1", sb.ToString());
+                Assert.Equal("{\"Id\":1}", sb.ToString());
             }
 
             [Fact]
-            public void ConverterCannotConvertToGenericType_ExceptionThrown()
+            public void IsNotAssignableFromIEntity_ExceptionThrown()
             {
                 /* Arrange */
                 var serializer = new JsonSerializer();
@@ -182,28 +154,59 @@ namespace BusinessApp.App.IntegrationTest.Json
                 using (var writer = new JsonTextWriter(sw))
                 {
                     ex = Record.Exception(() => sut.WriteJson(writer,
-                        new EntityBoolIdStub() { Id = true },
+                        true,
                         serializer));
                 }
 
                 /* Assert */
                 Assert.IsType<NotSupportedException>(ex);
                 Assert.Equal(
-                    $"Cannot write the EntityId to a json value. Cannot convert " +
-                    "from 'EntityBoolIdStub' to 'Int32'.",
+                    "Cannot write the json value because the source value is not an IEntityId",
                     ex.Message
                 );
             }
         }
 
         [TypeConverter(typeof(EntityIdTypeConverter<EntityIntIdStub, int>))]
-        private sealed class EntityIntIdStub : EntityId<int>
+        private struct NullableEntityIntIdStub : IEntityId
         {
+            public NullableEntityIntIdStub(int id)
+            {
+                Id = id;
+            }
+
+            public int? Id { get; set; }
+            public TypeCode GetTypeCode() => TypeCode.Int32;
+
+            int IConvertible.ToInt32(IFormatProvider provider) => Id ?? 0;
+        }
+
+        [TypeConverter(typeof(EntityIdTypeConverter<EntityIntIdStub, int>))]
+        private struct EntityIntIdStub : IEntityId
+        {
+            public EntityIntIdStub(int id)
+            {
+                Id = id;
+            }
+
+            public int Id { get; set; }
+            public TypeCode GetTypeCode() => TypeCode.Int32;
+
+            int IConvertible.ToInt32(IFormatProvider provider) => Id;
         }
 
         [TypeConverter(typeof(EntityIdTypeConverter<EntityBoolIdStub, bool>))]
-        private sealed class EntityBoolIdStub : EntityId<bool>
+        private struct EntityBoolIdStub : IEntityId
         {
+            public EntityBoolIdStub(bool id)
+            {
+                Id = id;
+            }
+
+            public bool Id { get; set; }
+            public TypeCode GetTypeCode() => TypeCode.Boolean;
+
+            bool IConvertible.ToBoolean(IFormatProvider provider) => Id;
         }
     }
 }

@@ -21,24 +21,4 @@
             return events;
         }
     }
-
-    /// <summary>
-    /// The root entity within an aggregate, with an exposed Id
-    /// </summary>
-    public abstract class AggregateRoot<TId> : AggregateRoot
-        where TId : IEntityId
-    {
-        private TId id;
-
-        protected AggregateRoot(TId id)
-        {
-            Id = id;
-        }
-
-        public TId Id
-        {
-            get => id;
-            set => id = Guard.Against.Null(value).Expect(nameof(Id));
-        }
-    }
 }

@@ -36,9 +36,7 @@
 
                     Converters = new JsonConverter[]
                     {
-                        new EntityIdJsonConverter<long>(),
-                        new EntityIdJsonConverter<string>(),
-                        new EntityIdJsonConverter<int>(),
+                        new EntityIdJsonConverter(),
                         new LongToStringJsonConverter(),
                         new IDictionaryJsonConverter(),
                         new Newtonsoft.Json.Converters.StringEnumConverter(),
