@@ -152,6 +152,11 @@
                 },
                 Lifestyle.Scoped,
                 c => !c.Handled);
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(SingleQueryHandlerDelegator<,>),
+                ctx => !ctx.Handled);
         }
 
         private static bool HasTransactionScope(DecoratorPredicateContext ctx)
