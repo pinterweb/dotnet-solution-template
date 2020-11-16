@@ -12,140 +12,160 @@ namespace BusinessApp.Data
     public class QueryOperatorSpecificationBuilder<TQuery, TContract> :
         ILinqSpecificationBuilder<TQuery, TContract>
     {
-        private static readonly ConcurrentDictionary<Type, ICollection<PropertyInfo>> RuntimeFilterCache =
-            new ConcurrentDictionary<Type, ICollection<PropertyInfo>>();
+        private static ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>> DescriptorCache
+            = new ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>>();
 
-        private static readonly ICollection<PropertyInfo> FilterCache =
-            typeof(TQuery)
-            .GetProperties()
-            .Where(p => p.GetCustomAttributes(typeof(QueryOperatorAttribute)).Any())
-            .ToList();
+        private static ParameterExpression ContractParam
+            = Expression.Parameter(typeof(TContract), "contract");
+
+        private static ParameterExpression QueryParam
+            = Expression.Parameter(typeof(TQuery), "query");
+
+        static QueryOperatorSpecificationBuilder()
+        {
+            DescriptorCache[typeof(TQuery)] = new List<SpecificationDescriptor>();
+            CreateDescriptorCache(typeof(TQuery));
+        }
 
         public LinqSpecification<TContract> Build(TQuery query)
         {
-            var filters = (
-                FilterCache.Any()
-                    ? FilterCache
-                    : CreateRuntimeFilters(query)
-            ).Select(p => CreateSpecFromQuery(query, p));
-
-            return
-                !filters.Any() ?
-                new NullSpecification<TContract>(true) :
-                filters.Aggregate((current, next) => current & next);
-        }
-
-        // support for inheritance since the interface is contravariant
-        private static ICollection<PropertyInfo> CreateRuntimeFilters(TQuery query)
-        {
-            var queryType = query.GetType();
-
-            if (!RuntimeFilterCache.TryGetValue(queryType, out ICollection<PropertyInfo> props))
+            if (DescriptorCache.TryGetValue(query.GetType(), out ICollection<SpecificationDescriptor> e))
             {
-                props =
-                    queryType
-                    .GetProperties()
-                    .Where(p => p.GetCustomAttributes(typeof(QueryOperatorAttribute)).Any())
-                    .ToList();
+                var spec = e.Select(p => CreateSpec(query, p))
+                    .Where(s => s != null);
 
-                var _ = RuntimeFilterCache.TryAdd(queryType, props);
+                return spec.Any() ? spec.Aggregate((a, b) => a & b) : new NullSpecification<TContract>(true);
             }
 
-            return props;
+            DescriptorCache[query.GetType()] = new List<SpecificationDescriptor>();
+            CreateDescriptorCache(query.GetType());
+
+            return Build(query);
         }
 
-        private static LinqSpecification<TContract> CreateSpecFromQuery(TQuery query, PropertyInfo p)
+        private static LinqSpecification<TContract> CreateSpec(TQuery query,
+            SpecificationDescriptor e)
         {
-            var queryPropMemberExpr = Expression.Property(Expression.Constant(query), p);
+            var propertyValue = e.PropertyGetter(query);
 
-            var propertyValue = CreatePropertyAccessor(queryPropMemberExpr)
-                .Compile()
-                (query);
+            if (propertyValue == null) return null;
 
-            if (propertyValue == null)
-            {
-                return new NullSpecification<TContract>(true);
-            }
-
-            var attr = p.GetCustomAttribute<QueryOperatorAttribute>();
-
-            //x =>
-            var contractParam = Expression.Parameter(typeof(TContract), "contract");
-
-            var contractProp = Expression.Property(contractParam, attr.TargetProp);
-
-            // x.Prop == "Value"
-            var body = MapQueryOperator(attr, queryPropMemberExpr, p, contractProp, query);
-
-            // x => x.LastName == "Curry"
-            var lambda = Expression.Lambda<Func<TContract, bool>>(body, contractParam);
-
+            var body = GetBody(propertyValue, e);
+            var lambda = Expression.Lambda<Func<TContract, bool>>(body, ContractParam);
             return new LinqSpecification<TContract>(lambda);
         }
 
-        private static Expression MapQueryOperator(QueryOperatorAttribute attribute,
-            MemberExpression queryMemberExpr, PropertyInfo queryProp, MemberExpression contractProp,
-            TQuery query)
+        private static Expression GetBody(object propVal, SpecificationDescriptor e)
         {
-            var contractVal = Expression.Convert(contractProp, queryProp.PropertyType);
+            return MapQueryOperator(e.Attribute, Expression.Constant(propVal), e.ContractProp);
+        }
+
+        private static void CreateDescriptorCache(Type queryType)
+        {
+            var seenTypes = new HashSet<Type>() { queryType };
+
+            void FillCache(PropertyInfo property, Expression queryExp, Expression contractExp)
+            {
+                var attribute = property.GetCustomAttribute<QueryOperatorAttribute>();
+
+                var queryProp = Expression.Property(
+                    Expression.Convert(queryExp, property.DeclaringType), property);
+
+                if (attribute.OperatorToUse == null && !seenTypes.Contains(property.PropertyType))
+                {
+                    seenTypes.Add(property.PropertyType);
+
+                    var props = property.PropertyType
+                        .GetProperties()
+                        .Where(p => p.IsDefined(typeof(QueryOperatorAttribute)));
+
+                    foreach (var p in props)
+                    {
+                        var contractProp = Expression.Property(contractExp, attribute.TargetProp);
+                        FillCache(p, queryProp, contractProp);
+                    }
+                }
+                else if (attribute is QueryOperatorAttribute opAttr)
+                {
+                    var contractProp = Expression.Property(contractExp, opAttr.TargetProp);
+
+                    DescriptorCache[queryType].Add(new SpecificationDescriptor
+                    {
+                        PropertyGetter =
+                           Expression.Lambda<Func<TQuery, object>>(
+                               Expression.Condition(
+                                   Expression.ReferenceEqual(queryExp, Expression.Constant(null)),
+                                   Expression.Constant(null),
+                                   Expression.Convert(queryProp, typeof(object))
+                               ), QueryParam
+                           ).Compile(),
+                        ContractProp = contractProp,
+                        Attribute = opAttr
+                    });
+                }
+            };
+
+            var props = queryType
+                .GetProperties()
+                .Where(p => p.IsDefined(typeof(QueryOperatorAttribute)));
+
+            foreach (var p in props) FillCache(p, QueryParam, ContractParam);
+        }
+
+        private static Expression MapQueryOperator(
+            QueryOperatorAttribute attribute,
+            Expression queryMemberExpr,
+            MemberExpression contractMemberExpr)
+        {
+            var contractP = contractMemberExpr.Member as PropertyInfo;
+            var queryExp = Nullable.GetUnderlyingType(contractP.PropertyType) switch
+            {
+                null => (Expression)queryMemberExpr,
+                _ => (Expression)Expression.Convert(queryMemberExpr, contractP.PropertyType),
+            };
 
             switch (attribute.OperatorToUse)
             {
                 case QueryOperators.Contains:
-                    var c = (contractProp.Member as PropertyInfo);
+                    var contractProp = contractMemberExpr.Member as PropertyInfo;
+                    var method = typeof(Enumerable)
+                        .GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .Where(x => x.Name == "Contains")
+                        .Single(x => x.GetParameters().Length == 2)
+                        .MakeGenericMethod(contractProp.PropertyType);
 
-                    var propertyHasValues = CreateAnyMethod(queryProp, c.PropertyType)
-                        .Compile()
-                        (query);
-
-                    if (!propertyHasValues)
-                    {
-                        return Expression.Constant(true);
-                    }
-
-                    var method = typeof(Enumerable).
-                                        GetMethods(BindingFlags.Static | BindingFlags.Public).
-                                        Where(x => x.Name == "Contains").
-                                        Single(x => x.GetParameters().Length == 2).
-                                        MakeGenericMethod(c.PropertyType);
-
-                    return Expression.Call(null, method, queryMemberExpr, contractProp);
+                    return Expression.Call(null, method, queryExp, contractMemberExpr);
                 case QueryOperators.GreaterThanOrEqualTo:
-                    return Expression.GreaterThanOrEqual(contractVal, queryMemberExpr);
+                    return Expression.GreaterThanOrEqual(contractMemberExpr, queryExp);
                 case QueryOperators.LessThanOrEqualTo:
-                    return Expression.LessThanOrEqual(contractVal, queryMemberExpr);
+                    return Expression.LessThanOrEqual(contractMemberExpr, queryExp);
                 case QueryOperators.GreaterThan:
-                    return Expression.GreaterThan(contractVal, queryMemberExpr);
+                    return Expression.GreaterThan(contractMemberExpr, queryExp);
                 case QueryOperators.LessThan:
-                    return Expression.LessThan(contractVal, queryMemberExpr);
+                    return Expression.LessThan(contractMemberExpr, queryExp);
+                case QueryOperators.Equal:
+                    return Expression.Equal(contractMemberExpr, queryExp);
+                case QueryOperators.NotEqual:
+                    return Expression.NotEqual(contractMemberExpr, queryExp);
+                case QueryOperators.StartsWith:
+                    var startsWith = typeof(string)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(x => x.Name == "StartsWith")
+                        .Single(x =>
+                            x.GetParameters().Length == 1 &&
+                            x.GetParameters().First().ParameterType == typeof(string));
+
+                    return Expression.Call(contractMemberExpr, startsWith, queryExp);
                 default:
-                    return Expression.Equal(queryMemberExpr, contractVal);
+                    throw new BusinessAppDataException($"{attribute.OperatorToUse} is not supported.");
             }
         }
 
-        private static Expression<Func<TQuery, object>> CreatePropertyAccessor(MemberExpression memberExpr)
+        private sealed class SpecificationDescriptor
         {
-            return Expression.Lambda<Func<TQuery, object>>(
-                Expression.Convert(memberExpr, typeof(object)),
-                Expression.Parameter(typeof(TQuery), "q")
-            );
-        }
-
-        private static Expression<Func<TQuery, bool>> CreateAnyMethod(PropertyInfo queryPropertyInfo,
-            Type contractPropertyType)
-        {
-            var anyMethod = typeof(Enumerable).
-                                GetMethods(BindingFlags.Static | BindingFlags.Public).
-                                Where(x => x.Name == "Any").
-                                Single(x => x.GetParameters().Length == 1).
-                                MakeGenericMethod(contractPropertyType);
-
-            var param = Expression.Parameter(typeof(TQuery), "q");
-
-            return Expression.Lambda<Func<TQuery, bool>>(
-                Expression.Call(anyMethod, Expression.Property(param, queryPropertyInfo)),
-                param
-            );
+            public Func<TQuery, object> PropertyGetter { get; set; }
+            public MemberExpression ContractProp { get; set; }
+            public QueryOperatorAttribute Attribute { get; set; }
         }
     }
 }
