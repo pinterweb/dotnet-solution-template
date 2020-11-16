@@ -6,6 +6,7 @@ namespace BusinessApp.Data.IntegrationTest
     using BusinessApp.Data;
     using Xunit;
 
+    // TODO wrong name
     public class QueryOperatorSpecificationQueryTests
     {
         private static readonly DateTime DateForTests = DateTime.Now;
@@ -33,12 +34,40 @@ namespace BusinessApp.Data.IntegrationTest
             new object[] { "foo", "bar", false }
         };
 
+        public static IEnumerable<object[]> StartsWithStrings  => new[]
+        {
+            new object[] { "foo", "foobarish", true },
+            new object[] { "foo", "barfoo", false }
+        };
+
         public static IEnumerable<object[]> Integers  => new[]
         {
             new object[] { 1, 1 },
             new object[] { 1, 2 },
             new object[] { 1, 0 }
         };
+
+        public static IEnumerable<object[]> Decimals  => new[]
+        {
+            new object[] { 1m, 1m },
+            new object[] { 1m, 2m },
+        };
+
+        [Theory, MemberData(nameof(Decimals))]
+        public void OneDecimalProperty_NotEqual_ContractIsSatisfied(decimal a,
+            decimal b)
+        {
+            /* Arrange */
+            query.Decimal_Neq = a;
+            response.DecimalVal = b;
+            var spec = sut.Build(query);
+
+            /* Act */
+            var result = spec.IsSatisfiedBy(response);
+
+            /* Assert */
+            Assert.Equal(b != a, result);
+        }
 
         [Theory, MemberData(nameof(Integers))]
         public void OneIntProperty_LessThan_ContractIsSatisfied(int a,
@@ -78,7 +107,7 @@ namespace BusinessApp.Data.IntegrationTest
         {
             /* Arrange */
             query.OneDate_Eq = a;
-            response.OneDate = b;
+            response.DateVal = b;
             var spec = sut.Build(query);
 
             /* Act */
@@ -94,7 +123,7 @@ namespace BusinessApp.Data.IntegrationTest
         {
             /* Arrange */
             query.OneDate_Lte = a;
-            response.OneDate = b;
+            response.DateVal = b;
             var spec = sut.Build(query);
 
             /* Act */
@@ -110,7 +139,7 @@ namespace BusinessApp.Data.IntegrationTest
         {
             /* Arrange */
             query.OneDate_Gte = a;
-            response.OneDate = b;
+            response.DateVal = b;
             var spec = sut.Build(query);
 
             /* Act */
@@ -127,7 +156,7 @@ namespace BusinessApp.Data.IntegrationTest
         {
             /* Arrange */
             query.ManyString_Contains = new[] { a };
-            response.ManyStrings = b;
+            response.StringVal = b;
             var spec = sut.Build(query);
 
             /* Act */
@@ -137,15 +166,70 @@ namespace BusinessApp.Data.IntegrationTest
             Assert.Equal(expect, result);
         }
 
-        private sealed class QueryWithOperators
+        [Theory, MemberData(nameof(StartsWithStrings))]
+        public void StringsProperty_WhenContractStartsWith_ContractIsSatisfied(string a,
+            string b, bool expect)
         {
-            [QueryOperator(nameof(ResponseFromOperators.OneDate), QueryOperators.Equal)]
+            /* Arrange */
+            query.String_Sw = a;
+            response.StringVal = b;
+            var spec = sut.Build(query);
+
+            /* Act */
+            var result = spec.IsSatisfiedBy(response);
+
+            /* Assert */
+            Assert.Equal(expect, result);
+        }
+
+        [Theory, MemberData(nameof(Integers))]
+        public void OneIntNestedQueryProperty_LessThan_NestedContractIsSatisfied(int a,
+            int b)
+        {
+            /* Arrange */
+            query.NestedQuery = new NestedQueryWithOperators { OneInt_Lt = a };
+            response.NestedResponse = new NestedResponseFromOperators { OneInt = b };
+            var spec = sut.Build(query);
+
+            /* Act */
+            var result = spec.IsSatisfiedBy(response);
+
+            /* Assert */
+            Assert.Equal(b < a, result);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ChildQuery_EqualBool_ContractIsSatisfied(bool responseVal)
+        {
+            /* Arrange */
+            var childQuery = new ChildQueryWithOperators { OneBool = true };
+            response.BoolVal = responseVal;
+            var spec = sut.Build(childQuery);
+
+            /* Act */
+            var result = spec.IsSatisfiedBy(response);
+
+            /* Assert */
+            Assert.Equal(responseVal, result);
+        }
+
+        private sealed class ChildQueryWithOperators : QueryWithOperators
+        {
+            [QueryOperator(nameof(ResponseFromOperators.BoolVal), QueryOperators.Equal)]
+            public bool? OneBool { get; set; }
+        }
+
+        private class QueryWithOperators
+        {
+            [QueryOperator(nameof(ResponseFromOperators.DateVal), QueryOperators.Equal)]
             public DateTime? OneDate_Eq { get; set; }
 
-            [QueryOperator(nameof(ResponseFromOperators.OneDate), QueryOperators.LessThanOrEqualTo)]
+            [QueryOperator(nameof(ResponseFromOperators.DateVal), QueryOperators.LessThanOrEqualTo)]
             public DateTime? OneDate_Lte { get; set; }
 
-            [QueryOperator(nameof(ResponseFromOperators.OneDate), QueryOperators.GreaterThanOrEqualTo)]
+            [QueryOperator(nameof(ResponseFromOperators.DateVal), QueryOperators.GreaterThanOrEqualTo)]
             public DateTime? OneDate_Gte { get; set; }
 
             [QueryOperator(nameof(ResponseFromOperators.OneInt), QueryOperators.LessThan)]
@@ -154,15 +238,42 @@ namespace BusinessApp.Data.IntegrationTest
             [QueryOperator(nameof(ResponseFromOperators.OneInt), QueryOperators.GreaterThan)]
             public int? OneInt_Gt { get; set; }
 
-            [QueryOperator(nameof(ResponseFromOperators.ManyStrings), QueryOperators.Contains)]
+            [QueryOperator(nameof(ResponseFromOperators.DecimalVal), QueryOperators.NotEqual)]
+            public decimal? Decimal_Neq { get; set; }
+
+            [QueryOperator(nameof(ResponseFromOperators.StringVal), QueryOperators.StartsWith)]
+            public string String_Sw { get; set; }
+
+            [QueryOperator(nameof(ResponseFromOperators.StringVal), QueryOperators.Contains)]
             public IEnumerable<string> ManyString_Contains { get; set; }
+
+            [QueryOperator(nameof(ResponseFromOperators.NestedResponse))]
+            public NestedQueryWithOperators NestedQuery { get; set; }
         }
 
-        private sealed class ResponseFromOperators
+        private sealed class NestedQueryWithOperators
         {
-            public DateTime OneDate { get; set; }
+            [QueryOperator(nameof(NestedResponseFromOperators.OneInt), QueryOperators.LessThan)]
+            public int? OneInt_Lt { get; set; }
+
+            [QueryOperator(nameof(NestedResponseFromOperators.Parent))]
+            public NestedQueryWithOperators NestedQuery { get; set; }
+        }
+
+        private class ResponseFromOperators
+        {
+            public bool BoolVal { get; set; }
+            public DateTime DateVal { get; set; }
             public int OneInt { get; set; }
-            public string  ManyStrings { get; set; }
+            public decimal DecimalVal { get; set; }
+            public string  StringVal { get; set; }
+            public NestedResponseFromOperators NestedResponse { get; set; }
+        }
+
+        private sealed class NestedResponseFromOperators
+        {
+            public int OneInt { get; set; }
+            public ResponseFromOperators Parent { get; set; }
         }
     }
 }
