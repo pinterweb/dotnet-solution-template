@@ -16,7 +16,7 @@
 #endif
 //#if DEBUG
     using Microsoft.Extensions.Logging;
-    //#endif
+//#endif
 #if winauth
     using Microsoft.AspNetCore.Server.HttpSys;
 #endif
@@ -35,12 +35,13 @@
 
             options.LogFilePath = configuration.GetSection("Logging")
                 .GetValue<string>("LogFilePath");
-            options.WriteConnectionString = options.ReadConnectionString =
+            options.DbConnectionString =
 #if docker
                 configuration.GetConnectionString("docker");
 #else
                 configuration.GetConnectionString("local");
 #endif
+            options.AppLayerAssembly = typeof(App.IQuery).Assembly;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

@@ -36,7 +36,7 @@ namespace BusinessApp.Test
                 .Services
                 .GetService(typeof(IConfiguration));
 
-            ConnectionStr = config.GetConnectionString("sqlserver");
+            ConnectionStr = config.GetConnectionString("local");
 		}
 
 		public DatabaseFixture()

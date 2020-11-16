@@ -11,14 +11,14 @@
     {
         private static readonly Assembly Assembly = typeof(IEventHandler<>).Assembly;
 
-        public static void Bootstrap(Container container)
+        public static void Bootstrap(Container container, BootstrapOptions options)
         {
             Guard.Against.Null(container).Expect(nameof(container));
 
             container.Collection.Register(typeof(IEventHandler<>), new[]
             {
                 Assembly,
-                AppLayerBootstrapper.Assembly,
+                options.AppLayerAssembly,
                 DataLayerBootstrapper.Assembly,
                 WebApiBootstrapper.Assembly
             });

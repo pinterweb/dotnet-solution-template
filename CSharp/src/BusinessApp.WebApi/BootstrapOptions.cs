@@ -1,9 +1,11 @@
 namespace BusinessApp.WebApi
 {
+    using System.Reflection;
+
     public sealed class BootstrapOptions
     {
-        public string WriteConnectionString { get; set; }
-        public string ReadConnectionString { get; set; }
+        public string DbConnectionString { get; set; }
         public string LogFilePath { get; set; }
+        public Assembly AppLayerAssembly { get; set; }
     }
 }

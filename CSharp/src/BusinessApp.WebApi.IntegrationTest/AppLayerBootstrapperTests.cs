@@ -26,7 +26,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                 A.Dummy<IApplicationBuilder>(),
                 A.Dummy<IWebHostEnvironment>(),
                 container,
-                A.Dummy<BootstrapOptions>());
+                new BootstrapOptions
+                {
+                    DbConnectionString = "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
+                    AppLayerAssembly = typeof(AppLayerBootstrapperTests).Assembly
+                });
         }
 
         public class Bootstrap : AppLayerBootstrapperTests, IDisposable
@@ -454,6 +458,44 @@ namespace BusinessApp.WebApi.IntegrationTest
                 );
             }
 
+            [Fact]
+            public void NoExplicityQueryRequestRegistration_SingleQueryHandlerDecoratorsAdded()
+            {
+                /* Arrange */
+                container.Register<UnregisteredQuery>();
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType
+                    .GetDependencies()
+                    .Where(i => typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>).IsAssignableFrom(i.ServiceType))
+                    .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(RequestExceptionDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(EntityNotFoundQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(InstanceCacheQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(SingleQueryHandlerDelegator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType)
+                );
+            }
+
             public void Dispose() => scope.Dispose();
         }
 
@@ -497,5 +539,9 @@ namespace BusinessApp.WebApi.IntegrationTest
         [Authorize]
         public sealed class AuthMacroStub : IMacro<CommandStub> { }
         public sealed class MacroStub : IMacro<CommandStub> { }
+        public sealed class UnregisteredQuery : Query
+        {
+            public override IEnumerable<string> Sort { get; set; }
+        }
     }
 }

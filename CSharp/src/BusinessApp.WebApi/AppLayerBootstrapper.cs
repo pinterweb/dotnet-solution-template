@@ -19,38 +19,38 @@
     /// </summary>
     public static class AppLayerBootstrapper
     {
-        public static readonly Assembly Assembly = typeof(IQuery).Assembly;
-
         public static void Bootstrap(Container container,
             IWebHostEnvironment env,
             BootstrapOptions options)
         {
             Guard.Against.Null(container).Expect(nameof(container));
 
-            container.Collection.Register(typeof(IValidator<>), new[] { Assembly });
-
-            container.Register(typeof(IBatchMacro<,>), Assembly);
+            var registrations = new[] { typeof(DataAnnotationsValidator<>) }.Concat(container.GetTypesToRegister(
+                typeof(IValidator<>),
+                new[] { options.AppLayerAssembly }
+            ));
+            container.Collection.Register(typeof(IValidator<>), registrations);
+            container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
 #if fluentvalidation
-            container.Collection.Register(typeof(FluentValidation.IValidator<>), Assembly);
+            container.Collection.Register(typeof(FluentValidation.IValidator<>), options.AppLayerAssembly);
             container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
 
-            container.Collection.Append(typeof(IValidator<>), typeof(DataAnnotationsValidator<>));
-            container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
-
-            container.Register(typeof(IBatchGrouper<>), Assembly);
+            container.Register(typeof(IBatchGrouper<>), options.AppLayerAssembly);
+            container.Register(typeof(IBatchMacro<,>), options.AppLayerAssembly);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
 
             container.RegisterLoggers(env, options);
 
+#if batch
             IEnumerable<Type> GetTypesToRegister()
             {
                 return container.GetTypesToRegister(typeof(IRequestHandler<,>),
-                    new[] { Assembly },
+                    new[] { options.AppLayerAssembly },
                     new TypesToRegisterOptions
                     {
                         IncludeGenericTypeDefinitions = true,
@@ -65,9 +65,6 @@
             #region Decoration Registration
 
             container.RegisterQueryDecorator(typeof(InstanceCacheQueryDecorator<,>));
-#if efcore
-            container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
-#endif
             container.RegisterQueryDecorator(typeof(EntityNotFoundQueryDecorator<,>));
 
             container.RegisterCommandDecorator(typeof(TransactionRequestDecorator<,>),
@@ -107,6 +104,10 @@
                     return HasAuthAttribute(requestType) && IsOuterScope(ctx);
                 });
 
+#if efcore
+            container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
+#endif
+#if batch
             container.RegisterDecorator(
                 typeof(IRequestHandler<,>),
                 typeof(RequestExceptionDecorator<,>),
