@@ -129,7 +129,7 @@ namespace BusinessApp.Data
                 case QueryOperators.Contains:
                     var contractProp = contractMemberExpr.Member as PropertyInfo;
                     var method = typeof(Enumerable)
-                        .GetMethods(BindingFlags.Static | BindingFlags.Public).
+                        .GetMethods(BindingFlags.Static | BindingFlags.Public)
                         .Where(x => x.Name == "Contains")
                         .Single(x => x.GetParameters().Length == 2)
                         .MakeGenericMethod(contractProp.PropertyType);
