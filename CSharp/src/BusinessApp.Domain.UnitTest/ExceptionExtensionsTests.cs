@@ -1,4 +1,4 @@
-namespace ShelLife.Domain.UnitTest
+namespace BusinessApp.Domain.UnitTest
 {
     using System;
     using Xunit;

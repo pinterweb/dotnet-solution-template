@@ -1,7 +1,6 @@
 ﻿namespace BusinessApp.Test.Common
 {
     using System;
-    using System.Linq.Expressions;
     using System.Reflection;
 
     public static class ReflectionExtensions

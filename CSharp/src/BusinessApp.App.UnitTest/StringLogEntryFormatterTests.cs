@@ -1,6 +1,5 @@
 namespace BusinessApp.App.UnitTest
 {
-    using System;
     using FakeItEasy;
     using BusinessApp.Domain;
     using Xunit;
