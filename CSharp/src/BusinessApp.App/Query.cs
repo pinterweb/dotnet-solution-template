@@ -7,11 +7,11 @@
     /// </summary>
     public abstract class Query : IQuery
     {
-        public int? Limit { get; set; }
-        public int? Offset { get; set; }
-        public IEnumerable<string> Sort { get; set; } = new List<string>();
-        public IEnumerable<string> Embed { get; set; } = new List<string>();
-        public IEnumerable<string> Expand { get; set; } = new List<string>();
-        public IEnumerable<string> Fields { get; set; } = new List<string>();
+        public virtual int? Limit { get; set; }
+        public virtual int? Offset { get; set; }
+        public abstract IEnumerable<string> Sort { get; set; }
+        public virtual IEnumerable<string> Embed { get; set; } = new List<string>();
+        public virtual IEnumerable<string> Expand { get; set; } = new List<string>();
+        public virtual IEnumerable<string> Fields { get; set; } = new List<string>();
     }
 }
