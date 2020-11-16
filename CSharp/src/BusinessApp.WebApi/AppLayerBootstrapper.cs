@@ -38,13 +38,11 @@
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
 
-#if batch
             container.Register(typeof(IBatchGrouper<>), options.AppLayerAssembly);
             container.Register(typeof(IBatchMacro<,>), options.AppLayerAssembly);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
-#endif
 
             container.RegisterLoggers(env, options);
 
