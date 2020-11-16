@@ -38,15 +38,16 @@
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
 
+#if batch
             container.Register(typeof(IBatchGrouper<>), options.AppLayerAssembly);
             container.Register(typeof(IBatchMacro<,>), options.AppLayerAssembly);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
+#endif
 
             container.RegisterLoggers(env, options);
 
-#if batch
             IEnumerable<Type> GetTypesToRegister()
             {
                 return container.GetTypesToRegister(typeof(IRequestHandler<,>),
@@ -107,7 +108,6 @@
 #if efcore
             container.RegisterQueryDecorator(typeof(EFTrackingQueryDecorator<,>));
 #endif
-#if batch
             container.RegisterDecorator(
                 typeof(IRequestHandler<,>),
                 typeof(RequestExceptionDecorator<,>),
