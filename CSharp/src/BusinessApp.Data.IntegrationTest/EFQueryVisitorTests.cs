@@ -221,6 +221,9 @@ namespace BusinessApp.Data.IntegrationTest
             }
         }
 
-        private sealed class QueryStub : Query {  }
+        private sealed class QueryStub : Query
+        {
+            public override IEnumerable<string> Sort { get; set; } = new List<string>();
+        }
     }
 }

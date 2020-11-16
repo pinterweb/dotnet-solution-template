@@ -178,6 +178,7 @@ namespace BusinessApp.Data.IntegrationTest
 
         private sealed class ResponseQueryStub : Query
         {
+            public override IEnumerable<string> Sort { get; set; } = new List<string>();
         }
     }
 }
