@@ -11,9 +11,7 @@
     using SimpleInjector;
     using SimpleInjector.Lifestyles;
     using System;
-#if efcore
     using BusinessApp.Data;
-#endif
 //#if DEBUG
     using Microsoft.Extensions.Logging;
 //#endif
