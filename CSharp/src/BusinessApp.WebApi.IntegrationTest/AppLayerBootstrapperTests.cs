@@ -16,6 +16,7 @@ namespace BusinessApp.WebApi.IntegrationTest
     using SimpleInjector.Lifestyles;
     using BusinessApp.Domain;
     using Microsoft.Extensions.Configuration;
+    using BusinessApp.Data;
 
     public class AppLayerBootstrapperTests
     {
@@ -26,7 +27,20 @@ namespace BusinessApp.WebApi.IntegrationTest
                 A.Dummy<IApplicationBuilder>(),
                 A.Dummy<IWebHostEnvironment>(),
                 container,
-                A.Dummy<BootstrapOptions>());
+                new BootstrapOptions
+                {
+                    DbConnectionString = "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
+                    AppAssemblies = new[]
+                    {
+                        typeof(AppLayerBootstrapperTests).Assembly,
+                        typeof(IQuery).Assembly
+                    },
+                    DataAssemblies = new[]
+                    {
+                        typeof(AppLayerBootstrapperTests).Assembly,
+                        typeof(IQueryVisitor<>).Assembly
+                    }
+                });
         }
 
         public class Bootstrap : AppLayerBootstrapperTests, IDisposable
@@ -45,7 +59,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void NotABatchCommand_NoBatchDecoratorsInHandlers()
             {
                 /* Arrange */
-                container.Register<CommandHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<CommandStub, CommandStub>);
@@ -82,7 +95,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void NonBatchAuthCommand_AuthDecoratorAddedWithoutBatchDecorators()
             {
                 /* Arrange */
-                container.Register<AuthCommandHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<AuthCommandStub, AuthCommandStub>);
@@ -123,7 +135,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void IsABatchCommand_BatchDecoratorsInHandlers()
             {
                 /* Arrange */
-                container.Register<CommandHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>);
@@ -180,7 +191,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void IsABatchAuthCommand_BatchDecoratorsWithAuthInHandlers()
             {
                 /* Arrange */
-                container.Register<AuthCommandHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<IEnumerable<AuthCommandStub>, IEnumerable<AuthCommandStub>>);
@@ -241,7 +251,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 /* Arrange */
                 container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
-                container.Register<CommandHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>);
@@ -309,7 +318,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 /* Arrange */
                 container.RegisterInstance(A.Fake<IBatchMacro<AuthMacroStub, CommandStub>>());
-                container.Register<CommandHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<AuthMacroStub, IEnumerable<CommandStub>>);
@@ -379,7 +387,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void QueryRequest_QueryDecoratorsAdded()
             {
                 /* Arrange */
-                container.Register<QueryHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<QueryStub, ResponseStub>);
@@ -417,7 +424,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void QueryRequestWithAuth_AuthQueryDecoratorsAdded()
             {
                 /* Arrange */
-                container.Register<AuthQueryHandlerStub>();
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<AuthQueryStub, ResponseStub>);

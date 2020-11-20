@@ -11,12 +11,10 @@
     using SimpleInjector;
     using SimpleInjector.Lifestyles;
     using System;
-#if efcore
     using BusinessApp.Data;
-#endif
 //#if DEBUG
     using Microsoft.Extensions.Logging;
-    //#endif
+//#endif
 #if winauth
     using Microsoft.AspNetCore.Server.HttpSys;
 #endif
@@ -35,12 +33,14 @@
 
             options.LogFilePath = configuration.GetSection("Logging")
                 .GetValue<string>("LogFilePath");
-            options.WriteConnectionString = options.ReadConnectionString =
+            options.DbConnectionString =
 #if docker
                 configuration.GetConnectionString("docker");
 #else
                 configuration.GetConnectionString("local");
 #endif
+            options.AppAssemblies = new[] { typeof(App.IQuery).Assembly };
+            options.DataAssemblies = new[] { typeof(IQueryVisitor<>).Assembly };
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

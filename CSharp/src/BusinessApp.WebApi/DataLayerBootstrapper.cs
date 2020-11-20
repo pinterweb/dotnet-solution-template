@@ -9,7 +9,6 @@
     using Microsoft.Extensions.Logging;
 //#endif
 #endif
-    using System.Reflection;
     using BusinessApp.Data;
     using BusinessApp.Domain;
     using BusinessApp.App;
@@ -19,7 +18,6 @@
     /// </summary>
     public static class DataLayerBootstrapper
     {
-        public static readonly Assembly Assembly = typeof(IQueryVisitor<>).Assembly;
 #if efcore
 //#if DEBUG
         public static readonly ILoggerFactory DataLayerLoggerFactory
@@ -41,8 +39,8 @@
 
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
             container.Register(typeof(ILinqSpecificationBuilder<,>), typeof(AndSpecificationBuilder<,>));
-            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), Assembly);
-            container.Collection.Register(typeof(IQueryVisitor<>), Assembly);
+            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), options.DataAssemblies);
+            container.Collection.Register(typeof(IQueryVisitor<>), options.DataAssemblies);
             container.RegisterConditional(
                 typeof(IQueryVisitor<>),
                 typeof(NullQueryVisitor<>), ctx => !ctx.Handled);
@@ -57,7 +55,7 @@
             });
 #if efcore
             container.Register(typeof(IDatastore<>), typeof(EFDatastore<>));
-            container.Register(typeof(IDbSetVisitorFactory<,>), Assembly);
+            container.Register(typeof(IDbSetVisitorFactory<,>), options.DataAssemblies);
             container.RegisterConditional(
                 typeof(IDbSetVisitorFactory<,>),
                 typeof(NullDbSetVisitorFactory<,>),
@@ -76,7 +74,7 @@
             container.Register<IUnitOfWork>(() => container.GetInstance<EFUnitOfWork>());
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
-            RegisterDbContext<BusinessAppDbContext>(container, options.WriteConnectionString);
+            RegisterDbContext<BusinessAppDbContext>(container, options.DbConnectionString);
 #else
             container.Register<ITransactionFactory, NullTransactionFactory>();
 #endif
