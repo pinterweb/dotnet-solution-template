@@ -33,7 +33,7 @@
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
 #if fluentvalidation
-            container.Collection.Register(typeof(FluentValidation.IValidator<>), options.AppLayerAssembly);
+            container.Collection.Register(typeof(FluentValidation.IValidator<>), options.AppAssemblies);
             container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
