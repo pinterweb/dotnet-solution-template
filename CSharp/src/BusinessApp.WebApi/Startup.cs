@@ -41,7 +41,8 @@
 #else
                 configuration.GetConnectionString("local");
 #endif
-            options.AppLayerAssembly = typeof(App.IQuery).Assembly;
+            options.AppAssemblies = new[] { typeof(App.IQuery).Assembly };
+            options.DataAssemblies = new[] { typeof(IQueryVisitor<>).Assembly };
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

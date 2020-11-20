@@ -27,7 +27,7 @@
 
             var registrations = new[] { typeof(DataAnnotationsValidator<>) }.Concat(container.GetTypesToRegister(
                 typeof(IValidator<>),
-                new[] { options.AppLayerAssembly }
+                options.AppAssemblies
             ));
             container.Collection.Register(typeof(IValidator<>), registrations);
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
@@ -38,8 +38,8 @@
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
 
-            container.Register(typeof(IBatchGrouper<>), options.AppLayerAssembly);
-            container.Register(typeof(IBatchMacro<,>), options.AppLayerAssembly);
+            container.Register(typeof(IBatchMacro<,>), options.AppAssemblies);
+            container.Register(typeof(IBatchGrouper<>), options.AppAssemblies);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
@@ -49,7 +49,7 @@
             IEnumerable<Type> GetTypesToRegister()
             {
                 return container.GetTypesToRegister(typeof(IRequestHandler<,>),
-                    new[] { options.AppLayerAssembly },
+                    options.AppAssemblies,
                     new TypesToRegisterOptions
                     {
                         IncludeGenericTypeDefinitions = true,
