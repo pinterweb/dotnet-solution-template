@@ -16,6 +16,7 @@ namespace BusinessApp.WebApi.IntegrationTest
     using SimpleInjector.Lifestyles;
     using BusinessApp.Domain;
     using Microsoft.Extensions.Configuration;
+    using BusinessApp.Data;
 
     public class AppLayerBootstrapperTests
     {
