@@ -27,6 +27,11 @@
             emitters.Add(aggregate);
         }
 
+        public void Add(IDomainEvent @event)
+        {
+            emitters.Add(new EventEmitter(@event));
+        }
+
         public virtual void Track(AggregateRoot aggregate)
         {
             emitters.Add(aggregate);
@@ -58,6 +63,29 @@
         {
             emitters.Clear();
             return Task.CompletedTask;
+        }
+
+        private sealed class EventEmitter : IEventEmitter
+        {
+            private IDomainEvent e;
+
+            public EventEmitter(IDomainEvent e)
+            {
+                this.e = e;
+            }
+
+            public bool HasEvents() => e != null;
+
+            public IEnumerable<IDomainEvent> PublishEvents()
+            {
+                if (e != null)
+                {
+                    var emitted = e;
+                    e = null;
+
+                    yield return emitted;
+                }
+            }
         }
     }
 }

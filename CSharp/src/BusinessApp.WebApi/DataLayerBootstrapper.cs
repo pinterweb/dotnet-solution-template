@@ -71,7 +71,6 @@
                 ctx => !ctx.Handled);
             container.Register<IEventRepository, EventRepository>();
             container.Register<EFUnitOfWork>();
-            container.Register<IUnitOfWork>(() => container.GetInstance<EFUnitOfWork>());
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
             RegisterDbContext<BusinessAppDbContext>(container, options.DbConnectionString);

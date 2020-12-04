@@ -12,9 +12,9 @@ namespace BusinessApp.Data
     {
         private bool transactionFromFactory = false;
         public readonly BusinessAppDbContext db;
-        public readonly EventUnitOfWork inner;
+        public readonly IUnitOfWork inner;
 
-        public EFUnitOfWork(BusinessAppDbContext db, EventUnitOfWork inner)
+        public EFUnitOfWork(BusinessAppDbContext db, IUnitOfWork inner)
         {
             this.db = Guard.Against.Null(db).Expect(nameof(db));
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
@@ -33,6 +33,11 @@ namespace BusinessApp.Data
             inner.Add(aggregate);
         }
 
+        public void Add(IDomainEvent @event)
+        {
+            inner.Add(@event);
+        }
+
         public void Remove(AggregateRoot aggregate)
         {
             inner.Remove(aggregate);
@@ -40,9 +45,9 @@ namespace BusinessApp.Data
 
         public async Task CommitAsync(CancellationToken cancellationToken)
         {
-            await inner.CommitAsync(cancellationToken);
-
             Volatile.Read(ref Committing).Invoke(this, EventArgs.Empty);
+
+            await inner.CommitAsync(cancellationToken);
 
             try
             {

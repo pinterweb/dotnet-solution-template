@@ -23,7 +23,7 @@
             }.Concat(options.AppAssemblies).Concat(options.DataAssemblies));
 
             container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
-            container.Register<EventUnitOfWork>();
+            container.Register<IUnitOfWork, EventUnitOfWork>();
 
             container.Register<PostCommitRegister>();
             container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
