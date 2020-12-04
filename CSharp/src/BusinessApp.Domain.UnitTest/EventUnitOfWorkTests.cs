@@ -99,6 +99,26 @@ namespace BusinessApp.Domain.UnitTest
             }
 
             [Fact]
+            public async Task WithNewIDomainEvent_EventsPublishOnCommit()
+            {
+                /* Arrange */
+                var @event = A.Fake<IDomainEvent>();
+                sut.Add(@event);
+                A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, token))
+                    .Invokes(ctx =>
+                    {
+                        ctx.GetArgument<IEventEmitter>(0).PublishEvents().ToList();
+                    });
+
+                /* Act */
+                await sut.CommitAsync(token);
+
+                /* Assert */
+                A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, token))
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
             public async Task WithAggregate_EventsPublishWhileExists()
             {
                 /* Arrange */

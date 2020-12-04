@@ -15,13 +15,13 @@ namespace BusinessApp.Data.IntegrationTest
     [Collection(nameof(DatabaseCollection))]
     public class EFUnitOfWorkTests : IDisposable
     {
-        private readonly EventUnitOfWork inner;
+        private readonly IUnitOfWork inner;
         private readonly BusinessAppDbContext db;
         private readonly EFUnitOfWork sut;
 
         public EFUnitOfWorkTests(DatabaseFixture fixture)
         {
-            inner = A.Fake<EventUnitOfWork>();
+            inner = A.Fake<IUnitOfWork>();
             db = fixture.DbContext;
             sut = new EFUnitOfWork(db, inner);
         }
@@ -75,14 +75,14 @@ namespace BusinessApp.Data.IntegrationTest
             }
         }
 
-        public class UnitofWorkTrack : EFUnitOfWorkTests
+        public class Track : EFUnitOfWorkTests
         {
-            public UnitofWorkTrack(DatabaseFixture fixture)
+            public Track(DatabaseFixture fixture)
                 :base(fixture)
             { }
 
             [Fact]
-            public void OnTrack_EventUnitOfWorkTrackCalled()
+            public void AggregateRoot_InnerUnitOfWorkTrackCalled()
             {
                 /* Arrange */
                 var ar = A.Dummy<AggregateRoot>();
@@ -95,14 +95,14 @@ namespace BusinessApp.Data.IntegrationTest
             }
         }
 
-        public class UnitofWorkAdd : EFUnitOfWorkTests
+        public class Add : EFUnitOfWorkTests
         {
-            public UnitofWorkAdd(DatabaseFixture fixture)
+            public Add(DatabaseFixture fixture)
                 :base(fixture)
             { }
 
             [Fact]
-            public void OnAdd_EventUnitOfWorkAddCalled()
+            public void AggregateRoot_InnerUnitOfWorkAddCalled()
             {
                 /* Arrange */
                 var ar = A.Dummy<AggregateRoot>();
@@ -113,16 +113,29 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Assert */
                 A.CallTo(() => inner.Add(ar)).MustHaveHappenedOnceExactly();
             }
-            }
 
-        public class UnitofWorkRemove : EFUnitOfWorkTests
+            [Fact]
+            public void DomainEvent_InnerUnitOfWorkAddCalled()
+            {
+                /* Arrange */
+                var e = A.Dummy<IDomainEvent>();
+
+                /* Act */
+                sut.Add(e);
+
+                /* Assert */
+                A.CallTo(() => inner.Add(e)).MustHaveHappenedOnceExactly();
+            }
+        }
+
+        public class Remove : EFUnitOfWorkTests
         {
-            public UnitofWorkRemove(DatabaseFixture fixture)
+            public Remove(DatabaseFixture fixture)
                 :base(fixture)
             { }
 
             [Fact]
-            public void OnAdd_EventUnitOfWorkRemoveC()
+            public void AggregateRoot_InnerUnitOfWorkRemoveC()
             {
                 /* Arrange */
                 var ar = A.Dummy<AggregateRoot>();
@@ -146,7 +159,27 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task BeforeSave_EventUnitOfWorkCalled()
+            public async Task CommittingEvent_CalledBeforeInnerUow()
+            {
+                /* Arrange */
+                int innerCalls = 1;
+                sut.Committing += (sender, args) =>
+                {
+                    innerCalls = Fake.GetCalls(inner).Count();
+                };
+
+                /* Act */
+                using (var tran = db.Database.BeginTransaction())
+                {
+                    await sut.CommitAsync(token);
+                }
+
+                /* Assert */
+                Assert.Equal(0, innerCalls);
+            }
+
+            [Fact]
+            public async Task InnerUnitOfWork_CalledBeforeDbContextSaveChanges()
             {
                 /* Arrange */
                 EntityState? stateDuringEvents = null;
@@ -165,30 +198,8 @@ namespace BusinessApp.Data.IntegrationTest
                     await sut.CommitAsync(token);
                 }
 
-                /* Assert */
+                /* Assert - Entity would be unchanged if called after SaveChanges */
                 Assert.Equal(EntityState.Added, stateDuringEvents);
-            }
-
-            [Fact]
-            public async Task BeforeSaveChanges_CommittingEventInvoked()
-            {
-                /* Arrange */
-                EntityState? stateDuringEvent = null;
-                var entity = new ResponseStub();
-                db.Add(entity);
-                sut.Committing += (sender, args) =>
-                {
-                    stateDuringEvent = db.Entry(entity).State;
-                };
-
-                /* Act */
-                using (var tran = db.Database.BeginTransaction())
-                {
-                    await sut.CommitAsync(token);
-                }
-
-                /* Assert */
-                Assert.Equal(EntityState.Added, stateDuringEvent);
             }
 
             [Fact]
@@ -226,7 +237,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task ExternalTranscation_DoesNotCommit()
+            public async Task HasExternalTranscation_DoesNotCommit()
             {
                 /* Arrange */
                 var entity = new ResponseStub();
@@ -246,7 +257,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task AfterSaveChanges_CommittedEventInvoked()
+            public async Task AfterDbContextSaveChanges_CommittedEventInvoked()
             {
                 /* Arrange */
                 EntityState? stateDuringEvent = null;
@@ -284,7 +295,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void WithDatabase_BeginsTransaction()
+            public void UsingInnerDatabase_BeginsTransaction()
             {
                 /* Act */
                 sut.Begin();
@@ -304,13 +315,13 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task OnSaveChanges_Commits()
+            public async Task OnCommit_CommitTransaction()
             {
                 /* Arrange */
                 var uow = sut.Begin();
 
                 /* Act */
-                await sut.CommitAsync(A.Dummy<CancellationToken>());
+                await uow.CommitAsync(A.Dummy<CancellationToken>());
 
                 /* Assert */
                 Assert.Null(db.Database.CurrentTransaction);
@@ -328,8 +339,12 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task WithInnerEventUnit_EventUnitOfWorkReverted()
+            public async Task CommittingEvent_IsNotCalled()
             {
+                /* Arrange */
+                bool committingCalled = false;
+                sut.Committing += (sender, args) => committingCalled = true;
+
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
@@ -337,7 +352,47 @@ namespace BusinessApp.Data.IntegrationTest
                 }
 
                 /* Assert */
-                A.CallTo(() => inner.RevertAsync(token)).MustHaveHappenedOnceExactly();
+                Assert.False(committingCalled);
+            }
+
+            [Fact]
+            public async Task BeforeSaveChanges_InnerRevertAsyncCalled()
+            {
+                /* Arrange */
+                EntityState? stateDuringEvent = null;
+                var entity = new ResponseStub();
+                var entry = db.Add(entity);
+                A.CallTo(() => inner.RevertAsync(token))
+                    .Invokes(ctx => stateDuringEvent = entry.State);
+
+                /* Act */
+                using (var tran = db.Database.BeginTransaction())
+                {
+                    await sut.RevertAsync(token);
+                }
+
+                /* Assert */
+                Assert.Equal(EntityState.Added, stateDuringEvent);
+            }
+
+            [Fact]
+            public async Task HasExternalTranscation_DoesNotCommit()
+            {
+                /* Arrange */
+                var entity = new ResponseStub();
+                db.Add(entity);
+
+                /* Act */
+                using (var trans = db.Database.BeginTransaction())
+                {
+                    await sut.RevertAsync(A.Dummy<CancellationToken>());
+                    trans.Rollback();
+                }
+
+                /* Assert */
+                Assert.Empty(
+                    db.Set<ResponseStub>().Where(e => e.Id == entity.Id)
+                );
             }
 
             [Fact]
