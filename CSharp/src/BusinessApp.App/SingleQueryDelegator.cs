@@ -7,11 +7,19 @@ namespace BusinessApp.App
     using System.Collections.Generic;
     using System.Linq;
 
-    public class SingleQueryHandlerDelegator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+    /// <summary>
+    /// Wraps a request for a single response object in an IEnumerable request handler
+    /// when batch requests are supported
+    /// </summary>
+    /// <remarks>
+    /// This help reduce the number of handlers/decorators needed when all we care about
+    /// is returning one resource
+    /// </remarks>
+    public class SingleQueryDelegator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
     {
         private readonly IRequestHandler<TRequest, IEnumerable<TResponse>> handler;
 
-        public SingleQueryHandlerDelegator(
+        public SingleQueryDelegator(
             IRequestHandler<TRequest, IEnumerable<TResponse>> handler)
         {
             this.handler = Guard.Against.Null(handler).Expect(nameof(handler));

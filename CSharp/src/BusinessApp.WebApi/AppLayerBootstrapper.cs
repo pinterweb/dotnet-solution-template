@@ -155,7 +155,7 @@
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                typeof(SingleQueryHandlerDelegator<,>),
+                typeof(SingleQueryDelegator<,>),
                 ctx => !ctx.Handled);
         }
 
