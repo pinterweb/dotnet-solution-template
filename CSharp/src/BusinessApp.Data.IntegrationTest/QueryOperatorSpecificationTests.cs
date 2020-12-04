@@ -6,7 +6,6 @@ namespace BusinessApp.Data.IntegrationTest
     using BusinessApp.Data;
     using Xunit;
 
-    // TODO wrong name
     public class QueryOperatorSpecificationQueryTests
     {
         private static readonly DateTime DateForTests = DateTime.Now;
@@ -215,6 +214,38 @@ namespace BusinessApp.Data.IntegrationTest
             Assert.Equal(responseVal, result);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void DeeplyNestedQuery_EqualBool_ContractIsSatisfied(bool responseVal)
+        {
+            /* Arrange */
+            var childQuery = new QueryWithOperators
+            {
+                NestedQuery = new NestedQueryWithOperators
+                {
+                    AnotherNestedQuery = new AnotherNestedQueryWithOperators
+                    {
+                        BoolVal = true
+                    }
+                }
+            };
+            response.NestedResponse = new NestedResponseFromOperators
+            {
+                AnotherNestedResponse = new AnotherNestedResponseFromOperators
+                {
+                    BoolVal = responseVal
+                }
+            };
+            var spec = sut.Build(childQuery);
+
+            /* Act */
+            var result = spec.IsSatisfiedBy(response);
+
+            /* Assert */
+            Assert.Equal(responseVal, result);
+        }
+
         private sealed class ChildQueryWithOperators : QueryWithOperators
         {
             [QueryOperator(nameof(ResponseFromOperators.BoolVal), QueryOperators.Equal)]
@@ -253,11 +284,16 @@ namespace BusinessApp.Data.IntegrationTest
 
         private sealed class NestedQueryWithOperators
         {
-            [QueryOperator(nameof(NestedResponseFromOperators.OneInt), QueryOperators.LessThan)]
+            [QueryOperator(nameof(ResponseFromOperators.OneInt), QueryOperators.LessThan)]
             public int? OneInt_Lt { get; set; }
 
-            [QueryOperator(nameof(NestedResponseFromOperators.Parent))]
-            public NestedQueryWithOperators NestedQuery { get; set; }
+            [QueryOperator(nameof(ResponseFromOperators.NestedResponse))]
+            public AnotherNestedQueryWithOperators AnotherNestedQuery { get; set; }
+        }
+
+        private sealed class AnotherNestedQueryWithOperators
+        {
+            public bool BoolVal { get; set; }
         }
 
         private class ResponseFromOperators
@@ -273,7 +309,12 @@ namespace BusinessApp.Data.IntegrationTest
         private sealed class NestedResponseFromOperators
         {
             public int OneInt { get; set; }
-            public ResponseFromOperators Parent { get; set; }
+            public AnotherNestedResponseFromOperators AnotherNestedResponse { get; set; }
+        }
+
+        private sealed class AnotherNestedResponseFromOperators
+        {
+            public bool BoolVal { get; set; }
         }
     }
 }

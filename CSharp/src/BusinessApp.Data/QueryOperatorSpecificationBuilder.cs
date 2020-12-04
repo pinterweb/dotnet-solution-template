@@ -82,7 +82,13 @@ namespace BusinessApp.Data
                     foreach (var p in props)
                     {
                         var contractProp = Expression.Property(contractExp, attribute.TargetProp);
-                        FillCache(p, queryProp, contractProp);
+                        FillCache(p,
+                               Expression.Condition(
+                                   Expression.ReferenceEqual(queryExp, Expression.Constant(null)),
+                                   Expression.Constant(null),
+                                   Expression.Convert(queryProp, typeof(object))
+                               ),
+                            contractProp);
                     }
                 }
                 else if (attribute is QueryOperatorAttribute opAttr)
