@@ -1,7 +1,7 @@
 # EditorConfig is awesome: http://EditorConfig.org
 
 # top-most EditorConfig file
-root = true
+root                     = true
 
 # Unix-style newlines with a newline ending every file
 [*]
@@ -12,5 +12,8 @@ insert_final_newline     = true
 max_char                 = 100
 
 [**.html]
-max_char    = 80
-brace_style = expand
+max_char                 = 80
+brace_style              = expand
+
+[*.cs]
+indent_size              = 4
