@@ -6,7 +6,6 @@ namespace BusinessApp.Data.IntegrationTest
     using BusinessApp.Domain;
     using Xunit;
     using BusinessApp.Test;
-    using System.Linq;
 
     [Collection(nameof(DatabaseCollection))]
     public class BusinessAppDbContextTests : IDisposable

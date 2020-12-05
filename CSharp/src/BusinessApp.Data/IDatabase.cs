@@ -2,7 +2,7 @@ namespace BusinessApp.Data
 {
     public interface IDatabase
     {
-        void AddOrReplace<TEntity>(TEntity entity);
-        void Remove<TEntity>(TEntity entity);
+        void AddOrReplace<TEntity>(TEntity entity) where TEntity : class;
+        void Remove<TEntity>(TEntity entity) where TEntity : class;
     }
 }
