@@ -25,7 +25,7 @@
         {
             Guard.Against.Null(container).Expect(nameof(container));
 
-#if annotations
+#if datannotations
             var registrations = new[] { typeof(DataAnnotationsValidator<>) }.Concat(container.GetTypesToRegister(
                 typeof(IValidator<>),
                 options.AppAssemblies

@@ -67,7 +67,7 @@
             "defaultValue": "false",
             "description": "Adds services integrate the fluent validation library"
         },
-        "annotations": {
+        "dataannotations": {
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
@@ -136,7 +136,7 @@
                     ]
                 },
                 {
-                    "condition": "(!annotations)",
+                    "condition": "(!dataannotations)",
                     "exclude": [
                         "src/**/DataAnnotations*.cs",
                         "src/**/ValidateObjectAttribute*.cs",

@@ -12,7 +12,7 @@
 <!--#if (json)-->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 <!--#endif-->
-<!--#if (annotations)-->
+<!--#if (dataannotations)-->
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
 <!--#endif-->
 <!--#if (fluentvalidation)-->

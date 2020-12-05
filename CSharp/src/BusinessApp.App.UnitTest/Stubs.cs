@@ -1,7 +1,7 @@
 namespace BusinessApp.App.UnitTest
 {
     using System.Collections.Generic;
-#if annotations
+#if dataannotations
     using System.ComponentModel.DataAnnotations;
 #endif
 
@@ -16,7 +16,7 @@ namespace BusinessApp.App.UnitTest
     public class AuthRolesCommandStub : CommandStub
     {}
 
-#if annotations
+#if dataannotations
     public class DataAnnotatedCommandStub
     {
         [Compare(nameof(Bar))]
