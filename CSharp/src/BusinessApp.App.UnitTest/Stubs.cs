@@ -1,7 +1,9 @@
 namespace BusinessApp.App.UnitTest
 {
     using System.Collections.Generic;
+#if annotations
     using System.ComponentModel.DataAnnotations;
+#endif
 
     public class CommandStub
     {}
@@ -14,6 +16,7 @@ namespace BusinessApp.App.UnitTest
     public class AuthRolesCommandStub : CommandStub
     {}
 
+#if annotations
     public class DataAnnotatedCommandStub
     {
         [Compare(nameof(Bar))]
@@ -25,6 +28,7 @@ namespace BusinessApp.App.UnitTest
         [Required]
         public string Bar { get; set; } = "lorem";
     }
+#endif
 
     public class QueryStub : IQuery
     {

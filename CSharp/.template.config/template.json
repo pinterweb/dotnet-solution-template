@@ -67,6 +67,13 @@
             "defaultValue": "false",
             "description": "Adds services integrate the fluent validation library"
         },
+        "annotations": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "true",
+            "description": "Adds data annotations for validation to app project"
+        },
         "winauth": {
             "type": "parameter",
             "dataType": "bool",
@@ -129,9 +136,17 @@
                     ]
                 },
                 {
+                    "condition": "(!annotations)",
+                    "exclude": [
+                        "src/**/DataAnnotations*.cs",
+                        "src/**/ValidateObjectAttribute*.cs",
+                        "src/**/CompositeValidationResult*.cs"
+                    ]
+                },
+                {
                     "condition": "(!fluentvalidation)",
                     "exclude": [
-                        "src/BusinessApp.App/FluentValidationValidator.cs"
+                        "src/**/FluentValidation*.cs"
                     ]
                 },
                 {
