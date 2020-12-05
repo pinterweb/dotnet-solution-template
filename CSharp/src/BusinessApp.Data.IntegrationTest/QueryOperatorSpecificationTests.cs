@@ -220,7 +220,7 @@ namespace BusinessApp.Data.IntegrationTest
         public void DeeplyNestedQuery_EqualBool_ContractIsSatisfied(bool responseVal)
         {
             /* Arrange */
-            var childQuery = new QueryWithOperators
+            var query = new QueryWithOperators
             {
                 NestedQuery = new NestedQueryWithOperators
                 {
@@ -237,7 +237,7 @@ namespace BusinessApp.Data.IntegrationTest
                     BoolVal = responseVal
                 }
             };
-            var spec = sut.Build(childQuery);
+            var spec = sut.Build(query);
 
             /* Act */
             var result = spec.IsSatisfiedBy(response);
@@ -284,15 +284,16 @@ namespace BusinessApp.Data.IntegrationTest
 
         private sealed class NestedQueryWithOperators
         {
-            [QueryOperator(nameof(ResponseFromOperators.OneInt), QueryOperators.LessThan)]
+            [QueryOperator(nameof(NestedResponseFromOperators.OneInt), QueryOperators.LessThan)]
             public int? OneInt_Lt { get; set; }
 
-            [QueryOperator(nameof(ResponseFromOperators.NestedResponse))]
+            [QueryOperator(nameof(NestedResponseFromOperators.AnotherNestedResponse))]
             public AnotherNestedQueryWithOperators AnotherNestedQuery { get; set; }
         }
 
         private sealed class AnotherNestedQueryWithOperators
         {
+            [QueryOperator(nameof(AnotherNestedResponseFromOperators.BoolVal), QueryOperators.Equal)]
             public bool BoolVal { get; set; }
         }
 
