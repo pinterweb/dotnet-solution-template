@@ -74,6 +74,7 @@
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
             RegisterDbContext<BusinessAppDbContext>(container, options.DbConnectionString);
+            container.Register<IDatabase>(() => container.GetInstance<BusinessAppDbContext>());
 #else
             container.Register<ITransactionFactory, NullTransactionFactory>();
 #endif
