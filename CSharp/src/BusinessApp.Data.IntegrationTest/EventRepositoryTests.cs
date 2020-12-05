@@ -35,13 +35,11 @@ namespace BusinessApp.Data.IntegrationTest
                         new object[]
                         {
                             null,
-                            A.Dummy<ISerializer>(),
                             A.Dummy<IPrincipal>()
                         },
                         new object[]
                         {
                             A.Dummy<IUnitOfWork>(),
-                            A.Dummy<ISerializer>(),
                             null
                         },
                     };
