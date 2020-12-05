@@ -14,7 +14,7 @@ namespace BusinessApp.Data.UnitTest
             {
                 new object[] { null, "foo" },
                 new object[] { A.Dummy<IDomainEvent>(), null },
-                new object[] { A.Dummy<IDomainEvent>(), "", "foo" },
+                new object[] { A.Dummy<IDomainEvent>(), "" },
             };
 
             [Theory, MemberData(nameof(InvalidArgs))]
