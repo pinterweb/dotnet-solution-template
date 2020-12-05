@@ -115,7 +115,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void DomainEvent_InnerUnitOfWorkAddCalled()
+            public void IDomainEvent_InnerUnitOfWorkAddCalled()
             {
                 /* Arrange */
                 var e = A.Dummy<IDomainEvent>();

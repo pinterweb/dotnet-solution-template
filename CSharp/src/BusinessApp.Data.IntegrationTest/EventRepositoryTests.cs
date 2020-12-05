@@ -3,47 +3,56 @@ namespace BusinessApp.Data.IntegrationTest
     using Xunit;
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.EntityFrameworkCore;
-    using BusinessApp.Test;
     using BusinessApp.Domain;
+    using BusinessApp.App;
+    using FakeItEasy;
+    using System.Security.Principal;
+    using System.Linq;
 
-    [Collection(nameof(DatabaseCollection))]
-    public class EventRepositoryTests : IDisposable
+    public class EventRepositoryTests
     {
         private EventRepository sut;
-        private BusinessAppDbContext db;
-        private DomainEventStub @event;
+        private readonly IUnitOfWork uow;
+        private readonly IPrincipal user;
 
-        public EventRepositoryTests(DatabaseFixture fixture)
+        public EventRepositoryTests()
         {
-            db = fixture.DbContext;
-            sut = new EventRepository(db);
-            @event = new DomainEventStub();
-        }
+            uow = A.Fake<IUnitOfWork>();
+            user = A.Fake<IPrincipal>();
+            sut = new EventRepository(uow, user);
 
-        public void Dispose() => db.Entry(@event).State = EntityState.Detached;
+            A.CallTo(() => user.Identity.Name).Returns("f");
+        }
 
         public class Constructor : EventRepositoryTests
         {
-            public Constructor(DatabaseFixture fixture) : base(fixture) {}
-
             public static IEnumerable<object[]> InvalidCtorArgs
             {
                 get
                 {
                     return new []
                     {
-                        new object[] { null },
+                        new object[]
+                        {
+                            null,
+                            A.Dummy<ISerializer>(),
+                            A.Dummy<IPrincipal>()
+                        },
+                        new object[]
+                        {
+                            A.Dummy<IUnitOfWork>(),
+                            A.Dummy<ISerializer>(),
+                            null
+                        },
                     };
                 }
             }
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(BusinessAppDbContext db)
+            public void InvalidCtorArgs_ExceptionThrown(IUnitOfWork db, IPrincipal p)
             {
                 /* Arrange */
-                void shouldThrow() => new EventRepository(db);
+                void shouldThrow() => new EventRepository(db, p);
 
                 /* Act */
                 var ex = Record.Exception((Action)shouldThrow);
@@ -55,10 +64,8 @@ namespace BusinessApp.Data.IntegrationTest
 
         public class Add : EventRepositoryTests
         {
-            public Add(DatabaseFixture fixture) : base(fixture) {}
-
             [Fact]
-            public void WithNullEvent_ExceptionThrown()
+            public void WithNullEventArg_ExceptionThrown()
             {
                 /* Arrange */
                 Action add = () => sut.Add(null);
@@ -71,16 +78,103 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void Add_Event_RegisteredWithDb()
+            public void IDomainEventEventIdProperty_SharedWithEventMetadata()
             {
+                /* Arrange */
+                EventMetadata @event = null;
+                var eventInput = A.Fake<IDomainEvent>();
+                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                    .Invokes(ctx => @event = ctx.GetArgument<EventMetadata>(0));
+
+                /* Act */
+                sut.Add(eventInput);
+
+                /* Assert */
+                Assert.Same(@event.Id, eventInput.Id);
+            }
+
+            [Fact]
+            public void EventCorrelationId_SetForAllAddedEvents()
+            {
+                /* Arrange */
+                var @events = new List<EventMetadata>();
+                sut = new EventRepository(uow, user);
+                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                    .Invokes(ctx => events.Add(ctx.GetArgument<EventMetadata>(0)));
+
+                /* Act */
+                sut.Add(A.Dummy<IDomainEvent>());
+                sut.Add(A.Dummy<IDomainEvent>());
+
+                /* Assert */
+                Assert.All(
+                    @events,
+                    e => Assert.Same(@events.First().CorrelationId, e.CorrelationId)
+                );
+            }
+
+            [Fact]
+            public void EventDisplayText_SerFromOriginalEventIFormattableToStringCall()
+            {
+                /* Arrange */
+                var @event = A.Fake<IDomainEvent>();
+                EventMetadata metadata = null;
+                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                    .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
+                A.CallTo(() => @event.ToString("G", null)).Returns("lorem");
+
+                /* Act */
                 sut.Add(@event);
 
-                var state = db
-                    .ChangeTracker
-                    .Entries()
-                    .Single()
-                    .State;
-                Assert.Equal(EntityState.Added, state);
+                /* Assert */
+                Assert.Equal("lorem", metadata.EventDisplayText);
+            }
+
+            [Fact]
+            public void EventOccurredUtc_SetFromOriginalEventOccurredUtc()
+            {
+                /* Arrange */
+                var now = DateTime.Now;
+                var @event = A.Fake<IDomainEvent>();
+                EventMetadata metadata = null;
+                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                    .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
+                A.CallTo(() => @event.OccurredUtc).Returns(now);
+
+                /* Act */
+                sut.Add(@event);
+
+                /* Assert */
+                Assert.Equal(now, metadata.OccurredUtc);
+            }
+
+            [Fact]
+            public void DomainEventCreator_SetFromIPrincipal()
+            {
+                /* Arrange */
+                A.CallTo(() => user.Identity.Name).Returns("foobar");
+                EventMetadata metadata = null;
+                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                    .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
+
+                /* Act */
+                sut.Add(A.Dummy<IDomainEvent>());
+
+                /* Assert */
+                Assert.Equal("foobar", metadata.EventCreator);
+            }
+
+            [Fact]
+            public void IDomainEventInputArg_AddedToIUnitOfWork()
+            {
+                /* Arrange */
+                var @event = A.Dummy<IDomainEvent>();
+
+                /* Act */
+                sut.Add(@event);
+
+                /* Assert */
+                A.CallTo(() => uow.Add(@event)).MustHaveHappenedOnceExactly();
             }
         }
     }

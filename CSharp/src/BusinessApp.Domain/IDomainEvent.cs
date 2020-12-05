@@ -5,8 +5,9 @@ namespace BusinessApp.Domain
     /// <summary>
     /// Represents event data
     /// </summary>
-    public interface IDomainEvent
+    public interface IDomainEvent : IFormattable
     {
-        DateTimeOffset Occurred { get; }
+        IEntityId Id { get; set; }
+        DateTimeOffset OccurredUtc { get; }
     }
 }
