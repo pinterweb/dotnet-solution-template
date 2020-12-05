@@ -10,6 +10,8 @@ namespace BusinessApp.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasSequence<long>("EventIds", schema: "evt");
+
             modelBuilder.ApplyConfigurationsFromAssembly(
                 typeof(BusinessAppDbContext).Assembly
             );

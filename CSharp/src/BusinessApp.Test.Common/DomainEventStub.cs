@@ -6,8 +6,10 @@ namespace BusinessApp.Test
 
     public class DomainEventStub : IDomainEvent
     {
-        public int Id { get; set; }
-        public DateTimeOffset Occurred => A.Dummy<DateTimeOffset>();
+        public IEntityId Id { get; set; }
+        public DateTimeOffset OccurredUtc => A.Dummy<DateTimeOffset>();
+
+        public string ToString(string format, IFormatProvider formatProvider) => "";
     }
 }
 
