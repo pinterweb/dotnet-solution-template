@@ -23,6 +23,7 @@ namespace BusinessApp.Test
             });
 
         private static readonly string ConnectionStr;
+        private readonly BusinessAppDbContext realDb;
 
         static DatabaseFixture()
 		{
@@ -41,10 +42,17 @@ namespace BusinessApp.Test
 
 		public DatabaseFixture()
 		{
+            realDb = new BusinessAppDbContext(
+                new DbContextOptionsBuilder<BusinessAppDbContext>()
+                    .UseLoggerFactory(EFDebugLoggerFactory)
+                    .UseSqlServer(ConnectionStr)
+                    .Options
+            );
             DbContext = new BusinessAppTestDbContext(
                 new DbContextOptionsBuilder<BusinessAppDbContext>()
                     .UseLoggerFactory(EFDebugLoggerFactory)
                     .UseSqlServer(ConnectionStr)
+                    .EnableSensitiveDataLogging()
                     .Options
             );
 
@@ -58,6 +66,7 @@ namespace BusinessApp.Test
             try
             {
                 DbContext.GetService<IMigrator>().Migrate("0");
+                realDb.GetService<IMigrator>().Migrate("0");
             }
             catch
             {
@@ -68,7 +77,7 @@ namespace BusinessApp.Test
             DbContext.Dispose();
 		}
 
-        private class Startup
+        private sealed class Startup
         {
             public void Configure()
             {
