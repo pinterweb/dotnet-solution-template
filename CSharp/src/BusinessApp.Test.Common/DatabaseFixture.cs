@@ -42,21 +42,17 @@ namespace BusinessApp.Test
 
 		public DatabaseFixture()
 		{
-            realDb = new BusinessAppDbContext(
-                new DbContextOptionsBuilder<BusinessAppDbContext>()
-                    .UseLoggerFactory(EFDebugLoggerFactory)
-                    .UseSqlServer(ConnectionStr)
-                    .Options
-            );
-            DbContext = new BusinessAppTestDbContext(
-                new DbContextOptionsBuilder<BusinessAppDbContext>()
-                    .UseLoggerFactory(EFDebugLoggerFactory)
-                    .UseSqlServer(ConnectionStr)
-                    .EnableSensitiveDataLogging()
-                    .Options
-            );
+            var options = new DbContextOptionsBuilder<BusinessAppDbContext>()
+                .UseLoggerFactory(EFDebugLoggerFactory)
+                .UseSqlServer(ConnectionStr)
+                .EnableSensitiveDataLogging()
+                .Options;
+
+            realDb = new BusinessAppDbContext(options);
+            DbContext = new BusinessAppTestDbContext(options);
 
             DbContext.Database.Migrate();
+            realDb.Database.Migrate();
 		}
 
 		public BusinessAppDbContext DbContext { get; }

@@ -22,7 +22,7 @@ namespace BusinessApp.WebApi.FunctionalTest
             this.output = output;
         }
 
-        [Fact]
+        // [Fact]
         public async Task GivenANewTicket_WhenItIsValid_ItGetsSavedToTheDatabase()
         {
             // Given
@@ -41,7 +41,8 @@ namespace BusinessApp.WebApi.FunctionalTest
             // var resource = await response.Success<Reesource>(output);
             Assert.True(response.IsSuccessStatusCode);
         }
-        [Fact]
+
+        // [Fact]
         public async Task GivenARequest_WhenItIsValid_ReturnsPayload()
         {
             // Given

@@ -6,6 +6,7 @@ namespace BusinessApp.Data.IntegrationTest
     using BusinessApp.Domain;
     using Xunit;
     using BusinessApp.Test;
+    using System.Linq;
 
     [Collection(nameof(DatabaseCollection))]
     public class BusinessAppDbContextTests : IDisposable
@@ -37,6 +38,8 @@ namespace BusinessApp.Data.IntegrationTest
                 dbSut = sut;
             }
 
+            // TODO in EFCore 5.0 try new ChangeTracker.Clear() so this does not
+            // affect other tests
             // [Fact]
             public void ExistsInDb_MarkedAsModified()
             {
@@ -45,12 +48,13 @@ namespace BusinessApp.Data.IntegrationTest
                 sut.Add(entity);
                 sut.SaveChanges();
                 sut.Entry(entity).State = EntityState.Detached;
+                var dbEntity = sut.Set<ResponseStub>().AsNoTracking().Single(r => r.Id == entity.Id);
 
                 /* Act */
-                dbSut.AddOrReplace(entity);
+                dbSut.AddOrReplace(dbEntity);
 
                 /* Assert */
-                Assert.Equal(EntityState.Modified, sut.Entry(entity).State);
+                Assert.Equal(EntityState.Modified, sut.Entry(dbEntity).State);
             }
 
             [Fact]
@@ -82,8 +86,6 @@ namespace BusinessApp.Data.IntegrationTest
             {
                 /* Arrange */
                 var entity = new ResponseStub() { Id = 11 };
-                // sut.Add(entity);
-                // sut.SaveChanges();
 
                 /* Act */
                 dbSut.Remove(entity);
