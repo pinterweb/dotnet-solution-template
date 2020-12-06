@@ -81,6 +81,20 @@
             "defaultValue": "false",
             "description": "Adds windows authentication"
         },
+        "cors": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "false",
+            "description": "Adds support for CORS"
+        },
+        "staticfiles": {
+            "type": "parameter",
+            "dataType": "bool",
+            "isRequired": "false",
+            "defaultValue": "true",
+            "description": "Adds support to serve static files"
+        },
         "copyrightReplacer": {
             "type": "generated",
             "generator": "coalesce",

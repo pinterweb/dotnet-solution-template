@@ -48,6 +48,25 @@
         {
 //#if DEBUG
             services.AddLogging(configure => configure.AddConsole().AddDebug());
+#if cors
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+#if winauth
+                        builder.WithOrigins("http://localhost:8081")
+#else
+                        builder.AllowAnyOrigin()
+#endif
+                            .AllowAnyMethod()
+#if winauth
+                            .AllowCredentials()
+#endif
+                            .AllowAnyHeader();
+                    });
+            });
+#endif
 //#endif
             services.AddRouting();
 #if winauth
@@ -74,6 +93,10 @@
 
             app.UseMiddleware<HttpExceptionMiddleware>(container);
 
+#if staticfiles
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+#endif
             app.SetupEndpoints(container);
 
             WebApiBootstrapper.Bootstrap(app, env, container, options);
