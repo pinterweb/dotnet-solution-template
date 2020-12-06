@@ -37,4 +37,4 @@ steps:
   inputs:
     command: test
     projects: '$(testProjects)'
-    arguments: '--configuration $(buildConfiguration) -p:DefineConstants=dataannotations%3Befcore%3Bfluentvalidation%3Bjson%3Bdocker'
+    arguments: '--configuration $(buildConfiguration)'

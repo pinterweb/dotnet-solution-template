@@ -1,9 +1,6 @@
 namespace BusinessApp.App.UnitTest
 {
     using System.Collections.Generic;
-#if dataannotations
-    using System.ComponentModel.DataAnnotations;
-#endif
 
     public class CommandStub
     {}
@@ -15,20 +12,6 @@ namespace BusinessApp.App.UnitTest
     [Authorize("Foo", "Bar")]
     public class AuthRolesCommandStub : CommandStub
     {}
-
-#if dataannotations
-    public class DataAnnotatedCommandStub
-    {
-        [Compare(nameof(Bar))]
-        public string CompareToBar { get; set; } = "lorem";
-
-        [StringLength(10)]
-        public string Foo { get; set; }
-
-        [Required]
-        public string Bar { get; set; } = "lorem";
-    }
-#endif
 
     public class QueryStub : IQuery
     {
