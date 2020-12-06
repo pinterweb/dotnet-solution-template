@@ -405,6 +405,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                     rel => Assert.Equal(
                         typeof(RequestExceptionDecorator<QueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
+#if efcore
+                    rel => Assert.Equal(
+                        typeof(EFTrackingQueryDecorator<QueryStub, ResponseStub>),
+                        rel.Registration.ImplementationType),
+#endif
                     rel => Assert.Equal(
                         typeof(ValidationRequestDecorator<QueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
@@ -442,6 +447,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                     rel => Assert.Equal(
                         typeof(RequestExceptionDecorator<AuthQueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
+#if efcore
+                    rel => Assert.Equal(
+                        typeof(EFTrackingQueryDecorator<AuthQueryStub, ResponseStub>),
+                        rel.Registration.ImplementationType),
+#endif
                     rel => Assert.Equal(
                         typeof(AuthorizationRequestDecorator<AuthQueryStub, ResponseStub>),
                         rel.Registration.ImplementationType),
@@ -459,6 +469,48 @@ namespace BusinessApp.WebApi.IntegrationTest
                         rel.Registration.ImplementationType)
                 );
             }
+
+#if efcore
+            [Fact]
+            public void NoExplicityQueryRequestRegistration_SingleQueryHandlerDecoratorsAdded()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType
+                    .GetDependencies()
+                    .Where(i => typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>).IsAssignableFrom(i.ServiceType))
+                    .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(RequestExceptionDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(EFTrackingQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(ValidationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(EntityNotFoundQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(InstanceCacheQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(SingleQueryDelegator<UnregisteredQuery, UnregisteredQuery>),
+                        rel.Registration.ImplementationType)
+                );
+            }
+#endif
 
             public void Dispose() => scope.Dispose();
         }
@@ -503,5 +555,11 @@ namespace BusinessApp.WebApi.IntegrationTest
         [Authorize]
         public sealed class AuthMacroStub : IMacro<CommandStub> { }
         public sealed class MacroStub : IMacro<CommandStub> { }
+#if efcore
+        public sealed class UnregisteredQuery : Query
+        {
+            public override IEnumerable<string> Sort { get; set; }
+        }
+#endif
     }
 }
