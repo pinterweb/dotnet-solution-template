@@ -10,25 +10,25 @@ namespace BusinessApp.WebApi.UnitTest.Json
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
-    public class JsonResponseDecoratorTests
+    public class JsonHttpDecoratorTests
     {
         private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
         private readonly IResponseWriter modelWriter;
         private readonly HttpContext context;
         private readonly CancellationToken token;
-        private readonly JsonResponseDecorator<RequestStub, ResponseStub> sut;
+        private readonly JsonHttpDecorator<RequestStub, ResponseStub> sut;
 
-        public JsonResponseDecoratorTests()
+        public JsonHttpDecoratorTests()
         {
             inner = A.Fake<IHttpRequestHandler<RequestStub, ResponseStub>>();
             modelWriter = A.Fake<IResponseWriter>();
             context = A.Fake<HttpContext>();
             token = A.Dummy<CancellationToken>();
 
-            sut = new JsonResponseDecorator<RequestStub, ResponseStub>(inner, modelWriter);
+            sut = new JsonHttpDecorator<RequestStub, ResponseStub>(inner, modelWriter);
         }
 
-        public class Constructor : JsonResponseDecoratorTests
+        public class Constructor : JsonHttpDecoratorTests
         {
             public static IEnumerable<object[]> InvalidInputs => new[]
             {
@@ -46,7 +46,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 IResponseWriter w)
             {
                 /* Arrange */
-                void shouldThrow() => new JsonResponseDecorator<RequestStub, ResponseStub>(i, w);
+                void shouldThrow() => new JsonHttpDecorator<RequestStub, ResponseStub>(i, w);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -56,7 +56,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             }
         }
 
-        public class HandleAsync : JsonResponseDecoratorTests
+        public class HandleAsync : JsonHttpDecoratorTests
         {
             public static IEnumerable<object[]> SaveMethods => new[]
             {

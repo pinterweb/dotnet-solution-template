@@ -9,12 +9,12 @@
     /// <summary>
     /// Writes out the final response after handling the request
     /// </summary>
-    public class JsonResponseDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+    public class JsonHttpDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
     {
         private readonly IHttpRequestHandler<TRequest, TResponse> inner;
         private readonly IResponseWriter modelWriter;
 
-        public JsonResponseDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
+        public JsonHttpDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
             IResponseWriter modelWriter)
         {
             this.inner = Guard.Against.Null(inner).Expect(nameof(inner));

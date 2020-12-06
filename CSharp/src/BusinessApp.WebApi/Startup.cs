@@ -72,7 +72,7 @@
                 await next();
             });
 
-            app.UseMiddleware<HttpRequestExceptionMiddleware>(container);
+            app.UseMiddleware<HttpExceptionMiddleware>(container);
 
             app.SetupEndpoints(container);
 

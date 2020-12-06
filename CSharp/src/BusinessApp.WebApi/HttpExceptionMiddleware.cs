@@ -6,14 +6,14 @@
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Catches all errors during the execution of a request
+    /// Catches all errors during the execution of a http request
     /// </summary>
-    public sealed class HttpRequestExceptionMiddleware : IMiddleware
+    public sealed class HttpExceptionMiddleware : IMiddleware
     {
         private readonly ILogger logger;
         private readonly IResponseWriter writer;
 
-        public HttpRequestExceptionMiddleware(ILogger logger, IResponseWriter writer)
+        public HttpExceptionMiddleware(ILogger logger, IResponseWriter writer)
         {
             this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
             this.writer = Guard.Against.Null(writer).Expect(nameof(writer));

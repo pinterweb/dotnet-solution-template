@@ -8,20 +8,20 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading.Tasks;
     using System.Collections.Generic;
 
-    public class HttpRequestExceptionMiddlewareTests
+    public class HttpExceptionMiddlewareTests
     {
         private readonly ILogger logger;
         private readonly IResponseWriter writer;
-        public readonly HttpRequestExceptionMiddleware sut;
+        public readonly HttpExceptionMiddleware sut;
 
-        public HttpRequestExceptionMiddlewareTests()
+        public HttpExceptionMiddlewareTests()
         {
             logger = A.Fake<ILogger>();
             writer = A.Fake<IResponseWriter>();
-            sut = new HttpRequestExceptionMiddleware(logger, writer);
+            sut = new HttpExceptionMiddleware(logger, writer);
         }
 
-        public class Constructor : HttpRequestExceptionMiddlewareTests
+        public class Constructor : HttpExceptionMiddlewareTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -33,7 +33,7 @@ namespace BusinessApp.WebApi.UnitTest
             public void InvalidCtorArgs_ExceptionThrown(ILogger l, IResponseWriter w)
             {
                 /* Arrange */
-                void shouldThrow() => new HttpRequestExceptionMiddleware(l, w);
+                void shouldThrow() => new HttpExceptionMiddleware(l, w);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -43,7 +43,7 @@ namespace BusinessApp.WebApi.UnitTest
             }
         }
 
-        public class InvokeAsync : HttpRequestExceptionMiddlewareTests
+        public class InvokeAsync : HttpExceptionMiddlewareTests
         {
             [Fact]
             public async Task NoException_CalledNext()
