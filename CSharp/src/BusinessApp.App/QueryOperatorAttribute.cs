@@ -13,7 +13,7 @@ namespace BusinessApp.App
         public QueryOperatorAttribute(string targetProp, string operatorToUse = QueryOperators.Equal)
         {
             OperatorToUse = operatorToUse ?? QueryOperators.Equal;
-            TargetProp = Guard.Against.Empty(targetProp).Expect(nameof(targetProp));
+            TargetProp = targetProp.NotEmpty().Expect(nameof(targetProp));
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace BusinessApp.App
         /// </summary>
         public QueryOperatorAttribute(string targetProp)
         {
-            TargetProp = Guard.Against.Empty(targetProp).Expect(nameof(targetProp));
+            TargetProp = targetProp.NotEmpty().Expect(nameof(targetProp));
         }
 
         public string OperatorToUse { get; }

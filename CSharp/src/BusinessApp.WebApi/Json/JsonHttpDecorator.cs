@@ -17,8 +17,8 @@
         public JsonHttpDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
             IResponseWriter modelWriter)
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
-            this.modelWriter = Guard.Against.Null(modelWriter).Expect(nameof(modelWriter));
+            this.inner = inner.NotNull().Expect(nameof(inner));
+            this.modelWriter = modelWriter.NotNull().Expect(nameof(modelWriter));
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,

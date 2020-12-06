@@ -13,7 +13,7 @@ namespace BusinessApp.Data
 
         public CompositeQueryVisitor(IEnumerable<IQueryVisitor<T>> visitors)
         {
-            this.visitors = Guard.Against.Null(visitors).Expect(nameof(visitors));
+            this.visitors = visitors.NotNull().Expect(nameof(visitors));
         }
 
         public IQueryable<T> Visit(IQueryable<T> queryable)

@@ -17,16 +17,16 @@
             PostCommitRegister register,
             ILogger logger)
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
-            this.transactionFactory = Guard.Against.Null(transactionFactory).Expect(nameof(transactionFactory));
-            this.register = Guard.Against.Null(register).Expect(nameof(register));
-            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
+            this.inner = inner.NotNull().Expect(nameof(inner));
+            this.transactionFactory = transactionFactory.NotNull().Expect(nameof(transactionFactory));
+            this.register = register.NotNull().Expect(nameof(register));
+            this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(
             TRequest command, CancellationToken cancellationToken)
         {
-            Guard.Against.Null(command).Expect(nameof(command));
+            command.NotNull().Expect(nameof(command));
 
             var trans = transactionFactory.Begin();
 

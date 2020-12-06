@@ -15,14 +15,14 @@ namespace BusinessApp.App
 
         public ValidationRequestDecorator(IValidator<TRequest> validator, IRequestHandler<TRequest, TResult> inner)
         {
-            this.validator = Guard.Against.Null(validator).Expect(nameof(validator));
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
+            this.validator = validator.NotNull().Expect(nameof(validator));
+            this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
         public async Task<Result<TResult, IFormattable>> HandleAsync(TRequest request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(request).Expect(nameof(request));
+            request.NotNull().Expect(nameof(request));
 
             var result = await validator.ValidateAsync(request, cancellationToken);
 

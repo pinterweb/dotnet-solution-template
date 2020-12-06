@@ -15,8 +15,8 @@ namespace BusinessApp.App
         public ScopedBatchRequestProxy(IAppScope scope,
             Func<IRequestHandler<IEnumerable<TRequest>, TResponse>> factory)
         {
-            this.scope = Guard.Against.Null(scope).Expect(nameof(scope));
-            this.factory = Guard.Against.Null(factory).Expect(nameof(factory));
+            this.scope = scope.NotNull().Expect(nameof(scope));
+            this.factory = factory.NotNull().Expect(nameof(factory));
         }
 
         public Task<Result<TResponse, IFormattable>> HandleAsync(

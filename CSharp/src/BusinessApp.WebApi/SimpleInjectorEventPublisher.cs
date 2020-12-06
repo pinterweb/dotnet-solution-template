@@ -16,7 +16,7 @@
 
         public SimpleInjectorEventPublisher(Container container)
         {
-            this.container = Guard.Against.Null(container).Expect(nameof(container));
+            this.container = container.NotNull().Expect(nameof(container));
         }
 
         /// <summary>

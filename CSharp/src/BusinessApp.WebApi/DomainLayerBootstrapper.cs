@@ -14,7 +14,7 @@
 
         public static void Bootstrap(Container container, BootstrapOptions options)
         {
-            Guard.Against.Null(container).Expect(nameof(container));
+            container.NotNull().Expect(nameof(container));
 
             container.Collection.Register(typeof(IEventHandler<>), new[]
             {

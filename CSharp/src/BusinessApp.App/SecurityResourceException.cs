@@ -10,7 +10,7 @@ namespace BusinessApp.App
         public SecurityResourceException(string resourceName, string message, Exception inner = null)
             :base(message, inner)
         {
-            ResourceName = Guard.Against.Empty(resourceName).Expect(nameof(resourceName));
+            ResourceName = resourceName.NotEmpty().Expect(nameof(resourceName));
 
             Data.Add(ResourceName, Message);
         }

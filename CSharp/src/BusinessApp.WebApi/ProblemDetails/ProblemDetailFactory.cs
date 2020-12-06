@@ -13,7 +13,7 @@ namespace BusinessApp.WebApi.ProblemDetails
 
         public ProblemDetailFactory(HashSet<ProblemDetailOptions> options)
         {
-            this.options = Guard.Against.Null(options).Expect(nameof(options));
+            this.options = options.NotNull().Expect(nameof(options));
         }
 
         public ProblemDetail Create(IFormattable error)

@@ -20,8 +20,8 @@ namespace BusinessApp.Data
         public EFTrackingQueryDecorator(BusinessAppDbContext db,
             IRequestHandler<TQuery, TResult> inner)
         {
-            Guard.Against.Null(db).Expect(nameof(db));
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
+            db.NotNull().Expect(nameof(db));
+            this.inner = inner.NotNull().Expect(nameof(inner));
 
             db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }

@@ -15,7 +15,7 @@
 
         public EntityNotFoundQueryDecorator(IRequestHandler<TQuery, TResult> decorated)
         {
-            this.decorated = Guard.Against.Null(decorated).Expect(nameof(decorated));
+            this.decorated = decorated.NotNull().Expect(nameof(decorated));
         }
 
         public async Task<Result<TResult, IFormattable>> HandleAsync(

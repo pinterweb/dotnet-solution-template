@@ -15,7 +15,7 @@
 
         public AndSpecificationBuilder(IEnumerable<ILinqSpecificationBuilder<TQuery, TResult>> builders)
         {
-            this.builders = Guard.Against.Null(builders).Expect(nameof(builders));
+            this.builders = builders.NotNull().Expect(nameof(builders));
         }
 
         public LinqSpecification<TResult> Build(TQuery query)

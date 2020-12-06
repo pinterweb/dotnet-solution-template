@@ -16,8 +16,8 @@ namespace BusinessApp.Data
             IDomainEvent originalEvent,
             string eventCreator)
         {
-            Guard.Against.Null(originalEvent).Expect(nameof(originalEvent));
-            Guard.Against.Empty(eventCreator).Expect(nameof(eventCreator));
+            originalEvent.NotNull().Expect(nameof(originalEvent));
+            eventCreator.NotEmpty().Expect(nameof(eventCreator));
 
             Id = originalEvent.Id;
             CorrelationId = correlationId;

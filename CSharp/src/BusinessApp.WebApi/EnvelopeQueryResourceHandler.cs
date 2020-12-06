@@ -20,8 +20,8 @@ namespace BusinessApp.WebApi
             IRequestHandler<TRequest, EnvelopeContract<TResponse>> handler,
             ISerializer serializer)
         {
-            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
-            this.serializer = Guard.Against.Null(serializer).Expect(nameof(serializer));
+            this.handler = handler.NotNull().Expect(nameof(handler));
+            this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
         public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)

@@ -17,8 +17,8 @@ namespace BusinessApp.App
         public RequestExceptionDecorator(IRequestHandler<TRequest, TResponse> inner,
             ILogger logger)
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
-            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
+            this.inner = inner.NotNull().Expect(nameof(inner));
+            this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(

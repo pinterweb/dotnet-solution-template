@@ -22,7 +22,7 @@ namespace BusinessApp.App
         public SingleQueryDelegator(
             IRequestHandler<TRequest, IEnumerable<TResponse>> handler)
         {
-            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
+            this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(TRequest request,

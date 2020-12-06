@@ -15,8 +15,8 @@ namespace BusinessApp.App
 
         public FileLogger(IFileProperties file, ILogEntryFormatter formatter)
         {
-            this.file = Guard.Against.Null(file).Expect(nameof(file));
-            this.formatter = Guard.Against.Null(formatter).Expect(nameof(formatter));
+            this.file = file.NotNull().Expect(nameof(file));
+            this.formatter = formatter.NotNull().Expect(nameof(formatter));
         }
 
         public void Log(LogEntry entry)

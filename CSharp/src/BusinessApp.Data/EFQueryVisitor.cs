@@ -28,7 +28,7 @@
 
         public EFQueryVisitor(IQuery query)
         {
-            this.query = Guard.Against.Null(query).Expect(nameof(query));
+            this.query = query.NotNull().Expect(nameof(query));
         }
 
         public IQueryable<TResult> Visit(IQueryable<TResult> queryable)

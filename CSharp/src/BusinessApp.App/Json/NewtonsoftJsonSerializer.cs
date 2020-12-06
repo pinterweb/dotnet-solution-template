@@ -20,7 +20,7 @@ namespace BusinessApp.App.Json
 
         public NewtonsoftJsonSerializer(JsonSerializerSettings settings, ILogger logger)
         {
-            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
+            this.logger = logger.NotNull().Expect(nameof(logger));
             serializer = JsonSerializer.Create(settings);
         }
 

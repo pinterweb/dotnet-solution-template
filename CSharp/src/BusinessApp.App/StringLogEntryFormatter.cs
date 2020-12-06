@@ -6,7 +6,7 @@ namespace BusinessApp.App
     {
         public string Format(LogEntry entry)
         {
-            Guard.Against.Null(entry).Expect(nameof(entry));
+            entry.NotNull().Expect(nameof(entry));
 
             return entry.ToString();
         }

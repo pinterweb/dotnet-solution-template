@@ -17,7 +17,7 @@ namespace BusinessApp.App
 
         public DeadlockRetryRequestDecorator(IRequestHandler<TRequest, TResponse> decoratee)
         {
-            this.decoratee = Guard.Against.Null(decoratee).Expect(nameof(decoratee));
+            this.decoratee = decoratee.NotNull().Expect(nameof(decoratee));
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(

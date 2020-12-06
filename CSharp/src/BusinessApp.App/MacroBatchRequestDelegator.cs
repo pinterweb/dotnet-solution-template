@@ -18,15 +18,15 @@ namespace BusinessApp.App
             IBatchMacro<TMacro, TRequest> expander,
             IRequestHandler<IEnumerable<TRequest>, TResponse> handler)
         {
-            this.expander = Guard.Against.Null(expander).Expect(nameof(expander));
-            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
+            this.expander = expander.NotNull().Expect(nameof(expander));
+            this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(
             TMacro macro,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(macro).Expect(nameof(macro));
+            macro.NotNull().Expect(nameof(macro));
 
             var payloads = await expander.ExpandAsync(macro, cancellationToken);
 
