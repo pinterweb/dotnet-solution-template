@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.WebApi
 {
+    using System;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -32,15 +33,36 @@
             {
                 foreach (var @event in events)
                 {
-                    var handlers = container.GetAllInstances(typeof(IEventHandler<>).MakeGenericType(@event.GetType()));
+                    var handler = (EventHandler)Activator.CreateInstance(
+                        typeof(GenericEventHandler<>).MakeGenericType(@event.GetType()));
 
-                    foreach (dynamic handler in handlers)
-                    {
-                        await handler.HandleAsync((dynamic)@event, cancellationToken);
-                    }
+                    await handler.HandleAsync(@event, cancellationToken, container);
                 }
 
                 events = emitter.PublishEvents();
+            }
+        }
+
+        private abstract class EventHandler
+        {
+            public abstract Task HandleAsync(IDomainEvent request,
+                CancellationToken cancellationToken,
+                Container container);
+        }
+
+        private class GenericEventHandler<TEvent> : EventHandler
+              where TEvent : IDomainEvent
+        {
+            public async override Task HandleAsync(IDomainEvent @event,
+                CancellationToken cancellationToken,
+                Container container)
+            {
+                var handlers =  container.GetAllInstances<IEventHandler<TEvent>>();
+
+                foreach (var handler in handlers)
+                {
+                    await handler.HandleAsync((TEvent)@event, cancellationToken);
+                }
             }
         }
     }
