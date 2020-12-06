@@ -66,6 +66,16 @@ namespace BusinessApp.Domain
                     return nullResult;
                 });
             }
+
+            public static Result<T, IFormattable> Invariant<T>(T value, bool isValid)
+            {
+                if (isValid)
+                {
+                    return Result<T, IFormattable>.Ok(value);
+                }
+
+                return Result<T, IFormattable>.Error($"Test did not pass");
+            }
         }
     }
 }

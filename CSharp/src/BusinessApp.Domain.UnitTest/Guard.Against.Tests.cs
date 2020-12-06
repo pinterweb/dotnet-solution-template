@@ -3,6 +3,7 @@ namespace BusinessApp.Domain.UnitTest
     using Xunit;
     using BusinessApp.Domain;
     using System.Collections.Generic;
+    using System;
 
     public partial class GuardAgainstTests
     {
@@ -130,6 +131,32 @@ namespace BusinessApp.Domain.UnitTest
                 Assert.Equal(expectedErrMsg, ex.Message);
             }
 
+            [Fact]
+            public void Invariant_WhenFalse_ErrorMessageReturned()
+            {
+                /* Arrange */
+                var dt = new DateTime(100, DateTimeKind.Utc);
+
+                /* Act */
+                var result = Guard.Against.Invariant(dt, dt.Kind != DateTimeKind.Utc);
+
+                /* Assert */
+                var ex = result.UnwrapError();
+                Assert.Equal("Test did not pass", ex.ToString());
+            }
+
+            [Fact]
+            public void Invariant_WhenTrue_OkReturned()
+            {
+                /* Arrange */
+                var dt = new DateTime(100, DateTimeKind.Local);
+
+                /* Act */
+                var result = Guard.Against.Invariant(dt, dt.Kind != DateTimeKind.Utc);
+
+                /* Assert */
+                Assert.Equal(dt, result.Unwrap());
+            }
         }
     }
 }
