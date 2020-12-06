@@ -25,10 +25,17 @@
         {
             Guard.Against.Null(container).Expect(nameof(container));
 
+#if datannotations
             var registrations = new[] { typeof(DataAnnotationsValidator<>) }.Concat(container.GetTypesToRegister(
                 typeof(IValidator<>),
                 options.AppAssemblies
             ));
+#else
+            var registrations = container.GetTypesToRegister(
+                typeof(IValidator<>),
+                options.AppAssemblies
+            );
+#endif
             container.Collection.Register(typeof(IValidator<>), registrations);
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 

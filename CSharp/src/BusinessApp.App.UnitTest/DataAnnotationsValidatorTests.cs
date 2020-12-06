@@ -1,10 +1,23 @@
 namespace BusinessApp.App.UnitTest
 {
+    using System.ComponentModel.DataAnnotations;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
     using FakeItEasy;
     using Xunit;
+
+    public class DataAnnotatedCommandStub
+    {
+        [Compare(nameof(Bar))]
+        public string CompareToBar { get; set; } = "lorem";
+
+        [StringLength(10)]
+        public string Foo { get; set; }
+
+        [Required]
+        public string Bar { get; set; } = "lorem";
+    }
 
     public class DataAnnotationsValidatorTests
     {
