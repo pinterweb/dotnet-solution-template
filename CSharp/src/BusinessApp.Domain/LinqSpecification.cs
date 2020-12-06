@@ -10,7 +10,7 @@ namespace BusinessApp.Domain
     {
         public LinqSpecification(Expression<Func<T, bool>> expression)
         {
-            Predicate = Guard.Against.Null(expression).Expect(nameof(expression));
+            Predicate = expression.NotNull().Expect(nameof(expression));
         }
 
         public virtual Expression<Func<T, bool>> Predicate { get; protected set; }

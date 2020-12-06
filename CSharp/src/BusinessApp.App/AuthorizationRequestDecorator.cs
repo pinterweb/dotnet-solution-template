@@ -15,8 +15,8 @@
             IAuthorizer<TRequest> authorizer
         )
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
-            this.authorizer = Guard.Against.Null(authorizer).Expect(nameof(authorizer));
+            this.inner = inner.NotNull().Expect(nameof(inner));
+            this.authorizer = authorizer.NotNull().Expect(nameof(authorizer));
         }
 
         public Task<Result<TResult, IFormattable>> HandleAsync(TRequest query, CancellationToken cancellationToken)

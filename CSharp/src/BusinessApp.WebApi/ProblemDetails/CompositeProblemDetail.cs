@@ -11,7 +11,7 @@ namespace BusinessApp.WebApi.ProblemDetails
         public CompositeProblemDetail(IEnumerable<ProblemDetail> problems, Uri type = null)
             : base(StatusCodes.Status207MultiStatus, type)
         {
-            Responses = Guard.Against.Empty(problems).Expect(nameof(problems));
+            Responses = problems.NotEmpty().Expect(nameof(problems));
 
            this[nameof(Responses)]  = Responses;
         }

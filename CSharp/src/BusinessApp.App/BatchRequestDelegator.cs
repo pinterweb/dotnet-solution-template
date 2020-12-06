@@ -14,14 +14,14 @@
 
         public BatchRequestDelegator(IRequestHandler<TRequest, TResponse> inner)
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
+            this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
         public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
             IEnumerable<TRequest> request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(request).Expect(nameof(request));
+            request.NotNull().Expect(nameof(request));
 
             var results = new List<Result<TResponse, IFormattable>>();
 

@@ -16,7 +16,7 @@ namespace BusinessApp.App
     {
         public BatchException(IEnumerable<Result> results)
         {
-            Guard.Against.Empty(results).Expect(nameof(results)).ToList();
+            results.NotEmpty().Expect(nameof(results)).ToList();
 
             var allResults = new List<Result>();
 

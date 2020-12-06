@@ -13,7 +13,7 @@ namespace BusinessApp.App
 
         public CompositeLogger(IEnumerable<ILogger> loggers)
         {
-            this.loggers = Guard.Against.Null(loggers).Expect(nameof(loggers));
+            this.loggers = loggers.NotNull().Expect(nameof(loggers));
         }
 
         public virtual void Log(LogEntry entry)

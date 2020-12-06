@@ -12,8 +12,8 @@ namespace BusinessApp.App
         public MemberValidationException(string memberName, IEnumerable<string> errors)
             : base($"'{memberName}' failed validation. See errors for more details")
         {
-            MemberName = Guard.Against.Empty(memberName).Expect(nameof(memberName));
-            Errors = Guard.Against.Empty(errors).Expect(nameof(errors)).ToList();
+            MemberName = memberName.NotEmpty().Expect(nameof(memberName));
+            Errors = errors.NotEmpty().Expect(nameof(errors)).ToList();
             Data.Add(memberName, Errors);
         }
 

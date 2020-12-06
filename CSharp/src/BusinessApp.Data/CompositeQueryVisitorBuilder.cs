@@ -13,7 +13,7 @@
 
         public CompositeQueryVisitorBuilder(IEnumerable<IQueryVisitorFactory<TQuery, TResult>> factories)
         {
-            this.factories = Guard.Against.Null(factories).Expect(nameof(factories));
+            this.factories = factories.NotNull().Expect(nameof(factories));
         }
 
         public IQueryVisitor<TResult> Create(TQuery query)

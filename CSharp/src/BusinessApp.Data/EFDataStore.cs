@@ -24,9 +24,9 @@ namespace BusinessApp.Data
             IQueryVisitorFactory<IQuery, TEntity> queryVisitorFactory,
             BusinessAppDbContext db)
         {
-            this.linqBuilder = Guard.Against.Null(linqBuilder).Expect(nameof(linqBuilder));
-            this.queryVisitorFactory = Guard.Against.Null(queryVisitorFactory).Expect(nameof(queryVisitorFactory));
-            this.db = Guard.Against.Null(db).Expect(nameof(db));
+            this.linqBuilder = linqBuilder.NotNull().Expect(nameof(linqBuilder));
+            this.queryVisitorFactory = queryVisitorFactory.NotNull().Expect(nameof(queryVisitorFactory));
+            this.db = db.NotNull().Expect(nameof(db));
         }
 
         public async Task<IEnumerable<TEntity>> QueryAsync(IQuery query, CancellationToken cancellationToken)

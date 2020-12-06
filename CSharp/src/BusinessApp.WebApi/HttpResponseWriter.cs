@@ -14,8 +14,8 @@ namespace BusinessApp.WebApi
 
         public HttpResponseWriter(IProblemDetailFactory problemFactory, ISerializer serializer)
         {
-            this.problemFactory = Guard.Against.Null(problemFactory).Expect(nameof(problemFactory));
-            this.serializer = Guard.Against.Null(serializer).Expect(nameof(serializer));
+            this.problemFactory = problemFactory.NotNull().Expect(nameof(problemFactory));
+            this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
         public Task WriteResponseAsync<T, E>(HttpContext context, Result<T, E> result)

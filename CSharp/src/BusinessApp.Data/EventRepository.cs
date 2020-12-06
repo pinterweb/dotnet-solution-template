@@ -16,14 +16,14 @@
         public EventRepository(IUnitOfWork db,
             IPrincipal user)
         {
-            this.db = Guard.Against.Null(db).Expect(nameof(db));
-            this.user = Guard.Against.Null(user).Expect(nameof(user));
+            this.db = db.NotNull().Expect(nameof(db));
+            this.user = user.NotNull().Expect(nameof(user));
             correlationId = new EventId();
         }
 
         public void Add(IDomainEvent @event)
         {
-            Guard.Against.Null(@event).Expect(nameof(@event));
+            @event.NotNull().Expect(nameof(@event));
 
             var id = new EventId();
             @event.Id = id;

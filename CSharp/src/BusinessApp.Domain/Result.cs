@@ -15,7 +15,7 @@
 
         public static Result Error(IFormattable error)
         {
-            Guard.Against.Null(error).Expect(nameof(error));
+            error.NotNull().Expect(nameof(error));
 
             return new Result(error);
         }

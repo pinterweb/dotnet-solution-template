@@ -15,7 +15,7 @@ namespace BusinessApp.App
 
         public FluentValidationValidator(IEnumerable<FluentValidation.IValidator<T>> validators)
         {
-            this.validators = Guard.Against.Null(validators).Expect(nameof(validators));
+            this.validators = validators.NotNull().Expect(nameof(validators));
         }
 
         public async Task<Result> ValidateAsync(T instance, CancellationToken cancellationToken)

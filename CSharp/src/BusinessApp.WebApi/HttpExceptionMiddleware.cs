@@ -15,8 +15,8 @@
 
         public HttpExceptionMiddleware(ILogger logger, IResponseWriter writer)
         {
-            this.logger = Guard.Against.Null(logger).Expect(nameof(logger));
-            this.writer = Guard.Against.Null(writer).Expect(nameof(writer));
+            this.logger = logger.NotNull().Expect(nameof(logger));
+            this.writer = writer.NotNull().Expect(nameof(writer));
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)

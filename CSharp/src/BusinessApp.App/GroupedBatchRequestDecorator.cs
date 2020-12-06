@@ -19,15 +19,15 @@ namespace BusinessApp.App
             IBatchGrouper<TRequest> grouper,
             IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler)
         {
-            this.grouper = Guard.Against.Null(grouper).Expect(nameof(grouper));
-            this.handler = Guard.Against.Null(handler).Expect(nameof(handler));
+            this.grouper = grouper.NotNull().Expect(nameof(grouper));
+            this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
         public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
             IEnumerable<TRequest> request,
             CancellationToken cancellationToken)
         {
-            Guard.Against.Null(request).Expect(nameof(request));
+            request.NotNull().Expect(nameof(request));
 
             var payloads = await grouper.GroupAsync(request, cancellationToken);
 

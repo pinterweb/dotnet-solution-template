@@ -26,7 +26,7 @@
 
         public Startup(IConfiguration configuration, Container container)
         {
-            this.container = Guard.Against.Null(container).Expect(nameof(container));
+            this.container = container.NotNull().Expect(nameof(container));
             container.Options.ResolveUnregisteredConcreteTypes = false;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();

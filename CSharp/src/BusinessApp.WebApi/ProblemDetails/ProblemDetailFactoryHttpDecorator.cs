@@ -11,8 +11,8 @@ namespace BusinessApp.WebApi.ProblemDetails
 
         public ProblemDetailFactoryHttpDecorator(IProblemDetailFactory inner, IHttpContextAccessor accessor)
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
-            this.accessor = Guard.Against.Null(accessor).Expect(nameof(accessor));
+            this.inner = inner.NotNull().Expect(nameof(inner));
+            this.accessor = accessor.NotNull().Expect(nameof(accessor));
         }
 
         public ProblemDetail Create(IFormattable error)

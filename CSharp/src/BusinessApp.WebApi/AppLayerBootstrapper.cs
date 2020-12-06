@@ -23,7 +23,7 @@
             IWebHostEnvironment env,
             BootstrapOptions options)
         {
-            Guard.Against.Null(container).Expect(nameof(container));
+            container.NotNull().Expect(nameof(container));
 
 #if datannotations
             var registrations = new[] { typeof(DataAnnotationsValidator<>) }.Concat(container.GetTypesToRegister(

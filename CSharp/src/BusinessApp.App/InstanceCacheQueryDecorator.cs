@@ -17,7 +17,7 @@ namespace BusinessApp.App
 
         public InstanceCacheQueryDecorator(IRequestHandler<TQuery, TResult> inner)
         {
-            this.inner = Guard.Against.Null(inner).Expect(nameof(inner));
+            this.inner = inner.NotNull().Expect(nameof(inner));
             cache = new ConcurrentDictionary<TQuery, Result<TResult, IFormattable>>();
         }
 

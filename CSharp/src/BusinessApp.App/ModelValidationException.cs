@@ -21,7 +21,7 @@ namespace BusinessApp.App
         public ModelValidationException(string message, IEnumerable<MemberValidationException> memberErrors)
             :base(message)
         {
-            this.memberErrors = Guard.Against.Empty(memberErrors).Expect(nameof(memberErrors));
+            this.memberErrors = memberErrors.NotEmpty().Expect(nameof(memberErrors));
 
             Data.Add("ValidationErrors", memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
         }

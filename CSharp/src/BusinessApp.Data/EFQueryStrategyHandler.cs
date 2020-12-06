@@ -23,9 +23,9 @@
             IQueryVisitorFactory<TQuery, TResult> queryVisitorFactory,
             IDbSetVisitorFactory<TQuery, TResult> dbSetFactory)
         {
-            this.db = Guard.Against.Null(db).Expect(nameof(db));
-            this.queryVisitorFactory = Guard.Against.Null(queryVisitorFactory).Expect(nameof(queryVisitorFactory));
-            this.dbSetFactory = Guard.Against.Null(dbSetFactory).Expect(nameof(dbSetFactory));
+            this.db = db.NotNull().Expect(nameof(db));
+            this.queryVisitorFactory = queryVisitorFactory.NotNull().Expect(nameof(queryVisitorFactory));
+            this.dbSetFactory = dbSetFactory.NotNull().Expect(nameof(dbSetFactory));
         }
 
         public virtual async Task<Result<IEnumerable<TResult>, IFormattable>> HandleAsync(
