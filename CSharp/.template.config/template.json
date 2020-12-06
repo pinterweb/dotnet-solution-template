@@ -33,6 +33,12 @@
                 "format": "yyyy"
             }
         },
+        "vsc": {
+            "type": "parameter",
+            "dataType": "string",
+            "defaultValue": "git",
+            "description": "Adds vsc related files"
+        },
         "efcore": {
             "type": "parameter",
             "dataType": "bool",
@@ -180,8 +186,44 @@
                         "src/.dockerignore",
                         "src/BusinessApp.WebApi/.env.docker"
                     ]
+                },
+                {
+                    "condition": "(!batch)",
+                    "exclude": [
+                        "src/**/Batch**.cs",
+                        "src/**/**Batch**.cs",
+                        "src/**/**Batch.cs",
+                        "src/**/SimpleInjectorWebApiAppScope.cs",
+                        "src/**/IAppScope.cs",
+                        "src/**/IMacro.cs"
+                    ]
                 }
             ]
         }
-    ]
+    ],
+    "postActions": [{
+      "condition": "(vsc==\"git\")",
+      "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+      "args": {
+        "executable": "git",
+        "args": "init"
+      },
+      "manualInstructions": [{
+         "text": "Run 'git init'"
+      }],
+      "continueOnError": false,
+      "description ": "sets up the project with git"
+    },{
+      "condition": "(vsc==\"git\")",
+      "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+      "args": {
+        "executable": "git",
+        "args": "config core.hooksPath .githooks"
+      },
+      "manualInstructions": [{
+         "text": "Run 'git config'"
+      }],
+      "continueOnError": false,
+      "description ": "sets up git hooks"
+    }]
 }
