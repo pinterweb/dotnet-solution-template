@@ -29,6 +29,10 @@
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
   </ItemGroup>
 
+  <Target Name="CodeCheck" AfterTargets="Restore">
+      <Exec WorkingDirectory="..\..\" Command="git config core.hooksPath .githooks" />
+  </Target>
+
 <!--#if (efcore)-->
   <Target Name="Create Migrations Script" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
       <Exec Command="dotnet tool restore" />
