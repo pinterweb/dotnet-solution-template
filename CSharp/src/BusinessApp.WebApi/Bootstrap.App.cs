@@ -17,9 +17,9 @@
     /// <summary>
     /// Allows registering all types that are defined in the app layer
     /// </summary>
-    public static class AppLayerBootstrapper
+    public static partial class Bootstrap
     {
-        public static void Bootstrap(Container container,
+        public static void App(Container container,
             IWebHostEnvironment env,
             BootstrapOptions options)
         {

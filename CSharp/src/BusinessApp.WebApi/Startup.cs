@@ -99,7 +99,7 @@
 #endif
             app.SetupEndpoints(container);
 
-            WebApiBootstrapper.Bootstrap(app, env, container, options);
+            Bootstrap.WebApi(app, env, container, options);
             container.Verify();
 
             if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))

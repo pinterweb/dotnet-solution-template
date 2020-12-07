@@ -16,18 +16,18 @@
     /// <summary>
     /// Allows registering all types that are defined in the web api layer
     /// </summary>
-    public static class WebApiBootstrapper
+    public static partial class Bootstrap
     {
-        public static readonly Assembly Assembly = typeof(Startup).Assembly;
+        public static readonly Assembly StartupAssembly = typeof(Startup).Assembly;
 
-        public static Container Bootstrap(IApplicationBuilder app,
+        public static Container WebApi(IApplicationBuilder app,
             IWebHostEnvironment env,
             Container container,
             BootstrapOptions options)
         {
-            DomainLayerBoostrapper.Bootstrap(container, options);
-            DataLayerBootstrapper.Bootstrap(container, options);
-            AppLayerBootstrapper.Bootstrap(container, env, options);
+            Bootstrap.Domain(container, options);
+            Bootstrap.Data(container, options);
+            Bootstrap.App(container, env, options);
 
 #if json
             Json.Bootstrapper.Bootstrap(container);
@@ -45,7 +45,7 @@
             container.RegisterDecorator<IProblemDetailFactory, ProblemDetailFactoryHttpDecorator>(
                 Lifestyle.Singleton);
 
-            container.Register(typeof(IHttpRequestHandler<,>), Assembly);
+            container.Register(typeof(IHttpRequestHandler<,>), StartupAssembly);
             container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
                 typeof(EnvelopeQueryResourceHandler<,>),

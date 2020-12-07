@@ -18,12 +18,12 @@ namespace BusinessApp.WebApi.IntegrationTest
     using Microsoft.Extensions.Configuration;
     using BusinessApp.Data;
 
-    public class AppLayerBootstrapperTests
+    public partial class BootstrapTests
     {
         public void CreateRegistrations(Container container)
         {
             container.RegisterInstance(A.Fake<IHttpContextAccessor>());
-            WebApiBootstrapper.Bootstrap(
+            Bootstrap.WebApi(
                 A.Dummy<IApplicationBuilder>(),
                 A.Dummy<IWebHostEnvironment>(),
                 container,
@@ -32,23 +32,23 @@ namespace BusinessApp.WebApi.IntegrationTest
                     DbConnectionString = "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
                     AppAssemblies = new[]
                     {
-                        typeof(AppLayerBootstrapperTests).Assembly,
+                        typeof(BootstrapTests).Assembly,
                         typeof(IQuery).Assembly
                     },
                     DataAssemblies = new[]
                     {
-                        typeof(AppLayerBootstrapperTests).Assembly,
+                        typeof(BootstrapTests).Assembly,
                         typeof(IQueryVisitor<>).Assembly
                     }
                 });
         }
 
-        public class Bootstrap : AppLayerBootstrapperTests, IDisposable
+        public class App : BootstrapTests, IDisposable
         {
             private readonly Container container;
             private readonly Scope scope;
 
-            public Bootstrap()
+            public App()
             {
                 container = new Container();
                 new Startup(A.Dummy<IConfiguration>(), container);
@@ -179,7 +179,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(Bootstrap.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -238,7 +238,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<AuthCommandHandlerStub, AuthCommandStub, AuthCommandStub>),
+                        typeof(Bootstrap.BatchScopeWrappingHandler<AuthCommandHandlerStub, AuthCommandStub, AuthCommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(AuthCommandHandlerStub),
@@ -296,7 +296,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.MacroScopeWrappingHandler<CommandStub, CommandStub>),
+                        typeof(Bootstrap.MacroScopeWrappingHandler<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(BatchRequestDelegator<CommandStub, CommandStub>),
@@ -305,7 +305,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(Bootstrap.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -366,7 +366,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.MacroScopeWrappingHandler<CommandStub, CommandStub>),
+                        typeof(Bootstrap.MacroScopeWrappingHandler<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(BatchRequestDelegator<CommandStub, CommandStub>),
@@ -375,7 +375,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
-                        typeof(AppLayerBootstrapper.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(Bootstrap.BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         rel.Registration.ImplementationType),
                     rel => Assert.Equal(
                         typeof(CommandHandlerStub),

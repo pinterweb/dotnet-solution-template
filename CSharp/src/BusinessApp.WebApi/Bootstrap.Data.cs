@@ -16,7 +16,7 @@
     /// <summary>
     /// Allows registering all types that are defined in the data layer
     /// </summary>
-    public static class DataLayerBootstrapper
+    public static partial class Bootstrap
     {
 #if efcore
 //#if DEBUG
@@ -33,7 +33,7 @@
 //#endif
 #endif
 
-        public static void Bootstrap(Container container, BootstrapOptions options)
+        public static void Data(Container container, BootstrapOptions options)
         {
             container.NotNull().Expect(nameof(container));
 
