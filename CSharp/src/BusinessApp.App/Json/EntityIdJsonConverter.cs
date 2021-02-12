@@ -10,21 +10,11 @@
     /// </summary>
     public class EntityIdJsonConverter : JsonConverter
     {
-        private static TypeCode[] NumberTypeCodes = new[]
-        {
-            TypeCode.Int16,
-            TypeCode.Int32,
-            TypeCode.Int64,
-        };
-
         private static readonly string ErrTemplate = "Cannot read value for '{0}' because the type is incorrect";
 
         public override bool CanConvert(Type objectType) =>
-        (
             typeof(IEntityId).IsAssignableFrom(objectType) ||
-            typeof(IEntityId).IsAssignableFrom(Nullable.GetUnderlyingType(objectType))
-        )
-            && objectType.IsValueType;
+            typeof(IEntityId).IsAssignableFrom(Nullable.GetUnderlyingType(objectType));
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
@@ -35,14 +25,13 @@
 
             try
             {
-                if (CanTryToConvertNumber(reader, converter))
+                if (CanTryToConvertNumber(reader, converter, out Type typeToConvertTo))
                 {
-                    var defaultValue = (IEntityId)Activator.CreateInstance(
-                        Nullable.GetUnderlyingType(objectType) ?? objectType);
+                    var longConverter = TypeDescriptor.GetConverter(typeof(long));
 
-                    return converter.ConvertFrom(Convert.ChangeType(reader.Value, defaultValue.GetTypeCode()));
+                    return converter.ConvertFrom(longConverter.ConvertTo(reader.Value, typeToConvertTo));
                 }
-                if (converter.CanConvertTo(reader.ValueType) || CanTryToConvertNumber(reader, converter))
+                if (converter.CanConvertTo(reader.ValueType) || CanTryToConvertNumber(reader, converter, out Type _))
                 {
                         return converter.ConvertFrom(reader.Value);
                 }
@@ -71,13 +60,17 @@
         }
 
         // all json values are long, so we need to convert to actual type
-        private static bool CanTryToConvertNumber(JsonReader reader, TypeConverter converter)
+        private static bool CanTryToConvertNumber(JsonReader reader, TypeConverter converter, out Type typeToConvertTo)
         {
-            return reader.ValueType == typeof(long) &&
-            (
-                converter.CanConvertFrom(typeof(int)) ||
-                converter.CanConvertFrom(typeof(short))
-            );
+            typeToConvertTo = null;
+
+            if (reader.ValueType != typeof(long)) return false;
+
+            if (converter.CanConvertFrom(typeof(int))) typeToConvertTo = typeof(int);
+
+            if (converter.CanConvertFrom(typeof(short))) typeToConvertTo = typeof(short);
+
+            return true;
         }
     }
 }

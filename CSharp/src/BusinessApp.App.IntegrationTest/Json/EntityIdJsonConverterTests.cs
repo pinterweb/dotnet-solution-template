@@ -168,7 +168,7 @@ namespace BusinessApp.App.IntegrationTest.Json
         }
 
         [TypeConverter(typeof(EntityIdTypeConverter<EntityIntIdStub, int>))]
-        private struct NullableEntityIntIdStub : IEntityId
+        private class NullableEntityIntIdStub : IEntityId
         {
             public NullableEntityIntIdStub(int id)
             {
@@ -178,6 +178,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             public int? Id { get; set; }
             public TypeCode GetTypeCode() => TypeCode.Int32;
 
+            string IConvertible.ToString(IFormatProvider provider) => Id?.ToString();
             int IConvertible.ToInt32(IFormatProvider provider) => Id ?? 0;
         }
 
@@ -193,6 +194,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             public TypeCode GetTypeCode() => TypeCode.Int32;
 
             int IConvertible.ToInt32(IFormatProvider provider) => Id;
+            string IConvertible.ToString(IFormatProvider provider) => Id.ToString();
         }
 
         [TypeConverter(typeof(EntityIdTypeConverter<EntityBoolIdStub, bool>))]
@@ -207,6 +209,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             public TypeCode GetTypeCode() => TypeCode.Boolean;
 
             bool IConvertible.ToBoolean(IFormatProvider provider) => Id;
+            string IConvertible.ToString(IFormatProvider provider) => Id.ToString();
         }
     }
 }
