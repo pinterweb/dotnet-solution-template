@@ -28,6 +28,10 @@ namespace BusinessApp.App
             {
                 return await inner.HandleAsync(request, cancellationToken);
             }
+            catch(Exception e) when (e is IFormattable f)
+            {
+                return Result<TResponse, IFormattable>.Error(f);
+            }
             catch(Exception e)
             {
                 logger.Log(new LogEntry(LogSeverity.Critical, e.Message, e, request));

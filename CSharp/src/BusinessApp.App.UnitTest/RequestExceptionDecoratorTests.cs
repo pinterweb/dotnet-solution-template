@@ -3,7 +3,6 @@ namespace BusinessApp.App.UnitTest
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using FakeItEasy;
-    using BusinessApp.App;
     using Xunit;
     using System.Threading;
     using BusinessApp.Domain;
@@ -143,6 +142,35 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.IsType<UnhandledRequestException>(result.UnwrapError());
+            }
+
+            [Fact]
+            public async Task IFormattableExceptionCaught_ErrorTypeReturned()
+            {
+                /* Arrange */
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .Throws(new BadStateException("foo"));
+
+                /* Act */
+                var result = await sut.HandleAsync(request, token);
+
+                /* Assert */
+                Assert.Equal(ValueKind.Error, result.Kind);
+            }
+
+            [Fact]
+            public async Task IFormattableExceptionCaught_FormattableErrorWrapped()
+            {
+                /* Arrange */
+                var error = new BadStateException("foo");
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .Throws(error);
+
+                /* Act */
+                var result = await sut.HandleAsync(request, token);
+
+                /* Assert */
+                Assert.Same(error, result.UnwrapError());
             }
 
             [Fact]
