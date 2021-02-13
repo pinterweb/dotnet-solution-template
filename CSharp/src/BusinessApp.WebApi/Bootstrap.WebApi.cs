@@ -1,6 +1,5 @@
 ﻿namespace BusinessApp.WebApi
 {
-    using System.Reflection;
     using System.Security.Principal;
     using BusinessApp.Domain;
     using BusinessApp.App;
@@ -18,8 +17,6 @@
     /// </summary>
     public static partial class Bootstrap
     {
-        public static readonly Assembly StartupAssembly = typeof(Startup).Assembly;
-
         public static Container WebApi(IApplicationBuilder app,
             IWebHostEnvironment env,
             Container container,
@@ -45,7 +42,7 @@
             container.RegisterDecorator<IProblemDetailFactory, ProblemDetailFactoryHttpDecorator>(
                 Lifestyle.Singleton);
 
-            container.Register(typeof(IHttpRequestHandler<,>), StartupAssembly);
+            container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
             container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
                 typeof(EnvelopeQueryResourceHandler<,>),

@@ -7,7 +7,6 @@ namespace BusinessApp.WebApi
     {
         public string DbConnectionString { get; set; }
         public string LogFilePath { get; set; }
-        public IEnumerable<Assembly> AppAssemblies { get; set; }
-        public IEnumerable<Assembly> DataAssemblies { get; set; }
+        public IEnumerable<Assembly> RegistrationAssemblies { get; set; }
     }
 }

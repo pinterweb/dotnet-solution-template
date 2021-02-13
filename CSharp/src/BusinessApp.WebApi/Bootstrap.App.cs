@@ -28,25 +28,25 @@
 #if datannotations
             var registrations = new[] { typeof(DataAnnotationsValidator<>) }.Concat(container.GetTypesToRegister(
                 typeof(IValidator<>),
-                options.AppAssemblies
+                options.RegistrationAssemblies
             ));
 #else
             var registrations = container.GetTypesToRegister(
                 typeof(IValidator<>),
-                options.AppAssemblies
+                options.RegistrationAssemblies
             );
 #endif
             container.Collection.Register(typeof(IValidator<>), registrations);
             container.Register(typeof(IValidator<>), typeof(CompositeValidator<>), Lifestyle.Singleton);
 
 #if fluentvalidation
-            container.Collection.Register(typeof(FluentValidation.IValidator<>), options.AppAssemblies);
+            container.Collection.Register(typeof(FluentValidation.IValidator<>), options.RegistrationAssemblies);
             container.Collection.Append(typeof(IValidator<>), typeof(FluentValidationValidator<>));
 #endif
             container.Register(typeof(IAuthorizer<>), typeof(AuthorizeAttributeHandler<>));
 
-            container.Register(typeof(IBatchMacro<,>), options.AppAssemblies);
-            container.Register(typeof(IBatchGrouper<>), options.AppAssemblies);
+            container.Register(typeof(IBatchMacro<,>), options.RegistrationAssemblies);
+            container.Register(typeof(IBatchGrouper<>), options.RegistrationAssemblies);
             container.RegisterConditional(typeof(IBatchGrouper<>),
                 typeof(NullBatchGrouper<>),
                 ctx => !ctx.Handled);
@@ -56,7 +56,7 @@
             IEnumerable<Type> GetTypesToRegister()
             {
                 return container.GetTypesToRegister(typeof(IRequestHandler<,>),
-                    options.AppAssemblies,
+                    options.RegistrationAssemblies,
                     new TypesToRegisterOptions
                     {
                         IncludeGenericTypeDefinitions = true,
@@ -166,7 +166,7 @@
                 ctx => !ctx.Handled);
         }
 
-        private static bool HasTransactionScope(DecoratorPredicateContext ctx)
+        public static bool HasTransactionScope(DecoratorPredicateContext ctx)
         {
             return !ctx.ImplementationType.IsConstructedGenericType ||
             (
@@ -175,7 +175,7 @@
             );
         }
 
-        private static bool IsOuterScope(DecoratorPredicateContext ctx)
+        public static bool IsOuterScope(DecoratorPredicateContext ctx)
         {
             return !ctx.ImplementationType.IsConstructedGenericType ||
             (

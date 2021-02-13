@@ -39,8 +39,8 @@
 
             container.Register(typeof(IQueryVisitorFactory<,>), typeof(CompositeQueryVisitorBuilder<,>));
             container.Register(typeof(ILinqSpecificationBuilder<,>), typeof(AndSpecificationBuilder<,>));
-            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), options.DataAssemblies);
-            container.Collection.Register(typeof(IQueryVisitor<>), options.DataAssemblies);
+            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>), options.RegistrationAssemblies);
+            container.Collection.Register(typeof(IQueryVisitor<>), options.RegistrationAssemblies);
             container.RegisterConditional(
                 typeof(IQueryVisitor<>),
                 typeof(NullQueryVisitor<>), ctx => !ctx.Handled);
@@ -55,7 +55,7 @@
             });
 #if efcore
             container.Register(typeof(IDatastore<>), typeof(EFDatastore<>));
-            container.Register(typeof(IDbSetVisitorFactory<,>), options.DataAssemblies);
+            container.Register(typeof(IDbSetVisitorFactory<,>), options.RegistrationAssemblies);
             container.RegisterConditional(
                 typeof(IDbSetVisitorFactory<,>),
                 typeof(NullDbSetVisitorFactory<,>),
