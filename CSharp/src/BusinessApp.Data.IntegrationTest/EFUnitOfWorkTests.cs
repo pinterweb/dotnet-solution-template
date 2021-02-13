@@ -420,5 +420,40 @@ namespace BusinessApp.Data.IntegrationTest
                 Assert.NotNull(addedEntity);
             }
         }
+
+        public class Find : EFUnitOfWorkTests
+        {
+            public Find(DatabaseFixture fixture)
+                :base(fixture)
+            {}
+
+            [Fact]
+            public void ReturnsAllTypedAggregateRoots()
+            {
+                /* Arrange */
+                var ar1 = new ARStub();
+                var ar2 = new ARStub();
+                var other = A.Dummy<AnotherARStub>();
+                sut.Track(ar1);
+                sut.Track(ar2);
+                sut.Track(other);
+
+                /* Act */
+                var instance = sut.Find<ARStub>(a => a.Equals(ar1));
+
+                /* Assert */
+                Assert.Same(ar1, instance);
+            }
+
+            private sealed class ARStub : AggregateRoot
+            {
+                public int Id { get; set; }
+            }
+
+            private sealed class AnotherARStub : AggregateRoot
+            {
+                public int Id { get; set; }
+            }
+        }
     }
 }

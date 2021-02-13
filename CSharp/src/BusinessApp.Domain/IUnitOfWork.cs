@@ -11,6 +11,7 @@
     {
         event EventHandler Committing;
         event EventHandler Committed;
+        TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot;
         void Add(AggregateRoot aggregate);
         void Add(IDomainEvent @event);
         void Remove(AggregateRoot aggregate);
