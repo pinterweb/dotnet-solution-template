@@ -214,5 +214,26 @@ namespace BusinessApp.Domain.UnitTest
                     .MustNotHaveHappened();
             }
         }
+
+        public class FindAll : EventUnitOfWorkTests
+        {
+            [Fact]
+            public void ReturnsAllTypedAggregateRoots()
+            {
+                /* Arrange */
+                var ar1 = new AggregateRootFake();
+                var ar2 = new AggregateRootFake();
+                var other = A.Dummy<AggregateRoot>();
+                sut.Track(ar1);
+                sut.Track(ar2);
+                sut.Track(other);
+
+                /* Act */
+                var instance = sut.Find<AggregateRootFake>(a => a.Equals(ar1));
+
+                /* Assert */
+                Assert.Same(instance, ar1);
+            }
+        }
     }
 }

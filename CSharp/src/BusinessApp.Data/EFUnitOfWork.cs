@@ -2,6 +2,7 @@ namespace BusinessApp.Data
 {
     using System;
     using System.Data;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.App;
@@ -97,6 +98,11 @@ namespace BusinessApp.Data
             transactionFromFactory = true;
 
             return this;
+        }
+
+        public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
+        {
+            return inner.Find<TRoot>(filter);
         }
     }
 }

@@ -65,6 +65,14 @@
             return Task.CompletedTask;
         }
 
+        public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
+        {
+            return emitters
+                .Where(e => e.GetType() == typeof(TRoot))
+                .Cast<TRoot>()
+                .SingleOrDefault(filter);
+        }
+
         private sealed class EventEmitter : IEventEmitter
         {
             private IDomainEvent e;
