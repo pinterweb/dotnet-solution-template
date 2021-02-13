@@ -432,17 +432,14 @@ namespace BusinessApp.Data.IntegrationTest
             {
                 /* Arrange */
                 var ar1 = new ARStub();
-                var ar2 = new ARStub();
-                var other = A.Dummy<AnotherARStub>();
-                sut.Track(ar1);
-                sut.Track(ar2);
-                sut.Track(other);
+                Func<ARStub, bool> filter = a => a.Equals(ar1);
+                A.CallTo(() => inner.Find<ARStub>(filter)).Returns(ar1);
 
                 /* Act */
                 var instance = sut.Find<ARStub>(a => a.Equals(ar1));
 
                 /* Assert */
-                Assert.Same(ar1, instance);
+                Assert.Same(instance, ar1);
             }
 
             private sealed class ARStub : AggregateRoot
