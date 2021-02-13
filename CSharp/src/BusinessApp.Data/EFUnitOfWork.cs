@@ -29,18 +29,15 @@ namespace BusinessApp.Data
             inner.Track(aggregate);
         }
 
-
         public void Add(AggregateRoot aggregate)
         {
             inner.Add(aggregate);
         }
 
-
         public void Add(IDomainEvent @event)
         {
             inner.Add(@event);
         }
-
 
         public void Remove(AggregateRoot aggregate)
         {
@@ -105,9 +102,7 @@ namespace BusinessApp.Data
 
         public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
         {
-            return db.ChangeTracker.Entries<TRoot>()
-                .Select(e => e.Entity)
-                .SingleOrDefault(filter);
+            return inner.Find<TRoot>(filter);
         }
     }
 }
