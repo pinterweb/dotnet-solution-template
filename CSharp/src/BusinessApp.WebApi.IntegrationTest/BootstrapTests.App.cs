@@ -17,44 +17,43 @@ namespace BusinessApp.WebApi.IntegrationTest
     using BusinessApp.Domain;
     using Microsoft.Extensions.Configuration;
     using BusinessApp.Data;
+    using System.Linq.Expressions;
 
-    public partial class BootstrapTests
+    public partial class BootstrapTests : IDisposable
     {
-        public void CreateRegistrations(Container container)
+        private readonly Container container;
+        private readonly Scope scope;
+
+        public BootstrapTests()
+        {
+            container = new Container();
+            new Startup(A.Dummy<IConfiguration>(), container);
+            scope = AsyncScopedLifestyle.BeginScope(container);
+        }
+
+        public void Dispose() => scope.Dispose();
+
+        public void CreateRegistrations(Container container, IWebHostEnvironment env = null)
         {
             container.RegisterInstance(A.Fake<IHttpContextAccessor>());
             Bootstrap.WebApi(
                 A.Dummy<IApplicationBuilder>(),
-                A.Dummy<IWebHostEnvironment>(),
+                env ?? A.Dummy<IWebHostEnvironment>(),
                 container,
                 new BootstrapOptions
                 {
                     DbConnectionString = "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
-                    AppAssemblies = new[]
+                    RegistrationAssemblies = new[]
                     {
                         typeof(BootstrapTests).Assembly,
-                        typeof(IQuery).Assembly
-                    },
-                    DataAssemblies = new[]
-                    {
-                        typeof(BootstrapTests).Assembly,
+                        typeof(IQuery).Assembly,
                         typeof(IQueryVisitor<>).Assembly
                     }
                 });
         }
 
-        public class App : BootstrapTests, IDisposable
+        public class Handlers : BootstrapTests, IDisposable
         {
-            private readonly Container container;
-            private readonly Scope scope;
-
-            public App()
-            {
-                container = new Container();
-                new Startup(A.Dummy<IConfiguration>(), container);
-                scope = AsyncScopedLifestyle.BeginScope(container);
-            }
-
             [Fact]
             public void NotABatchCommand_NoBatchDecoratorsInHandlers()
             {
@@ -511,8 +510,205 @@ namespace BusinessApp.WebApi.IntegrationTest
                 );
             }
 #endif
+        }
 
-            public void Dispose() => scope.Dispose();
+        public class Validators : BootstrapTests
+        {
+            [Fact]
+            public void RegistersAllValidators()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IValidator<CommandStub>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType .GetDependencies() .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(CompositeValidator<CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(IEnumerable<IValidator<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(FirstValidatorStub),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(SecondValidatorStub),
+                        rel.Registration.ImplementationType)
+                );
+            }
+
+#if datannotations
+            [Fact]
+            public void RegistersDataAnnotationValidatorFirst()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IValidator<CommandStub>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType .GetDependencies() .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(CompositeValidator<CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(IEnumerable<IValidator<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(DataAnnotationsValidator),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(FirstValidatorStub),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(SecondValidatorStub),
+                        rel.Registration.ImplementationType)
+                );
+            }
+#endif
+
+#if fluentvalidations
+            [Fact]
+            public void RegistersAllFluentValidators()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IValidator<CommandStub>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType .GetDependencies() .Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(CompositeValidator<CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(IEnumerable<IValidator<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(FirstValidatorStub),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(SecondValidatorStub),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(FluentValidationValidator<CommandStub>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(IEnumerable<FluentValidation.IValidator<CommandStub>>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(FirstFluentValidatorStub),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(SecondFluentValidatorStub),
+                        rel.Registration.ImplementationType)
+                );
+            }
+
+            private class FirstFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
+            {
+            }
+
+            private class SecondFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
+            {
+            }
+#endif
+
+            private class FirstValidatorStub : IValidator<CommandStub>
+            {
+                public Task<Result> ValidateAsync(CommandStub instance, CancellationToken cancellationToken)
+                {
+                    return Task.FromResult(Result.Ok);
+                }
+            }
+
+            private class SecondValidatorStub : IValidator<CommandStub>
+            {
+                public Task<Result> ValidateAsync(CommandStub instance, CancellationToken cancellationToken)
+                {
+                    return Task.FromResult(Result.Ok);
+                }
+            }
+        }
+
+        public class Loggers : BootstrapTests
+        {
+            [Fact]
+            public void RegistersAllLoggersInDevMode()
+            {
+                /* Arrange */
+                var env = A.Fake<IWebHostEnvironment>();
+                A.CallTo(() => env.EnvironmentName).Returns("Development");
+                CreateRegistrations(container, env);
+                container.Verify();
+                var serviceType = typeof(ILogger);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType.GetDependencies().Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(CompositeLogger),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(IEnumerable<ILogger>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(TraceLogger),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.IsType<BackgroundLogDecorator>(
+                        Expression.Lambda(rel.BuildExpression()).Compile().DynamicInvoke()));
+            }
+
+            [Fact]
+            public void RemovesTraceLoggerInOtherEnvironments()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(ILogger);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                var firstType = container.GetRegistration(serviceType);
+                var handlers = firstType.GetDependencies().Prepend(firstType);
+
+                /* Assert */
+                Assert.Collection(handlers,
+                    rel => Assert.Equal(
+                        typeof(CompositeLogger),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.Equal(
+                        typeof(IEnumerable<ILogger>),
+                        rel.Registration.ImplementationType),
+                    rel => Assert.IsType<BackgroundLogDecorator>(
+                        Expression.Lambda(rel.BuildExpression()).Compile().DynamicInvoke()));
+            }
         }
 
         private sealed class CommandHandlerStub : ICommandHandler<CommandStub>

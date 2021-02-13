@@ -10,17 +10,11 @@
     /// </summary>
     public static partial class Bootstrap
     {
-        private static readonly Assembly DomainAssembly = typeof(IEventHandler<>).Assembly;
-
         public static void Domain(Container container, BootstrapOptions options)
         {
             container.NotNull().Expect(nameof(container));
 
-            container.Collection.Register(typeof(IEventHandler<>), new[]
-            {
-                DomainAssembly,
-                StartupAssembly
-            }.Concat(options.AppAssemblies).Concat(options.DataAssemblies));
+            container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
 
             container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
             container.Register<IUnitOfWork, EventUnitOfWork>();
