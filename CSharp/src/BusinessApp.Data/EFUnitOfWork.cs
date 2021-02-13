@@ -24,13 +24,28 @@ namespace BusinessApp.Data
         public event EventHandler Committing = delegate {};
         public event EventHandler Committed = delegate {};
 
-        public void Track(AggregateRoot aggregate) => db.Attach(aggregate);
+        public void Track(AggregateRoot aggregate)
+        {
+            inner.Track(aggregate);
+        }
 
-        public void Add(AggregateRoot aggregate) => db.Add(aggregate);
 
-        public void Add(IDomainEvent @event) => db.Add(@event);
+        public void Add(AggregateRoot aggregate)
+        {
+            inner.Add(aggregate);
+        }
 
-        public void Remove(AggregateRoot aggregate) => db.Remove(aggregate);
+
+        public void Add(IDomainEvent @event)
+        {
+            inner.Add(@event);
+        }
+
+
+        public void Remove(AggregateRoot aggregate)
+        {
+            inner.Remove(aggregate);
+        }
 
         public async Task CommitAsync(CancellationToken cancellationToken)
         {
@@ -90,7 +105,9 @@ namespace BusinessApp.Data
 
         public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
         {
-            return inner.Find<TRoot>(filter);
+            return db.ChangeTracker.Entries<TRoot>()
+                .Select(e => e.Entity)
+                .SingleOrDefault(filter);
         }
     }
 }
