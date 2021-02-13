@@ -124,10 +124,13 @@ namespace BusinessApp.Data
             MemberExpression contractMemberExpr)
         {
             var contractP = contractMemberExpr.Member as PropertyInfo;
-            var queryExp = Nullable.GetUnderlyingType(contractP.PropertyType) switch
+            var needToConvert =
+                (Nullable.GetUnderlyingType(contractP.PropertyType) != null
+                && attribute.OperatorToUse != QueryOperators.Contains);
+            var queryExp = needToConvert switch
             {
-                null => (Expression)queryMemberExpr,
-                _ => (Expression)Expression.Convert(queryMemberExpr, contractP.PropertyType),
+                false => (Expression)queryMemberExpr,
+                true => (Expression)Expression.Convert(queryMemberExpr, contractP.PropertyType),
             };
 
             switch (attribute.OperatorToUse)
@@ -140,7 +143,7 @@ namespace BusinessApp.Data
                         .Single(x => x.GetParameters().Length == 2)
                         .MakeGenericMethod(contractProp.PropertyType);
 
-                    return Expression.Call(null, method, queryExp, contractMemberExpr);
+                    return Expression.Call(null, method, queryMemberExpr, contractMemberExpr);
                 case QueryOperators.GreaterThanOrEqualTo:
                     return Expression.GreaterThanOrEqual(contractMemberExpr, queryExp);
                 case QueryOperators.LessThanOrEqualTo:

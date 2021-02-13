@@ -165,6 +165,21 @@ namespace BusinessApp.Data.IntegrationTest
             Assert.Equal(expect, result);
         }
 
+        [Fact]
+        public void NullableProperty_WhenContractContainsValue_DoesNotThrowCoercionError()
+        {
+            /* Arrange */
+            query.ManyInts_Contains = new int?[] { 1 };
+            response.OneNullableInt = 1;
+            var spec = sut.Build(query);
+
+            /* Act */
+            var ex = Record.Exception(() => spec.IsSatisfiedBy(response));
+
+            /* Assert */
+            Assert.Null(ex);
+        }
+
         [Theory, MemberData(nameof(StartsWithStrings))]
         public void StringsProperty_WhenContractStartsWith_ContractIsSatisfied(string a,
             string b, bool expect)
@@ -278,6 +293,9 @@ namespace BusinessApp.Data.IntegrationTest
             [QueryOperator(nameof(ResponseFromOperators.StringVal), QueryOperators.Contains)]
             public IEnumerable<string> ManyString_Contains { get; set; }
 
+            [QueryOperator(nameof(ResponseFromOperators.OneNullableInt), QueryOperators.Contains)]
+            public IEnumerable<int?> ManyInts_Contains { get; set; }
+
             [QueryOperator(nameof(ResponseFromOperators.NestedResponse))]
             public NestedQueryWithOperators NestedQuery { get; set; }
         }
@@ -302,6 +320,7 @@ namespace BusinessApp.Data.IntegrationTest
             public bool BoolVal { get; set; }
             public DateTime DateVal { get; set; }
             public int OneInt { get; set; }
+            public int? OneNullableInt { get; set; }
             public decimal DecimalVal { get; set; }
             public string  StringVal { get; set; }
             public NestedResponseFromOperators NestedResponse { get; set; }
