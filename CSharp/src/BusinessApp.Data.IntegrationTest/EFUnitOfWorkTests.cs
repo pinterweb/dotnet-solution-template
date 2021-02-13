@@ -436,10 +436,10 @@ namespace BusinessApp.Data.IntegrationTest
                 A.CallTo(() => inner.Find<ARStub>(filter)).Returns(ar1);
 
                 /* Act */
-                var instance = sut.Find<ARStub>(a => a.Equals(ar1));
+                var instance = sut.Find<ARStub>(filter);
 
                 /* Assert */
-                Assert.Same(instance, ar1);
+                Assert.Same(ar1, instance);
             }
 
             private sealed class ARStub : AggregateRoot
