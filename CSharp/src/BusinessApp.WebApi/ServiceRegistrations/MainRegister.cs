@@ -229,13 +229,13 @@ namespace BusinessApp.WebApi
                     .ServiceType;
 
                 return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchRequestDelegator<,>)
-                    ? typeof(BatchScopeWrappingHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
+                    ? typeof(BatchProxyRequestHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
                     : concreteType;
             }
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                typeof(MacroScopeWrappingHandler<,>),
+                typeof(MacroBatchProxyRequestHandler<,>),
                 ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestDelegator<,,>));
 
             container.RegisterConditional(
@@ -276,8 +276,8 @@ namespace BusinessApp.WebApi
 
                 return !implType.IsConstructedGenericType ||
                 (
-                    implType.GetGenericTypeDefinition() != typeof(BatchScopeWrappingHandler<,,>)
-                    && implType.GetGenericTypeDefinition() != typeof(MacroScopeWrappingHandler<,>)
+                    implType.GetGenericTypeDefinition() != typeof(BatchProxyRequestHandler<,,>)
+                    && implType.GetGenericTypeDefinition() != typeof(MacroBatchProxyRequestHandler<,>)
                 );
             }
 
@@ -288,14 +288,14 @@ namespace BusinessApp.WebApi
                 return !implType.IsConstructedGenericType ||
                 (
                     implType.GetGenericTypeDefinition() == typeof(BatchRequestDelegator<,>)
-                    || implType.GetGenericTypeDefinition() == typeof(MacroScopeWrappingHandler<,>)
+                    || implType.GetGenericTypeDefinition() == typeof(MacroBatchProxyRequestHandler<,>)
                     || implType.GetGenericTypeDefinition() == typeof(SingleQueryDelegator<,,>)
                 );
             }
 
             var serviceType = typeof(IRequestHandler<,>);
 
-            var pipeline = context.GetPipeline(serviceType);
+            var pipeline = context.GetPipelineBuilder(serviceType);
 
             // Request / Command Pipeline
             pipeline.RunOnce(typeof(RequestExceptionDecorator<,>))

@@ -37,7 +37,7 @@ namespace BusinessApp.WebApi
         public void Register(RegistrationContext context)
         {
             var serviceType = typeof(IRequestHandler<,>);
-            var pipeline = context.GetPipeline(serviceType);
+            var pipeline = context.GetPipelineBuilder(serviceType);
             var container = context.Container;
 
             pipeline

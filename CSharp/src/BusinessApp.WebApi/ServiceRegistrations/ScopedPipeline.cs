@@ -6,7 +6,7 @@ namespace BusinessApp.WebApi
 
     public class ScopedPipeline : IPipelineBuilder
     {
-        private readonly List<(Type, PipelineOptions)> decorators;
+        private readonly List<(Type, PipelineBuilderOptions)> decorators;
         private readonly IDictionary<Type, IntegrationTarget> integrations;
         private readonly List<int> scopeIndexes;
         private readonly Type serviceType;
@@ -14,14 +14,14 @@ namespace BusinessApp.WebApi
         public ScopedPipeline(Type serviceType)
         {
             integrations = new Dictionary<Type, IntegrationTarget>();
-            decorators = new List<(Type, PipelineOptions)>();
+            decorators = new List<(Type, PipelineBuilderOptions)>();
             scopeIndexes = new List<int>();
             this.serviceType = serviceType;
         }
 
         public IPipelineBuilder RunOnce(Type type, RequestType? requestType = null)
         {
-            return Run(type, new PipelineOptions
+            return Run(type, new PipelineBuilderOptions
             {
                 ScopeBehavior = scopeIndexes.Any() ? ScopeBehavior.Inner : ScopeBehavior.Outer,
                 RequestType = requestType ?? RequestType.Default
@@ -30,7 +30,7 @@ namespace BusinessApp.WebApi
 
         public IPipelineBuilder Run(Type type, RequestType? requestType = null)
         {
-            return Run(type, new PipelineOptions
+            return Run(type, new PipelineBuilderOptions
             {
                 RequestType = requestType ?? RequestType.Default
             });
@@ -38,15 +38,15 @@ namespace BusinessApp.WebApi
 
         public IPipelineIntegration IntegrateOnce(Type type)
         {
-            return new PipelineIntegration(this, type, new PipelineOptions());
+            return new PipelineIntegration(this, type, new PipelineBuilderOptions());
         }
 
         public IPipelineIntegration Integrate(Type type)
         {
-            return new PipelineIntegration(this, type, new PipelineOptions());
+            return new PipelineIntegration(this, type, new PipelineBuilderOptions());
         }
 
-        public IEnumerable<(Type, PipelineOptions)> Build()
+        public IEnumerable<(Type, PipelineBuilderOptions)> Build()
         {
             foreach(var i in integrations)
             {
@@ -61,13 +61,13 @@ namespace BusinessApp.WebApi
                 decorators.Insert(targetIndex + i.Value.Offset, (i.Key, i.Value.Options));
             }
 
-            var finalDecorators = new List<(Type, PipelineOptions)>(decorators);
+            var finalDecorators = new List<(Type, PipelineBuilderOptions)>(decorators);
             decorators.Clear();
 
             return finalDecorators.ToArray();
         }
 
-        private IPipelineBuilder Run(Type type, PipelineOptions options)
+        private IPipelineBuilder Run(Type type, PipelineBuilderOptions options)
         {
             if (decorators.Find(l => l.Item1 == type) != default)
             {
@@ -99,11 +99,11 @@ namespace BusinessApp.WebApi
         {
             private readonly Type integrationType;
             private readonly ScopedPipeline pipeline;
-            private readonly PipelineOptions options;
+            private readonly PipelineBuilderOptions options;
 
             public PipelineIntegration(ScopedPipeline pipeline,
                 Type integrationType,
-                PipelineOptions options)
+                PipelineBuilderOptions options)
             {
                 this.pipeline = pipeline;
                 this.integrationType = integrationType;
@@ -139,7 +139,7 @@ namespace BusinessApp.WebApi
         {
             public Type Type { get; set; }
             public int Offset { get; set; }
-            public PipelineOptions Options { get; set; }
+            public PipelineBuilderOptions Options { get; set; }
         }
     }
 }

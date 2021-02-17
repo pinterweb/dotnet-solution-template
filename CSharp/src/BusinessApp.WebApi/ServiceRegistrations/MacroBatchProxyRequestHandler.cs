@@ -9,10 +9,10 @@ namespace BusinessApp.WebApi
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
     /// <remarks>Only purpose is signal in the pipeline that a macro caused this</remarks>
-    internal sealed class MacroScopeWrappingHandler<TRequest, TResponse> :
-         BatchScopeWrappingHandler<BatchRequestDelegator<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
+    internal sealed class MacroBatchProxyRequestHandler<TRequest, TResponse> :
+         BatchProxyRequestHandler<BatchRequestDelegator<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
-        public MacroScopeWrappingHandler(BatchRequestDelegator<TRequest, TResponse> inner)
+        public MacroBatchProxyRequestHandler(BatchRequestDelegator<TRequest, TResponse> inner)
             : base(inner)
         { }
     }

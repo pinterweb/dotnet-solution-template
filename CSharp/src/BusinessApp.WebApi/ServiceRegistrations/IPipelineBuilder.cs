@@ -7,7 +7,7 @@ namespace BusinessApp.WebApi
     {
         IPipelineBuilder RunOnce(Type type, RequestType? requestType = null);
         IPipelineBuilder Run(Type type, RequestType? requestType = null);
-        IEnumerable<(Type, PipelineOptions)>  Build();
+        IEnumerable<(Type, PipelineBuilderOptions)>  Build();
         IPipelineIntegration Integrate(Type type);
         IPipelineIntegration IntegrateOnce(Type type);
     }

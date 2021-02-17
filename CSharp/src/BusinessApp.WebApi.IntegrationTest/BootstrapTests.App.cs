@@ -134,7 +134,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -189,7 +189,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(MacroScopeWrappingHandler<CommandStub, CommandStub>),
+                        typeof(MacroBatchProxyRequestHandler<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(BatchRequestDelegator<CommandStub, CommandStub>),
@@ -198,7 +198,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchScopeWrappingHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(CommandHandlerStub),
