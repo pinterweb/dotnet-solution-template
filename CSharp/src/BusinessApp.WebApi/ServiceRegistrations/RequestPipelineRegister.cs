@@ -22,7 +22,7 @@ namespace BusinessApp.WebApi
 
             // Request / Command Pipeline
             pipeline.RunOnce(typeof(RequestExceptionDecorator<,>))
-                .RunOnce(typeof(AuthorizationRequestDecorator<,>), IsAuthCommand)
+                .RunOnce(typeof(AuthorizationRequestDecorator<,>))
                 // Query  only
                 .RunOnce(typeof(InstanceCacheQueryDecorator<,>))
                 .Run(typeof(ValidationRequestDecorator<,>))
@@ -73,25 +73,6 @@ namespace BusinessApp.WebApi
                 context.Item1,
                 context.Item2.Lifetime.MapLifestyle(),
                 filter3);
-        }
-
-        private static bool IsAuthCommand(Type serviceType, Type implementationType)
-        {
-            var requestType = serviceType.GetGenericArguments()[0];
-
-            static bool HasAuthAttribute(Type targetType)
-            {
-                return targetType
-                      .GetCustomAttributes<AuthorizeAttribute>()
-                      .Any();
-            }
-
-            while(!HasAuthAttribute(requestType) && requestType.IsConstructedGenericType)
-            {
-                requestType = requestType.GetGenericArguments()[0];
-            }
-
-            return HasAuthAttribute(requestType);
         }
 
         public static bool IsQueryType(Type type)
