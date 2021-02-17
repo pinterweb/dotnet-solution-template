@@ -4,7 +4,7 @@ namespace BusinessApp.WebApi
     using System.Linq;
     using System.Collections.Generic;
 
-    public class ScopedPipeline : IPipeline
+    public class ScopedPipeline : IPipelineBuilder
     {
         private readonly List<(Type, PipelineOptions)> decorators;
         private readonly IDictionary<Type, IntegrationTarget> integrations;
@@ -19,7 +19,7 @@ namespace BusinessApp.WebApi
             this.serviceType = serviceType;
         }
 
-        public IPipeline RunOnce(Type type, RequestType? requestType = null)
+        public IPipelineBuilder RunOnce(Type type, RequestType? requestType = null)
         {
             return Run(type, new PipelineOptions
             {
@@ -28,28 +28,11 @@ namespace BusinessApp.WebApi
             });
         }
 
-        public IPipeline RunOnce(Type type, Func<Type, Type, bool> test)
-        {
-            return Run(type, new PipelineOptions
-            {
-                ScopeBehavior = scopeIndexes.Any() ? ScopeBehavior.Inner : ScopeBehavior.Outer,
-                Test = test
-            });
-        }
-
-        public IPipeline Run(Type type, RequestType? requestType = null)
+        public IPipelineBuilder Run(Type type, RequestType? requestType = null)
         {
             return Run(type, new PipelineOptions
             {
                 RequestType = requestType ?? RequestType.Default
-            });
-        }
-
-        public IPipeline Run(Type type, Func<Type, Type, bool> test)
-        {
-            return Run(type, new PipelineOptions
-            {
-                Test = test
             });
         }
 
@@ -78,14 +61,13 @@ namespace BusinessApp.WebApi
                 decorators.Insert(targetIndex + i.Value.Offset, (i.Key, i.Value.Options));
             }
 
-            decorators.Reverse();
             var finalDecorators = new List<(Type, PipelineOptions)>(decorators);
             decorators.Clear();
 
             return finalDecorators.ToArray();
         }
 
-        private IPipeline Run(Type type, PipelineOptions options)
+        private IPipelineBuilder Run(Type type, PipelineOptions options)
         {
             if (decorators.Find(l => l.Item1 == type) != default)
             {
@@ -128,7 +110,7 @@ namespace BusinessApp.WebApi
                 this.options = options;
             }
 
-            public IPipeline After(Type type)
+            public IPipelineBuilder After(Type type)
             {
                 pipeline.integrations.Add(integrationType, new IntegrationTarget
                 {
@@ -140,7 +122,7 @@ namespace BusinessApp.WebApi
                 return pipeline;
             }
 
-            public IPipeline Before(Type type)
+            public IPipelineBuilder Before(Type type)
             {
                 pipeline.integrations.Add(integrationType, new IntegrationTarget
                 {

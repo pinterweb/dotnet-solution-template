@@ -26,7 +26,10 @@ requests that all have the same data, this adapter is used. `BatchRequestAdapter
 accepts an `IEnumerable` request and calls the actual handler that handled the
 single request. This single handler is normally your api logic to change data.
 With this adapter you do not have to write multiple handlers to handle one or
-many of the same payload.
+many of the same payload. Similiarly on the query side,
+`SingleQueryRequestDelegate` delegates the call to the `IEnumerable` query
+handler so you only have to write a query handler for `IEnumerable` results.
+This adapter will run ensure that only one result is returned, or an error.
 
 ## Proxy Handlers
 These are special handlers to stop *SimpleInjector* decoration. A proxy handler

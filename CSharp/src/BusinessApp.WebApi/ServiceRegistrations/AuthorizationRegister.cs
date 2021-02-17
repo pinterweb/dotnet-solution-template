@@ -5,6 +5,9 @@ namespace BusinessApp.WebApi
     using BusinessApp.App;
     using SimpleInjector;
 
+    /// <summary>
+    /// Registers authorization based on the <see cref="AuthorizeAttribute" />
+    /// </summary>
     public class AuthorizationRegister: IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;
@@ -22,11 +25,6 @@ namespace BusinessApp.WebApi
                 typeof(IAuthorizer<>),
                 typeof(AuthorizeAttributeHandler<>),
                 IsAuthCommand);
-
-            container.RegisterConditional(
-                typeof(IAuthorizer<>),
-                typeof(NullAuthorizer<>),
-                c => !c.Handled);
 
             inner.Register(context);
         }
@@ -46,15 +44,6 @@ namespace BusinessApp.WebApi
             }
 
             return HasAuthAttribute(requestType);
-        }
-
-        /// <summary>
-        /// Null object pattern. When no authorization is used on a request
-        /// </summary>
-        private sealed class NullAuthorizer<T> : IAuthorizer<T>
-        {
-            public void AuthorizeObject(T instance)
-            {}
         }
     }
 }

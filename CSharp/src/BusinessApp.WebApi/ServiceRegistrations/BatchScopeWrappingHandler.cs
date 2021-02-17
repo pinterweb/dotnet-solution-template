@@ -11,15 +11,15 @@ namespace BusinessApp.WebApi
     /// by the <see cref="BatchRequestDelegator{TRequest, TResponse}" /> so the decorator
     /// pipeline is not injected.
     /// </summary>
-    [Proxy(typeof(ValidationRequestDecorator<,>))]
+    [Proxy]
     // TODO this is really a request proxy
-    internal class BatchScopeWrappingHandler<TConsumer, TRequest, TResponse> :
+    internal class BatchScopeWrappingHandler<TInner, TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
-        where TConsumer : IRequestHandler<TRequest, TResponse>
+        where TInner : IRequestHandler<TRequest, TResponse>
     {
-        private readonly TConsumer inner;
+        private readonly TInner inner;
 
-        public BatchScopeWrappingHandler(TConsumer inner)
+        public BatchScopeWrappingHandler(TInner inner)
         {
             this.inner = inner;
         }

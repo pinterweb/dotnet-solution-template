@@ -6,18 +6,18 @@ namespace BusinessApp.WebApi
 
     public class RegistrationContext
     {
-        private readonly IDictionary<Type, IPipeline> pipelines;
+        private readonly IDictionary<Type, IPipelineBuilder> pipelines;
 
         public RegistrationContext()
         {
-            pipelines = new Dictionary<Type, IPipeline>();
+            pipelines = new Dictionary<Type, IPipelineBuilder>();
         }
 
         public Container Container { get; set; }
 
-        public IPipeline GetPipeline(Type serviceType)
+        public IPipelineBuilder GetPipeline(Type serviceType)
         {
-            if (pipelines.TryGetValue(serviceType, out IPipeline pipeline))
+            if (pipelines.TryGetValue(serviceType, out IPipelineBuilder pipeline))
             {
                 return pipeline;
             }

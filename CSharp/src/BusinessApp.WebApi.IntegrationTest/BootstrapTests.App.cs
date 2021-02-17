@@ -240,6 +240,9 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(EntityNotFoundQueryDecorator<QueryStub, ResponseStub>),
                         implType),
                     implType => Assert.Equal(
+                        typeof(DeadlockRetryRequestDecorator<QueryStub, ResponseStub>),
+                        implType),
+                    implType => Assert.Equal(
                         typeof(QueryHandlerStub),
                         implType)
                 );
@@ -279,6 +282,9 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType),
                     implType => Assert.Equal(
                         typeof(EntityNotFoundQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(DeadlockRetryRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
                         implType),
                     implType => Assert.Equal(
                         typeof(SingleQueryDelegator<EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>, UnregisteredQuery, UnregisteredQuery>),
@@ -321,6 +327,12 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(DataAnnotationsValidator<CommandStub>),
                         implType),
                     implType => Assert.Equal(
+                        typeof(FirstValidatorStub),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(SecondValidatorStub),
+                        implType),
+                    implType => Assert.Equal(
                         typeof(FluentValidationValidator<CommandStub>),
                         implType),
                     implType => Assert.Equal(
@@ -331,12 +343,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType),
                     implType => Assert.Equal(
                         typeof(SecondFluentValidatorStub),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(FirstValidatorStub),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(SecondValidatorStub),
                         implType)
                 );
             }

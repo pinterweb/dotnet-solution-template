@@ -4,8 +4,8 @@ namespace BusinessApp.WebApi
 
     public interface IPipelineIntegration
     {
-        IPipeline Before(Type type);
-        IPipeline After(Type type);
+        IPipelineBuilder Before(Type type);
+        IPipelineBuilder After(Type type);
     }
 }
 

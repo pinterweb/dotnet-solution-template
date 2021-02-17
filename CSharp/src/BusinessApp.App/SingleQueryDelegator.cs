@@ -15,7 +15,6 @@ namespace BusinessApp.App
     /// This help reduce the number of handlers/decorators needed when all we care about
     /// is returning one resource
     /// </remarks>
-    [Adapter]
     public class SingleQueryDelegator<TConsumer, TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
         where TConsumer : IRequestHandler<TRequest, IEnumerable<TResponse>>
