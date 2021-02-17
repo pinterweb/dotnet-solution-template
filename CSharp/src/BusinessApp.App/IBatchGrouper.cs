@@ -16,6 +16,6 @@ namespace BusinessApp.App
         /// <returns>The new grouped commands</returns>
         Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(
             IEnumerable<TCommand> commands,
-            CancellationToken token);
+            CancellationToken cancelToken);
     }
 }

@@ -15,7 +15,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
         private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
         private readonly IResponseWriter modelWriter;
         private readonly HttpContext context;
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly JsonHttpDecorator<RequestStub, ResponseStub> sut;
 
         public JsonHttpDecoratorTests()
@@ -23,7 +23,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             inner = A.Fake<IHttpRequestHandler<RequestStub, ResponseStub>>();
             modelWriter = A.Fake<IResponseWriter>();
             context = A.Fake<HttpContext>();
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
 
             sut = new JsonHttpDecorator<RequestStub, ResponseStub>(inner, modelWriter);
         }
@@ -74,7 +74,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 A.CallTo(() => context.Request.Method).Returns(method);
 
                 /* Act */
-                var result = await sut.HandleAsync(context, token);
+                var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 Assert.Equal(
@@ -92,7 +92,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 A.CallTo(() => context.Request.Method).Returns(method);
 
                 /* Act */
-                var result = await sut.HandleAsync(context, token);
+                var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 A.CallToSet(() => context.Response.StatusCode).To(415)
@@ -104,10 +104,10 @@ namespace BusinessApp.WebApi.UnitTest.Json
             {
                 /* Arrange */
                 var innerReturn = Result.Ok.Into<ResponseStub>();
-                A.CallTo(() => inner.HandleAsync(context, token)).Returns(innerReturn);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerReturn);
 
                 /* Act */
-                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, token));
+                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
 
                 /* Assert */
                 A.CallToSet(() => context.Response.ContentType).To("application/json")
@@ -121,11 +121,11 @@ namespace BusinessApp.WebApi.UnitTest.Json
             public async Task WhenInnerSuccessful_ApplicationJsonContentReturned()
             {
                 /* Arrange */
-                A.CallTo(() => inner.HandleAsync(context, token))
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Returns(Result.Ok.Into<ResponseStub>());
 
                 /* Act */
-                var result = await sut.HandleAsync(context, token);
+                var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 A.CallToSet(() => context.Response.ContentType).To("application/json")
@@ -136,11 +136,11 @@ namespace BusinessApp.WebApi.UnitTest.Json
             public async Task WhenInnerFailed_ApplicationProblemJsonContentReturned()
             {
                 /* Arrange */
-                A.CallTo(() => inner.HandleAsync(context, token))
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Returns(Result.Error($"foobar").Into<ResponseStub>());
 
                 /* Act */
-                var result = await sut.HandleAsync(context, token);
+                var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 A.CallToSet(() => context.Response.ContentType).To("application/problem+json")
@@ -151,11 +151,11 @@ namespace BusinessApp.WebApi.UnitTest.Json
             public async Task WhenInnerThrows_ApplicationProblemJsonContentReturned()
             {
                 /* Arrange */
-                A.CallTo(() => inner.HandleAsync(context, token))
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Throws<Exception>();
 
                 /* Act */
-                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, token));
+                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
 
                 /* Assert */
                 A.CallToSet(() => context.Response.ContentType).To("application/problem+json")
@@ -167,12 +167,12 @@ namespace BusinessApp.WebApi.UnitTest.Json
             {
                 /* Arrange */
                 var innerReturn = Result.Ok.Into<ResponseStub>();
-                A.CallTo(() => inner.HandleAsync(context, token)).Returns(innerReturn);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerReturn);
                 A.CallTo(() => modelWriter.WriteResponseAsync(context, innerReturn))
                     .Throws<Exception>();
 
                 /* Act */
-                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, token));
+                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
 
                 /* Assert */
                 A.CallToSet(() => context.Response.ContentType).To("application/problem+json")

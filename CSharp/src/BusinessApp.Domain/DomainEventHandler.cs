@@ -16,7 +16,7 @@
             this.repo = repo.NotNull().Expect(nameof(repo));
         }
 
-        public Task HandleAsync(TEvent @event, CancellationToken cancellationToken)
+        public Task HandleAsync(TEvent @event, CancellationToken cancelToken)
         {
             repo.Add(@event);
 

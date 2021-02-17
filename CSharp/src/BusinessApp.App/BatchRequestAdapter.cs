@@ -19,7 +19,7 @@
 
         public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
             IEnumerable<TRequest> request,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
             request.NotNull().Expect(nameof(request));
 
@@ -27,7 +27,7 @@
 
             foreach(var msg in request)
             {
-                results.Add(await inner.HandleAsync(msg, cancellationToken));
+                results.Add(await inner.HandleAsync(msg, cancelToken));
             }
 
             if (results.Any(r => r.Kind == ValueKind.Error))

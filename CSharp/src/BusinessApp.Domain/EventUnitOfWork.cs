@@ -37,7 +37,7 @@
             emitters.Add(aggregate);
         }
 
-        public virtual async Task CommitAsync(CancellationToken cancellationToken)
+        public virtual async Task CommitAsync(CancellationToken cancelToken)
         {
             Volatile.Read(ref Committing).Invoke(this, EventArgs.Empty);
 
@@ -47,7 +47,7 @@
 
                 for (int a = 0; a < pending.Count(); a++)
                 {
-                    await eventPublisher.PublishAsync(pending[a], cancellationToken);
+                    await eventPublisher.PublishAsync(pending[a], cancelToken);
                 }
             } while (emitters.Any(i => i.HasEvents()));
 
@@ -59,7 +59,7 @@
             emitters.Remove(aggregate);
         }
 
-        public virtual Task RevertAsync(CancellationToken cancellationToken)
+        public virtual Task RevertAsync(CancellationToken cancelToken)
         {
             emitters.Clear();
             return Task.CompletedTask;

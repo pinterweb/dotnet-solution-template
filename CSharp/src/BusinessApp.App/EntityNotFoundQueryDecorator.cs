@@ -19,9 +19,9 @@
         }
 
         public async Task<Result<TResult, IFormattable>> HandleAsync(
-            TQuery query, CancellationToken cancellationToken)
+            TQuery query, CancellationToken cancelToken)
         {
-            var result = await decorated.HandleAsync(query, cancellationToken);
+            var result = await decorated.HandleAsync(query, cancelToken);
 
             return result.AndThen(val =>
             {

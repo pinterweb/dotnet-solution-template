@@ -12,7 +12,7 @@
         /// </summary>
         public static Task<T> DeserializeIntoAsync<T>(this HttpContext context,
             ISerializer serializer,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
             if (context.Request.MayHaveContent())
             {

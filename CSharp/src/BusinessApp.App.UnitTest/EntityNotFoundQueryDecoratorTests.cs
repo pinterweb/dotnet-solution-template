@@ -11,13 +11,13 @@ namespace BusinessApp.App.UnitTest
 
     public class EntityNotFoundQueryDecoratorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly EntityNotFoundQueryDecorator<QueryStub, ResponseStub> sut;
         private readonly IQueryHandler<QueryStub, ResponseStub> inner;
 
         public EntityNotFoundQueryDecoratorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
 
             sut = new EntityNotFoundQueryDecorator<QueryStub, ResponseStub>(inner);
@@ -54,11 +54,11 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                A.CallTo(() => inner.HandleAsync(query, token))
+                A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(Result<ResponseStub, IFormattable>.Ok(null));
 
                 /* Act */
-                var result = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 var error = Assert.IsType<EntityNotFoundException>(result.UnwrapError());
@@ -76,11 +76,11 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
                 var innerResult = Result<ResponseStub, IFormattable>.Ok(new ResponseStub());
-                A.CallTo(() => inner.HandleAsync(query, token))
+                A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResult);
 
                 /* Act */
-                var result = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 Assert.Equal(innerResult, result);
@@ -92,11 +92,11 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
                 var innerResult = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
-                A.CallTo(() => inner.HandleAsync(query, token))
+                A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResult);
 
                 /* Act */
-                var result = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 Assert.Equal(innerResult, result);

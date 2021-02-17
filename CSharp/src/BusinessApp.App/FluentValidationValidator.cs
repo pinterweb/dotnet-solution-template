@@ -18,7 +18,7 @@ namespace BusinessApp.App
             this.validators = validators.NotNull().Expect(nameof(validators));
         }
 
-        public async Task<Result> ValidateAsync(T instance, CancellationToken cancellationToken)
+        public async Task<Result> ValidateAsync(T instance, CancellationToken cancelToken)
         {
             foreach (var validator in validators)
             {

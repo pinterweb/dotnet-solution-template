@@ -10,7 +10,7 @@ namespace BusinessApp.App.UnitTest
 
     public class RequestExceptionDecoratorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly RequestExceptionDecorator<QueryStub, ResponseStub> sut;
         private readonly IRequestHandler<QueryStub, ResponseStub> inner;
         private readonly ILogger logger;
@@ -18,7 +18,7 @@ namespace BusinessApp.App.UnitTest
 
         public RequestExceptionDecoratorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<IRequestHandler<QueryStub, ResponseStub>>();
             logger = A.Fake<ILogger>();
             request = A.Dummy<QueryStub>();
@@ -71,7 +71,7 @@ namespace BusinessApp.App.UnitTest
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var _ = await sut.HandleAsync(request, token);
+                var _ = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Equal(LogSeverity.Critical, entry.Severity);
@@ -89,7 +89,7 @@ namespace BusinessApp.App.UnitTest
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var _ = await sut.HandleAsync(request, token);
+                var _ = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Equal("thrown", entry.Message);
@@ -107,7 +107,7 @@ namespace BusinessApp.App.UnitTest
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var _ = await sut.HandleAsync(request, token);
+                var _ = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Same(ex, entry.Exception);
@@ -124,7 +124,7 @@ namespace BusinessApp.App.UnitTest
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var _ = await sut.HandleAsync(request, token);
+                var _ = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Same(request, entry.Data);
@@ -138,7 +138,7 @@ namespace BusinessApp.App.UnitTest
                     .Throws<Exception>();
 
                 /* Act */
-                var result = await sut.HandleAsync(request, token);
+                var result = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.IsType<UnhandledRequestException>(result.UnwrapError());
@@ -152,7 +152,7 @@ namespace BusinessApp.App.UnitTest
                     .Throws(new BadStateException("foo"));
 
                 /* Act */
-                var result = await sut.HandleAsync(request, token);
+                var result = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Equal(ValueKind.Error, result.Kind);
@@ -167,7 +167,7 @@ namespace BusinessApp.App.UnitTest
                     .Throws(error);
 
                 /* Act */
-                var result = await sut.HandleAsync(request, token);
+                var result = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Same(error, result.UnwrapError());
@@ -182,7 +182,7 @@ namespace BusinessApp.App.UnitTest
                     .Returns(innerResult);
 
                 /* Act */
-                var result = await sut.HandleAsync(request, token);
+                var result = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 Assert.Equal(innerResult, result);

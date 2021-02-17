@@ -25,17 +25,17 @@ namespace BusinessApp.App
 
         public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
             IEnumerable<TRequest> request,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
             request.NotNull().Expect(nameof(request));
 
-            var payloads = await grouper.GroupAsync(request, cancellationToken);
+            var payloads = await grouper.GroupAsync(request, cancelToken);
 
             var tasks = new List<(IEnumerable<TRequest>, Task<Result<IEnumerable<TResponse>, IFormattable>>)>();
 
             foreach (var group in payloads)
             {
-                tasks.Add((group, handler.HandleAsync(group, cancellationToken)));
+                tasks.Add((group, handler.HandleAsync(group, cancelToken)));
             }
 
             var _ = await Task.WhenAll(tasks.Select(s => s.Item2));

@@ -21,16 +21,16 @@ namespace BusinessApp.WebApi
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
-            var request = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
+            var request = await context.DeserializeIntoAsync<TRequest>(serializer, cancelToken);
 
             if (request == null)
             {
                 throw new BusinessAppWebApiException("Request cannot be null");
             }
 
-            return await handler.HandleAsync(request, cancellationToken);
+            return await handler.HandleAsync(request, cancelToken);
         }
     }
 }

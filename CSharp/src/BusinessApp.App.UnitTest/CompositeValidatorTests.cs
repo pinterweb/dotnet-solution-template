@@ -12,14 +12,14 @@ namespace BusinessApp.App.UnitTest
 
     public class CompositeValidatorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly IEnumerable<IValidator<ValidationStub>> validators;
         private readonly ValidationStub instance;
         private CompositeValidator<ValidationStub> sut;
 
         public CompositeValidatorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             instance = new ValidationStub();
             validators = new[]
             {
@@ -54,7 +54,7 @@ namespace BusinessApp.App.UnitTest
                 sut = new CompositeValidator<ValidationStub>(new IValidator<ValidationStub>[0]);
 
                 /* Act */
-                var result = await sut.ValidateAsync(A.Dummy<ValidationStub>(), token);
+                var result = await sut.ValidateAsync(A.Dummy<ValidationStub>(), cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result.Ok, result);
@@ -65,13 +65,13 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var error = Result.Error($"foobar");
-                A.CallTo(() => validators.First().ValidateAsync(instance, token))
+                A.CallTo(() => validators.First().ValidateAsync(instance, cancelToken))
                     .Returns(Result.Error($"foobar"));
-                A.CallTo(() => validators.Last().ValidateAsync(instance, token))
+                A.CallTo(() => validators.Last().ValidateAsync(instance, cancelToken))
                     .Returns(Result.Ok);
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 Assert.Equal(error, result);
@@ -81,13 +81,13 @@ namespace BusinessApp.App.UnitTest
             public async Task MultipleValidatorsAllOkResults_OkResultReturned()
             {
                 /* Arrange */
-                A.CallTo(() => validators.First().ValidateAsync(instance, token))
+                A.CallTo(() => validators.First().ValidateAsync(instance, cancelToken))
                     .Returns(Result.Ok);
-                A.CallTo(() => validators.Last().ValidateAsync(instance, token))
+                A.CallTo(() => validators.Last().ValidateAsync(instance, cancelToken))
                     .Returns(Result.Ok);
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result.Ok, result);

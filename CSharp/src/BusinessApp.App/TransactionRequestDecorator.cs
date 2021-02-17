@@ -24,29 +24,29 @@
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(
-            TRequest command, CancellationToken cancellationToken)
+            TRequest command, CancellationToken cancelToken)
         {
             command.NotNull().Expect(nameof(command));
 
             var trans = transactionFactory.Begin();
 
-            var result = await inner.HandleAsync(command, cancellationToken);
+            var result = await inner.HandleAsync(command, cancelToken);
 
-            await trans.CommitAsync(cancellationToken);
+            await trans.CommitAsync(cancelToken);
 
             while (register.FinishHandlers.Count > 0)
             {
                 try
                 {
                     await register.OnFinishedAsync();
-                    await trans.CommitAsync(cancellationToken);
+                    await trans.CommitAsync(cancelToken);
                 }
                 catch
                 {
 
                     try
                     {
-                        await trans.RevertAsync(cancellationToken);
+                        await trans.RevertAsync(cancelToken);
                     }
                     catch (Exception revertError)
                     {

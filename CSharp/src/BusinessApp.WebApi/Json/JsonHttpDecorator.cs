@@ -22,7 +22,7 @@
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
             var validContentType = !string.IsNullOrWhiteSpace(context.Request.ContentType)
                 && context.Request.ContentType.Contains("application/json");
@@ -35,7 +35,7 @@
 
             try
             {
-                var result = await inner.HandleAsync(context, cancellationToken);
+                var result = await inner.HandleAsync(context, cancelToken);
 
                 context.Response.ContentType = result.Kind switch
                 {

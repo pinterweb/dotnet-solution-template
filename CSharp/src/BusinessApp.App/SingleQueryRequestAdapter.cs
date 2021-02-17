@@ -28,9 +28,9 @@ namespace BusinessApp.App
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(TRequest request,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
-            var response = await handler.HandleAsync(request, cancellationToken);
+            var response = await handler.HandleAsync(request, cancelToken);
 
             // TODO return error if more than one
             return Result<TResponse, IFormattable>.Ok(response.Unwrap().SingleOrDefault());

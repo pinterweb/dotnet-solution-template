@@ -16,14 +16,14 @@ namespace BusinessApp.WebApi.UnitTest
     public class HttpContextExtensionsTests
     {
         private HttpContext context;
-        private CancellationToken token;
+        private CancellationToken cancelToken;
         private ITestOutputHelper writer;
 
         public HttpContextExtensionsTests(ITestOutputHelper writer)
         {
             this.writer = writer;
             context = A.Fake<HttpContext>();
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             A.CallTo(() => context.Request.QueryString).Returns(new QueryString(""));
         }
 
@@ -82,7 +82,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString(queryString));
 
                 /* Act */
-                var result = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                var result = await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.NotNull(result);
@@ -99,7 +99,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?foo=bar&lorem=ipsum"));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.True(serializedData.ContainsKey("foo"));
@@ -124,7 +124,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.RouteValues).Returns(routeData);
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.True(serializedData.ContainsKey("foo"));
@@ -152,7 +152,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString(queryString));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.IsType(expectedType, serializedData[key]);
@@ -184,7 +184,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.RouteValues).Returns(routeData);
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.IsType(expectedType, serializedData[key]);
@@ -226,7 +226,7 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => context.Request.QueryString).Returns(new QueryString("?enumerable=1,2,3"));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.Equal(new float[] { 1, 2, 3 }, serializedData["enumerable"]);
@@ -249,7 +249,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(new QueryString("?singleNested.ipsit=blah&singleNested.dolor=boo"));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["singleNested"]);
@@ -278,7 +278,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(new QueryString("?deeplyNested.nested.ipsit=blah&deeplyNested.nested.dolor=boo"));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
@@ -306,7 +306,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(new QueryString("?deeplyNested.nested.enumerable=1,2"));
 
                 /* Act */
-                await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.Equal(expectNestedDictionary, serializedData["deeplyNested"]);
@@ -322,7 +322,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(query);
 
                 /* Act */
-                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.Same(query, returned);
@@ -343,7 +343,7 @@ namespace BusinessApp.WebApi.UnitTest
                     .Returns(query);
 
                 /* Act */
-                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, token);
+                var returned = await context.DeserializeIntoAsync<QueryStub>(serializer, cancelToken);
 
                 /* Assert */
                 Assert.Equal("bar", returned.Foo);

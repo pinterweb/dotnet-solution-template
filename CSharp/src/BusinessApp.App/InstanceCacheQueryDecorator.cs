@@ -22,14 +22,14 @@ namespace BusinessApp.App
         }
 
         public async Task<Result<TResult, IFormattable>> HandleAsync(
-            TQuery query, CancellationToken cancellationToken)
+            TQuery query, CancellationToken cancelToken)
         {
             if (cache.TryGetValue(query, out Result<TResult, IFormattable> cachedResult))
             {
                 return cachedResult;
             }
 
-            var result = await inner.HandleAsync(query, cancellationToken);
+            var result = await inner.HandleAsync(query, cancelToken);
 
             var _ = cache.TryAdd(query, result);
 

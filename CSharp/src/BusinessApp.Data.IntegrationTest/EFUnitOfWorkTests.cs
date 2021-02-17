@@ -150,12 +150,12 @@ namespace BusinessApp.Data.IntegrationTest
 
         public class CommitAsync : EFUnitOfWorkTests
         {
-            private readonly CancellationToken token;
+            private readonly CancellationToken cancelToken;
 
             public CommitAsync(DatabaseFixture fixture)
                 :base(fixture)
             {
-                token = A.Dummy<CancellationToken>();
+                cancelToken = A.Dummy<CancellationToken>();
             }
 
             [Fact]
@@ -171,7 +171,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
-                    await sut.CommitAsync(token);
+                    await sut.CommitAsync(cancelToken);
                 }
 
                 /* Assert */
@@ -186,7 +186,7 @@ namespace BusinessApp.Data.IntegrationTest
                 var entity = new ResponseStub();
                 db.Add(entity);
 
-                A.CallTo(() => inner.CommitAsync(token))
+                A.CallTo(() => inner.CommitAsync(cancelToken))
                     .Invokes(ctx =>
                     {
                         stateDuringEvents = db.Entry(entity).State;
@@ -195,7 +195,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
-                    await sut.CommitAsync(token);
+                    await sut.CommitAsync(cancelToken);
                 }
 
                 /* Assert - Entity would be unchanged if called after SaveChanges */
@@ -224,7 +224,7 @@ namespace BusinessApp.Data.IntegrationTest
                         $"delete from dbo.ResponseStub where Id = {entity.Id}"
                     );
                 };
-                var exception = await Record.ExceptionAsync(() => sut.CommitAsync(token));
+                var exception = await Record.ExceptionAsync(() => sut.CommitAsync(cancelToken));
 
                 /* Assert */
                 var dbEx = Assert.IsType<DBConcurrencyException>(exception);
@@ -271,7 +271,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
-                    await sut.CommitAsync(token);
+                    await sut.CommitAsync(cancelToken);
                 }
 
                 /* Assert */
@@ -330,12 +330,12 @@ namespace BusinessApp.Data.IntegrationTest
 
         public class RevertAsync : EFUnitOfWorkTests
         {
-            private readonly CancellationToken token;
+            private readonly CancellationToken cancelToken;
 
             public RevertAsync(DatabaseFixture fixture)
                 :base(fixture)
             {
-                token = A.Dummy<CancellationToken>();
+                cancelToken = A.Dummy<CancellationToken>();
             }
 
             [Fact]
@@ -348,7 +348,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
-                    await sut.RevertAsync(token);
+                    await sut.RevertAsync(cancelToken);
                 }
 
                 /* Assert */
@@ -362,13 +362,13 @@ namespace BusinessApp.Data.IntegrationTest
                 EntityState? stateDuringEvent = null;
                 var entity = new ResponseStub();
                 var entry = db.Add(entity);
-                A.CallTo(() => inner.RevertAsync(token))
+                A.CallTo(() => inner.RevertAsync(cancelToken))
                     .Invokes(ctx => stateDuringEvent = entry.State);
 
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
-                    await sut.RevertAsync(token);
+                    await sut.RevertAsync(cancelToken);
                 }
 
                 /* Assert */
@@ -412,7 +412,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Act */
                 using (var tran = db.Database.BeginTransaction())
                 {
-                    await sut.RevertAsync(token);
+                    await sut.RevertAsync(cancelToken);
                 }
 
                 /* Assert */

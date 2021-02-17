@@ -19,11 +19,12 @@
             this.authorizer = authorizer.NotNull().Expect(nameof(authorizer));
         }
 
-        public Task<Result<TResult, IFormattable>> HandleAsync(TRequest query, CancellationToken cancellationToken)
+        public Task<Result<TResult, IFormattable>> HandleAsync(TRequest query,
+            CancellationToken cancelToken)
         {
             authorizer.AuthorizeObject(query);
 
-            return inner.HandleAsync(query, cancellationToken);
+            return inner.HandleAsync(query, cancelToken);
         }
     }
 }

@@ -7,6 +7,7 @@ namespace BusinessApp.App
 
     public interface IRequestHandler<in TRequest, TResponse>
     {
-        Task<Result<TResponse, IFormattable>> HandleAsync(TRequest request, CancellationToken cancellationToken);
+        Task<Result<TResponse, IFormattable>> HandleAsync(TRequest request,
+            CancellationToken cancelToken);
     }
 }

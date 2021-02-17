@@ -66,14 +66,14 @@ namespace BusinessApp.App.UnitTest
             public async Task AuthorizedBeforeHandles()
             {
                 /* Arrange */
-                CancellationToken token = default;
+                CancellationToken cancelToken = default;
 
                 /* Act */
-                await sut.HandleAsync(query, token);
+                await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => authorizer.AuthorizeObject(query)).MustHaveHappenedOnceExactly().Then(
-                    A.CallTo(() => decorated.HandleAsync(query, token)).MustHaveHappenedOnceExactly());
+                    A.CallTo(() => decorated.HandleAsync(query, cancelToken)).MustHaveHappenedOnceExactly());
             }
 
             [Fact]
@@ -103,12 +103,12 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var expectedResponse = A.Dummy<Result<ResponseStub, IFormattable>>();
-                var token = new CancellationToken();
-                A.CallTo(() => decorated.HandleAsync(query, token))
+                var cancelToken = new CancellationToken();
+                A.CallTo(() => decorated.HandleAsync(query, cancelToken))
                     .Returns(Task.FromResult(expectedResponse));
 
                 /* Act */
-                var actualResponse = await sut.HandleAsync(query, token);
+                var actualResponse = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 Assert.Equal(expectedResponse, actualResponse);

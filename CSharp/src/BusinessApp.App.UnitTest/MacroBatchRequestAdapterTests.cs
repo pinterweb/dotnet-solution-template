@@ -10,14 +10,14 @@ namespace BusinessApp.App.UnitTest
 
     public class MacroBatchRequestAdapterTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly MacroBatchRequestAdapter<CommandMacro, CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchMacro<CommandMacro, CommandStub> expander;
 
         public MacroBatchRequestAdapterTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             expander = A.Fake<IBatchMacro<CommandMacro, CommandStub>>();
 
@@ -77,10 +77,10 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
-                A.CallTo(() => expander.ExpandAsync(macro, token)).Returns(new CommandStub[0]);
+                A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(new CommandStub[0]);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, cancelToken));
 
                 /* Assert */
                 Assert.IsType<BusinessAppAppException>(ex);
@@ -97,13 +97,13 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
                 var commands = new[] { A.Dummy<CommandStub>() };
-                A.CallTo(() => expander.ExpandAsync(macro, token)).Returns(commands);
+                A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, cancelToken));
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(commands, token)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(commands, cancelToken)).MustHaveHappenedOnceExactly();
             }
 
             [Fact]
@@ -113,11 +113,11 @@ namespace BusinessApp.App.UnitTest
                 var macro = A.Dummy<CommandMacro>();
                 var innerResult = Result<IEnumerable<CommandStub>, IFormattable>.Error(DateTime.Now);
                 var commands = new[] { A.Dummy<CommandStub>() };
-                A.CallTo(() => expander.ExpandAsync(macro, token)).Returns(commands);
-                A.CallTo(() => inner.HandleAsync(commands, token)).Returns(innerResult);
+                A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
+                A.CallTo(() => inner.HandleAsync(commands, cancelToken)).Returns(innerResult);
 
                 /* Act */
-                var result = await sut.HandleAsync(macro, token);
+                var result = await sut.HandleAsync(macro, cancelToken);
 
                 /* Assert */
                 Assert.Equal(innerResult.UnwrapError(), result.UnwrapError());
@@ -130,11 +130,11 @@ namespace BusinessApp.App.UnitTest
                 var macro = A.Dummy<CommandMacro>();
                 var innerResult = Result<IEnumerable<CommandStub>, IFormattable>.Ok(new CommandStub[0]);
                 var commands = new[] { A.Dummy<CommandStub>() };
-                A.CallTo(() => expander.ExpandAsync(macro, token)).Returns(commands);
-                A.CallTo(() => inner.HandleAsync(commands, token)).Returns(innerResult);
+                A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
+                A.CallTo(() => inner.HandleAsync(commands, cancelToken)).Returns(innerResult);
 
                 /* Act */
-                var result = await sut.HandleAsync(macro, token);
+                var result = await sut.HandleAsync(macro, cancelToken);
 
                 /* Assert */
                 Assert.Equal(innerResult, result);

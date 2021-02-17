@@ -22,13 +22,12 @@ namespace BusinessApp.App
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(
-            TMacro macro,
-            CancellationToken cancellationToken)
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(TMacro macro,
+            CancellationToken cancelToken)
         {
             macro.NotNull().Expect(nameof(macro));
 
-            var payloads = await expander.ExpandAsync(macro, cancellationToken);
+            var payloads = await expander.ExpandAsync(macro, cancelToken);
 
             if (!payloads.Any())
             {
@@ -38,7 +37,7 @@ namespace BusinessApp.App
                 );
             }
 
-            return await handler.HandleAsync(payloads, cancellationToken);
+            return await handler.HandleAsync(payloads, cancelToken);
         }
     }
 }

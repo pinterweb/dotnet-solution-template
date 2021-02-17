@@ -10,7 +10,7 @@ namespace BusinessApp.App.UnitTest
 
     public class FluentValidationValidatorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly List<FluentValidation.IValidator<CommandStub>> validators;
         private readonly FluentValidationValidator<CommandStub> sut;
         private readonly CommandStub instance;
@@ -19,7 +19,7 @@ namespace BusinessApp.App.UnitTest
         {
             validators = new List<FluentValidation.IValidator<CommandStub>>();
             instance = new CommandStub();
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             sut = new FluentValidationValidator<CommandStub>(validators);
         }
 
@@ -29,7 +29,7 @@ namespace BusinessApp.App.UnitTest
             public async Task EmptyValidators_OkResultReturned()
             {
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result.Ok, result);
@@ -48,7 +48,7 @@ namespace BusinessApp.App.UnitTest
                 validators.AddRange(new[] { firstValidator, secondValidator });
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result.Ok, result);
@@ -69,7 +69,7 @@ namespace BusinessApp.App.UnitTest
                 validators.Add(validator);
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());

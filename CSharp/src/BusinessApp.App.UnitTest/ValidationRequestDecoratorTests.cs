@@ -11,14 +11,14 @@ namespace BusinessApp.App.UnitTest
 
     public class ValidationRequestDecoratorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly ValidationRequestDecorator<QueryStub, ResponseStub> sut;
         private readonly IQueryHandler<QueryStub, ResponseStub> inner;
         private readonly IValidator<QueryStub> validator;
 
         public ValidationRequestDecoratorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
             validator = A.Fake<IValidator<QueryStub>>();
 
@@ -69,11 +69,11 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, token))
+                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
                     .Returns(Result.Error($"foobar"));
 
                 /* Act */
-                var result = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result<ResponseStub, IFormattable>.Error($"foobar"), result);
@@ -84,11 +84,11 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, token))
+                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
                     .Returns(Result.Error($"foobar"));
 
                 /* Act */
-                var result = await sut.HandleAsync(query, token);
+                var result = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
@@ -100,14 +100,14 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, token))
+                A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
                     .Returns(Result.Ok);
 
                 /* Act */
-                var _ = await sut.HandleAsync(query, token);
+                var _ = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(query, token))
+                A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .MustHaveHappenedOnceExactly();
             }
 
@@ -115,14 +115,14 @@ namespace BusinessApp.App.UnitTest
             public async Task WithRequestArg_InnerResultsReturned()
             {
                 /* Arrange */
-                var token = A.Dummy<CancellationToken>();
+                var cancelToken = A.Dummy<CancellationToken>();
                 var query = A.Dummy<QueryStub>();
                 var innerResults = A.Dummy<Result<ResponseStub, IFormattable>>();
-                A.CallTo(() => inner.HandleAsync(query, token))
+                A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResults);
 
                 /* Act */
-                var results = await sut.HandleAsync(query, token);
+                var results = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 Assert.Equal(innerResults, results);

@@ -22,11 +22,11 @@ namespace BusinessApp.App
         }
 
         public async Task<Result<TResponse, IFormattable>> HandleAsync(
-            TRequest request, CancellationToken cancellationToken)
+            TRequest request, CancellationToken cancelToken)
         {
             try
             {
-                return await inner.HandleAsync(request, cancellationToken);
+                return await inner.HandleAsync(request, cancelToken);
             }
             catch(Exception e) when (e is IFormattable f)
             {

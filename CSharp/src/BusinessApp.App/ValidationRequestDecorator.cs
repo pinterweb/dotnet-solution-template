@@ -20,16 +20,16 @@ namespace BusinessApp.App
         }
 
         public async Task<Result<TResult, IFormattable>> HandleAsync(TRequest request,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
             request.NotNull().Expect(nameof(request));
 
-            var result = await validator.ValidateAsync(request, cancellationToken);
+            var result = await validator.ValidateAsync(request, cancelToken);
 
             return result.Kind switch
             {
                 ValueKind.Error => result.Into<TResult>(),
-                ValueKind.Ok => await inner.HandleAsync(request, cancellationToken),
+                ValueKind.Ok => await inner.HandleAsync(request, cancelToken),
                 _ => throw new NotImplementedException()
             };
         }

@@ -27,9 +27,9 @@ namespace BusinessApp.Data
         }
 
         public Task<Result<TResult, IFormattable>> HandleAsync(TQuery query,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
-            return inner.HandleAsync(query, cancellationToken);
+            return inner.HandleAsync(query, cancelToken);
         }
     }
 }
