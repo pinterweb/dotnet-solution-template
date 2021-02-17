@@ -16,6 +16,6 @@ namespace BusinessApp.App
         /// <param name="commands">The commands to group</param>
         /// <returns>The new grouped commands</returns>
         Task<IEnumerable<TCommand>> ExpandAsync(TMacro macro,
-            CancellationToken token);
+            CancellationToken cancelToken);
     }
 }

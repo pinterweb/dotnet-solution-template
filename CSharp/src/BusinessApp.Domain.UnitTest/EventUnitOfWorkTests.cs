@@ -13,11 +13,11 @@ namespace BusinessApp.Domain.UnitTest
     {
         private readonly EventUnitOfWork sut;
         private readonly IEventPublisher publisher;
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
 
         public EventUnitOfWorkTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             publisher = A.Fake<IEventPublisher>();
             sut = new EventUnitOfWork(publisher);
         }
@@ -58,7 +58,7 @@ namespace BusinessApp.Domain.UnitTest
                 var aggregate = new AggregateRootFake();
                 aggregate.AddEvent();
                 sut.Add(aggregate);
-                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                A.CallTo(() => publisher.PublishAsync(aggregate, cancelToken))
                     .Invokes(ctx =>
                     {
                         aggregate.ClearEvents();
@@ -71,7 +71,7 @@ namespace BusinessApp.Domain.UnitTest
                 };
 
                 /* Act */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
 
                 /* Assert */
                 Assert.Equal(0, publishCalls);
@@ -84,17 +84,17 @@ namespace BusinessApp.Domain.UnitTest
                 var aggregate = new AggregateRootFake();
                 aggregate.AddEvent();
                 sut.Add(aggregate);
-                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                A.CallTo(() => publisher.PublishAsync(aggregate, cancelToken))
                     .Invokes(ctx =>
                     {
                         aggregate.ClearEvents();
                     });
 
                 /* Act */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
 
                 /* Assert */
-                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                A.CallTo(() => publisher.PublishAsync(aggregate, cancelToken))
                     .MustHaveHappenedOnceExactly();
             }
 
@@ -104,17 +104,17 @@ namespace BusinessApp.Domain.UnitTest
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
                 sut.Add(@event);
-                A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, token))
+                A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, cancelToken))
                     .Invokes(ctx =>
                     {
                         ctx.GetArgument<IEventEmitter>(0).PublishEvents().ToList();
                     });
 
                 /* Act */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
 
                 /* Assert */
-                A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, token))
+                A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, cancelToken))
                     .MustHaveHappenedOnceExactly();
             }
 
@@ -126,7 +126,7 @@ namespace BusinessApp.Domain.UnitTest
                 int calls = 0;
                 aggregate.AddEvent();
                 sut.Add(aggregate);
-                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                A.CallTo(() => publisher.PublishAsync(aggregate, cancelToken))
                     .Invokes(ctx =>
                     {
                         if (calls != 0)
@@ -138,10 +138,10 @@ namespace BusinessApp.Domain.UnitTest
                     });
 
                 /* Act */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
 
                 /* Assert */
-                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                A.CallTo(() => publisher.PublishAsync(aggregate, cancelToken))
                     .MustHaveHappenedTwiceExactly();
             }
 
@@ -153,7 +153,7 @@ namespace BusinessApp.Domain.UnitTest
                 var aggregate = new AggregateRootFake();
                 aggregate.AddEvent();
                 sut.Add(aggregate);
-                A.CallTo(() => publisher.PublishAsync(aggregate, token))
+                A.CallTo(() => publisher.PublishAsync(aggregate, cancelToken))
                     .Invokes(ctx =>
                     {
                         aggregate.ClearEvents();
@@ -165,7 +165,7 @@ namespace BusinessApp.Domain.UnitTest
                 };
 
                 /* Act */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
 
                 /* Assert */
                 Assert.Equal(1, publishCalls);
@@ -186,7 +186,7 @@ namespace BusinessApp.Domain.UnitTest
                 sut.Remove(aggregate);
 
                 /* Assert */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
                 A.CallTo(() => publisher.PublishAsync(A<AggregateRoot>._, A<CancellationToken>._))
                     .MustNotHaveHappened();
             }
@@ -206,10 +206,10 @@ namespace BusinessApp.Domain.UnitTest
                 sut.Add(second);
 
                 /* Act */
-                await sut.RevertAsync(token);
+                await sut.RevertAsync(cancelToken);
 
                 /* Assert */
-                await sut.CommitAsync(token);
+                await sut.CommitAsync(cancelToken);
                 A.CallTo(() => publisher.PublishAsync(A<AggregateRoot>._, A<CancellationToken>._))
                     .MustNotHaveHappened();
             }

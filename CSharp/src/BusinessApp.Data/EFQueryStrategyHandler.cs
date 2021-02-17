@@ -29,7 +29,7 @@
         }
 
         public virtual async Task<Result<IEnumerable<TResult>, IFormattable>> HandleAsync(
-            TQuery query, CancellationToken cancellationToken)
+            TQuery query, CancellationToken cancelToken)
         {
             var queryableFactory = dbSetFactory.Create(query);
             var queryVisitor = queryVisitorFactory.Create(query);

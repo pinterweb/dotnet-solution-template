@@ -12,14 +12,14 @@ namespace BusinessApp.App.UnitTest
 
     public class GroupedBatchRequestDecoratorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly GroupedBatchRequestDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IBatchGrouper<CommandStub> grouper;
 
         public GroupedBatchRequestDecoratorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             grouper = A.Fake<IBatchGrouper<CommandStub>>();
 
@@ -85,14 +85,14 @@ namespace BusinessApp.App.UnitTest
                 var commands = A.Dummy<IEnumerable<CommandStub>>();
                 var firstPayload = new ConcurrentBag<IEnumerable<CommandStub>>();
                 var secondPayload = new ConcurrentBag<IEnumerable<CommandStub>>();
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(groups.First(), token))
+                A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
+                A.CallTo(() => inner.HandleAsync(groups.First(), cancelToken))
                     .Invokes(ctx => firstPayload.Add(ctx.GetArgument<IEnumerable<CommandStub>>(0)));
-                A.CallTo(() => inner.HandleAsync(groups.Last(), token))
+                A.CallTo(() => inner.HandleAsync(groups.Last(), cancelToken))
                     .Invokes(ctx => secondPayload.Add(ctx.GetArgument<IEnumerable<CommandStub>>(0)));
 
                 /* Act */
-                await sut.HandleAsync(commands, token);
+                await sut.HandleAsync(commands, cancelToken);
 
                 /* Assert */
                 Assert.Collection(firstPayload,
@@ -113,10 +113,10 @@ namespace BusinessApp.App.UnitTest
                 {
                     new CommandStub()
                 };
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
+                A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, cancelToken));
 
                 /* Assert */
                 Assert.IsType<BusinessAppAppException>(ex);
@@ -152,8 +152,8 @@ namespace BusinessApp.App.UnitTest
                         .Error(DateTime.Now);
                     ok = Result<IEnumerable<CommandStub>, IFormattable>
                         .Ok(A.Dummy<IEnumerable<CommandStub>>());
-                    A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                    A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, token))
+                    A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
+                    A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, cancelToken))
                         .Returns(error).Once().Then.Returns(ok);
                 }
 
@@ -161,7 +161,7 @@ namespace BusinessApp.App.UnitTest
                 public async Task AllReturnedInBatchException()
                 {
                     /* Act */
-                    var results = await sut.HandleAsync(commands, token);
+                    var results = await sut.HandleAsync(commands, cancelToken);
 
                     /* Assert */
                     Assert.IsType<BatchException>(results.UnwrapError());
@@ -171,7 +171,7 @@ namespace BusinessApp.App.UnitTest
                 public async Task AllReturnedInBatchExceptionInOrder()
                 {
                     /* Act */
-                    var results = await sut.HandleAsync(commands, token);
+                    var results = await sut.HandleAsync(commands, cancelToken);
 
                     /* Assert */
                     var ex = Assert.IsType<BatchException>(results.UnwrapError());
@@ -212,12 +212,12 @@ namespace BusinessApp.App.UnitTest
                 var ok2 = Result<IEnumerable<CommandStub>, IFormattable>
                     .Ok(result2);
 
-                A.CallTo(() => grouper.GroupAsync(commands, token)).Returns(groups);
-                A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, token))
+                A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
+                A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, cancelToken))
                     .Returns(ok1).Once().Then.Returns(ok2);
 
                 /* Act */
-                var results = await sut.HandleAsync(commands, token);
+                var results = await sut.HandleAsync(commands, cancelToken);
 
                 /* Assert */
                 Assert.Collection(results.Unwrap(),

@@ -11,6 +11,6 @@
     {
         /// <summary>Validates the given instance.</summary>
         /// <param name="instance">The instance to validate.</param>
-        Task<Result> ValidateAsync(T instance, CancellationToken cancellationToken);
+        Task<Result> ValidateAsync(T instance, CancellationToken cancelToken);
     }
 }

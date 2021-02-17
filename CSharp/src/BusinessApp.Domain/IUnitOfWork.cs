@@ -16,7 +16,7 @@
         void Add(IDomainEvent @event);
         void Remove(AggregateRoot aggregate);
         void Track(AggregateRoot aggregate);
-        Task CommitAsync(CancellationToken cancellationToken);
-        Task RevertAsync(CancellationToken cancellationToken);
+        Task CommitAsync(CancellationToken cancelToken);
+        Task RevertAsync(CancellationToken cancelToken);
     }
 }

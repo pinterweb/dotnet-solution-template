@@ -24,16 +24,17 @@ namespace BusinessApp.WebApi
             this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
-        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(HttpContext context, CancellationToken cancellationToken)
+        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(HttpContext context,
+            CancellationToken cancelToken)
         {
-            var query = await context.DeserializeIntoAsync<TRequest>(serializer, cancellationToken);
+            var query = await context.DeserializeIntoAsync<TRequest>(serializer, cancelToken);
 
             if (query == null)
             {
                 throw new BusinessAppWebApiException("Query cannot be null");
             }
 
-            return (await handler.HandleAsync(query, cancellationToken))
+            return (await handler.HandleAsync(query, cancelToken))
                 .Map(envelope =>
                 {
                     context.Response.Headers.Add("Access-Control-Expose-Headers", new[] { "VND.parkeremg.pagination" });

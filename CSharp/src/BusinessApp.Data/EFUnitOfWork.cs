@@ -44,15 +44,15 @@ namespace BusinessApp.Data
             inner.Remove(aggregate);
         }
 
-        public async Task CommitAsync(CancellationToken cancellationToken)
+        public async Task CommitAsync(CancellationToken cancelToken)
         {
             Volatile.Read(ref Committing).Invoke(this, EventArgs.Empty);
 
-            await inner.CommitAsync(cancellationToken);
+            await inner.CommitAsync(cancelToken);
 
             try
             {
-                await db.SaveChangesAsync(false, cancellationToken);
+                await db.SaveChangesAsync(false, cancelToken);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -65,7 +65,7 @@ namespace BusinessApp.Data
 
             if (db.Database.CurrentTransaction != null && transactionFromFactory)
             {
-                await db.Database.CurrentTransaction.CommitAsync(cancellationToken);
+                await db.Database.CurrentTransaction.CommitAsync(cancelToken);
                 transactionFromFactory = false;
             }
 
@@ -74,15 +74,15 @@ namespace BusinessApp.Data
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
-        public async Task RevertAsync(CancellationToken cancellationToken)
+        public async Task RevertAsync(CancellationToken cancelToken)
         {
-            await inner.RevertAsync(cancellationToken);
+            await inner.RevertAsync(cancelToken);
 
-            await db.SaveChangesAsync(false, cancellationToken);
+            await db.SaveChangesAsync(false, cancelToken);
 
             if (db.Database.CurrentTransaction != null && transactionFromFactory)
             {
-                await db.Database.CurrentTransaction.CommitAsync(cancellationToken);
+                await db.Database.CurrentTransaction.CommitAsync(cancelToken);
                 transactionFromFactory = false;
             }
 

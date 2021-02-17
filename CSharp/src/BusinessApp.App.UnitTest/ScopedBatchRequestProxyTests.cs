@@ -10,14 +10,14 @@ namespace BusinessApp.App.UnitTest
 
     public class ScopedBatchRequestProxyTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>> sut;
         private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
         private readonly IAppScope scope;
 
         public ScopedBatchRequestProxyTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
             scope = A.Fake<IAppScope>();
 
@@ -67,11 +67,11 @@ namespace BusinessApp.App.UnitTest
                 var cmd = new[] { new CommandStub() };
 
                 /* Act */
-                await sut.HandleAsync(cmd, token);
+                await sut.HandleAsync(cmd, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => scope.NewScope()).MustHaveHappened()
-                    .Then(A.CallTo(() => inner.HandleAsync(cmd, token)).MustHaveHappened());
+                    .Then(A.CallTo(() => inner.HandleAsync(cmd, cancelToken)).MustHaveHappened());
             }
         }
     }

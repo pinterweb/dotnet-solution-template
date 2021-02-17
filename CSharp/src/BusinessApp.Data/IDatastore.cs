@@ -7,6 +7,6 @@ namespace BusinessApp.Data
 
     public interface IDatastore<TEntity> where TEntity : class
     {
-        Task<IEnumerable<TEntity>> QueryAsync(IQuery query, CancellationToken cancellationToken);
+        Task<IEnumerable<TEntity>> QueryAsync(IQuery query, CancellationToken cancelToken);
     }
 }

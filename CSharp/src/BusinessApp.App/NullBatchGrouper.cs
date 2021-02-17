@@ -7,7 +7,7 @@ namespace BusinessApp.App
     public class NullBatchGrouper<TCommand> : IBatchGrouper<TCommand>
     {
         public Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(IEnumerable<TCommand> commands,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
             IEnumerable<IEnumerable<TCommand>> onlyGroup = new IEnumerable<TCommand>[1] { commands };
 

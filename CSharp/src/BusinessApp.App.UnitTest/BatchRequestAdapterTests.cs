@@ -11,13 +11,13 @@ namespace BusinessApp.App.UnitTest
 
     public class BatchRequestAdapterTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly BatchRequestAdapter<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
 
         public BatchRequestAdapterTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<CommandStub>>();
 
             sut = new BatchRequestAdapter<CommandStub, CommandStub>(inner);
@@ -50,7 +50,7 @@ namespace BusinessApp.App.UnitTest
             public async Task WithoutCommandArg_ExceptionThrown()
             {
                 /* Arrange */
-                Task shouldthrow() => sut.HandleAsync(null, token);
+                Task shouldthrow() => sut.HandleAsync(null, cancelToken);
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(shouldthrow);
@@ -66,11 +66,11 @@ namespace BusinessApp.App.UnitTest
                 var commands = new[] { A.Dummy<CommandStub>(), A.Dummy<CommandStub>() };
 
                 /* Act */
-                await sut.HandleAsync(commands, token);
+                await sut.HandleAsync(commands, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(commands.First(), token)).MustHaveHappenedOnceExactly();
-                A.CallTo(() => inner.HandleAsync(commands.Last(), token)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(commands.First(), cancelToken)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(commands.Last(), cancelToken)).MustHaveHappenedOnceExactly();
             }
 
             public class OnError : BatchRequestAdapterTests
@@ -92,7 +92,7 @@ namespace BusinessApp.App.UnitTest
                         .Error(DateTime.Now);
                     ok = Result<CommandStub, IFormattable>
                         .Ok(A.Dummy<CommandStub>());
-                    A.CallTo(() => inner.HandleAsync(A<CommandStub>._, token))
+                    A.CallTo(() => inner.HandleAsync(A<CommandStub>._, cancelToken))
                         .Returns(error).Once().Then.Returns(ok).Once().Then.Returns(ok);
                 }
 
@@ -100,7 +100,7 @@ namespace BusinessApp.App.UnitTest
                 public async Task AllReturnedInBatchException()
                 {
                     /* Act */
-                    var results = await sut.HandleAsync(commands, token);
+                    var results = await sut.HandleAsync(commands, cancelToken);
 
                     /* Assert */
                     Assert.IsType<BatchException>(results.UnwrapError());
@@ -110,7 +110,7 @@ namespace BusinessApp.App.UnitTest
                 public async Task AllReturnedInBatchExceptionInOrder()
                 {
                     /* Act */
-                    var results = await sut.HandleAsync(commands, token);
+                    var results = await sut.HandleAsync(commands, cancelToken);
 
                     /* Assert */
                     var ex = Assert.IsType<BatchException>(results.UnwrapError());
@@ -139,11 +139,11 @@ namespace BusinessApp.App.UnitTest
                 var ok2 = Result<CommandStub, IFormattable>
                     .Ok(result2);
 
-                A.CallTo(() => inner.HandleAsync(A<CommandStub>._, token))
+                A.CallTo(() => inner.HandleAsync(A<CommandStub>._, cancelToken))
                     .Returns(ok1).Once().Then.Returns(ok2);
 
                 /* Act */
-                var results = await sut.HandleAsync(commands, token);
+                var results = await sut.HandleAsync(commands, cancelToken);
 
                 /* Assert */
                 Assert.Collection(results.Unwrap(),

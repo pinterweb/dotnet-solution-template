@@ -8,6 +8,6 @@
     /// </summary>
     public interface IEventPublisher
     {
-        Task PublishAsync(IEventEmitter emitter, CancellationToken cancellationToken);
+        Task PublishAsync(IEventEmitter emitter, CancellationToken cancelToken);
     }
 }

@@ -24,7 +24,7 @@
         /// </summary>
         /// <param name="emmitter"></param>
         /// <returns></returns>
-        public async Task PublishAsync(IEventEmitter emitter, CancellationToken cancellationToken)
+        public async Task PublishAsync(IEventEmitter emitter, CancellationToken cancelToken)
         {
             var events = emitter.PublishEvents();
 
@@ -36,7 +36,7 @@
                     var handler = (EventHandler)Activator.CreateInstance(
                         typeof(GenericEventHandler<>).MakeGenericType(@event.GetType()));
 
-                    await handler.HandleAsync(@event, cancellationToken, container);
+                    await handler.HandleAsync(@event, cancelToken, container);
                 }
 
                 events = emitter.PublishEvents();
@@ -46,7 +46,7 @@
         private abstract class EventHandler
         {
             public abstract Task HandleAsync(IDomainEvent request,
-                CancellationToken cancellationToken,
+                CancellationToken cancelToken,
                 Container container);
         }
 
@@ -54,14 +54,14 @@
               where TEvent : IDomainEvent
         {
             public async override Task HandleAsync(IDomainEvent @event,
-                CancellationToken cancellationToken,
+                CancellationToken cancelToken,
                 Container container)
             {
                 var handlers =  container.GetAllInstances<IEventHandler<TEvent>>();
 
                 foreach (var handler in handlers)
                 {
-                    await handler.HandleAsync((TEvent)@event, cancellationToken);
+                    await handler.HandleAsync((TEvent)@event, cancelToken);
                 }
             }
         }

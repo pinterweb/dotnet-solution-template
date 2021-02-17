@@ -21,12 +21,12 @@ namespace BusinessApp.App.UnitTest
 
     public class DataAnnotationsValidatorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly DataAnnotationsValidator<DataAnnotatedCommandStub> sut;
 
         public DataAnnotationsValidatorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             sut = new DataAnnotationsValidator<DataAnnotatedCommandStub>();
         }
 
@@ -39,7 +39,7 @@ namespace BusinessApp.App.UnitTest
                 var instance = new DataAnnotatedCommandStub { Foo = new string('a', 10) };
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result.Ok, result);
@@ -57,7 +57,7 @@ namespace BusinessApp.App.UnitTest
                 };
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 var error = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
@@ -81,7 +81,7 @@ namespace BusinessApp.App.UnitTest
                 };
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
@@ -103,7 +103,7 @@ namespace BusinessApp.App.UnitTest
                 };
 
                 /* Act */
-                var result = await sut.ValidateAsync(instance, token);
+                var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
                 var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
@@ -118,7 +118,7 @@ namespace BusinessApp.App.UnitTest
                 var instance = new DataAnnotatedCommandStub { Bar = "a", CompareToBar = "aaaa" };
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, token));
+                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, cancelToken));
 
                 /* Assert */
                 var modelError = Assert.IsType<BusinessAppAppException>(ex);

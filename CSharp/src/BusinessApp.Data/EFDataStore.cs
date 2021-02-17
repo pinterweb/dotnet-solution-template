@@ -29,7 +29,8 @@ namespace BusinessApp.Data
             this.db = db.NotNull().Expect(nameof(db));
         }
 
-        public async Task<IEnumerable<TEntity>> QueryAsync(IQuery query, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TEntity>> QueryAsync(IQuery query,
+            CancellationToken cancelToken)
         {
             var filter = linqBuilder.Build(query);
             var entities = FindInIdentityMap(filter.Predicate.Compile());

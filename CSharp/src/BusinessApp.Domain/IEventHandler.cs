@@ -8,6 +8,6 @@
     /// </summary>
     public interface IEventHandler<TEvent> where TEvent : IDomainEvent
     {
-        Task HandleAsync(TEvent @event, CancellationToken cancellationToken);
+        Task HandleAsync(TEvent @event, CancellationToken cancelToken);
     }
 }

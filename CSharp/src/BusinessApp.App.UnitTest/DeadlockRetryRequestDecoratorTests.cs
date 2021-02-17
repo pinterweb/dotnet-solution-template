@@ -12,13 +12,13 @@ namespace BusinessApp.App.UnitTest
 
     public class DeadlockRetryRequestDecoratorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly DeadlockRetryRequestDecorator<CommandStub, CommandStub> sut;
         private readonly ICommandHandler<CommandStub> inner;
 
         public DeadlockRetryRequestDecoratorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<ICommandHandler<CommandStub>>();
 
             sut = new DeadlockRetryRequestDecorator<CommandStub, CommandStub>(inner);
@@ -55,14 +55,14 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var command = A.Dummy<CommandStub>();
-                A.CallTo(() => inner.HandleAsync(command, token)).Throws<Exception>();
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).Throws<Exception>();
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, cancelToken));
 
                 /* Assert */
                 Assert.NotNull(ex);
-                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).MustHaveHappenedOnceExactly();
             }
 
             [Fact]
@@ -71,14 +71,14 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var command = A.Dummy<CommandStub>();
                 var exception = A.Fake<DbException>();
-                A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception);
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).Throws(exception);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, cancelToken));
 
                 /* Assert */
                 Assert.NotNull(ex);
-                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).MustHaveHappenedOnceExactly();
             }
 
             [Fact]
@@ -88,14 +88,14 @@ namespace BusinessApp.App.UnitTest
                 var command = A.Dummy<CommandStub>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => exception.Message).Returns("foobar deadlock lorem");
-                A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception).NumberOfTimes(4);
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).Throws(exception).NumberOfTimes(4);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, cancelToken));
 
                 /* Assert */
                 Assert.Null(ex);
-                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappened(5, Times.Exactly);
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).MustHaveHappened(5, Times.Exactly);
             }
 
             [Fact]
@@ -105,10 +105,10 @@ namespace BusinessApp.App.UnitTest
                 var command = A.Dummy<CommandStub>();
                 var exception = A.Fake<DbException>();
                 A.CallTo(() => exception.Message).Returns("foobar deadlock lorem");
-                A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception).NumberOfTimes(5);
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).Throws(exception).NumberOfTimes(5);
 
                 /* Act */
-                var ex = await sut.HandleAsync(command, token);
+                var ex = await sut.HandleAsync(command, cancelToken);
 
                 /* Assert */
                 var error = Assert.IsType<CommunicationException>(ex.UnwrapError());
@@ -127,14 +127,14 @@ namespace BusinessApp.App.UnitTest
                 var dbException = A.Fake<DbException>();
                 A.CallTo(() => dbException.Message).Returns("foobar deadlock lorem");
                 var exception = new Exception("foo", new Exception("bar", dbException));
-                A.CallTo(() => inner.HandleAsync(command, token)).Throws(exception).NumberOfTimes(4);
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).Throws(exception).NumberOfTimes(4);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, token));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(command, cancelToken));
 
                 /* Assert */
                 Assert.Null(ex);
-                A.CallTo(() => inner.HandleAsync(command, token)).MustHaveHappened(5, Times.Exactly);
+                A.CallTo(() => inner.HandleAsync(command, cancelToken)).MustHaveHappened(5, Times.Exactly);
             }
         }
     }

@@ -23,9 +23,9 @@ namespace BusinessApp.WebApi
         }
 
         public Task<Result<TResponse, IFormattable>> HandleAsync(TRequest command,
-            CancellationToken cancellationToken)
+            CancellationToken cancelToken)
         {
-            return inner.HandleAsync(command, cancellationToken);
+            return inner.HandleAsync(command, cancelToken);
         }
     }
 }

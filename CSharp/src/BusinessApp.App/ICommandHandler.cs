@@ -13,9 +13,10 @@
     /// </implementers>
     public interface ICommandHandler<TCommand> : IRequestHandler<TCommand, TCommand>
     {
-        async Task<Result<TCommand, IFormattable>> IRequestHandler<TCommand, TCommand>.HandleAsync(TCommand request, CancellationToken cancellationToken)
+        async Task<Result<TCommand, IFormattable>> IRequestHandler<TCommand, TCommand>.HandleAsync(
+            TCommand request, CancellationToken cancelToken)
         {
-            var result = await RunAsync(request, cancellationToken);
+            var result = await RunAsync(request, cancelToken);
 
             return result.Into().MapOrElse(
                 err => Result<TCommand, IFormattable>.Error(err),

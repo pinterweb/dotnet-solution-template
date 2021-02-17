@@ -20,11 +20,10 @@ namespace BusinessApp.App
             this.decoratee = decoratee.NotNull().Expect(nameof(decoratee));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(
-            TRequest command,
-            CancellationToken cancellationToken)
+        public async Task<Result<TResponse, IFormattable>> HandleAsync(TRequest command,
+            CancellationToken cancelToken)
         {
-            return await HandleWithRetry(command, cancellationToken);
+            return await HandleWithRetry(command, cancelToken);
         }
 
         private async Task<Result<TResponse, IFormattable>> HandleWithRetry(

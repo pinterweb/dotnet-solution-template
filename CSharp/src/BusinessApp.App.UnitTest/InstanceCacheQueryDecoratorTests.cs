@@ -11,13 +11,13 @@ namespace BusinessApp.App.UnitTest
 
     public class InstanceCacheQueryDecoratorTests
     {
-        private readonly CancellationToken token;
+        private readonly CancellationToken cancelToken;
         private readonly InstanceCacheQueryDecorator<QueryStub, ResponseStub> sut;
         private readonly IQueryHandler<QueryStub, ResponseStub> inner;
 
         public InstanceCacheQueryDecoratorTests()
         {
-            token = A.Dummy<CancellationToken>();
+            cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
 
             sut = new InstanceCacheQueryDecorator<QueryStub, ResponseStub>(inner);
@@ -54,11 +54,11 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = new QueryStub();
-                await sut.HandleAsync(query, token);
+                await sut.HandleAsync(query, cancelToken);
                 Fake.ClearRecordedCalls(inner);
 
                 /* Act */
-                await sut.HandleAsync(query, token);
+                await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
@@ -71,13 +71,13 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query = new QueryStub();
                 var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
-                A.CallTo(() => inner.HandleAsync(query, token))
+                A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(firstResponse)
                     .Once();
-                await sut.HandleAsync(query, token);
+                await sut.HandleAsync(query, cancelToken);
 
                 /* Act */
-                var secondResponse = await sut.HandleAsync(query, token);
+                var secondResponse = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
                 Assert.Equal(firstResponse, secondResponse);
@@ -90,13 +90,13 @@ namespace BusinessApp.App.UnitTest
                 var query1 = new QueryStub { Id = 1 };
                 var query2 = new QueryStub { Id = 1 };
                 var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
-                A.CallTo(() => inner.HandleAsync(query1, token))
+                A.CallTo(() => inner.HandleAsync(query1, cancelToken))
                     .Returns(firstResponse)
                     .Once();
-                await sut.HandleAsync(query1, token);
+                await sut.HandleAsync(query1, cancelToken);
 
                 /* Act */
-                var secondResponse = await sut.HandleAsync(query2, token);
+                var secondResponse = await sut.HandleAsync(query2, cancelToken);
 
                 /* Assert */
                 Assert.Equal(firstResponse, secondResponse);
@@ -110,14 +110,14 @@ namespace BusinessApp.App.UnitTest
                 var query2 = new QueryStub { Id = 2 };
                 var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
                 var secondResponse = Result<ResponseStub, IFormattable>.Ok(new ResponseStub());
-                A.CallTo(() => inner.HandleAsync(query1, token))
+                A.CallTo(() => inner.HandleAsync(query1, cancelToken))
                     .Returns(firstResponse);
-                A.CallTo(() => inner.HandleAsync(query2, token))
+                A.CallTo(() => inner.HandleAsync(query2, cancelToken))
                     .Returns(secondResponse);
-                await sut.HandleAsync(query1, token);
+                await sut.HandleAsync(query1, cancelToken);
 
                 /* Act */
-                var secondResult = await sut.HandleAsync(query2, token);
+                var secondResult = await sut.HandleAsync(query2, cancelToken);
 
                 /* Assert */
                 Assert.Equal(secondResponse, secondResult);

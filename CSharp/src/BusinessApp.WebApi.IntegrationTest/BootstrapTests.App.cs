@@ -355,7 +355,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
             private class FirstValidatorStub : IValidator<CommandStub>
             {
-                public Task<Result> ValidateAsync(CommandStub instance, CancellationToken cancellationToken)
+                public Task<Result> ValidateAsync(CommandStub instance, CancellationToken cancelToken)
                 {
                     return Task.FromResult(Result.Ok);
                 }
@@ -363,7 +363,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
             private class SecondValidatorStub : IValidator<CommandStub>
             {
-                public Task<Result> ValidateAsync(CommandStub instance, CancellationToken cancellationToken)
+                public Task<Result> ValidateAsync(CommandStub instance, CancellationToken cancelToken)
                 {
                     return Task.FromResult(Result.Ok);
                 }
@@ -445,7 +445,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         private sealed class CommandHandlerStub : ICommandHandler<CommandStub>
         {
-            public Task<Result> RunAsync(CommandStub request, CancellationToken cancellationToken)
+            public Task<Result> RunAsync(CommandStub request, CancellationToken cancelToken)
             {
                 throw new NotImplementedException();
             }
@@ -453,7 +453,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         private sealed class QueryHandlerStub : IQueryHandler<QueryStub, ResponseStub>
         {
-            public Task<Result<ResponseStub, IFormattable>> HandleAsync(QueryStub request, CancellationToken cancellationToken)
+            public Task<Result<ResponseStub, IFormattable>> HandleAsync(QueryStub request, CancellationToken cancelToken)
             {
                 throw new NotImplementedException();
             }
