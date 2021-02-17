@@ -128,7 +128,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchRequestDelegator<CommandStub, CommandStub>),
+                        typeof(BatchRequestAdapter<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
@@ -171,7 +171,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(MacroBatchRequestDelegator<MacroStub, CommandStub, IEnumerable<CommandStub>>),
+                        typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<CommandStub>>),
                         implType),
                     implType => Assert.Equal(
                         typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
@@ -192,7 +192,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(MacroBatchProxyRequestHandler<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchRequestDelegator<CommandStub, CommandStub>),
+                        typeof(BatchRequestAdapter<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
@@ -287,7 +287,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(DeadlockRetryRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(SingleQueryDelegator<EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>, UnregisteredQuery, UnregisteredQuery>),
+                        typeof(SingleQueryRequestAdapter<EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>, UnregisteredQuery, UnregisteredQuery>),
                         implType),
                     implType => Assert.Equal(
                         typeof(EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>),

@@ -207,7 +207,7 @@ namespace BusinessApp.WebApi
                         $"No query handler is setup for '{requestType.Name}'. Please set one up.");
                 }
 
-                return typeof(SingleQueryDelegator<,,>).MakeGenericType(
+                return typeof(SingleQueryRequestAdapter<,,>).MakeGenericType(
                     fallbackRegistration.Registration.ImplementationType,
                     requestType,
                     responseType);
@@ -228,7 +228,7 @@ namespace BusinessApp.WebApi
                         reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
                     .ServiceType;
 
-                return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchRequestDelegator<,>)
+                return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchRequestAdapter<,>)
                     ? typeof(BatchProxyRequestHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
                     : concreteType;
             }
@@ -236,16 +236,16 @@ namespace BusinessApp.WebApi
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
                 typeof(MacroBatchProxyRequestHandler<,>),
-                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestDelegator<,,>));
+                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestAdapter<,,>));
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                typeof(BatchRequestDelegator<,>),
+                typeof(BatchRequestAdapter<,>),
                 ctx => !ctx.Handled);
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                typeof(MacroBatchRequestDelegator<,,>),
+                typeof(MacroBatchRequestAdapter<,,>),
                 ctx => !ctx.Handled);
 
             container.RegisterConditional(typeof(IRequestHandler<,>),
@@ -287,9 +287,9 @@ namespace BusinessApp.WebApi
 
                 return !implType.IsConstructedGenericType ||
                 (
-                    implType.GetGenericTypeDefinition() == typeof(BatchRequestDelegator<,>)
+                    implType.GetGenericTypeDefinition() == typeof(BatchRequestAdapter<,>)
                     || implType.GetGenericTypeDefinition() == typeof(MacroBatchProxyRequestHandler<,>)
-                    || implType.GetGenericTypeDefinition() == typeof(SingleQueryDelegator<,,>)
+                    || implType.GetGenericTypeDefinition() == typeof(SingleQueryRequestAdapter<,,>)
                 );
             }
 

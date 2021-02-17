@@ -7,12 +7,12 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
-    public class BatchRequestDelegator<TRequest, TResponse>
+    public class BatchRequestAdapter<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
-        public BatchRequestDelegator(IRequestHandler<TRequest, TResponse> inner)
+        public BatchRequestAdapter(IRequestHandler<TRequest, TResponse> inner)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
         }

@@ -8,7 +8,7 @@ namespace BusinessApp.WebApi
 
     /// <summary>
     /// Wraps the actual request handler implementation that is used
-    /// by the <see cref="BatchRequestDelegator{TRequest, TResponse}" /> so the decorator
+    /// by the <see cref="BatchRequestAdapter{TRequest, TResponse}" /> so the decorator
     /// pipeline is not injected.
     /// </summary>
     internal class BatchProxyRequestHandler<TInner, TRequest, TResponse> :

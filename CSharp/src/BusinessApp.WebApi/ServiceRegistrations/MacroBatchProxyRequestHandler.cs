@@ -4,15 +4,15 @@ namespace BusinessApp.WebApi
     using System.Collections.Generic;
 
     /// <summary>
-    /// Proxies the request to the <see cref="BatchRequestDelegator{TRequest, TResponse}"/>
+    /// Proxies the request to the <see cref="BatchRequestAdapter{TRequest, TResponse}"/>
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
     /// <remarks>Only purpose is signal in the pipeline that a macro caused this</remarks>
     internal sealed class MacroBatchProxyRequestHandler<TRequest, TResponse> :
-         BatchProxyRequestHandler<BatchRequestDelegator<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
+         BatchProxyRequestHandler<BatchRequestAdapter<TRequest, TResponse>, IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
-        public MacroBatchProxyRequestHandler(BatchRequestDelegator<TRequest, TResponse> inner)
+        public MacroBatchProxyRequestHandler(BatchRequestAdapter<TRequest, TResponse> inner)
             : base(inner)
         { }
     }

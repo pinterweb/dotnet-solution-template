@@ -15,14 +15,14 @@ namespace BusinessApp.App
     /// This help reduce the number of handlers/decorators needed when all we care about
     /// is returning one resource
     /// </remarks>
-    public class SingleQueryDelegator<TConsumer, TRequest, TResponse> :
+    public class SingleQueryRequestAdapter<TConsumer, TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
         where TConsumer : IRequestHandler<TRequest, IEnumerable<TResponse>>
         where TRequest : IQuery
     {
         private readonly TConsumer handler;
 
-        public SingleQueryDelegator(TConsumer handler)
+        public SingleQueryRequestAdapter(TConsumer handler)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
