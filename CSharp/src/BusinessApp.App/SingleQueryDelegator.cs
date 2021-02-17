@@ -15,12 +15,14 @@ namespace BusinessApp.App
     /// This help reduce the number of handlers/decorators needed when all we care about
     /// is returning one resource
     /// </remarks>
-    public class SingleQueryDelegator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+    public class SingleQueryDelegator<TConsumer, TRequest, TResponse> :
+        IRequestHandler<TRequest, TResponse>
+        where TConsumer : IRequestHandler<TRequest, IEnumerable<TResponse>>
+        where TRequest : IQuery
     {
-        private readonly IRequestHandler<TRequest, IEnumerable<TResponse>> handler;
+        private readonly TConsumer handler;
 
-        public SingleQueryDelegator(
-            IRequestHandler<TRequest, IEnumerable<TResponse>> handler)
+        public SingleQueryDelegator(TConsumer handler)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
@@ -30,6 +32,7 @@ namespace BusinessApp.App
         {
             var response = await handler.HandleAsync(request, cancellationToken);
 
+            // TODO return error if more than one
             return Result<TResponse, IFormattable>.Ok(response.Unwrap().SingleOrDefault());
         }
     }

@@ -104,7 +104,8 @@
 #endif
             app.SetupEndpoints(container);
 
-            Bootstrap.WebApi(app, env, container, options);
+            Bootstrapper.RegisterServices(container, options, env);
+
             container.Verify();
 
             if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))

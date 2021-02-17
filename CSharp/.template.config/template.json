@@ -152,7 +152,8 @@
                         "src/BusinessApp.Data.IntegrationTest/EventRepositoryTests.cs",
                         "src/BusinessApp.Test.Common/BusinessAppTestDbContext.cs",
                         "src/BusinessApp.Test.Common/DatabaseFixture.cs",
-                        "src/BusinessApp.Test.Common/migrations*.cmd"
+                        "src/BusinessApp.Test.Common/migrations*.cmd",
+                        "src/**/EFCore*.cs"
                     ]
                 },
                 {
@@ -185,17 +186,6 @@
                         "src/docker_run.cmd",
                         "src/.dockerignore",
                         "src/BusinessApp.WebApi/.env.docker"
-                    ]
-                },
-                {
-                    "condition": "(!batch)",
-                    "exclude": [
-                        "src/**/Batch**.cs",
-                        "src/**/**Batch**.cs",
-                        "src/**/**Batch.cs",
-                        "src/**/SimpleInjectorWebApiAppScope.cs",
-                        "src/**/IAppScope.cs",
-                        "src/**/IMacro.cs"
                     ]
                 }
             ]
