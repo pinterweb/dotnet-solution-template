@@ -6,7 +6,6 @@
     /// <summary>
     /// Repository to keep track of the events emitted
     /// </summary>
-    // TODO move to domain layer
     public class EventRepository : IEventRepository
     {
         private readonly IUnitOfWork db;
@@ -21,20 +20,20 @@
             correlationId = new EventId();
         }
 
-        public void Add(IDomainEvent @event)
+        public void Add<T>(T @event) where T : IDomainEvent
         {
             @event.NotNull().Expect(nameof(@event));
 
             var id = new EventId();
             @event.Id = id;
 
-            db.Add(new EventMetadata(id,
+            db.AddEvent(new EventMetadata(id,
                 correlationId,
                 @event,
                 user.Identity.Name
             ));
 
-            db.Add(@event);
+            db.AddEvent(@event);
         }
     }
 }

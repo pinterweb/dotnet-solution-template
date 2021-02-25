@@ -103,7 +103,7 @@ namespace BusinessApp.Domain.UnitTest
             {
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
-                sut.Add(@event);
+                sut.AddEvent(@event);
                 A.CallTo(() => publisher.PublishAsync(A<IEventEmitter>._, cancelToken))
                     .Invokes(ctx =>
                     {

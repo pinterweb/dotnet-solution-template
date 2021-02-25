@@ -2,7 +2,6 @@ namespace BusinessApp.Data
 {
     using System;
     using System.Data;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.App;
@@ -24,22 +23,22 @@ namespace BusinessApp.Data
         public event EventHandler Committing = delegate {};
         public event EventHandler Committed = delegate {};
 
-        public void Track(AggregateRoot aggregate)
+        public void Track<T>(T aggregate) where T : AggregateRoot
         {
             inner.Track(aggregate);
         }
 
-        public void Add(AggregateRoot aggregate)
+        public void Add<T>(T aggregate) where T : AggregateRoot
         {
             inner.Add(aggregate);
         }
 
-        public void Add(IDomainEvent @event)
+        public void AddEvent<T>(T @event) where T : IDomainEvent
         {
-            inner.Add(@event);
+            inner.AddEvent(@event);
         }
 
-        public void Remove(AggregateRoot aggregate)
+        public void Remove<T>(T aggregate) where T : AggregateRoot
         {
             inner.Remove(aggregate);
         }
