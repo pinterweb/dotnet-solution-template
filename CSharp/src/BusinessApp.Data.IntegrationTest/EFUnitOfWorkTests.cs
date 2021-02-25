@@ -121,10 +121,10 @@ namespace BusinessApp.Data.IntegrationTest
                 var e = A.Dummy<IDomainEvent>();
 
                 /* Act */
-                sut.Add(e);
+                sut.AddEvent(e);
 
                 /* Assert */
-                A.CallTo(() => inner.Add(e)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.AddEvent(e)).MustHaveHappenedOnceExactly();
             }
         }
 

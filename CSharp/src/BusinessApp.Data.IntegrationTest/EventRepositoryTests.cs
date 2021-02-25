@@ -4,7 +4,6 @@ namespace BusinessApp.Data.IntegrationTest
     using System;
     using System.Collections.Generic;
     using BusinessApp.Domain;
-    using BusinessApp.App;
     using FakeItEasy;
     using System.Security.Principal;
     using System.Linq;
@@ -66,7 +65,8 @@ namespace BusinessApp.Data.IntegrationTest
             public void WithNullEventArg_ExceptionThrown()
             {
                 /* Arrange */
-                Action add = () => sut.Add(null);
+                EventMetadata @event = null;
+                Action add = () => sut.Add(@event);
 
                 /* Act */
                 var exception = Record.Exception(add);
@@ -81,7 +81,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Arrange */
                 EventMetadata @event = null;
                 var eventInput = A.Fake<IDomainEvent>();
-                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
                     .Invokes(ctx => @event = ctx.GetArgument<EventMetadata>(0));
 
                 /* Act */
@@ -97,7 +97,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Arrange */
                 var @events = new List<EventMetadata>();
                 sut = new EventRepository(uow, user);
-                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
                     .Invokes(ctx => events.Add(ctx.GetArgument<EventMetadata>(0)));
 
                 /* Act */
@@ -117,7 +117,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
                 EventMetadata metadata = null;
-                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
                 A.CallTo(() => @event.ToString("G", null)).Returns("lorem");
 
@@ -135,7 +135,7 @@ namespace BusinessApp.Data.IntegrationTest
                 var now = DateTime.Now;
                 var @event = A.Fake<IDomainEvent>();
                 EventMetadata metadata = null;
-                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
                 A.CallTo(() => @event.OccurredUtc).Returns(now);
 
@@ -152,7 +152,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Arrange */
                 A.CallTo(() => user.Identity.Name).Returns("foobar");
                 EventMetadata metadata = null;
-                A.CallTo(() => uow.Add(A<EventMetadata>._))
+                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
 
                 /* Act */
@@ -172,7 +172,7 @@ namespace BusinessApp.Data.IntegrationTest
                 sut.Add(@event);
 
                 /* Assert */
-                A.CallTo(() => uow.Add(@event)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => uow.AddEvent(@event)).MustHaveHappenedOnceExactly();
             }
         }
     }

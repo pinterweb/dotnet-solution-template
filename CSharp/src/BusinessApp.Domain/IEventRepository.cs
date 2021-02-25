@@ -5,6 +5,6 @@
     /// </summary>
     public interface IEventRepository
     {
-        void Add(IDomainEvent @event);
+        void Add<T>(T @event) where T : IDomainEvent;
     }
 }

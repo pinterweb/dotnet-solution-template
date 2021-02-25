@@ -22,17 +22,17 @@
         public event EventHandler Committing = delegate { };
         public event EventHandler Committed = delegate { };
 
-        public virtual void Add(AggregateRoot aggregate)
+        public virtual void Add<T>(T aggregate) where T : AggregateRoot
         {
             emitters.Add(aggregate);
         }
 
-        public void Add(IDomainEvent @event)
+        public void AddEvent<T>(T @event) where T : IDomainEvent
         {
             emitters.Add(new EventEmitter(@event));
         }
 
-        public virtual void Track(AggregateRoot aggregate)
+        public virtual void Track<T>(T aggregate) where T : AggregateRoot
         {
             emitters.Add(aggregate);
         }
@@ -54,7 +54,7 @@
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
-        public virtual void Remove(AggregateRoot aggregate)
+        public virtual void Remove<T>(T aggregate) where T : AggregateRoot
         {
             emitters.Remove(aggregate);
         }
@@ -65,11 +65,11 @@
             return Task.CompletedTask;
         }
 
-        public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
+        public T Find<T>(Func<T, bool> filter) where T : AggregateRoot
         {
             return emitters
-                .Where(e => e.GetType() == typeof(TRoot))
-                .Cast<TRoot>()
+                .Where(e => e.GetType() == typeof(T))
+                .Cast<T>()
                 .SingleOrDefault(filter);
         }
 
