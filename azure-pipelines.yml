@@ -37,4 +37,3 @@ steps:
   inputs:
     command: test
     projects: '$(testProjects)'
-    arguments: '--configuration $(buildConfiguration)'
