@@ -2,9 +2,8 @@ namespace BusinessApp.Test
 {
     using System;
     using BusinessApp.Domain;
-    using BusinessApp.WebApi;
 
-    [System.ComponentModel.TypeConverter(typeof(EntityIdTypeConverter<EntityId, int>))]
+    [System.ComponentModel.TypeConverter(typeof(EntityIdTypeConverter<EntityIdStub, int>))]
     public class EntityIdStub : IEntityId
     {
         public EntityIdStub(int id)
