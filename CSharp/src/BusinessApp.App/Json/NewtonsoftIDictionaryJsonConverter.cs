@@ -10,7 +10,7 @@ namespace BusinessApp.WebApi.Json
     /// <summary>
     /// Converts to and from <see cref="IDictionary{string, string}" />
     /// </summary>
-    public class IDictionaryJsonConverter : JsonConverter
+    public class NewtonsoftIDictionaryJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType) =>
             typeof(IDictionary<string, string>).IsAssignableFrom(objectType);

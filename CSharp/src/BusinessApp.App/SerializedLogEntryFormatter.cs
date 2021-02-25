@@ -3,7 +3,6 @@ namespace BusinessApp.App
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading;
@@ -46,31 +45,27 @@ namespace BusinessApp.App
                 e.StackTrace,
             });
 
-            using (var stream = new MemoryStream())
+            try
             {
-                try
-                {
-                    serializer.Serialize(stream,
-                        new
-                        {
-                            Severity =  entry.Severity.ToString(),
-                            entry.Message,
-                            entry.Data,
-                            Exceptions = exceptions.ToList(),
-                            entry.Logged,
-                            Thread.CurrentThread.ManagedThreadId
-                        });
+                var data = serializer.Serialize(new
+                    {
+                        Severity =  entry.Severity.ToString(),
+                        entry.Message,
+                        entry.Data,
+                        Exceptions = exceptions.ToList(),
+                        entry.Logged,
+                        Thread.CurrentThread.ManagedThreadId
+                    });
 
-                    return string.Format("{0},{1}", Encoding.UTF8.GetString(stream.ToArray()),
-                        Environment.NewLine);
-                }
-                catch (Exception e)
-                {
-                    return string.Format("Error serializing: {0}{1}{2}",
-                        e.Message,
-                        Environment.NewLine,
-                        entry.ToString());
-                }
+                return string.Format("{0},{1}", Encoding.UTF8.GetString(data),
+                    Environment.NewLine);
+            }
+            catch (Exception e)
+            {
+                return string.Format("Error serializing: {0}{1}{2}",
+                    e.Message,
+                    Environment.NewLine,
+                    entry.ToString());
             }
         }
     }

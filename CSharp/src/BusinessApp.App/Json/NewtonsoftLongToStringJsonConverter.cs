@@ -7,7 +7,7 @@ namespace BusinessApp.App.Json
     /// <summary>
     /// Converts any long type to string since Javascript cannot handle longs
     /// </summary>
-    public class LongToStringJsonConverter : JsonConverter
+    public class NewtonsoftLongToStringJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType) => objectType == typeof(long);
 
@@ -23,6 +23,5 @@ namespace BusinessApp.App.Json
             var finalValue = JToken.FromObject(value?.ToString());
             finalValue.WriteTo(writer);
         }
-
     }
 }

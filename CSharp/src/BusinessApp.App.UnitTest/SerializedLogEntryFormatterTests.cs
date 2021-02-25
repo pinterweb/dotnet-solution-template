@@ -7,7 +7,6 @@ namespace BusinessApp.App.UnitTest
     using BusinessApp.Domain;
     using BusinessApp.Test.Common;
     using Xunit;
-    using System.IO;
     using System.Linq;
 
     public class SerializedLogEntryFormatterTests
@@ -48,8 +47,9 @@ namespace BusinessApp.App.UnitTest
             {
                 serializedObj = null;
 
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<object>._))
-                    .Invokes(ctx => serializedObj = ctx.GetArgument<object>(1));
+                A.CallTo(serializer)
+                    .Where(ctx => ctx.Method.Name == "Serialize")
+                    .Invokes(ctx => serializedObj = ctx.GetArgument<object>(0));
             }
 
             [Fact]
@@ -190,7 +190,8 @@ namespace BusinessApp.App.UnitTest
                 sut.Format(entry);
                 sut.Format(entry);
 
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<object>._))
+                A.CallTo(serializer)
+                    .Where(ctx => ctx.Method.Name == "Serialize")
                     .MustHaveHappenedOnceExactly();
             }
 
@@ -198,7 +199,8 @@ namespace BusinessApp.App.UnitTest
             public void SerializationFails_LogEntryToStringLogged()
             {
                 var entry = new LogEntry(LogSeverity.Info, "foo");
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<object>._))
+                A.CallTo(serializer)
+                    .Where(ctx => ctx.Method.Name == "Serialize")
                     .Throws<Exception>();
 
                 var formatted = sut.Format(entry);
@@ -211,7 +213,8 @@ namespace BusinessApp.App.UnitTest
             {
                 var ex = new Exception("lorem ipsum dolar");
                 var entry = new LogEntry(LogSeverity.Info, "foo");
-                A.CallTo(() => serializer.Serialize(A<Stream>._, A<object>._))
+                A.CallTo(serializer)
+                    .Where(ctx => ctx.Method.Name == "Serialize")
                     .Throws(ex);
 
                 var formatted = sut.Format(entry);

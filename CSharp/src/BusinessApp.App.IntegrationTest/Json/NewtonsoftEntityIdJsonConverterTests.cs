@@ -9,17 +9,33 @@ namespace BusinessApp.App.IntegrationTest.Json
     using System.IO;
     using System.ComponentModel;
     using System.Text;
+    using BusinessApp.Test;
 
-    public class EntityIdJsonConverterTests
+    public class NewtonsoftEntityIdJsonConverterTests
     {
-        private readonly EntityIdJsonConverter sut;
+        private readonly NewtonsoftEntityIdJsonConverter sut;
 
-        public EntityIdJsonConverterTests()
+        public NewtonsoftEntityIdJsonConverterTests()
         {
-            sut = new EntityIdJsonConverter();
+            sut = new NewtonsoftEntityIdJsonConverter();
         }
 
-        public class ReadJson : EntityIdJsonConverterTests
+        public class CanConvert : NewtonsoftEntityIdJsonConverterTests
+        {
+            [Theory]
+            [InlineData(typeof(EntityIdStub), true)]
+            [InlineData(typeof(string), false)]
+            public void LongType(Type objectType, bool expectCanConvert)
+            {
+                /* Act */
+                var canConvert = sut.CanConvert(objectType);
+
+                /* Assert */
+                Assert.Equal(expectCanConvert, canConvert);
+            }
+        }
+
+        public class ReadJson : NewtonsoftEntityIdJsonConverterTests
         {
             [Fact]
             public void NullToken_NullReturned()
@@ -116,7 +132,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             }
         }
 
-        public class WriteJson : EntityIdJsonConverterTests
+        public class WriteJson : NewtonsoftEntityIdJsonConverterTests
         {
             [Fact]
             public void IsAssignableFromIEntity_WritesJson()

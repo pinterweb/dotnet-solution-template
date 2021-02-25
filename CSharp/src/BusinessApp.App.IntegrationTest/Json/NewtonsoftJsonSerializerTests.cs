@@ -37,7 +37,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                 ms.Position = 0;
 
                 /* Act */
-                var result = sut.Deserialize<TestModel>(ms);
+                var result = sut.Deserialize<TestModel>(ms.GetBuffer());
 
                 /* Assert */
                 Assert.Equal(1, result.Foo);
@@ -54,7 +54,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                 ms.Position = 0;
 
                 /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                 /* Assert */
                 var error = Assert.IsType<ModelValidationException>(ex);
@@ -71,7 +71,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                 ms.Position = 0;
 
                 /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
                 var error = Assert.IsType<ModelValidationException>(ex);
 
                 /* Assert */
@@ -92,7 +92,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                 ms.Position = 0;
 
                 /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
                 var error = Assert.IsType<ModelValidationException>(ex);
 
                 /* Assert TODO can we remove the "Path portion? "*/
@@ -125,7 +125,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                     ms.Position = 0;
 
                     /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                     /* Assert */
                     Assert.Equal(LogSeverity.Error, entry.Severity);
@@ -142,7 +142,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                     ms.Position = 0;
 
                     /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                     /* Assert */
                     Assert.Equal("Deserialization failed", entry.Message);
@@ -159,7 +159,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                     ms.Position = 0;
 
                     /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                     /* Assert */
                     Assert.IsType<JsonReaderException>(entry.Exception);
@@ -176,7 +176,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                     ms.Position = 0;
 
                     /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                     /* Assert */
                     var model = Assert.IsType<TestModel>(entry.Data);
@@ -195,7 +195,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                 ms.Position = 0;
 
                 /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms));
+                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                 /* Assert TODO can we remove the "Path portion? "*/
             }
@@ -208,11 +208,10 @@ namespace BusinessApp.App.IntegrationTest.Json
             {
                 /* Arrange */
                 var model = new TestModel { Foo = 1, Bar = 2 };
-                using var ms = new MemoryStream();
 
                 /* Act */
-                sut.Serialize(ms, model);
-                ms.Position = 0;
+                var buffer = sut.Serialize(model);
+                using var ms = new MemoryStream(buffer);
                 using var sr = new StreamReader(ms);
                 var payload = sr.ReadToEnd();
 

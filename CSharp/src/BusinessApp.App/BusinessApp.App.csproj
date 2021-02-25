@@ -9,8 +9,11 @@
   </ItemGroup>
 
   <ItemGroup>
-<!--#if (json)-->
+<!--#if (json=="newtonsoft")-->
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+<!--#endif-->
+<!--#if (json=="systemjson")-->
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
 <!--#endif-->
 <!--#if (dataannotations)-->
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />

@@ -51,7 +51,6 @@ namespace BusinessApp.WebApi
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
-            container.RegisterSingleton<IResponseWriter, HttpResponseWriter>();
 
             container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
 
@@ -64,6 +63,9 @@ namespace BusinessApp.WebApi
                 typeof(IHttpRequestHandler<,>),
                 typeof(HttpRequestHandler<,>),
                 ctx => !ctx.Handled);
+
+            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
+                typeof(HttpRequestLoggingDecorator<,>));
         }
 
         private void RegisterValidators(Container container)

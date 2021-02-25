@@ -27,7 +27,7 @@ namespace BusinessApp.WebApi
         public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
-            var query = await context.DeserializeIntoAsync<TRequest>(serializer, cancelToken);
+            var query = await context.Request.DeserializeAsync<TRequest>(serializer, cancelToken);
 
             if (query == null)
             {
