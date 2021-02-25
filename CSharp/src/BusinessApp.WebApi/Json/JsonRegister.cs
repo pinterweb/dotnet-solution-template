@@ -1,11 +1,8 @@
 namespace BusinessApp.WebApi.Json
 {
-    using BusinessApp.App;
-    using BusinessApp.App.Json;
     using BusinessApp.WebApi.ProblemDetails;
     using Microsoft.AspNetCore.Http;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
 
     public class JsonRegister : IBootstrapRegister
     {
@@ -30,29 +27,7 @@ namespace BusinessApp.WebApi.Json
             container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
                 typeof(JsonHttpDecorator<,>));
 
-            container.RegisterSingleton<ISerializer, NewtonsoftJsonSerializer>();
-
             ProblemDetailOptionBootstrap.KnownProblems.Add(JsonProblemDetailOption);
-
-            container.RegisterInstance(
-                new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-//#if DEBUG
-                    Formatting = Formatting.Indented,
-//#endif
-
-                    Converters = new JsonConverter[]
-                    {
-                        new EntityIdJsonConverter(),
-                        new LongToStringJsonConverter(),
-                        new IDictionaryJsonConverter(),
-                        new Newtonsoft.Json.Converters.StringEnumConverter(),
-                    }
-                }
-            );
 
             inner.Register(context);
         }

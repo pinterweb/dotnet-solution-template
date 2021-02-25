@@ -1,10 +1,8 @@
 ﻿namespace BusinessApp.App
 {
-    using System.IO;
-
     public interface ISerializer
     {
-        T Deserialize<T>(Stream serializationStream);
-        void Serialize(Stream serializationStream, object graph);
+        T Deserialize<T>(byte[] data);
+        byte[] Serialize<T>(T graph);
     }
 }

@@ -3,21 +3,21 @@ namespace BusinessApp.WebApi
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Web;
     using BusinessApp.App;
     using BusinessApp.Data;
+    using BusinessApp.Domain;
     using Microsoft.AspNetCore.Http;
 
-    public static class GenericSerializationHelpers<T>
+    public static class HttpRequestSerializationHelpers<T>
     {
         private static readonly IDictionary<string, Type> propertyCache;
         private static readonly IDictionary<string, (Type, Action<T, object>)> setterCache;
 
-        static GenericSerializationHelpers()
+        static HttpRequestSerializationHelpers()
         {
             propertyCache = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
             setterCache = new Dictionary<string, (Type, Action<T, object>)>(StringComparer.OrdinalIgnoreCase);
@@ -26,10 +26,10 @@ namespace BusinessApp.WebApi
             GetTopLevelProperties(typeof(T));
         }
 
-        public static Stream SerializeRouteAndQueryValues(HttpContext context, ISerializer serializer)
+        public static T SerializeRouteAndQueryValues(HttpRequest request, ISerializer serializer)
         {
-            var queryArgs = new Dictionary<string, object>(context.Request.RouteValues);
-            var collection = HttpUtility.ParseQueryString(context.Request.QueryString.Value);
+            var queryArgs = new Dictionary<string, object>(request.RouteValues);
+            var collection = HttpUtility.ParseQueryString(request.QueryString.Value);
 
             foreach (string r in collection)
             {
@@ -39,17 +39,14 @@ namespace BusinessApp.WebApi
                 }
             }
 
-            var stream = new MemoryStream();
+            var dictionaryOfValues = CreateDictionary("", queryArgs
+                .Where(kvp => !string.IsNullOrWhiteSpace(kvp.Key)
+                    && propertyCache.ContainsKey(kvp.Key))
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
 
-            serializer.Serialize(
-                stream,
-                CreateDictionary("", queryArgs
-                .Where(kvp => !string.IsNullOrWhiteSpace(kvp.Key) && propertyCache.ContainsKey(kvp.Key))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value)));
+            var data = serializer.Serialize(dictionaryOfValues);
 
-            stream.Position = 0;
-
-            return stream;
+            return serializer.Deserialize<T>(data);
         }
 
         public static void SetProperties(T target, IDictionary<string, object> properties)
@@ -75,7 +72,8 @@ namespace BusinessApp.WebApi
         {
             foreach (var property in type.GetProperties())
             {
-                var appClass = property.PropertyType.IsClass
+                var appClass = !IsIEntityId(property.PropertyType)
+                    && property.PropertyType.IsClass
                     && property.PropertyType.Namespace.StartsWith("BusinessApp");
 
                 // prevent infinite recursion
@@ -153,6 +151,11 @@ namespace BusinessApp.WebApi
             var lambda = Expression.Lambda<Action<T, object>>(caller, instance, valParam);
 
             return lambda.Compile();
+        }
+
+        private static bool IsIEntityId(Type type)
+        {
+            return typeof(IEntityId).IsAssignableFrom(type);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace BusinessApp.WebApi.UnitTest.Json
     public class JsonHttpDecoratorTests
     {
         private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
-        private readonly IResponseWriter modelWriter;
         private readonly HttpContext context;
         private readonly CancellationToken cancelToken;
         private readonly JsonHttpDecorator<RequestStub, ResponseStub> sut;
@@ -21,32 +20,25 @@ namespace BusinessApp.WebApi.UnitTest.Json
         public JsonHttpDecoratorTests()
         {
             inner = A.Fake<IHttpRequestHandler<RequestStub, ResponseStub>>();
-            modelWriter = A.Fake<IResponseWriter>();
             context = A.Fake<HttpContext>();
             cancelToken = A.Dummy<CancellationToken>();
 
-            sut = new JsonHttpDecorator<RequestStub, ResponseStub>(inner, modelWriter);
+            sut = new JsonHttpDecorator<RequestStub, ResponseStub>(inner);
         }
 
         public class Constructor : JsonHttpDecoratorTests
         {
             public static IEnumerable<object[]> InvalidInputs => new[]
             {
-                new object[] { null, A.Dummy<IResponseWriter>() },
-                new object[]
-                {
-                    A.Dummy<IHttpRequestHandler<RequestStub, ResponseStub>>(),
-                    null
-                }
+                new object[] { null },
             };
 
             [Theory, MemberData(nameof(InvalidInputs))]
             public void InvalidInputs_ExceptionThrown(
-                IHttpRequestHandler<RequestStub, ResponseStub> i,
-                IResponseWriter w)
+                IHttpRequestHandler<RequestStub, ResponseStub> i)
             {
                 /* Arrange */
-                void shouldThrow() => new JsonHttpDecorator<RequestStub, ResponseStub>(i, w);
+                void shouldThrow() => new JsonHttpDecorator<RequestStub, ResponseStub>(i);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -100,25 +92,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             }
 
             [Fact]
-            public async Task BeforeWriteResponse_ContentTypeSet()
-            {
-                /* Arrange */
-                var innerReturn = Result.Ok.Into<ResponseStub>();
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerReturn);
-
-                /* Act */
-                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
-
-                /* Assert */
-                A.CallToSet(() => context.Response.ContentType).To("application/json")
-                    .MustHaveHappened()
-                    .Then(A.CallTo(() => modelWriter.WriteResponseAsync(context, innerReturn))
-                        .MustHaveHappened()
-                    );
-            }
-
-            [Fact]
-            public async Task WhenInnerSuccessful_ApplicationJsonContentReturned()
+            public async Task WhenInnerResultSuccessful_ApplicationJsonContentReturned()
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
@@ -133,7 +107,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             }
 
             [Fact]
-            public async Task WhenInnerFailed_ApplicationProblemJsonContentReturned()
+            public async Task WhenInnerResultError_ApplicationProblemJsonContentReturned()
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
@@ -148,7 +122,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             }
 
             [Fact]
-            public async Task WhenInnerThrows_ApplicationProblemJsonContentReturned()
+            public async Task WhenInnerHandlerThrows_ApplicationProblemJsonContentReturned()
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
@@ -161,26 +135,6 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 A.CallToSet(() => context.Response.ContentType).To("application/problem+json")
                     .MustHaveHappenedOnceExactly();
             }
-
-            [Fact]
-            public async Task WhenWriterThrows_ApplicationProblemJsonContentReturned()
-            {
-                /* Arrange */
-                var innerReturn = Result.Ok.Into<ResponseStub>();
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerReturn);
-                A.CallTo(() => modelWriter.WriteResponseAsync(context, innerReturn))
-                    .Throws<Exception>();
-
-                /* Act */
-                var result = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
-
-                /* Assert */
-                A.CallToSet(() => context.Response.ContentType).To("application/problem+json")
-                    .MustHaveHappenedOnceExactly();
-            }
         }
-
-        public class RequestStub {}
-        public class ResponseStub {}
     }
 }

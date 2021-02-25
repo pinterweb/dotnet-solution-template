@@ -15,17 +15,20 @@ namespace BusinessApp.App.Json
     public class NewtonsoftJsonSerializer : ISerializer
     {
         private readonly ILogger logger;
+        private readonly JsonSerializerSettings settings;
         private readonly JsonSerializer serializer;
         private List<MemberValidationException> errors;
 
         public NewtonsoftJsonSerializer(JsonSerializerSettings settings, ILogger logger)
         {
             this.logger = logger.NotNull().Expect(nameof(logger));
+            this.settings = settings.NotNull().Expect(nameof(logger));
             serializer = JsonSerializer.Create(settings);
         }
 
-        public T Deserialize<T>(Stream serializationStream)
+        public T Deserialize<T>(byte[] data)
         {
+            using var serializationStream = new MemoryStream(data);
             errors = new List<MemberValidationException>();
             serializer.Error += OnError;
             using (var sr = new StreamReader(serializationStream))
@@ -46,20 +49,11 @@ namespace BusinessApp.App.Json
             }
         }
 
-        public void Serialize(Stream serializationStream, object graph)
+        public byte[] Serialize<T>(T graph)
         {
-            using (
-                var writer = new StreamWriter(serializationStream,
-                    new UTF8Encoding(false),
-                    1024,
-                    true
-                )
-            )
-            using (var jsonWriter = new JsonTextWriter(writer))
-            {
-                serializer.Serialize(jsonWriter, graph);
-                jsonWriter.Flush();
-            }
+            var str = JsonConvert.SerializeObject(graph, settings);
+
+            return Encoding.UTF8.GetBytes(str);
         }
 
         private void OnError(object sender, ErrorEventArgs e)

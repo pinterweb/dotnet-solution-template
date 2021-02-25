@@ -47,9 +47,16 @@
         },
         "json": {
             "type": "parameter",
-            "dataType": "bool",
-            "defaultValue": "true",
-            "description": "Adds services to parse json payloads"
+            "dataType": "choice",
+            "defaultValue": "systemjson",
+            "description": "Adds services to parse json payloads",
+            "choices": [{
+                "choice": "systemjson",
+                "description": "use System.Text.Json"
+            }, {
+                "choice": "newtonsoft",
+                "description": "use Newtonsoft.Json"
+            }]
         },
         "connstrName": {
             "type": "parameter",
@@ -124,6 +131,11 @@
             "modifiers": [
                 {
                     "exclude": [
+                        "**/Json/**.cs"
+                    ]
+                },
+                {
+                    "exclude": [
                         "src/.vs/**"
                     ]
                 },
@@ -171,10 +183,17 @@
                     ]
                 },
                 {
-                    "condition": "(!json)",
-                    "exclude": [
-                        "src/BusinessApp.WebApi/Json/**",
-                        "src/BusinessApp.App/Json/**"
+                    "condition": "(json=='newtonsoft')",
+                    "include": [
+                        "src/BusinessApp.WebApi/Json/Newtonsoft**",
+                        "src/BusinessApp.App/Json/Newtonsoft**"
+                    ]
+                },
+                {
+                    "condition": "(json=='systemjson')",
+                    "include": [
+                        "src/BusinessApp.WebApi/Json/System**",
+                        "src/BusinessApp.App/Json/System**"
                     ]
                 },
                 {

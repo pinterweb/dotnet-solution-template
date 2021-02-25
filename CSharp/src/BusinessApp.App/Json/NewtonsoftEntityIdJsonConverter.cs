@@ -8,7 +8,7 @@
     /// <summary>
     /// Converts to and from the complex <see cref="EntityId{T}"/> and primitive {T} Id type
     /// </summary>
-    public class EntityIdJsonConverter : JsonConverter
+    public class NewtonsoftEntityIdJsonConverter : JsonConverter
     {
         private static readonly string ErrTemplate = "Cannot read value for '{0}' because the type is incorrect";
 

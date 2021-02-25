@@ -17,8 +17,14 @@ namespace BusinessApp.WebApi
             bootstrapContainer.Verify();
 
             var bootstrap = bootstrapContainer.GetInstance<IBootstrapRegister>();
+            var regContext = new RegistrationContext { Container = container };
 
-            bootstrap.Register(new RegistrationContext { Container = container });
+            bootstrap.Register(regContext);
+
+            // XXX make sure this is absolultey last
+            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
+                typeof(HttpResponseDecorator<,>));
+
         }
 
         private static Container SetupBootstrapContainer(BootstrapOptions options,
