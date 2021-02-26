@@ -1,14 +1,13 @@
+using Xunit;
+using FakeItEasy;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+using _ = System.Int16;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using Xunit;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using System;
-
-    using _ = System.Int16;
-    using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
-
     public class TestData
     {
         public static IEnumerable<object[]> IFormattableArgs => new[]
@@ -22,7 +21,51 @@ namespace BusinessApp.Domain.UnitTest
 
     public class ResultTests
     {
-        public class OkFactory : GenericResultTests
+        public class FromFactory : ResultTests
+        {
+            [Fact]
+            public void FuncDoesNotThrow_IsOk()
+            {
+                /* Arrange */
+                Func<string> noop = () => "foo";
+
+                /* Act */
+                var result = Result.From(noop);
+
+                /* Assert */
+                Assert.Equal(Result<string, IFormattable>.Ok("foo"), result);
+            }
+
+            [Fact]
+            public void FuncThrowsFormattable_ErrorReturned()
+            {
+                /* Arrange */
+                var error = A.Fake<Exception>(opt => opt.Implements<IFormattable>());
+                Func<string> noop = () => throw error;
+
+                /* Act */
+                var result = Result.From(noop);
+
+                /* Assert */
+                Assert.Same(error, result.UnwrapError());
+            }
+
+            [Fact]
+            public void FuncThrowsNotFormattable_ExceptionThrown()
+            {
+                /* Arrange */
+                var error = A.Dummy<Exception>();
+                Func<string> noop = () => throw error;
+
+                /* Act */
+                var ex = Record.Exception(() => Result.From(noop));
+
+                /* Assert */
+                Assert.Same(error, ex);
+            }
+        }
+
+        public class OkFactory : ResultTests
         {
             [Fact]
             public void KindProperty_IsOk()
@@ -35,7 +78,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ErrorFactory : GenericResultTests
+        public class ErrorFactory : ResultTests
         {
             [Fact]
             public void KindProperty_IsError()
@@ -332,9 +375,307 @@ namespace BusinessApp.Domain.UnitTest
         }
     }
 
-    public class GenericResultTests
+    public class ResultOfTTests
     {
-        public class OkFactory : GenericResultTests
+        public class OkFactory : ResultOfTTests
+        {
+            [Fact]
+            public void KindProperty_IsOk()
+            {
+                /* Arrange */
+                string value = A.Dummy<string>();
+
+                /* Act */
+                var sut = Result<string>.Ok(A.Dummy<string>());
+
+                /* Assert */
+                Assert.Equal(ValueKind.Ok, sut.Kind);
+            }
+        }
+
+        public class ErrorFactory : ResultOfTTests
+        {
+            [Fact]
+            public void KindProperty_IsError()
+            {
+                /* Arrange */
+                var value = A.Dummy<IFormattable>();
+
+                /* Act */
+                var sut = Result<_>.Error(value);
+
+                /* Assert */
+                Assert.Equal(ValueKind.Error, sut.Kind);
+            }
+        }
+
+        public class Into : ResultOfTTests
+        {
+            [Fact]
+            public void OkValueAsIFormattable_EmptyStringReturned()
+            {
+                /* Act */
+                var sut = Result<int>.Ok(1);
+
+                /* Assert */
+                Assert.Equal(Result<int, IFormattable>.Ok(1), sut.Into());
+            }
+
+            [Fact]
+            public void ErrorValueAsIFormattable_InnerErrorReturned()
+            {
+                /* Arrange */
+                IFormattable errVal = $"foobar";
+
+                /* Act */
+                var sut = Result<int>.Error(errVal);
+
+                /* Assert */
+                Assert.Equal(Result<int, IFormattable>.Error(errVal), sut.Into());
+            }
+        }
+
+        public class IEquatableEquals : ResultOfTETests
+        {
+            [Theory]
+            [InlineData(1, 1, true)]
+            [InlineData(2, 1, false)]
+            public void BothOkResults_AreEqualWhenValuesEqual(int a, int b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(a);
+                var other = Result<int>.Ok(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+
+            [Fact]
+            public void ResultsHaveDifferentKind_AreNotEqual()
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(1);
+                var other = Result<int>.Error(2);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData.IFormattableArgs), MemberType = typeof(TestData))]
+            public void BothErrorResults_AreEqualWhenValuesEqual(IFormattable a, IFormattable b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int>.Error(a);
+                var other = Result<int>.Error(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+        }
+
+        public class ObjectOverrideEquals : ResultOfTETests
+        {
+            [Fact]
+            public void NotAResultArgument_AreEqual()
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(1);
+
+                /* Act */
+                bool equal = sut.Equals("foo");
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [InlineData(1, 1, true)]
+            [InlineData(2, 1, false)]
+            public void BothOkResults_AreEqualWhenValuesEqual(int a, int b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(a);
+                object other = Result<int>.Ok(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+
+            [Fact]
+            public void ResultsHaveDifferentKind_AreNotEqual()
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(1);
+                object other = Result<int>.Error(2);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.False(equal);
+            }
+
+            [Theory]
+            [MemberData(nameof(TestData.IFormattableArgs), MemberType = typeof(TestData))]
+            public void BothErrorResults_AreEqualWhenValuesEqual(IFormattable a, IFormattable b, bool expectEquals)
+            {
+                /* Arrange */
+                var sut = Result<int>.Error(a);
+                object other = Result<int>.Error(b);
+
+                /* Act */
+                bool equal = sut.Equals(other);
+
+                /* Assert */
+                Assert.Equal(expectEquals, equal);
+            }
+        }
+
+        public class CompareTo
+        {
+            [Theory]
+            [InlineData(1, 1, 0)]
+            [InlineData(1, 2, -1)]
+            [InlineData(2, 1, 1)]
+            public void BothOkResults_InnerValueCompared(int a, int b, int expectedOrder)
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(a);
+                var other = Result<int>.Ok(b);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(expectedOrder, order);
+            }
+
+            [Fact]
+            public void ArgumentResultIsErrorAndInstanceIsOk_NegativeOneReturnedj()
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(1);
+                var other = Result<int>.Error(1);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(-1, order);
+            }
+
+            [Fact]
+            public void ArgumentResultIsOkAndInstanceIsError_OneReturned()
+            {
+                /* Arrange */
+                var sut = Result<int>.Error(1);
+                var other = Result<int>.Ok(1);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(1, order);
+            }
+
+            [Theory]
+            [InlineData(1, 1, 0)]
+            [InlineData(1, 2, -1)]
+            [InlineData(2, 1, 1)]
+            public void BothResultsAreErrorKind_InnerValueCompared(int a, int b,
+                int expectedOrder)
+            {
+                /* Arrange */
+                var sut = Result<int>.Error(a);
+                var other = Result<int>.Error(b);
+
+                /* Act */
+                var order = sut.CompareTo(other);
+
+                /* Assert */
+                Assert.Equal(order, expectedOrder);
+            }
+        }
+
+        public class ImplicitCastToResult : ResultOfTTests
+        {
+            [Fact]
+            public void WhenOk_OkResultReturned()
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(1);
+
+                /* Act */
+                Result cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result.Ok, cast);
+            }
+
+            [Fact]
+            public void WhenError_ErrorResultReturned()
+            {
+                /* Arrange */
+                var error = A.Fake<IFormattable>();
+                A.CallTo(() => error.ToString(null, null)).Returns("Foo");
+                var sut = Result<int>.Error(error);
+
+                /* Act */
+                Result cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result.Error($"Foo"), cast);
+            }
+        }
+
+        public class ImplicitCastToResultOfTE : ResultOfTTests
+        {
+            [Fact]
+            public void WhenOk_OkResultReturned()
+            {
+                /* Arrange */
+                var sut = Result<int>.Ok(1);
+
+                /* Act */
+                Result<int, IFormattable> cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result<int, IFormattable>.Ok(1), cast);
+            }
+
+            [Fact]
+            public void WhenError_ErrorResultReturned()
+            {
+                /* Arrange */
+                var error = A.Fake<IFormattable>();
+                A.CallTo(() => error.ToString(null, null)).Returns("Foo");
+                var sut = Result<int>.Error(error);
+
+                /* Act */
+                Result<int, IFormattable> cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result<int, IFormattable>.Error($"Foo"), cast);
+            }
+        }
+    }
+
+    public class ResultOfTETests
+    {
+        public class OkFactory : ResultOfTETests
         {
             [Fact]
             public void KindProperty_IsOk()
@@ -350,7 +691,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ErrorFactory : GenericResultTests
+        public class ErrorFactory : ResultOfTETests
         {
             [Fact]
             public void KindProperty_IsError()
@@ -399,7 +740,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class Expect
+        public class Expect : ResultOfTETests
         {
             [Fact]
             public void IsErrorResult_BadStateExceptionThrown()
@@ -468,7 +809,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ExpectError
+        public class ExpectError : ResultOfTETests
         {
             [Fact]
             public void IsOkResult_BadStateExceptionThrown()
@@ -502,7 +843,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class UnwrapError
+        public class UnwrapError : ResultOfTETests
         {
             [Fact]
             public void IsOkResult_BadStateExceptionThrown()
@@ -536,7 +877,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class Unwrap
+        public class Unwrap : ResultOfTETests
         {
             [Fact]
             public void IsErrorResult_BadStateExceptionThrown()
@@ -568,7 +909,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class AndThen
+        public class AndThen : ResultOfTETests
         {
             [Fact]
             public void WhenOk_NextFunctionCalledOnce()
@@ -602,7 +943,126 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ImplicitCastToResult : GenericResultTests
+        public class ThenRun : ResultOfTETests
+        {
+            [Fact]
+            public void FuncOfTR_WhenOk_NextFunctionCalledOnce()
+            {
+                /* Arrange */
+                int called = 0;
+                var value = "foo";
+                var sut = Result<string, _>.Ok(value);
+                Func<string, string> next = (result) => { ++called; return "bar"; };
+
+                /* Act */
+                var nextResult = sut.ThenRun(next);
+
+                /* Assert */
+                Assert.Equal(1, called);
+            }
+
+            [Fact]
+            public void FuncOfTR_WhenOk_SelfReturned()
+            {
+                /* Arrange */
+                var value = "foo";
+                var sut = Result<string, _>.Ok(value);
+                Func<string, string> next = (result) => "bar";
+
+                /* Act */
+                var nextResult = sut.ThenRun(next);
+
+                /* Assert */
+                Assert.Equal(sut, nextResult);
+            }
+
+            [Fact]
+            public void FuncOfTR_WhenErr_NextFunctionNotCalled()
+            {
+                /* Arrange */
+                int called = 0;
+                var sut = Result<string, _>.Error(1);
+                Func<string, string> next = (result) => { ++called; return "bar"; };
+
+                /* Act */
+                var nextResult = sut.ThenRun(next);
+
+                /* Assert */
+                Assert.Equal(0, called);
+            }
+
+            [Fact]
+            public void FuncOfTR_WhenErr_SelfReturned()
+            {
+                /* Arrange */
+                var sut = Result<string, _>.Error(1);
+                Func<string, string> next = (result) => "bar";
+
+                /* Act */
+                var nextResult = sut.ThenRun(next);
+
+                /* Assert */
+                Assert.Equal(sut, nextResult);
+            }
+
+            [Fact]
+            public void Action_WhenOk_NextFunctionCalledOnce()
+            {
+                /* Arrange */
+                int called = 0;
+                var sut = Result<string, _>.Ok("foo");
+                Action<string> next = (result) => called++;
+
+                /* Act */
+                var nextResult = sut.ThenRun(next);
+
+                /* Assert */
+                Assert.Equal(1, called);
+            }
+
+            [Fact]
+            public void Action_WhenOk_SelfReturned()
+            {
+                /* Arrange */
+                var sut = Result<string, _>.Ok("foo");
+
+                /* Act */
+                var nextResult = sut.ThenRun(A.Dummy<Action<string>>());
+
+                /* Assert */
+                Assert.Equal(sut, nextResult);
+            }
+
+            [Fact]
+            public void Action_WhenErr_NextFunctionNotCalled()
+            {
+                /* Arrange */
+                int called = 0;
+                var sut = Result<string, _>.Error(1);
+                Action<string> next = (result) => ++called;
+
+                /* Act */
+                var nextResult = sut.ThenRun(next);
+
+                /* Assert */
+                Assert.Equal(0, called);
+            }
+
+            [Fact]
+            public void Action_WhenErr_SelfReturned()
+            {
+                /* Arrange */
+                var sut = Result<string, _>.Error(1);
+
+                /* Act */
+                var nextResult = sut.ThenRun(A.Dummy<Action<string>>());
+
+                /* Assert */
+                Assert.Equal(sut, nextResult);
+            }
+        }
+
+        public class ImplicitCastToValueKind : ResultOfTETests
         {
             [Fact]
             public void Error_ErrorKindReturned()
@@ -631,7 +1091,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ImplicitCastToBool : GenericResultTests
+        public class ImplicitCastToBool : ResultOfTETests
         {
             [Fact]
             public void Error_FalseReturned()
@@ -660,7 +1120,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ExplicitCastToError
+        public class ExplicitCastToError : ResultOfTETests
         {
             [Fact]
             public void ResultIsError_ValueReturned()
@@ -692,7 +1152,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class OrElse : GenericResultTests
+        public class OrElse : ResultOfTETests
         {
             [Fact]
             public void ResultIsError_ResultOfFuncReturned()
@@ -726,7 +1186,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class Map : GenericResultTests
+        public class Map : ResultOfTETests
         {
             [Fact]
             public void ResultIsError_ErrorKept()
@@ -758,7 +1218,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class MapOrElse : GenericResultTests
+        public class MapOrElse : ResultOfTETests
         {
             [Fact]
             public void ResultIsError_ErrorFunctionCalled()
@@ -791,7 +1251,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class Into : GenericResultTests
+        public class Into : ResultOfTETests
         {
             [Fact]
             public void OkValue_OkResultReturned()
@@ -821,7 +1281,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class IEquatableEquals : GenericResultTests
+        public class IEquatableEquals : ResultOfTETests
         {
             [Theory]
             [InlineData(1, 1, true)]
@@ -869,7 +1329,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class ObjectOverrideEquals : GenericResultTests
+        public class ObjectOverrideEquals : ResultOfTETests
         {
             [Fact]
             public void NotAResultArgument_AreEqual()
@@ -930,7 +1390,7 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class CompareTo
+        public class CompareTo : ResultOfTETests
         {
             [Theory]
             [InlineData(1, 1, 0)]
@@ -993,6 +1453,99 @@ namespace BusinessApp.Domain.UnitTest
 
                 /* Assert */
                 Assert.Equal(order, expectedOrder);
+            }
+        }
+
+        public class ImplicitCastToResult : ResultOfTETests
+        {
+            [Fact]
+            public void WhenOk_OkResultReturned()
+            {
+                /* Arrange */
+                var sut = Result<int, _>.Ok(1);
+
+                /* Act */
+                Result cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result.Ok, cast);
+            }
+
+            [Fact]
+            public void WhenError_ErrorResultReturned()
+            {
+                /* Arrange */
+                var error = A.Fake<IFormattable>();
+                A.CallTo(() => error.ToString(null, null)).Returns("Foo");
+                var sut = Result<int, IFormattable>.Error(error);
+
+                /* Act */
+                Result cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result.Error($"Foo"), cast);
+            }
+        }
+
+        public class ImplicitCastToResultOfT : ResultOfTETests
+        {
+            [Fact]
+            public void WhenOk_OkResultOfTReturned()
+            {
+                /* Arrange */
+                var sut = Result<int, _>.Ok(1);
+
+                /* Act */
+                Result<int> cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result<int>.Ok(1), cast);
+            }
+
+            [Fact]
+            public void WhenError_ErrorResultOfTReturned()
+            {
+                /* Arrange */
+                var error = A.Fake<IFormattable>();
+                A.CallTo(() => error.ToString(null, null)).Returns("Foo");
+                var sut = Result<int, IFormattable>.Error(error);
+
+                /* Act */
+                Result<int> cast = sut;
+
+                /* Assert */
+                Assert.Equal(Result<int>.Error($"Foo"), cast);
+            }
+        }
+
+        public class Or : ResultOfTETests
+        {
+            [Fact]
+            public void WhenOk_ReturnsSelf()
+            {
+                /* Arrange */
+                var sut = Result<string, _>.Ok("foo");
+                var other = Result<string, _>.Ok("bar");
+
+                /* Act */
+                var nextResult = sut.Or(other);
+
+                /* Assert */
+                Assert.Equal(sut, nextResult);
+            }
+
+            [Fact]
+            public void WhenErr_ReturnsOther()
+            {
+                /* Arrange */
+                var sut = Result<string, _>.Error(1);
+                var other = Result<string, _>.Ok("bar");
+
+                /* Act */
+                var nextResult = sut.Or(other);
+
+                /* Assert */
+                Assert.Equal(other, nextResult);
             }
         }
 

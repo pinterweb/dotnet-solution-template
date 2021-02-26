@@ -20,6 +20,19 @@
             return new Result(error);
         }
 
+        public static Result<T, IFormattable> From<T>(Func<T> func)
+        {
+            try
+            {
+                var val = func();
+                return Result<T>.Ok(val);
+            }
+            catch (Exception e) when (e is IFormattable ef)
+            {
+                return Result<T>.Error(ef);
+            }
+        }
+
         private Result(IFormattable error)
         {
             this.error = error;
@@ -55,7 +68,7 @@
                 ValueKind.Ok => other.Kind == ValueKind.Ok,
                 ValueKind.Error =>
                     (error == null && other.error == null) ||
-                    error.ToString().Equals(other.error.ToString()),
+                    error.ToString().Equals(other.error.ToString(null, null)),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -139,7 +152,7 @@
         {
             return Kind switch
             {
-                ValueKind.Ok => Result<T, IFormattable>.Ok(default),
+                ValueKind.Ok => Result<T, IFormattable>.Ok(value),
                 ValueKind.Error => Result<T, IFormattable>.Error(error),
                 _ => throw new NotImplementedException()
             };
@@ -156,7 +169,7 @@
                     value.Equals(other.value),
                 ValueKind.Error =>
                     (error == null && other.error == null) ||
-                    error.ToString().Equals(other.error.ToString()),
+                    error.ToString().Equals(other.error.ToString(null, null)),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -202,6 +215,14 @@
                 };
             }
         }
+
+        public static implicit operator Result(Result<T> result) =>
+            result.Kind == ValueKind.Ok ? Result.Ok : Result.Error(result.Into().UnwrapError());
+
+        public static implicit operator Result<T, IFormattable>(Result<T> result) =>
+            result.Kind == ValueKind.Ok ?
+            Result<T, IFormattable>.Ok(result.value) :
+            Result<T, IFormattable>.Error(result.error);
     }
 
     /// <summary>
@@ -286,6 +307,16 @@
             };
         }
 
+        public Result<T, E> Or(Result<T, E> other)
+        {
+            return Kind switch
+            {
+                ValueKind.Ok => this,
+                ValueKind.Error => other,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
         public Result<T, E> AndThen(Func<T, Result<T, E>> next)
         {
             return Kind switch
@@ -294,6 +325,26 @@
                 ValueKind.Error => this,
                 _ => throw new NotImplementedException(),
             };
+        }
+
+        public Result<T, E> ThenRun<R>(Func<T, R> next)
+        {
+            if (Kind == ValueKind.Ok)
+            {
+                var _ = next(value);
+            }
+
+            return this;
+        }
+
+        public Result<T, E> ThenRun(Action<T> next)
+        {
+            if (Kind == ValueKind.Ok)
+            {
+                next(value);
+            }
+
+            return this;
         }
 
         public Result<T, E> OrElse(Func<E, Result<T, E>> onError)
@@ -347,7 +398,7 @@
                     value.Equals(other.value),
                 ValueKind.Error =>
                     (error == null && other.error == null) ||
-                    error.ToString().Equals(other.error.ToString()),
+                    error.ToString().Equals(other.error.ToString(null, null)),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -395,6 +446,22 @@
         public static explicit operator T(Result<T, E> result)
         {
             return result.Expect("Cannot get the value because it is an error");
+        }
+
+        public static implicit operator Result(Result<T, E> result)
+        {
+            return result.MapOrElse(
+                err => Result.Error(err),
+                _ => Result.Ok
+            );
+        }
+
+        public static implicit operator Result<T>(Result<T, E> result)
+        {
+            return result.MapOrElse(
+                err => Result<T>.Error(err),
+                val => Result<T>.Ok(val)
+            );
         }
 
         public static explicit operator E(Result<T, E> result)
