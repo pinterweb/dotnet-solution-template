@@ -112,14 +112,14 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void EventDisplayText_SerFromOriginalEventIFormattableToStringCall()
+            public void EventDisplayText_SerFromOriginalEventToStringCall()
             {
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
                 EventMetadata metadata = null;
                 A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
-                A.CallTo(() => @event.ToString("G", null)).Returns("lorem");
+                A.CallTo(() => @event.ToString()).Returns("lorem");
 
                 /* Act */
                 sut.Add(@event);

@@ -21,7 +21,7 @@ namespace BusinessApp.Data
 
             Id = originalEvent.Id;
             CorrelationId = correlationId;
-            EventDisplayText = originalEvent.ToString("G", null);
+            EventDisplayText = originalEvent.ToString();
             EventCreator = eventCreator;
             OccurredUtc = originalEvent.OccurredUtc;
         }
@@ -51,8 +51,9 @@ namespace BusinessApp.Data
         /// </summary>
         public DateTimeOffset OccurredUtc { get; private set; }
 
-        public override string ToString() => ToString("G", null);
-
-        public string ToString(string format, IFormatProvider formatProvider) => EventDisplayText;
+        /// <summary>
+        /// The display text for the underlying event
+        /// </summary>
+        public override string ToString() => EventDisplayText;
     }
 }

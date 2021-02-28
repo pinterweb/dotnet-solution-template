@@ -56,7 +56,7 @@ namespace BusinessApp.Data.UnitTest
             {
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
-                A.CallTo(() => @event.ToString("G", null)).Returns("foobar");
+                A.CallTo(() => @event.ToString()).Returns("foobar");
 
                 /* Act */
                 var sut = new EventMetadata(A.Dummy<EventId>(),
@@ -119,14 +119,14 @@ namespace BusinessApp.Data.UnitTest
             }
         }
 
-        public class IFormattableToString : EventMetadataTests
+        public class ObjectToString : EventMetadataTests
         {
             [Fact]
-            public void ObjectToString_IFormattableInterfaceCalled()
+            public void ReturnsDisplayText()
             {
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
-                A.CallTo(() => @event.ToString("G", null)).Returns("foobar");
+                A.CallTo(() => @event.ToString()).Returns("foobar");
                 var sut = new EventMetadata(A.Dummy<EventId>(),
                     A.Dummy<EventId>(),
                     @event,
@@ -134,24 +134,6 @@ namespace BusinessApp.Data.UnitTest
 
                 /* Act */
                 var str = sut.ToString();
-
-                /* Assert */
-                Assert.Equal("foobar", str);
-            }
-
-            [Fact]
-            public void IFormattableToString_ReturnesDisplayText()
-            {
-                /* Arrange */
-                var @event = A.Fake<IDomainEvent>();
-                A.CallTo(() => @event.ToString("G", null)).Returns("foobar");
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    @event,
-                    "f");
-
-                /* Act */
-                var str = sut.ToString(A.Dummy<string>(), A.Dummy<IFormatProvider>());
 
                 /* Assert */
                 Assert.Equal("foobar", str);
