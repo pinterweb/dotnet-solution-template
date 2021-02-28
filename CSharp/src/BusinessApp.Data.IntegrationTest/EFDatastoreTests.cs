@@ -6,7 +6,7 @@ namespace BusinessApp.Data.IntegrationTest
     using System.Threading.Tasks;
     using FakeItEasy;
     using BusinessApp.Domain;
-    using BusinessApp.Test;
+    using BusinessApp.Test.Shared;
     using Microsoft.EntityFrameworkCore;
     using Xunit;
     using BusinessApp.App;

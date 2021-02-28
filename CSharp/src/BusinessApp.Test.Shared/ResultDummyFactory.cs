@@ -1,4 +1,4 @@
-namespace BusinessApp.Test
+namespace BusinessApp.Test.Shared
 {
     using BusinessApp.Domain;
     using FakeItEasy;

@@ -5,7 +5,7 @@ namespace BusinessApp.App.UnitTest
     using System.Collections;
     using FakeItEasy;
     using BusinessApp.Domain;
-    using BusinessApp.Test.Common;
+    using BusinessApp.Test.Shared;
     using Xunit;
     using System.Linq;
 

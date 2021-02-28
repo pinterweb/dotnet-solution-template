@@ -1,4 +1,4 @@
-namespace BusinessApp.Test
+namespace BusinessApp.Test.Shared
 {
     using System.Collections.Generic;
     using BusinessApp.App;

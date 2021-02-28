@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.App.UnitTest", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Domain.UnitTest", "BusinessApp.Domain.UnitTest\BusinessApp.Domain.UnitTest.csproj", "{9E654470-59E3-4997-B853-A14F646D0ED7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Test.Common", "BusinessApp.Test.Common\BusinessApp.Test.Common.csproj", "{DCBD287A-9BC4-4EE5-BB10-1D766E11D38F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Test.Shared", "BusinessApp.Test.Shared\BusinessApp.Test.Shared.csproj", "{DCBD287A-9BC4-4EE5-BB10-1D766E11D38F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.UnitTest", "BusinessApp.WebApi.UnitTest\BusinessApp.WebApi.UnitTest.csproj", "{CF076CD2-214C-4FB7-ACEA-940A93002D43}"
 EndProject

@@ -9,7 +9,7 @@ namespace BusinessApp.App.IntegrationTest.Json
     using System.IO;
     using System.ComponentModel;
     using System.Text;
-    using BusinessApp.Test;
+    using BusinessApp.Test.Shared;
 
     public class NewtonsoftEntityIdJsonConverterTests
     {

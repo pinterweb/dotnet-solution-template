@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "BusinessApp.Test.Common": {
+    "BusinessApp.Test.Shared": {
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {

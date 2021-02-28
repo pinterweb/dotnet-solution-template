@@ -6,7 +6,7 @@ namespace BusinessApp.WebApi.IntegrationTest
     using FakeItEasy;
     using System.Linq;
     using BusinessApp.App;
-    using BusinessApp.Test;
+    using BusinessApp.Test.Shared;
     using System.Threading.Tasks;
     using System.Threading;
     using Microsoft.AspNetCore.Http;

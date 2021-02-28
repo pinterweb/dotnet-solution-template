@@ -5,7 +5,7 @@ namespace BusinessApp.Data.IntegrationTest
     using Microsoft.EntityFrameworkCore;
     using BusinessApp.Domain;
     using Xunit;
-    using BusinessApp.Test;
+    using BusinessApp.Test.Shared;
     using System.Linq;
 
     [Collection(nameof(DatabaseCollection))]

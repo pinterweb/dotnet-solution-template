@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace BusinessApp.Test.Common.Migrations
+namespace BusinessApp.Test.Shared.Migrations
 {
     [DbContext(typeof(BusinessAppTestDbContext))]
     partial class BusinessAppTestDbContextModelSnapshot : ModelSnapshot

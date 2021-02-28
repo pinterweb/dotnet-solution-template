@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.Test.Common
+﻿namespace BusinessApp.Test.Shared
 {
     using System;
     using System.Reflection;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace BusinessApp.Test.Common.Migrations
+namespace BusinessApp.Test.Shared.Migrations
 {
     public partial class SetupTest : Migration
     {
