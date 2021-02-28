@@ -235,7 +235,8 @@ namespace BusinessApp.WebApi
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
                 typeof(MacroBatchProxyRequestHandler<,>),
-                ctx => ctx.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestAdapter<,,>));
+                ctx => ctx.HasConsumer
+                    && ctx.Consumer.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestAdapter<,,>));
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
