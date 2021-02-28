@@ -9,7 +9,8 @@ namespace BusinessApp.App
     /// <summary>
     /// Retries handling logic if a deadlock raised an exception
     /// </summary>
-    public class DeadlockRetryRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+    public class DeadlockRetryRequestDecorator<TRequest, TResponse> :
+        IRequestHandler<TRequest, TResponse>
     {
         private readonly IRequestHandler<TRequest, TResponse> decoratee;
         private readonly int sleepBetweenRetries = 500;
@@ -20,13 +21,13 @@ namespace BusinessApp.App
             this.decoratee = decoratee.NotNull().Expect(nameof(decoratee));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(TRequest command,
+        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest command,
             CancellationToken cancelToken)
         {
             return await HandleWithRetry(command, cancelToken);
         }
 
-        private async Task<Result<TResponse, IFormattable>> HandleWithRetry(
+        private async Task<Result<TResponse, Exception>> HandleWithRetry(
             TRequest command,
             CancellationToken cancellationToken)
         {
@@ -40,7 +41,7 @@ namespace BusinessApp.App
 
                 if (retries <= 0)
                 {
-                    return Result<TResponse, IFormattable>.Error(
+                    return Result.Error<TResponse>(
                         new CommunicationException(
                         "There was a conflict saving your data. Please retry your " +
                         "operation again. If you continue to see this message, please " +

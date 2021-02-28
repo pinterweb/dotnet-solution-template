@@ -112,7 +112,8 @@
             }
 
             [Theory, MemberData(nameof(EnumerableMsgArgs))]
-            public void EnumerableEmpty_ErrorMessageReturned(IEnumerable<int> vals, string expectedErrMsg)
+            public void EnumerableEmpty_ErrorMessageReturned(IEnumerable<int> vals,
+                string expectedErrMsg)
             {
                 /* Act */
                 var result = vals.NotEmpty();

@@ -22,7 +22,7 @@ namespace BusinessApp.WebApi
             this.inner = inner;
         }
 
-        public Task<Result<TResponse, IFormattable>> HandleAsync(TRequest command,
+        public Task<Result<TResponse, Exception>> HandleAsync(TRequest command,
             CancellationToken cancelToken)
         {
             return inner.HandleAsync(command, cancelToken);

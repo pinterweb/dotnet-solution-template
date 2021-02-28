@@ -1,5 +1,6 @@
 namespace BusinessApp.App
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace BusinessApp.App
             this.validators = validators.NotNull().Expect(nameof(validators));
         }
 
-        public async Task<Result> ValidateAsync(T instance, CancellationToken cancelToken)
+        public async Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken)
         {
             foreach (var validator in validators)
             {
@@ -29,7 +30,7 @@ namespace BusinessApp.App
                 }
             }
 
-            return Result.Ok;
+            return Result.OK;
         }
     }
 }

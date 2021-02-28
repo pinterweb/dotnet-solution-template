@@ -78,28 +78,5 @@ namespace BusinessApp.App.UnitTest
                 Assert.Equal(new[] { "bar", "lorem" }, dictEntry.Value);
             }
         }
-
-        public class IFormattableImpl : MemberValidationExceptionTests
-        {
-            [Fact]
-            public void ToStringOverride_MessageReturned()
-            {
-                /* Act */
-                var ex = new MemberValidationException("foo", new[] { "bar", "lorem" });
-
-                /* Assert */
-                Assert.Equal("foo is invalid: bar, lorem", ex.ToString());
-            }
-
-            [Fact]
-            public void ToString_MessageReturned()
-            {
-                /* Act */
-                var ex = new MemberValidationException("foo", new[] { "bar", "lorem" });
-
-                /* Assert */
-                Assert.Equal("foo is invalid: bar, lorem", ex.ToString("G", null));
-            }
-        }
     }
 }

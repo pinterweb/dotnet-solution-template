@@ -111,7 +111,8 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
-                var innerResult = Result<IEnumerable<CommandStub>, IFormattable>.Error(DateTime.Now);
+                var error = new Exception();
+                var innerResult = Result.Error<IEnumerable<CommandStub>>(error);
                 var commands = new[] { A.Dummy<CommandStub>() };
                 A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
                 A.CallTo(() => inner.HandleAsync(commands, cancelToken)).Returns(innerResult);
@@ -120,7 +121,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.HandleAsync(macro, cancelToken);
 
                 /* Assert */
-                Assert.Equal(innerResult.UnwrapError(), result.UnwrapError());
+                Assert.Equal(innerResult, result);
             }
 
             [Fact]
@@ -128,7 +129,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
-                var innerResult = Result<IEnumerable<CommandStub>, IFormattable>.Ok(new CommandStub[0]);
+                var innerResult = Result.Ok<IEnumerable<CommandStub>>(new CommandStub[0]);
                 var commands = new[] { A.Dummy<CommandStub>() };
                 A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
                 A.CallTo(() => inner.HandleAsync(commands, cancelToken)).Returns(innerResult);

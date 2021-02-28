@@ -3,80 +3,71 @@ namespace BusinessApp.App
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
     using BusinessApp.Domain;
 
     /// <summary>
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>
     [Serializable]
-    public class BatchException : Exception, IFormattable, IEnumerable<Result>,
-        IEnumerable<Result<IFormattable, IFormattable>>
+    public class BatchException : Exception, IEnumerable<Result<object, Exception>>
     {
-        public BatchException(IEnumerable<Result> results)
-        {
-            results.NotEmpty().Expect(nameof(results)).ToList();
+        private readonly IEnumerable<Result<object, Exception>> results;
 
-            var allResults = new List<Result>();
+        private BatchException(IEnumerable<Result<object, Exception>> results)
+        {
+            this.results = results;
+        }
+
+        public static BatchException FromResults<T>(IEnumerable<Result<T, Exception>> results)
+        {
+            results.NotEmpty().Expect(nameof(results));
+
+            var allResults = new List<Result<object, Exception>>();
 
             foreach (var result in results)
             {
                 switch (result.Kind)
                 {
-                    case ValueKind.Error when result.Into().UnwrapError() is BatchException b:
-                        allResults.AddRange(b.Flatten().Results);
+                    case ValueKind.Error when result.UnwrapError() is BatchException b:
+                        allResults.AddRange(b.Flatten().results);
                         break;
                     default:
-                        allResults.Add(result);
+                        allResults.Add(result.MapOrElse(
+                            e => Result.Error<object>(e),
+                            v => Result.Ok<object>(v)
+                        ));
                         break;
                 };
             }
 
-            Results = allResults;
+            return new BatchException(allResults);
         }
 
-        public IReadOnlyCollection<Result> Results { get; }
-
-        public IEnumerator<Result> GetEnumerator() => Results.GetEnumerator();
-
-        IEnumerator<Result<IFormattable, IFormattable>> IEnumerable<Result<IFormattable, IFormattable>>.GetEnumerator()
-            => Results.Select(r => r.Into()).GetEnumerator();
-
-        public override string ToString() => ToString("G", null);
-
-        public string ToString(string format, IFormatProvider formatProvider)
-        {
-            if (formatProvider == null) formatProvider = CultureInfo.CurrentCulture;
-
-            var errors = Results.Where(r => r.Kind == ValueKind.Error).ToList();
-
-            return string.Format(
-                formatProvider,
-                "The batch request has {0} out of {1} errors",
-                errors.Count, Results.Count);
-        }
+        public IEnumerator<Result<object, Exception>> GetEnumerator() => results.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
         private BatchException Flatten()
         {
-            var results = new List<Result>();
+            var flattenList = new List<Result<object, Exception>>();
 
-            foreach (var result in Results)
+            foreach (var result in results)
             {
                 switch (result.Kind)
                 {
-                    case ValueKind.Error when result.Into().UnwrapError() is BatchException b:
-                        results.AddRange(b.Flatten().Results);
+                    case ValueKind.Error when result.UnwrapError() is BatchException b:
+                        flattenList.AddRange(b.Flatten().results);
                         break;
                     default:
-                        results.Add(result);
+                        flattenList.Add(result.MapOrElse(
+                            e => Result.Error<object>(e),
+                            v => Result.Ok<object>(v)
+                        ));
                         break;
                 };
             }
 
-            return new BatchException(results);
+            return new BatchException(flattenList);
         }
     }
 }

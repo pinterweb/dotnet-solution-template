@@ -43,7 +43,7 @@
             set => props[key] = value;
         }
 
-        public int? StatusCode { get; }
+        public int StatusCode { get; }
         public string Title { get; }
         public string Detail
         {

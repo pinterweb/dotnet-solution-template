@@ -7,6 +7,7 @@ namespace BusinessApp.App.UnitTest
     using System.Linq;
     using System.Threading;
     using BusinessApp.Domain;
+    using System;
 
     public class ValidationStub {  }
 
@@ -57,24 +58,24 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(A.Dummy<ValidationStub>(), cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.Ok, result);
+                Assert.Equal(Result.OK, result);
             }
 
             [Fact]
             public async Task MultipleValidators_FirstErrorReturned()
             {
                 /* Arrange */
-                var error = Result.Error($"foobar");
+                var error = new Exception();
                 A.CallTo(() => validators.First().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.Error($"foobar"));
+                    .Returns(Result.Error(error));
                 A.CallTo(() => validators.Last().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.Ok);
+                    .Returns(Result.OK);
 
                 /* Act */
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(error, result);
+                Assert.Equal(Result.Error(error), result);
             }
 
             [Fact]
@@ -82,15 +83,15 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 A.CallTo(() => validators.First().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.Ok);
+                    .Returns(Result.OK);
                 A.CallTo(() => validators.Last().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.Ok);
+                    .Returns(Result.OK);
 
                 /* Act */
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.Ok, result);
+                Assert.Equal(Result.OK, result);
             }
         }
     }

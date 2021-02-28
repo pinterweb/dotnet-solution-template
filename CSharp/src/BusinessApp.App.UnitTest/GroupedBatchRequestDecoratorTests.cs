@@ -121,7 +121,7 @@ namespace BusinessApp.App.UnitTest
                 /* Assert */
                 Assert.IsType<BusinessAppAppException>(ex);
                 Assert.Equal(
-                    "Could not find the original command after " +
+                    "Could not find the original command(s) after " +
                     "it was grouped. Consider overriding Equals if the batch grouper " +
                     "creates new classes.",
                     ex.Message
@@ -130,8 +130,9 @@ namespace BusinessApp.App.UnitTest
 
             public class OnError : GroupedBatchRequestDecoratorTests
             {
-                private readonly Result<IEnumerable<CommandStub>, IFormattable> error;
-                private readonly Result<IEnumerable<CommandStub>, IFormattable> ok;
+                private readonly Exception errorException;
+                private readonly Result<IEnumerable<CommandStub>, Exception> error;
+                private readonly Result<IEnumerable<CommandStub>, Exception> ok;
                 private readonly IEnumerable<CommandStub> commands;
 
                 public OnError()
@@ -148,10 +149,10 @@ namespace BusinessApp.App.UnitTest
                         new[] { commands.ElementAt(1) },
                     };
 
-                    error = Result<IEnumerable<CommandStub>, IFormattable>
-                        .Error(DateTime.Now);
-                    ok = Result<IEnumerable<CommandStub>, IFormattable>
-                        .Ok(A.Dummy<IEnumerable<CommandStub>>());
+                    errorException = new Exception();
+                    error = Result.Error<IEnumerable<CommandStub>>(errorException);
+                    ok = Result.Ok<IEnumerable<CommandStub>>(new[] { commands.ElementAt(1) });
+
                     A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
                     A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, cancelToken))
                         .Returns(error).Once().Then.Returns(ok);
@@ -175,10 +176,10 @@ namespace BusinessApp.App.UnitTest
 
                     /* Assert */
                     var ex = Assert.IsType<BatchException>(results.UnwrapError());
-                    Assert.Collection(ex.Results,
-                        r => Assert.Equal(error.UnwrapError(), r.Into().UnwrapError()),
-                        r => Assert.Equal(ValueKind.Ok, r.Kind),
-                        r => Assert.Equal(error.UnwrapError(), r.Into().UnwrapError())
+                    Assert.Collection(ex,
+                        r => Assert.Equal(Result.Error<object>(errorException), r),
+                        r => Assert.Equal(Result.Ok<object>(ok.Unwrap()), r),
+                        r => Assert.Equal(Result.Error<object>(errorException), r)
                     );
                 }
             }
@@ -207,10 +208,8 @@ namespace BusinessApp.App.UnitTest
                     new CommandStub()
                 };
 
-                var ok1 = Result<IEnumerable<CommandStub>, IFormattable>
-                    .Ok(result1);
-                var ok2 = Result<IEnumerable<CommandStub>, IFormattable>
-                    .Ok(result2);
+                var ok1 = Result.Ok<IEnumerable<CommandStub>>(result1);
+                var ok2 = Result.Ok<IEnumerable<CommandStub>>(result2);
 
                 A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
                 A.CallTo(() => inner.HandleAsync(A<IEnumerable<CommandStub>>._, cancelToken))

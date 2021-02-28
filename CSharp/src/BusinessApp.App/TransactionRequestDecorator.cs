@@ -23,7 +23,7 @@
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(
+        public async Task<Result<TResponse, Exception>> HandleAsync(
             TRequest command, CancellationToken cancelToken)
         {
             command.NotNull().Expect(nameof(command));

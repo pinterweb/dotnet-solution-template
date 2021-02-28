@@ -21,22 +21,18 @@ namespace BusinessApp.App
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(
+        public async Task<Result<TResponse, Exception>> HandleAsync(
             TRequest request, CancellationToken cancelToken)
         {
             try
             {
                 return await inner.HandleAsync(request, cancelToken);
             }
-            catch(Exception e) when (e is IFormattable f)
-            {
-                return Result<TResponse, IFormattable>.Error(f);
-            }
             catch(Exception e)
             {
                 logger.Log(new LogEntry(LogSeverity.Critical, e.Message, e, request));
 
-                return Result<TResponse, IFormattable>.Error(new UnhandledRequestException(e));
+                return Result.Error<TResponse>(e);
             }
         }
     }

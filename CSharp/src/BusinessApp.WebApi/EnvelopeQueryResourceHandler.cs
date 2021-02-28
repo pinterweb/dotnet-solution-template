@@ -24,7 +24,7 @@ namespace BusinessApp.WebApi
             this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
-        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(HttpContext context,
+        public async Task<Result<IEnumerable<TResponse>, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
             var query = await context.Request.DeserializeAsync<TRequest>(serializer, cancelToken);

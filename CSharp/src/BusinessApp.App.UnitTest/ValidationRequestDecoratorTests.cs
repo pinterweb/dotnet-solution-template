@@ -68,15 +68,16 @@ namespace BusinessApp.App.UnitTest
             public async Task InvalidRequest_ValidationResultErrorReturned()
             {
                 /* Arrange */
+                var err = new Exception();
                 var query = A.Dummy<QueryStub>();
                 A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
-                    .Returns(Result.Error($"foobar"));
+                    .Returns(Result.Error(err));
 
                 /* Act */
                 var result = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result<ResponseStub, IFormattable>.Error($"foobar"), result);
+                Assert.Equal(Result.Error<ResponseStub>(err), result);
             }
 
             [Fact]
@@ -85,7 +86,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
                 A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
-                    .Returns(Result.Error($"foobar"));
+                    .Returns(Result.Error(A.Dummy<Exception>()));
 
                 /* Act */
                 var result = await sut.HandleAsync(query, cancelToken);
@@ -101,7 +102,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
                 A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
-                    .Returns(Result.Ok);
+                    .Returns(Result.OK);
 
                 /* Act */
                 var _ = await sut.HandleAsync(query, cancelToken);
@@ -117,7 +118,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var cancelToken = A.Dummy<CancellationToken>();
                 var query = A.Dummy<QueryStub>();
-                var innerResults = A.Dummy<Result<ResponseStub, IFormattable>>();
+                var innerResults = A.Dummy<Result<ResponseStub, Exception>>();
                 A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResults);
 

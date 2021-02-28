@@ -16,7 +16,7 @@ namespace BusinessApp.WebApi.ProblemDetails
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public ProblemDetail Create(IFormattable error)
+        public ProblemDetail Create(Exception error = null)
         {
             return this.inner.Value.Create(error);
         }

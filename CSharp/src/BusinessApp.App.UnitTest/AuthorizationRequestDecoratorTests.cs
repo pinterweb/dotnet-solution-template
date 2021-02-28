@@ -102,7 +102,7 @@ namespace BusinessApp.App.UnitTest
             public async Task ReturnsDecoratedResult()
             {
                 /* Arrange */
-                var expectedResponse = A.Dummy<Result<ResponseStub, IFormattable>>();
+                var expectedResponse = A.Dummy<Result<ResponseStub, Exception>>();
                 var cancelToken = new CancellationToken();
                 A.CallTo(() => decorated.HandleAsync(query, cancelToken))
                     .Returns(Task.FromResult(expectedResponse));

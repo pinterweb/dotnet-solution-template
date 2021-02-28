@@ -1,5 +1,6 @@
 namespace BusinessApp.App
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -18,7 +19,8 @@ namespace BusinessApp.App
             this.validators = validators.NotNull().Expect(nameof(validators));
         }
 
-        public async Task<Result> ValidateAsync(T instance, CancellationToken cancelToken)
+        public async Task<Result<Unit, Exception>> ValidateAsync(T instance,
+            CancellationToken cancelToken)
         {
             foreach (var validator in validators)
             {
@@ -26,7 +28,7 @@ namespace BusinessApp.App
 
                 if (!result.IsValid)
                 {
-                    return Result.Error(
+                    return Result.Error((Exception)
                         new ModelValidationException(
                             "Model failed validation. See errors for more detials",
                             result.Errors
@@ -36,7 +38,7 @@ namespace BusinessApp.App
                 }
             }
 
-            return Result.Ok;
+            return Result.OK;
         }
     }
 }

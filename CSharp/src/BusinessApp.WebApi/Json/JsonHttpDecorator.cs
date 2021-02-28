@@ -18,7 +18,7 @@
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
+        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
             var validContentType = !string.IsNullOrWhiteSpace(context.Request.ContentType)
@@ -28,8 +28,8 @@
             {
                 context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
 
-                return Result<TResponse, IFormattable>.Error(
-                    $"Expected content-type to be application/json");
+                return Result.Error<TResponse>(
+                    new BusinessAppWebApiException("Expected content-type to be application/json"));
             }
 
             try

@@ -20,7 +20,7 @@ namespace BusinessApp.WebApi
             this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
+        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
             var request = await context.Request.DeserializeAsync<TRequest>(serializer, cancelToken);

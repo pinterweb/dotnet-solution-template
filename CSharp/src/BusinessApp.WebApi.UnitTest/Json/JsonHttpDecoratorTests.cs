@@ -61,7 +61,8 @@ namespace BusinessApp.WebApi.UnitTest.Json
             public async Task NotValidContent_ResultErrorReturned(string method)
             {
                 /* Arrange */
-                IFormattable error = $"Expected content-type to be application/json";
+                var error = new BusinessAppWebApiException(
+                    "Expected content-type to be application/json");
                 A.CallTo(() => context.Request.ContentType).Returns("text");
                 A.CallTo(() => context.Request.Method).Returns(method);
 
@@ -69,17 +70,13 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
-                Assert.Equal(
-                    Result<ResponseStub, IFormattable>.Error(error),
-                    result
-                );
+                Assert.Equal(error.Message, result.UnwrapError().Message);
             }
 
             [Theory, MemberData(nameof(SaveMethods))]
             public async Task NotValidContent_UnsupportedMediaResponseSet(string method)
             {
                 /* Arrange */
-                IFormattable error = $"Expected content-type to be application/json";
                 A.CallTo(() => context.Request.ContentType).Returns("text");
                 A.CallTo(() => context.Request.Method).Returns(method);
 
@@ -96,7 +93,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(Result.Ok.Into<ResponseStub>());
+                    .Returns(Result.Ok(A.Dummy<ResponseStub>()));
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);
@@ -111,7 +108,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(Result.Error($"foobar").Into<ResponseStub>());
+                    .Returns(Result.Error<ResponseStub>(A.Dummy<Exception>()));
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);

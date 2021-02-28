@@ -19,7 +19,7 @@ namespace BusinessApp.App
             this.factory = factory.NotNull().Expect(nameof(factory));
         }
 
-        public Task<Result<TResponse, IFormattable>> HandleAsync(IEnumerable<TRequest> request,
+        public Task<Result<TResponse, Exception>> HandleAsync(IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
             using (var _ = scope.NewScope())

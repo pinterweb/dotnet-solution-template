@@ -13,7 +13,7 @@
     /// </summary>
     public class DataAnnotationsValidator<T> : IValidator<T>
     {
-        public Task<Result> ValidateAsync(T instance, CancellationToken cancelToken)
+        public Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken)
         {
             var context = new ValidationContext(instance);
             var errors = new List<ValidationResult>();
@@ -43,7 +43,7 @@
                 );
             }
 
-            return Task.FromResult(Result.Ok);
+            return Task.FromResult(Result.OK);
         }
     }
 }

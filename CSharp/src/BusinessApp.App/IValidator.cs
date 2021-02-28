@@ -1,5 +1,6 @@
 ﻿namespace BusinessApp.App
 {
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
@@ -9,8 +10,10 @@
     /// </summary>
     public interface IValidator<T>
     {
-        /// <summary>Validates the given instance.</summary>
+        /// <summary>
+        /// Validates the instance, returning a result indicating success or failure
+        /// .</summary>
         /// <param name="instance">The instance to validate.</param>
-        Task<Result> ValidateAsync(T instance, CancellationToken cancelToken);
+        Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken);
     }
 }

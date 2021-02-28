@@ -4,7 +4,6 @@ namespace BusinessApp.Domain.UnitTest
     using Xunit;
     using BusinessApp.Domain;
     using System.Collections;
-    using FakeItEasy;
 
     public class BadStateExceptionTests
     {
@@ -41,32 +40,6 @@ namespace BusinessApp.Domain.UnitTest
                 var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
                 Assert.Equal("", data.Key);
                 Assert.Equal("foo", data.Value);
-            }
-        }
-
-        public class ObjectToString : BadStateExceptionTests
-        {
-            [Fact]
-            public void MessageReturned()
-            {
-                /* Act */
-                var ex = new BadStateException("foo");
-
-                /* Assert */
-                Assert.Equal("foo", ex.ToString());
-            }
-        }
-
-        public class IFormattableToString : BadStateExceptionTests
-        {
-            [Fact]
-            public void WithDummyArgs_MessageReturned()
-            {
-                /* Act */
-                var ex = new BadStateException("foo");
-
-                /* Assert */
-                Assert.Equal("foo", ex.ToString(A.Dummy<string>(), A.Dummy<IFormatProvider>()));
             }
         }
     }

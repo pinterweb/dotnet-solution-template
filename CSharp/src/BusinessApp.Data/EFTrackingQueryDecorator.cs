@@ -26,7 +26,7 @@ namespace BusinessApp.Data
             db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        public Task<Result<TResult, IFormattable>> HandleAsync(TQuery query,
+        public Task<Result<TResult, Exception>> HandleAsync(TQuery query,
             CancellationToken cancelToken)
         {
             return inner.HandleAsync(query, cancelToken);

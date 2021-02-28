@@ -10,7 +10,7 @@ namespace BusinessApp.App.UnitTest
         public class Constructor : CommunicationExceptionTests
         {
             [Fact]
-            public void WithMessage_MappedToProperty()
+            public void MessageArg_MappedToProperty()
             {
                 /* Act */
                 var ex = new CommunicationException("foo");
@@ -20,7 +20,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public void InnerException_MappedToProp()
+            public void InnerExceptionArg_MappedToProp()
             {
                 /* Act */
                 var inner = new Exception();
@@ -40,19 +40,6 @@ namespace BusinessApp.App.UnitTest
                 var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
                 Assert.Equal("", data.Key);
                 Assert.Equal("foo", data.Value);
-            }
-        }
-
-        public class IFormattableImpl : CommunicationExceptionTests
-        {
-            [Fact]
-            public void ToString_MessageReturned()
-            {
-                /* Act */
-                var ex = new CommunicationException("foo");
-
-                /* Assert */
-                Assert.Equal("foo", ex.ToString());
             }
         }
     }

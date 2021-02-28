@@ -1,13 +1,12 @@
 ﻿namespace BusinessApp.App
 {
     using System;
-    using System.Globalization;
 
     /// <summary>
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>
     [Serializable]
-    public class EntityNotFoundException : Exception, IFormattable
+    public class EntityNotFoundException : Exception
     {
         public EntityNotFoundException(string message)
             :base(message)
@@ -19,15 +18,6 @@
             :base(message ?? $"{entityName} not found")
         {
             Data.Add(entityName, message);
-        }
-
-        public override string ToString() => ToString("G", null);
-
-        public string ToString(string format, IFormatProvider formatProvider)
-        {
-            if (formatProvider == null) formatProvider = CultureInfo.CurrentCulture;
-
-            return Message.ToString(formatProvider);
         }
     }
 }

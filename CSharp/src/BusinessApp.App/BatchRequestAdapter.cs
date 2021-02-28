@@ -17,13 +17,13 @@
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
+        public async Task<Result<IEnumerable<TResponse>, Exception>> HandleAsync(
             IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
             request.NotNull().Expect(nameof(request));
 
-            var results = new List<Result<TResponse, IFormattable>>();
+            var results = new List<Result<TResponse, Exception>>();
 
             foreach(var msg in request)
             {
@@ -32,14 +32,10 @@
 
             if (results.Any(r => r.Kind == ValueKind.Error))
             {
-                return Result<IEnumerable<TResponse>, IFormattable>
-                    .Error(new BatchException(
-                        results.Select(o => o.Into()
-                    )));
+                return Result.Error<IEnumerable<TResponse>>(BatchException.FromResults(results));
             }
 
-            return Result<IEnumerable<TResponse>, IFormattable>
-                .Ok(results.Select(o => o.Unwrap()));
+            return Result.Ok(results.Select(o => o.Unwrap()));
         }
     }
 }

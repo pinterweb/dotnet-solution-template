@@ -24,7 +24,7 @@ namespace BusinessApp.WebApi
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
+        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
             var result = await inner.HandleAsync(context, cancelToken);
@@ -34,6 +34,8 @@ namespace BusinessApp.WebApi
             if (result.Kind == ValueKind.Error)
             {
                 var problem = problemFactory.Create(result.UnwrapError());
+
+                context.Response.StatusCode = problem.StatusCode;
 
                 await WriteResponse(context, cancelToken, problem);
             }

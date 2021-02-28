@@ -23,7 +23,7 @@ namespace BusinessApp.WebApi
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
+        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
             try
