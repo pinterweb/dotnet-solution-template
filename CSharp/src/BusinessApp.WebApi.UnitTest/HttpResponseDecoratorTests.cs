@@ -10,7 +10,7 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Collections.Generic;
     using System.Threading;
 
-    using Result = Domain.Result<ResponseStub, System.IFormattable>;
+    using Result = Domain.Result<ResponseStub, System.Exception>;
 
     public class HttpResponseDecoratorTests
     {
@@ -121,7 +121,7 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task ResultIsError_ProblemDetailSerialized()
             {
                 /* Arrange */
-                var error = A.Dummy<IFormattable>();
+                var error = A.Dummy<Exception>();
                 ProblemDetail problem = new TestProblemDetail();
                 var result = Result.Error(error);
                 A.CallTo(() => problemFactory.Create(error)).Returns(problem);
@@ -132,6 +132,23 @@ namespace BusinessApp.WebApi.UnitTest
 
                 /* Assert */
                 A.CallTo(() => serializer.Serialize(problem)).MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task ResultIsError_StatusCodeSetFromProblem()
+            {
+                /* Arrange */
+                var error = A.Dummy<Exception>();
+                ProblemDetail problem = new TestProblemDetail(400);
+                var result = Result.Error(error);
+                A.CallTo(() => problemFactory.Create(error)).Returns(problem);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
+
+                /* Act */
+                await sut.HandleAsync(context, cancelToken);
+
+                /* Assert */
+                Assert.Equal(400, context.Response.StatusCode);
             }
 
             [Theory]
@@ -164,7 +181,7 @@ namespace BusinessApp.WebApi.UnitTest
 
         private sealed class TestProblemDetail : ProblemDetail
         {
-            public TestProblemDetail() : base(1)
+            public TestProblemDetail(int statusCode = 1) : base(statusCode)
             {
             }
         }

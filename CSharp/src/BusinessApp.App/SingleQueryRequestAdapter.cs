@@ -27,13 +27,13 @@ namespace BusinessApp.App
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(TRequest request,
+        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
             var response = await handler.HandleAsync(request, cancelToken);
 
             // TODO return error if more than one
-            return Result<TResponse, IFormattable>.Ok(response.Unwrap().SingleOrDefault());
+            return Result.Ok(response.Unwrap().SingleOrDefault());
         }
     }
 }

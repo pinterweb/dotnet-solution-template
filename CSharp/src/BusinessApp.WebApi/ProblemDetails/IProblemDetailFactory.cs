@@ -4,6 +4,6 @@ namespace BusinessApp.WebApi.ProblemDetails
 
     public interface IProblemDetailFactory
     {
-        ProblemDetail Create(IFormattable error = null);
+        ProblemDetail Create(Exception error = null);
     }
 }

@@ -4,17 +4,16 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using BusinessApp.Domain;
     using FakeItEasy;
-    using System.Collections.Generic;
 
     public class BatchExceptionTests
     {
-        public class Constructor : BatchExceptionTests
+        public class FromResults : BatchExceptionTests
         {
             [Fact]
             public void WithoutResults_ExceptionThrown()
             {
                 /* Arrange */
-                static BatchException create() => new BatchException(null);
+                static BatchException create() => BatchException.FromResults<string>(null);
 
                 /* Act */
                 var ex = Record.Exception(create);
@@ -27,8 +26,8 @@ namespace BusinessApp.App.UnitTest
             public void WithEmptyResults_ExceptionThrown()
             {
                 /* Arrange */
-                var results = A.Dummy<IEnumerable<Result>>();
-                static BatchException create() => new BatchException(null);
+                var results = A.CollectionOfDummy<Result<string, Exception>>(0);
+                BatchException create() => BatchException.FromResults(results);
 
                 /* Act */
                 var ex = Record.Exception(create);
@@ -38,36 +37,20 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public void WithResults_PropertySet()
-            {
-                /* Arrange */
-                var results = A.CollectionOfDummy<Result>(1);
-
-                /* Act */
-                var sut = new BatchException(results);
-
-                /* Assert */
-                Assert.Single(sut.Results);
-            }
-
-            [Fact]
             public void NoInnerBatchException_MaintainsResultOrder()
             {
                 /* Arrange */
-                var innerError = Result.Error($"foobar");
-                var innerOk = Result.Ok;
+                var innerException = new Exception("foobar");
+                var innerError = Result.Error<string>(innerException);
+                var innerOk = Result.Ok("lorem");
 
                 /* Act */
-                var sut = new BatchException(new[] { innerError, innerOk });
+                var sut = BatchException.FromResults(new[] { innerError, innerOk });
 
                 /* Assert */
-                Assert.Collection<Result>(sut,
-                    s => Assert.Equal(innerError, s),
-                    s => Assert.Equal(innerOk, s)
-                );
-                Assert.Collection<Result<IFormattable, IFormattable>>(sut,
-                    s => Assert.Equal(innerError.Into(), s),
-                    s => Assert.Equal(innerOk.Into(), s)
+                Assert.Collection<Result<object, Exception>>(sut,
+                    s => Assert.Equal(Result.Error<object>(innerException), s),
+                    s => Assert.Equal(Result.Ok<object>("lorem"), s)
                 );
             }
 
@@ -75,21 +58,18 @@ namespace BusinessApp.App.UnitTest
             public void HasInnerBatchException_MaintainsResultOrder()
             {
                 /* Arrange */
-                var innerError = Result.Error($"foobar");
-                var innerOk = Result.Ok;
-                var results = Result.Error(new BatchException(new[] { innerError, innerOk }));
+                var innerException = new Exception("foobar");
+                var innerError = Result.Error<string>(innerException);
+                var innerOk = Result.Ok("lorem");
+                var results = Result.Error(BatchException.FromResults(new[] { innerError, innerOk }));
 
                 /* Act */
-                var sut = new BatchException(new[] { results });
+                var sut = BatchException.FromResults(new[] { results });
 
                 /* Assert */
-                Assert.Collection<Result>(sut,
-                    s => Assert.Equal(innerError, s),
-                    s => Assert.Equal(innerOk, s)
-                );
-                Assert.Collection<Result<IFormattable, IFormattable>>(sut,
-                    s => Assert.Equal(innerError.Into(), s),
-                    s => Assert.Equal(innerOk.Into(), s)
+                Assert.Collection(sut,
+                    s => Assert.Equal(Result.Error<object>(innerException), s),
+                    s => Assert.Equal(Result.Ok<object>("lorem"), s)
                 );
             }
 
@@ -97,50 +77,25 @@ namespace BusinessApp.App.UnitTest
             public void HasDeepInnerBatchException_MaintainsResultOrder()
             {
                 /* Arrange */
-                var innerError = Result.Error($"foobar");
-                var innerOk = Result.Ok;
-                var innerSut = new BatchException(new[] { innerError, innerOk });
+                var innerException = new Exception("foobar");
+                var innerError = Result.Error<string>(innerException);
+                var innerOk = Result.Ok("lorem");
+                var innerSut = BatchException.FromResults(new[] { innerError, innerOk });
                 var innerResults = Result.Error(innerSut);
-                var outerError = Result.Error(innerSut);
-                var outerOk = Result.Ok;
-                var outerSut = new BatchException(new[] { outerError, outerOk });
+                var outerError = Result.Error<string>(innerSut);
+                var outerOk = Result.Ok("ipsum");
+                var outerSut = BatchException.FromResults(new[] { outerError, outerOk });
                 var outerResults = Result.Error(outerSut);
 
                 /* Act */
-                var sut = new BatchException(new[] { outerResults });
+                var sut = BatchException.FromResults(new[] { outerResults });
 
                 /* Assert */
-                Assert.Collection<Result>(sut,
-                    s => Assert.Equal(innerError, s),
-                    s => Assert.Equal(innerOk, s),
-                    s => Assert.Equal(outerOk, s)
+                Assert.Collection<Result<object, Exception>>(sut,
+                    s => Assert.Equal(Result.Error<object>(innerException), s),
+                    s => Assert.Equal(Result.Ok<object>("lorem"), s),
+                    s => Assert.Equal(Result.Ok<object>("ipsum"), s)
                 );
-                Assert.Collection<Result<IFormattable, IFormattable>>(sut,
-                    s => Assert.Equal(innerError.Into(), s),
-                    s => Assert.Equal(innerOk.Into(), s),
-                    s => Assert.Equal(outerOk.Into(), s)
-                );
-            }
-        }
-
-        public class IFormattableImpl : BatchExceptionTests
-        {
-            [Fact]
-            public void ToString_ReturnsFormattedMessage()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Error(A.Dummy<IFormattable>()),
-                    Result.Error(A.Dummy<IFormattable>()),
-                    Result.Ok
-                };
-
-                /* Act */
-                var sut = new BatchException(results);
-
-                /* Assert */
-                Assert.Equal("The batch request has 2 out of 3 errors", sut.ToString());
             }
         }
     }

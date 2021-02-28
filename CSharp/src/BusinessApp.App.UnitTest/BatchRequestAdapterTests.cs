@@ -69,14 +69,17 @@ namespace BusinessApp.App.UnitTest
                 await sut.HandleAsync(commands, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => inner.HandleAsync(commands.First(), cancelToken)).MustHaveHappenedOnceExactly();
-                A.CallTo(() => inner.HandleAsync(commands.Last(), cancelToken)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(commands.First(), cancelToken))
+                    .MustHaveHappenedOnceExactly();
+                A.CallTo(() => inner.HandleAsync(commands.Last(), cancelToken))
+                    .MustHaveHappenedOnceExactly();
             }
 
             public class OnError : BatchRequestAdapterTests
             {
-                private readonly Result<CommandStub, IFormattable> error;
-                private readonly Result<CommandStub, IFormattable> ok;
+                private readonly Exception errorException;
+                private readonly Result<CommandStub, Exception> error;
+                private readonly Result<CommandStub, Exception> ok;
                 private readonly IEnumerable<CommandStub> commands;
 
                 public OnError()
@@ -88,12 +91,14 @@ namespace BusinessApp.App.UnitTest
                         new CommandStub(),
                     };
 
-                    error = Result<CommandStub, IFormattable>
-                        .Error(DateTime.Now);
-                    ok = Result<CommandStub, IFormattable>
-                        .Ok(A.Dummy<CommandStub>());
+                    errorException = new Exception();
+                    error = Result.Error<CommandStub>(errorException);
+                    ok = Result.Ok(A.Dummy<CommandStub>());
+
                     A.CallTo(() => inner.HandleAsync(A<CommandStub>._, cancelToken))
-                        .Returns(error).Once().Then.Returns(ok).Once().Then.Returns(ok);
+                        .Returns(error).Once()
+                        .Then.Returns(Result.Ok(commands.ElementAt(1))).Once()
+                        .Then.Returns(Result.Ok(commands.ElementAt(2))).Once();
                 }
 
                 [Fact]
@@ -114,10 +119,10 @@ namespace BusinessApp.App.UnitTest
 
                     /* Assert */
                     var ex = Assert.IsType<BatchException>(results.UnwrapError());
-                    Assert.Collection(ex.Results,
-                        r => Assert.Equal(error.UnwrapError(), r.Into().UnwrapError()),
-                        r => Assert.Equal(ValueKind.Ok, r.Kind),
-                        r => Assert.Equal(ValueKind.Ok, r.Kind)
+                    Assert.Collection(ex,
+                        r => Assert.Equal(Result.Error<object>(errorException), r),
+                        r => Assert.Equal(Result.Ok<object>(commands.ElementAt(1)), r),
+                        r => Assert.Equal(Result.Ok<object>(commands.ElementAt(2)), r)
                     );
                 }
             }
@@ -134,10 +139,8 @@ namespace BusinessApp.App.UnitTest
                 var result1 = new CommandStub();
                 var result2 = new CommandStub();
 
-                var ok1 = Result<CommandStub, IFormattable>
-                    .Ok(result1);
-                var ok2 = Result<CommandStub, IFormattable>
-                    .Ok(result2);
+                var ok1 = Result.Ok(result1);
+                var ok2 = Result.Ok(result2);
 
                 A.CallTo(() => inner.HandleAsync(A<CommandStub>._, cancelToken))
                     .Returns(ok1).Once().Then.Returns(ok2);

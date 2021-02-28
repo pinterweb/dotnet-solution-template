@@ -137,7 +137,7 @@
             App.IRequestHandler<Request, IEnumerable<Response>>,
             App.IRequestHandler<Request, App.EnvelopeContract<Response>>
         {
-            public Task<Result<IEnumerable<Response>, IFormattable>> HandleAsync(Request request, CancellationToken cancelToken)
+            public Task<Result<IEnumerable<Response>, Exception>> HandleAsync(Request request, CancellationToken cancelToken)
             {
                 var response =  new []
                 {
@@ -147,13 +147,13 @@
                 .Where(r => r.Id.Id == request.Id);
 
 
-                return Task.FromResult(Result<IEnumerable<Response>, IFormattable>.Ok(response));
+                return Task.FromResult(Result.Ok(response));
             }
 
-            Task<Result<App.EnvelopeContract<Response>, IFormattable>> App.IRequestHandler<Request, App.EnvelopeContract<Response>>.HandleAsync(
+            Task<Result<App.EnvelopeContract<Response>, Exception>> App.IRequestHandler<Request, App.EnvelopeContract<Response>>.HandleAsync(
                 Request request, CancellationToken cancelToken)
             {
-                var e =  Result<App.EnvelopeContract<Response>, IFormattable>.Ok(new App.EnvelopeContract<Response>
+                var e =  Result.Ok(new App.EnvelopeContract<Response>
                 {
                     Data = new [] { new Response() },
                     Pagination = new App.Pagination
@@ -177,9 +177,9 @@
 
         public class Handler : App.IRequestHandler<Body, Body>
         {
-            public Task<Result<Body, IFormattable>> HandleAsync(Body request, CancellationToken cancelToken)
+            public Task<Result<Body, Exception>> HandleAsync(Body request, CancellationToken cancelToken)
             {
-                return Task.FromResult(Result<Body, IFormattable>.Ok(request));
+                return Task.FromResult(Result.Ok(request));
             }
         }
     }
@@ -193,9 +193,9 @@
 
         public class Handler : App.IRequestHandler<Query, Query>
         {
-            public Task<Result<Query, IFormattable>> HandleAsync(Query request, CancellationToken cancelToken)
+            public Task<Result<Query, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
             {
-                return Task.FromResult(Result<Query, IFormattable>.Ok(request));
+                return Task.FromResult(Result.Ok(request));
             }
         }
     }

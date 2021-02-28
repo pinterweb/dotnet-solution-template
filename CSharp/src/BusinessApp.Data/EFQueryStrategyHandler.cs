@@ -28,7 +28,7 @@
             this.dbSetFactory = dbSetFactory.NotNull().Expect(nameof(dbSetFactory));
         }
 
-        public virtual async Task<Result<IEnumerable<TResult>, IFormattable>> HandleAsync(
+        public virtual async Task<Result<IEnumerable<TResult>, Exception>> HandleAsync(
             TQuery query, CancellationToken cancelToken)
         {
             var queryableFactory = dbSetFactory.Create(query);
@@ -37,7 +37,7 @@
 
             var queryResults =  await queryVisitor.Visit(queryable).ToListAsync();
 
-            return Result<IEnumerable<TResult>, IFormattable>.Ok(queryResults);
+            return Result.Ok<IEnumerable<TResult>>(queryResults);
         }
     }
 }

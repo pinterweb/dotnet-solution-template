@@ -7,7 +7,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
     using System;
     using System.Linq;
     using BusinessApp.Domain;
-    using System.Collections;
+    using BusinessApp.App;
 
     public class ProblemDetailFactoryTests
     {
@@ -20,7 +20,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             {
                 new ProblemDetailOptions
                 {
-                    ProblemType = typeof(ProblemTypeStub),
+                    ProblemType = typeof(ProblemTypeExceptionStub),
                     StatusCode = 400,
                     AbsoluteType = "http://bar/foo.html"
                 }
@@ -55,7 +55,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void NullArgument_DefaultInternalErrorStatusReturned()
             {
                 /* Arrange */
-                IFormattable unknown = null;
+                Exception unknown = null;
 
                 /* Act */
                 var problem = sut.Create(unknown);
@@ -68,7 +68,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void NullArgument_InternalErrorDetailReturnedWhenToStringIsNull()
             {
                 /* Arrange */
-                IFormattable unknown = null;
+                Exception unknown = null;
 
                 /* Act */
                 var problem = sut.Create(unknown);
@@ -84,7 +84,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             public void NullArgument_AboutBlankTypeReturned()
             {
                 /* Arrange */
-                IFormattable unknown = null;
+                Exception unknown = null;
 
                 /* Act */
                 var problem = sut.Create(unknown);
@@ -94,10 +94,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void UnknownArgumentType_InternalErrorStatusReturned()
+            public void UnknownExceptionType_InternalErrorStatusReturned()
             {
                 /* Arrange */
-                var unknown = A.Dummy<IFormattable>();
+                var unknown = A.Dummy<Exception>();
 
                 /* Act */
                 var problem = sut.Create(unknown);
@@ -106,28 +106,24 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 Assert.Equal(500, problem.StatusCode);
             }
 
-            [Theory]
-            [InlineData(null, "An unknown error has occurred. Please try again or contact support")]
-            [InlineData("foobar", "foobar")]
-            public void UnknownArgumentType_InternalErrorDetailReturnedWhenToStringIsNull(
-                string formattableString, string expectedMsg)
+            [Fact]
+            public void UnknownExceptionType_InternalErrorDetailReturnedWhenToStringIsNull()
             {
                 /* Arrange */
-                var unknown = A.Dummy<IFormattable>();
-                A.CallTo(() => unknown.ToString("G", null)).Returns(formattableString);
+                var unknown = new Exception("foobar");
 
                 /* Act */
                 var problem = sut.Create(unknown);
 
                 /* Assert */
-                Assert.Equal(expectedMsg, problem.Detail);
+                Assert.Equal("foobar", problem.Detail);
             }
 
             [Fact]
-            public void UnknownArgumentType_AboutBlankTypeReturned()
+            public void UnknownExceptionType_AboutBlankTypeReturned()
             {
                 /* Arrange */
-                var unknown = A.Dummy<IFormattable>();
+                var unknown = A.Dummy<Exception>();
 
                 /* Act */
                 var problem = sut.Create(unknown);
@@ -137,10 +133,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void KnownArgumentType_OptionStatusReturned()
+            public void KnownExceptionType_OptionStatusReturned()
             {
                 /* Arrange */
-                var error = new ProblemTypeStub();
+                var error = new ProblemTypeExceptionStub();
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -150,10 +146,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void KnownArgumentType_OptionTypeReturned()
+            public void KnownExceptionType_OptionTypeReturned()
             {
                 /* Arrange */
-                var error = new ProblemTypeStub();
+                var error = new ProblemTypeExceptionStub();
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -163,10 +159,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void KnownArgumentType_UsesOptionMessageOverride()
+            public void KnownExceptionType_UsesOptionMessageOverride()
             {
                 /* Arrange */
-                var error = new ProblemTypeStub();
+                var error = new ProblemTypeExceptionStub();
                 options.First().MessageOverride = "lorem";
 
                 /* Act */
@@ -177,41 +173,25 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void KnownArgumentTypeNoMessageOverride_UsesErrorMessage()
+            public void KnownExceptionTypeNoMessageOverride_UsesErrorMessage()
             {
                 /* Arrange */
-                var error = new ProblemTypeStub();
+                var error = new ProblemTypeExceptionStub("msg from exception");
                 options.First().MessageOverride = null;
 
                 /* Act */
                 var problem = sut.Create(error);
 
                 /* Assert */
-                Assert.Equal("msg from formattable", problem.Detail);
+                Assert.Equal("msg from exception", problem.Detail);
             }
 
             [Fact]
-            public void ArgumentTypeIsExceptionWithStringKey_ExtensionsAdded()
+            public void ExceptionHasData_ExtensionsAdded()
             {
                 /* Arrange */
-                var error = new FormattableExceptionStub();
+                var error = new ProblemTypeExceptionStub();
                 error.Data.Add("foo", "bar");
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.Equal("bar", problem["foo"]);
-            }
-
-            [Fact]
-            public void ArgumentTypeIsExceptionIFormattableKey_ExtensionsAdded()
-            {
-                /* Arrange */
-                var key = A.Fake<IFormattable>();
-                A.CallTo(() => key.ToString("g", null)).Returns("foo");
-                var error = new FormattableExceptionStub();
-                error.Data.Add(key, "bar");
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -222,10 +202,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 
             [Theory]
             [InlineData("")]
-            public void ArgumentTypeIsExceptionWithoutKeyString_ExtensionsNotAdded(object key)
+            public void ExceptionWithoutDataKeyString_ExtensionsNotAdded(object key)
             {
                 /* Arrange */
-                var error = new FormattableExceptionStub();
+                var error = new ProblemTypeExceptionStub();
                 error.Data.Add(key, "bar");
 
                 /* Act */
@@ -236,36 +216,15 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void ArgumentTypeACompositeOfAllOkResults_ExceptionThrown()
+            public void BatchException_CompositeProblemReturned()
             {
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.Ok
+                    Result.OK,
+                    Result.Error(A.Dummy<Exception>())
                 };
-                var error = new CompositeError(results);
-
-                /* Act */
-                var ex = Record.Exception(() => sut.Create(error));
-
-                /* Assert */
-                Assert.IsType<BusinessAppWebApiException>(ex);
-                Assert.Equal(
-                    "A multi status problem should have at least one error",
-                    ex.Message
-                );
-            }
-
-            [Fact]
-            public void ArgumentTypeIsAMixOfErrors_CompositeProblemReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok,
-                    Result.Error(1)
-                };
-                var error = new CompositeError(results);
+                var error = BatchException.FromResults(results);
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -275,15 +234,15 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void ArgumentTypeIsAMixOfErrors_ManyStatusesReturned()
+            public void BatchException_ManyStatusesReturned()
             {
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.Ok,
-                    Result.Error(1)
+                    Result.OK,
+                    Result.Error(A.Dummy<Exception>())
                 };
-                var error = new CompositeError(results);
+                var error = BatchException.FromResults(results);
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -297,15 +256,15 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void ArgumentTypeIsAMixOfErrors_ManyTypesReturned()
+            public void BatchException_ManyTypesReturned()
             {
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.Ok,
-                    Result.Error(new ProblemTypeStub())
+                    Result.OK,
+                    Result.Error(new ProblemTypeExceptionStub())
                 };
-                var error = new CompositeError(results);
+                var error = BatchException.FromResults(results);
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -319,15 +278,15 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void ArgumentTypeIsAMixOfErrors_ManyMessagesReturned()
+            public void BatchException_ManyMessagesReturned()
             {
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.Ok,
-                    Result.Error(new ProblemTypeStub())
+                    Result.OK,
+                    Result.Error(new ProblemTypeExceptionStub("msg from exception"))
                 };
-                var error = new CompositeError(results);
+                var error = BatchException.FromResults(results);
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -336,48 +295,22 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var problems = Assert.IsType<CompositeProblemDetail>(problem);
                 Assert.Collection<ProblemDetail>(problems,
                     p => Assert.Null(p.Detail),
-                    p => Assert.Equal("msg from formattable", p.Detail)
+                    p => Assert.Equal("msg from exception", p.Detail)
                 );
             }
 
             [Fact]
-            public void ArgumentTypeIsAMixOfErrors_ExceptionExtensionsAdded()
+            public void BatchException_ExceptionExtensionsAdded()
             {
                 /* Arrange */
-                var innerError = new FormattableExceptionStub();
+                var innerError = new ProblemTypeExceptionStub();
                 innerError.Data.Add("foo", "bar");
                 var results = new[]
                 {
-                    Result.Ok,
+                    Result.OK,
                     Result.Error(innerError)
                 };
-                var error = new CompositeError(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.False(p.TryGetValue("foo", out object _)),
-                    p => Assert.Equal("bar", p["foo"])
-                );
-            }
-
-            [Fact]
-            public void ArgumentTypeIsAMixOfErrorsWithIFormattableKey_ExceptionExtensionsAdded()
-            {
-                /* Arrange */
-                var key = A.Fake<IFormattable>();
-                var innerError = new FormattableExceptionStub();
-                A.CallTo(() => key.ToString("g", null)).Returns("foo");
-                innerError.Data.Add(key, "bar");
-                var results = new[]
-                {
-                    Result.Ok,
-                    Result.Error(innerError)
-                };
-                var error = new CompositeError(results);
+                var error = BatchException.FromResults(results);
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -393,17 +326,18 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             [Theory]
             [InlineData(1)]
             [InlineData("")]
-            public void ArgumentTypeIsAMixOfExceptionWithoutStringKey_ExtensionsNotAdded(object key)
+            public void BatchExceptionIsAMixOfExceptionWithoutStringKey_ExtensionsNotAdded(
+                object key)
             {
                 /* Arrange */
-                var innerError = new FormattableExceptionStub();
+                var innerError = new ProblemTypeExceptionStub();
                 innerError.Data.Add(key, "bar");
                 var results = new[]
                 {
-                    Result.Ok,
+                    Result.OK,
                     Result.Error(innerError)
                 };
-                var error = new CompositeError(results);
+                var error = BatchException.FromResults(results);
 
                 /* Act */
                 var problem = sut.Create(error);
@@ -411,41 +345,32 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Assert */
                 Assert.False(problem.TryGetValue(key.ToString(), out object _));
             }
-        }
 
-        private sealed class ProblemTypeStub : IFormattable
-        {
-            public string ToString(string format, IFormatProvider formatProvider)
+            [Fact]
+            public void BatchException_DetailMessagedAdded()
             {
-                return "msg from formattable";
+                /* Arrange */
+                var results = new[]
+                {
+                    Result.OK,
+                    Result.Error(A.Dummy<ProblemTypeExceptionStub>())
+                };
+                var error = BatchException.FromResults(results);
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal(
+                    "The request partially succeeded. Please review the errors before continuing",
+                    problem.Detail);
             }
         }
 
-        private sealed class FormattableExceptionStub : Exception, IFormattable
+        private sealed class ProblemTypeExceptionStub : Exception
         {
-            public string ToString(string format, IFormatProvider formatProvider)
-            {
-                return "";
-            }
-        }
-
-        private sealed class CompositeError : IFormattable, IEnumerable<Result>
-        {
-            private readonly IEnumerable<Result> results;
-
-            public CompositeError(IEnumerable<Result> results)
-            {
-                this.results = results;
-            }
-
-            public IEnumerator<Result> GetEnumerator() => results.GetEnumerator();
-
-            public string ToString(string format, IFormatProvider formatProvider)
-            {
-                return "";
-            }
-
-            IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+            public ProblemTypeExceptionStub(string msg = null) : base(msg)
+            {}
         }
     }
 }

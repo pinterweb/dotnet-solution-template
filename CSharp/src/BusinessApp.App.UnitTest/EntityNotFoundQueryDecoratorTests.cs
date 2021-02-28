@@ -55,7 +55,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
                 A.CallTo(() => inner.HandleAsync(query, cancelToken))
-                    .Returns(Result<ResponseStub, IFormattable>.Ok(null));
+                    .Returns(Result.Ok<ResponseStub>(null));
 
                 /* Act */
                 var result = await sut.HandleAsync(query, cancelToken);
@@ -75,7 +75,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                var innerResult = Result<ResponseStub, IFormattable>.Ok(new ResponseStub());
+                var innerResult = Result.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResult);
 
@@ -91,7 +91,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                var innerResult = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
+                var innerResult = Result.Error<ResponseStub>(A.Dummy<Exception>());
                 A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResult);
 

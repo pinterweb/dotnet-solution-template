@@ -32,7 +32,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.Ok, result);
+                Assert.Equal(Result.OK, result);
             }
 
             [Fact]
@@ -51,7 +51,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.Ok, result);
+                Assert.Equal(Result.OK, result);
             }
 
             [Fact]
@@ -72,7 +72,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
+                var modelError = Assert.IsType<ModelValidationException>(result.UnwrapError());
                 Assert.Collection(modelError,
                     e => Assert.Equal("foo", e.MemberName)
                 );

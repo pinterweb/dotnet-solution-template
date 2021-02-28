@@ -25,7 +25,7 @@ namespace BusinessApp.Data
             this.dbSetFactory = dbSetFactory.NotNull().Expect(nameof(dbSetFactory));
         }
 
-        public async Task<Result<EnvelopeContract<TResult>, IFormattable>> HandleAsync(
+        public async Task<Result<EnvelopeContract<TResult>, Exception>> HandleAsync(
             TQuery query, CancellationToken cancelToken)
         {
             var dbSetVisitor = dbSetFactory.Create(query);
@@ -41,7 +41,7 @@ namespace BusinessApp.Data
             var finalQuery = queryVisitor.Visit(queryable);
             var totalCount = await finalQuery.CountAsync(cancelToken);
 
-            return Result<EnvelopeContract<TResult>, IFormattable>.Ok(new EnvelopeContract<TResult>
+            return Result.Ok<EnvelopeContract<TResult>>(new EnvelopeContract<TResult>
             {
                 // take must be greater than 0
                 Data = await finalQuery.Skip(skip).Take(take ?? (totalCount == 0 ? 1 : totalCount)).ToListAsync(),

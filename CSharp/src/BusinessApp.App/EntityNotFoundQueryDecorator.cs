@@ -18,7 +18,7 @@
             this.decorated = decorated.NotNull().Expect(nameof(decorated));
         }
 
-        public async Task<Result<TResult, IFormattable>> HandleAsync(
+        public async Task<Result<TResult, Exception>> HandleAsync(
             TQuery query, CancellationToken cancelToken)
         {
             var result = await decorated.HandleAsync(query, cancelToken);
@@ -27,10 +27,10 @@
             {
                 if (val == null)
                 {
-                    return Result<TResult, IFormattable>.Error(
-                        new EntityNotFoundException("The data you tried to search for was not " +
-                            "found based on your search critiera. Try to change your criteria " +
-                            "and search again. If the data is still found, it may have been deleted.")
+                    return Result.Error<TResult>(new EntityNotFoundException(
+                        "The data you tried to search for was not " +
+                        "found based on your search critiera. Try to change your criteria " +
+                        "and search again. If the data is still found, it may have been deleted.")
                     );
                 }
 

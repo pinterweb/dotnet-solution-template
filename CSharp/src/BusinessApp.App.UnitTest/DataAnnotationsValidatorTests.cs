@@ -42,7 +42,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.Ok, result);
+                Assert.Equal(Result.OK, result);
             }
 
             [Fact]
@@ -60,7 +60,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                var error = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
+                var error = Assert.IsType<ModelValidationException>(result.UnwrapError());
                 Assert.Equal(
                     "The model did not pass validation. See erros for more details",
                     error.Message
@@ -84,7 +84,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
+                var modelError = Assert.IsType<ModelValidationException>(result.UnwrapError());
                 Assert.Single(modelError, e => e.MemberName == memberName);
             }
 
@@ -106,7 +106,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                var modelError = Assert.IsType<ModelValidationException>(result.Into().UnwrapError());
+                var modelError = Assert.IsType<ModelValidationException>(result.UnwrapError());
                 var memberError = Assert.Single(modelError, e => e.MemberName == memberName);
                 Assert.Contains(associatedMsg, memberError.Errors);
             }

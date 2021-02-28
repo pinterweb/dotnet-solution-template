@@ -131,35 +131,7 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public async Task ExceptionCaught_UnhandledRequestExceptionLogged()
-            {
-                /* Arrange */
-                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
-                    .Throws<Exception>();
-
-                /* Act */
-                var result = await sut.HandleAsync(request, cancelToken);
-
-                /* Assert */
-                Assert.IsType<UnhandledRequestException>(result.UnwrapError());
-            }
-
-            [Fact]
-            public async Task IFormattableExceptionCaught_ErrorTypeReturned()
-            {
-                /* Arrange */
-                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
-                    .Throws(new BadStateException("foo"));
-
-                /* Act */
-                var result = await sut.HandleAsync(request, cancelToken);
-
-                /* Assert */
-                Assert.Equal(ValueKind.Error, result.Kind);
-            }
-
-            [Fact]
-            public async Task IFormattableExceptionCaught_FormattableErrorWrapped()
+            public async Task ExceptionCaught_ErrorTypeReturned()
             {
                 /* Arrange */
                 var error = new BadStateException("foo");
@@ -170,14 +142,14 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
-                Assert.Same(error, result.UnwrapError());
+                Assert.Equal(Result.Error<ResponseStub>(error), result);
             }
 
             [Fact]
             public async Task NoException_InnerResultReturned()
             {
                 /* Arrange */
-                var innerResult = Result<ResponseStub, IFormattable>.Ok(new ResponseStub());
+                var innerResult = Result.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
                     .Returns(innerResult);
 

@@ -70,7 +70,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = new QueryStub();
-                var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
+                var firstResponse = Result.Error<ResponseStub>(A.Dummy<Exception>());
                 A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(firstResponse)
                     .Once();
@@ -89,7 +89,7 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query1 = new QueryStub { Id = 1 };
                 var query2 = new QueryStub { Id = 1 };
-                var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
+                var firstResponse = Result.Error<ResponseStub>(A.Dummy<Exception>());
                 A.CallTo(() => inner.HandleAsync(query1, cancelToken))
                     .Returns(firstResponse)
                     .Once();
@@ -108,8 +108,8 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var query1 = new QueryStub { Id = 1 };
                 var query2 = new QueryStub { Id = 2 };
-                var firstResponse = Result<ResponseStub, IFormattable>.Error(DateTime.Now);
-                var secondResponse = Result<ResponseStub, IFormattable>.Ok(new ResponseStub());
+                var firstResponse = Result.Error<ResponseStub>(A.Dummy<Exception>());
+                var secondResponse = Result.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(query1, cancelToken))
                     .Returns(firstResponse);
                 A.CallTo(() => inner.HandleAsync(query2, cancelToken))

@@ -8,7 +8,7 @@ namespace BusinessApp.WebApi
 
     public interface IHttpRequestHandler<TRequest, TResponse>
     {
-        Task<Result<TResponse, IFormattable>> HandleAsync(HttpContext context,
+        Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken);
     }
 }

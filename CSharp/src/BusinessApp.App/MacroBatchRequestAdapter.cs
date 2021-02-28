@@ -22,7 +22,7 @@ namespace BusinessApp.App
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
-        public async Task<Result<TResponse, IFormattable>> HandleAsync(TMacro macro,
+        public async Task<Result<TResponse, Exception>> HandleAsync(TMacro macro,
             CancellationToken cancelToken)
         {
             macro.NotNull().Expect(nameof(macro));

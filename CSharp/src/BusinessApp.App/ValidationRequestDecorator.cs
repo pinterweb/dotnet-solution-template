@@ -8,7 +8,8 @@ namespace BusinessApp.App
     /// <summary>
     /// Validates the command prior to handling
     /// </summary>
-    public class ValidationRequestDecorator<TRequest, TResult> : IRequestHandler<TRequest, TResult>
+    public class ValidationRequestDecorator<TRequest, TResult> :
+        IRequestHandler<TRequest, TResult>
     {
         private readonly IValidator<TRequest> validator;
         private readonly IRequestHandler<TRequest, TResult> inner;
@@ -19,7 +20,7 @@ namespace BusinessApp.App
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<TResult, IFormattable>> HandleAsync(TRequest request,
+        public async Task<Result<TResult, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
             request.NotNull().Expect(nameof(request));
@@ -28,7 +29,7 @@ namespace BusinessApp.App
 
             return result.Kind switch
             {
-                ValueKind.Error => result.Into<TResult>(),
+                ValueKind.Error => Result.Error<TResult>(result.UnwrapError()),
                 ValueKind.Ok => await inner.HandleAsync(request, cancelToken),
                 _ => throw new NotImplementedException()
             };

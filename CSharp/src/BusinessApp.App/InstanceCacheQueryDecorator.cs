@@ -12,19 +12,19 @@ namespace BusinessApp.App
     public class InstanceCacheQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
         where TQuery : IQuery
     {
-        private readonly ConcurrentDictionary<TQuery, Result<TResult, IFormattable>> cache;
+        private readonly ConcurrentDictionary<TQuery, Result<TResult, Exception>> cache;
         private readonly IRequestHandler<TQuery, TResult> inner;
 
         public InstanceCacheQueryDecorator(IRequestHandler<TQuery, TResult> inner)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
-            cache = new ConcurrentDictionary<TQuery, Result<TResult, IFormattable>>();
+            cache = new ConcurrentDictionary<TQuery, Result<TResult, Exception>>();
         }
 
-        public async Task<Result<TResult, IFormattable>> HandleAsync(
+        public async Task<Result<TResult, Exception>> HandleAsync(
             TQuery query, CancellationToken cancelToken)
         {
-            if (cache.TryGetValue(query, out Result<TResult, IFormattable> cachedResult))
+            if (cache.TryGetValue(query, out Result<TResult, Exception> cachedResult))
             {
                 return cachedResult;
             }

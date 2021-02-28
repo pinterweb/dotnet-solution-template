@@ -3,7 +3,6 @@ namespace BusinessApp.App
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.Domain;
@@ -11,7 +10,6 @@ namespace BusinessApp.App
     public class GroupedBatchRequestDecorator<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
     {
-        private static readonly Regex regex = new Regex(@"^\[(\d+)\](\..*)$");
         private readonly IBatchGrouper<TRequest> grouper;
         private readonly IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler;
 
@@ -23,7 +21,7 @@ namespace BusinessApp.App
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
-        public async Task<Result<IEnumerable<TResponse>, IFormattable>> HandleAsync(
+        public async Task<Result<IEnumerable<TResponse>, Exception>> HandleAsync(
             IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
@@ -31,41 +29,44 @@ namespace BusinessApp.App
 
             var payloads = await grouper.GroupAsync(request, cancelToken);
 
-            var tasks = new List<(IEnumerable<TRequest>, Task<Result<IEnumerable<TResponse>, IFormattable>>)>();
+            ThrowIfInvalid(request, payloads.SelectMany(p => p));
+
+            var tasks = new List<(IEnumerable<TRequest>, Task<Result<IEnumerable<TResponse>, Exception>>)>();
 
             foreach (var group in payloads)
             {
-                tasks.Add((group, handler.HandleAsync(group, cancelToken)));
+                var originalRequests = request.Intersect(group);
+                tasks.Add((originalRequests, handler.HandleAsync(group, cancelToken)));
             }
 
             var _ = await Task.WhenAll(tasks.Select(s => s.Item2));
 
-            var orderedResults = new List<Result<IEnumerable<TResponse>, IFormattable>>();
+            var orderedResults = new List<Result<IEnumerable<TResponse>, Exception>>();
 
             foreach (var item in request)
             {
                 var target = tasks.SingleOrDefault(t => t.Item1.Contains(item));
-
-                if (target == default)
-                {
-                    throw new BusinessAppAppException("Could not find the original command after " +
-                        "it was grouped. Consider overriding Equals if the batch grouper " +
-                        "creates new classes.");
-                }
-
                 orderedResults.Add(target.Item2.Result);
             }
 
             if (orderedResults.Any(r => r.Kind == ValueKind.Error))
             {
-                return Result<IEnumerable<TResponse>, IFormattable>
-                    .Error(new BatchException(
-                        orderedResults.Select(o => o.Into()
-                    )));
+                return Result.Error<IEnumerable<TResponse>>(
+                    BatchException.FromResults(orderedResults));
             }
 
-            return Result<IEnumerable<TResponse>, IFormattable>
-                .Ok(orderedResults.SelectMany(o => o.Unwrap()));
+            return Result.Ok(orderedResults.SelectMany(o => o.Unwrap()));
+        }
+
+        private static void ThrowIfInvalid(IEnumerable<TRequest> request,
+            IEnumerable<TRequest> groupedRequest)
+        {
+            if (request.Except(groupedRequest).Any())
+            {
+                throw new BusinessAppAppException("Could not find the original " +
+                    "command(s) after it was grouped. Consider overriding Equals " +
+                    "if the batch grouper creates new classes.");
+            }
         }
     }
 }

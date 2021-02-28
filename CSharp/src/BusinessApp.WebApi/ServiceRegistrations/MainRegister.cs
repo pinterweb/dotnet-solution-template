@@ -133,9 +133,6 @@ namespace BusinessApp.WebApi
             container.RegisterInstance(ProblemDetailOptionBootstrap.KnownProblems);
 
             container.RegisterSingleton<IProblemDetailFactory, ProblemDetailFactory>();
-
-            container.RegisterDecorator<IProblemDetailFactory, ProblemDetailFactoryHttpDecorator>(
-                Lifestyle.Singleton);
         }
 
         private void RegisterLogging(Container container)
