@@ -149,7 +149,7 @@ namespace BusinessApp.App.UnitTest
             public async Task NoException_InnerResultReturned()
             {
                 /* Arrange */
-                var innerResult = Result.Ok<ResponseStub>(new ResponseStub());
+                var innerResult = Result.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
                     .Returns(innerResult);
 

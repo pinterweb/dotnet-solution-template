@@ -109,7 +109,7 @@ namespace BusinessApp.App.UnitTest
                 var query1 = new QueryStub { Id = 1 };
                 var query2 = new QueryStub { Id = 2 };
                 var firstResponse = Result.Error<ResponseStub>(A.Dummy<Exception>());
-                var secondResponse = Result.Ok<ResponseStub>(new ResponseStub());
+                var secondResponse = Result.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(query1, cancelToken))
                     .Returns(firstResponse);
                 A.CallTo(() => inner.HandleAsync(query2, cancelToken))

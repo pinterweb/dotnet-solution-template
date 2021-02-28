@@ -28,7 +28,7 @@ namespace BusinessApp.App
 
                 if (!result.IsValid)
                 {
-                    return Result.Error((Exception)
+                    return Result.Error(
                         new ModelValidationException(
                             "Model failed validation. See errors for more detials",
                             result.Errors

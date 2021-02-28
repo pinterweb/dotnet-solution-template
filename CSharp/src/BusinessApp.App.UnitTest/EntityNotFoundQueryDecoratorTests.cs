@@ -75,7 +75,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
-                var innerResult = Result.Ok<ResponseStub>(new ResponseStub());
+                var innerResult = Result.Ok(new ResponseStub());
                 A.CallTo(() => inner.HandleAsync(query, cancelToken))
                     .Returns(innerResult);
 
