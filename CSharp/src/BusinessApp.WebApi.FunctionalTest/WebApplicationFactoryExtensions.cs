@@ -55,9 +55,9 @@ namespace BusinessApp.WebApi.FunctionalTest
             {
                 var claims = new[]
                 {
-                new Claim(ClaimTypes.Name, "FakeUserId"),
-                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
-            };
+                    new Claim(ClaimTypes.Name, "FakeUserId"),
+                    new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
+                };
                 var identity = new ClaimsIdentity(claims, "Fake");
                 var principal = new ClaimsPrincipal(identity);
                 var ticket = new AuthenticationTicket(principal, "Fake");

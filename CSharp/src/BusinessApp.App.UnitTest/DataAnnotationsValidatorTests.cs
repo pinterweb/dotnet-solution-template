@@ -9,14 +9,28 @@ namespace BusinessApp.App.UnitTest
 
     public class DataAnnotatedCommandStub
     {
-        [Compare(nameof(Bar))]
-        public string CompareToBar { get; set; } = "lorem";
+        [NoMember]
+        public string NoMember { get; set; }
 
         [StringLength(10)]
         public string Foo { get; set; }
 
         [Required]
         public string Bar { get; set; } = "lorem";
+
+        private class NoMemberAttribute : ValidationAttribute
+        {
+            public override bool IsValid(object value) => value == null;
+
+            protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+            {
+                if (value == null) return base.IsValid(value, validationContext);
+
+                validationContext.MemberName = null;
+                var result = base.IsValid(value, validationContext);
+                return result;
+            }
+        }
     }
 
     public class DataAnnotationsValidatorTests
@@ -51,7 +65,6 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var instance = new DataAnnotatedCommandStub
                 {
-                    CompareToBar = null,
                     Bar = null,
                     Foo = new string('a', 11)
                 };
@@ -75,7 +88,6 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var instance = new DataAnnotatedCommandStub
                 {
-                   CompareToBar = null,
                    Bar = null,
                    Foo = new string('a', 11)
                 };
@@ -97,7 +109,6 @@ namespace BusinessApp.App.UnitTest
                 /* Arrange */
                 var instance = new DataAnnotatedCommandStub
                 {
-                    CompareToBar = null,
                     Bar = null,
                     Foo = new string('a', 11)
                 };
@@ -115,7 +126,7 @@ namespace BusinessApp.App.UnitTest
             public async Task NoMemberNames_ExceptionThrown()
             {
                 /* Arrange */
-                var instance = new DataAnnotatedCommandStub { Bar = "a", CompareToBar = "aaaa" };
+                var instance = new DataAnnotatedCommandStub { NoMember = "foo" };
 
                 /* Act */
                 var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, cancelToken));

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
@@ -9,10 +9,10 @@
   </ItemGroup>
 <!--#if (efcore)-->
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.3" />
 <!--#endif-->
-    <PackageReference Include="Bogus" Version="31.0.3">
+    <PackageReference Include="Bogus" Version="33.0.2">
        <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
