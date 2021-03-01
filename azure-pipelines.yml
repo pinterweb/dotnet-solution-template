@@ -12,6 +12,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   GitVersion.SemVer: ''
+  testProjects: '**/*Test.csproj'
 
 steps:
   - task: gittools.gitversion.gitversion-task.GitVersion@5
@@ -35,10 +36,10 @@ steps:
       projects: '**/*.sln'
       configuration: '$(buildConfiguration)'
       versioningScheme: byBuildNumber
-      arguments: '--configuration $(buildConfiguration) -p:DefineConstants=dataannotations%3Befcore%3Bfluentvalidation%3Bdocker'
+      arguments: '-p:DefineConstants=dataannotations%2Befcore%3Bfluentvalidation%3Bdocker'
 
   - task: DotNetCoreCLI@2
     displayName: Test
     inputs:
       command: test
-      projects: '**/*.sln'
+      projects: '$(testProjects)'
