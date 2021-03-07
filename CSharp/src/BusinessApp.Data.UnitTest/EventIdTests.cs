@@ -7,6 +7,22 @@ namespace BusinessApp.Data.UnitTest
 
     public class EventIdTests
     {
+        public class Constructor : EventIdTests
+        {
+            [Fact]
+            public void SetsIdProperty()
+            {
+                /* Arrange */
+                long innerId = 1;
+
+                /* Act */
+                var sut = new EventId(innerId);
+
+                /* Assert */
+                Assert.Equal(innerId, sut.Id);
+            }
+        }
+
         public class GetTypeCode : EventIdTests
         {
             [Fact]
