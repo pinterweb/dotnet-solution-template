@@ -21,10 +21,7 @@ namespace BusinessApp.Data.UnitTest
             public void InvalidArgs_ExceptionThrown(IDomainEvent e, string c)
             {
                 /* Arrange */
-                void shouldThrow() => new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    e,
-                    c);
+                void shouldThrow() => new EventMetadata(e, A.Dummy<EventId>(), c);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -38,17 +35,14 @@ namespace BusinessApp.Data.UnitTest
             {
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
-                var eventId = new EventId { Id  = 11 };
+                var eventId = A.Dummy<IEntityId>();
                 A.CallTo(() => @event.Id).Returns(eventId);
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    @event,
-                    "foo");
+                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "foo");
 
                 /* Assert */
-                Assert.Equal(eventId, sut.Id);
+                Assert.Same(eventId, sut.Id);
             }
 
             [Fact]
@@ -59,10 +53,7 @@ namespace BusinessApp.Data.UnitTest
                 A.CallTo(() => @event.ToString()).Returns("foobar");
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    @event,
-                    "f");
+                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "f");
 
                 /* Assert */
                 Assert.Equal("foobar", sut.EventDisplayText);
@@ -77,10 +68,7 @@ namespace BusinessApp.Data.UnitTest
                 A.CallTo(() => @event.OccurredUtc).Returns(now);
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    @event,
-                    "foo");
+                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "foo");
 
                 /* Assert */
                 Assert.Equal(now, sut.OccurredUtc);
@@ -90,13 +78,10 @@ namespace BusinessApp.Data.UnitTest
             public void CorrelationIdArg_CorrelationIdPropertySet()
             {
                 /* Arrange */
-                var correlationId = new EventId { Id = 1 };
+                var correlationId = new EventId(1);
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    correlationId,
-                    A.Dummy<IDomainEvent>(),
-                    "foo");
+                var sut = new EventMetadata(A.Dummy<IDomainEvent>(), correlationId, "foo");
 
                 /* Assert */
                 Assert.Same(correlationId, sut.CorrelationId);
@@ -109,10 +94,7 @@ namespace BusinessApp.Data.UnitTest
                 var creator = "foobar";
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    A.Dummy<IDomainEvent>(),
-                    creator);
+                var sut = new EventMetadata(A.Dummy<IDomainEvent>(), A.Dummy<EventId>(), creator);
 
                 /* Assert */
                 Assert.Equal("foobar", sut.EventCreator);
@@ -127,10 +109,7 @@ namespace BusinessApp.Data.UnitTest
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
                 A.CallTo(() => @event.ToString()).Returns("foobar");
-                var sut = new EventMetadata(A.Dummy<EventId>(),
-                    A.Dummy<EventId>(),
-                    @event,
-                    "f");
+                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "f");
 
                 /* Act */
                 var str = sut.ToString();

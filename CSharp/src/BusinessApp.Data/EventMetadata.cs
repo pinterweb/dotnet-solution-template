@@ -7,14 +7,11 @@ namespace BusinessApp.Data
     /// Represents event data over time. Abstracts the time component away from
     /// the meaningful event data
     /// </summary>
-    public sealed class EventMetadata : IDomainEvent
+    public sealed class EventMetadata
     {
         private EventMetadata() {  }
 
-        public EventMetadata(EventId id,
-            EventId correlationId,
-            IDomainEvent originalEvent,
-            string eventCreator)
+        public EventMetadata(IDomainEvent originalEvent, EventId correlationId, string eventCreator)
         {
             originalEvent.NotNull().Expect(nameof(originalEvent));
             eventCreator.NotEmpty().Expect(nameof(eventCreator));
@@ -34,7 +31,7 @@ namespace BusinessApp.Data
         /// <summary>
         /// Shared Id of all related events
         /// </summary>
-        public IEntityId CorrelationId { get; private set; }
+        public EventId CorrelationId { get; private set; }
 
         /// <summary>
         /// The display text of the original event

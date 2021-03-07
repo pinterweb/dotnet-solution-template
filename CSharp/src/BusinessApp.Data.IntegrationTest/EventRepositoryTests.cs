@@ -7,24 +7,36 @@ namespace BusinessApp.Data.IntegrationTest
     using FakeItEasy;
     using System.Security.Principal;
     using System.Linq;
+    using BusinessApp.Test.Shared;
 
+    [Collection(nameof(DatabaseCollection))]
     public class EventRepositoryTests
     {
         private EventRepository sut;
-        private readonly IUnitOfWork uow;
+        private BusinessAppDbContext db;
         private readonly IPrincipal user;
+        private readonly IEntityIdFactory<EventId> idFactory;
 
-        public EventRepositoryTests()
+        public EventRepositoryTests(DatabaseFixture fixture)
         {
-            uow = A.Fake<IUnitOfWork>();
             user = A.Fake<IPrincipal>();
-            sut = new EventRepository(uow, user);
+            idFactory = A.Fake<IEntityIdFactory<EventId>>();
+            Setup(fixture);
+        }
+
+        public void Setup(DatabaseFixture fixture)
+        {
+            db = A.Fake<BusinessAppDbContext>();
+            sut = new EventRepository(db, user, idFactory);
 
             A.CallTo(() => user.Identity.Name).Returns("f");
         }
 
         public class Constructor : EventRepositoryTests
         {
+            public Constructor(DatabaseFixture f) : base(f)
+            {}
+
             public static IEnumerable<object[]> InvalidCtorArgs
             {
                 get
@@ -34,11 +46,19 @@ namespace BusinessApp.Data.IntegrationTest
                         new object[]
                         {
                             null,
-                            A.Dummy<IPrincipal>()
+                            A.Dummy<IPrincipal>(),
+                            A.Dummy<IEntityIdFactory<EventId>>()
                         },
                         new object[]
                         {
-                            A.Dummy<IUnitOfWork>(),
+                            A.Dummy<BusinessAppDbContext>(),
+                            null,
+                            A.Dummy<IEntityIdFactory<EventId>>()
+                        },
+                        new object[]
+                        {
+                            A.Dummy<BusinessAppDbContext>(),
+                            A.Dummy<IPrincipal>(),
                             null
                         },
                     };
@@ -46,10 +66,11 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IUnitOfWork db, IPrincipal p)
+            public void InvalidCtorArgs_ExceptionThrown(BusinessAppDbContext db, IPrincipal p,
+                IEntityIdFactory<EventId> i)
             {
                 /* Arrange */
-                void shouldThrow() => new EventRepository(db, p);
+                void shouldThrow() => new EventRepository(db, p, i);
 
                 /* Act */
                 var ex = Record.Exception((Action)shouldThrow);
@@ -61,11 +82,18 @@ namespace BusinessApp.Data.IntegrationTest
 
         public class Add : EventRepositoryTests
         {
+            private readonly DatabaseFixture fixture;
+
+            public Add(DatabaseFixture f) : base(f)
+            {
+                fixture = f;
+            }
+
             [Fact]
-            public void WithNullEventArg_ExceptionThrown()
+            public void NullEventArg_ExceptionThrown()
             {
                 /* Arrange */
-                EventMetadata @event = null;
+                IDomainEvent @event = null;
                 Action add = () => sut.Add(@event);
 
                 /* Act */
@@ -81,7 +109,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Arrange */
                 EventMetadata @event = null;
                 var eventInput = A.Fake<IDomainEvent>();
-                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
+                A.CallTo(() => db.Add(A<EventMetadata>._))
                     .Invokes(ctx => @event = ctx.GetArgument<EventMetadata>(0));
 
                 /* Act */
@@ -96,8 +124,8 @@ namespace BusinessApp.Data.IntegrationTest
             {
                 /* Arrange */
                 var @events = new List<EventMetadata>();
-                sut = new EventRepository(uow, user);
-                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
+                Setup(fixture);
+                A.CallTo(() => db.Add(A<EventMetadata>._))
                     .Invokes(ctx => events.Add(ctx.GetArgument<EventMetadata>(0)));
 
                 /* Act */
@@ -112,12 +140,12 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void EventDisplayText_SerFromOriginalEventToStringCall()
+            public void EventDisplayText_SetOnEventMetadata()
             {
                 /* Arrange */
                 var @event = A.Fake<IDomainEvent>();
                 EventMetadata metadata = null;
-                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
+                A.CallTo(() => db.Add(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
                 A.CallTo(() => @event.ToString()).Returns("lorem");
 
@@ -129,13 +157,13 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void EventOccurredUtc_SetFromOriginalEventOccurredUtc()
+            public void EventOccurredUtc_SetOnEventMetadata()
             {
                 /* Arrange */
                 var now = DateTime.Now;
                 var @event = A.Fake<IDomainEvent>();
                 EventMetadata metadata = null;
-                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
+                A.CallTo(() => db.Add(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
                 A.CallTo(() => @event.OccurredUtc).Returns(now);
 
@@ -152,7 +180,7 @@ namespace BusinessApp.Data.IntegrationTest
                 /* Arrange */
                 A.CallTo(() => user.Identity.Name).Returns("foobar");
                 EventMetadata metadata = null;
-                A.CallTo(() => uow.AddEvent(A<EventMetadata>._))
+                A.CallTo(() => db.Add(A<EventMetadata>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<EventMetadata>(0));
 
                 /* Act */
@@ -163,7 +191,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void IDomainEventInputArg_AddedToIUnitOfWork()
+            public void IDomainEventArgument_AddedToDbToo()
             {
                 /* Arrange */
                 var @event = A.Dummy<IDomainEvent>();
@@ -172,7 +200,7 @@ namespace BusinessApp.Data.IntegrationTest
                 sut.Add(@event);
 
                 /* Assert */
-                A.CallTo(() => uow.AddEvent(@event)).MustHaveHappenedOnceExactly();
+                A.CallTo(() => db.Add((object)@event)).MustHaveHappenedOnceExactly();
             }
         }
     }
