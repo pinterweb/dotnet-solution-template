@@ -81,8 +81,6 @@ namespace BusinessApp.WebApi
                     .UseSqlServer(options.DbConnectionString)
                     .Options
             );
-
-            container.Register<IDatabase>(() => container.GetInstance<BusinessAppDbContext>());
         }
 
         public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>

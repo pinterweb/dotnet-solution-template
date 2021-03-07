@@ -8,32 +8,30 @@
     /// </summary>
     public class EventRepository : IEventRepository
     {
-        private readonly IUnitOfWork db;
+        private readonly BusinessAppDbContext db;
         private readonly IPrincipal user;
         private readonly EventId correlationId;
+        private readonly IEntityIdFactory<EventId> idFactory;
 
-        public EventRepository(IUnitOfWork db,
-            IPrincipal user)
+        public EventRepository(BusinessAppDbContext db, IPrincipal user,
+            IEntityIdFactory<EventId> idFactory)
         {
             this.db = db.NotNull().Expect(nameof(db));
             this.user = user.NotNull().Expect(nameof(user));
-            correlationId = new EventId();
+            this.idFactory = idFactory.NotNull().Expect(nameof(idFactory));
+            correlationId = idFactory.Create();
         }
 
         public void Add<T>(T @event) where T : IDomainEvent
         {
             @event.NotNull().Expect(nameof(@event));
 
-            var id = new EventId();
+            var id = idFactory.Create();
             @event.Id = id;
 
-            db.AddEvent(new EventMetadata(id,
-                correlationId,
-                @event,
-                user.Identity.Name
-            ));
+            db.Add(new EventMetadata(@event, correlationId, user.Identity.Name));
 
-            db.AddEvent(@event);
+            db.Add(@event);
         }
     }
 }

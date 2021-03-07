@@ -10,13 +10,11 @@ namespace BusinessApp.Data
             builder.ToTable("EventMetadata", "evt");
 
             builder.Property(p => p.Id)
-                .HasColumnName("EventMetadataId")
-                .HasConversion(id => id.ToInt64(null), val => new EventId { Id = val })
-                .ValueGeneratedOnAdd();
+                .HasColumnName("EventId")
+                .HasConversion(id => id.ToInt64(null), val => new EventId(val));
 
             builder.Property(p => p.CorrelationId)
-                .HasConversion(id => id.ToInt64(null), val => new EventId { Id = val })
-                .HasDefaultValueSql("NEXT VALUE FOR evt.EventIds");
+                .HasConversion(id => (long)id, val => new EventId(val));
 
             builder.Property(p => p.EventCreator)
                 .HasColumnType("varchar(50)")

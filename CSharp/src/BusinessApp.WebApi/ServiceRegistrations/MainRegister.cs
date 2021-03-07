@@ -27,6 +27,7 @@ namespace BusinessApp.WebApi
             var container = context.Container;
 
             container.Register<IEventRepository, EventRepository>();
+            container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
             container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
             container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
 

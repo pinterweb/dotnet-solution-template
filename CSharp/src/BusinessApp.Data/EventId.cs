@@ -11,11 +11,18 @@ namespace BusinessApp.Data
     [TypeConverter(typeof(EntityIdTypeConverter<EventId, long>))]
     public class EventId : IEntityId
     {
+        public EventId(long id)
+        {
+            Id = id;
+        }
+
         [KeyId]
         public long Id { get; set; }
 
         TypeCode IConvertible.GetTypeCode() => Id.GetTypeCode();
 
         long IConvertible.ToInt64(IFormatProvider provider) => Id;
+
+        public static explicit operator long (EventId id) => id.Id;
     }
 }
