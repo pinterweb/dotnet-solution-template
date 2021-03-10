@@ -12,13 +12,13 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly CancellationToken cancelToken;
         private readonly ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>> sut;
-        private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
+        private readonly IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>> inner;
         private readonly IAppScope scope;
 
         public ScopedBatchRequestProxyTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
+            inner = A.Fake<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>();
             scope = A.Fake<IAppScope>();
 
             sut = new ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>(
@@ -38,13 +38,13 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     null,
-                    A.Dummy<Func<ICommandHandler<IEnumerable<CommandStub>>>>(),
+                    A.Dummy<Func<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>>(),
                 },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(IAppScope a,
-                Func<ICommandHandler<IEnumerable<CommandStub>>> f)
+                Func<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>> f)
             {
                 /* Arrange */
                 void shouldThrow() =>

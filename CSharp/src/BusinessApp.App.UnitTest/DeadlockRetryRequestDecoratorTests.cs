@@ -14,12 +14,12 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly CancellationToken cancelToken;
         private readonly DeadlockRetryRequestDecorator<CommandStub, CommandStub> sut;
-        private readonly ICommandHandler<CommandStub> inner;
+        private readonly IRequestHandler<CommandStub, CommandStub> inner;
 
         public DeadlockRetryRequestDecoratorTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<CommandStub>>();
+            inner = A.Fake<IRequestHandler<CommandStub, CommandStub>>();
 
             sut = new DeadlockRetryRequestDecorator<CommandStub, CommandStub>(inner);
         }
@@ -35,7 +35,7 @@ namespace BusinessApp.App.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(ICommandHandler<CommandStub> c)
+            public void InvalidCtorArgs_ExceptionThrown(IRequestHandler<CommandStub, CommandStub> c)
             {
                 /* Arrange */
                 void shouldThrow() => new DeadlockRetryRequestDecorator<CommandStub, CommandStub>(c);

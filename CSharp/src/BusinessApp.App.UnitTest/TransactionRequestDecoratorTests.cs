@@ -11,14 +11,14 @@ namespace BusinessApp.App.UnitTest
     public class TransactionDecoratorTests
     {
         private readonly TransactionRequestDecorator<CommandStub, CommandStub> sut;
-        private readonly ICommandHandler<CommandStub> inner;
+        private readonly IRequestHandler<CommandStub, CommandStub> inner;
         private readonly ITransactionFactory factory;
         private readonly ILogger logger;
         private readonly PostCommitRegister register;
 
         public TransactionDecoratorTests()
         {
-            inner = A.Fake<ICommandHandler<CommandStub>>();
+            inner = A.Fake<IRequestHandler<CommandStub, CommandStub>>();
             factory = A.Fake<ITransactionFactory>();
             register = new PostCommitRegister();
             logger = A.Fake<ILogger>();
@@ -33,7 +33,7 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     null,
-                    A.Dummy<ICommandHandler<CommandStub>>(),
+                    A.Dummy<IRequestHandler<CommandStub, CommandStub>>(),
                     A.Dummy<PostCommitRegister>(),
                     A.Dummy<ILogger>()
                 },
@@ -47,7 +47,7 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     A.Fake<ITransactionFactory>(),
-                    A.Dummy<ICommandHandler<CommandStub>>(),
+                    A.Dummy<IRequestHandler<CommandStub, CommandStub>>(),
                     null,
                     A.Dummy<ILogger>()
                 },
@@ -55,7 +55,7 @@ namespace BusinessApp.App.UnitTest
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(ITransactionFactory v,
-                ICommandHandler<CommandStub> c, PostCommitRegister r, ILogger l)
+                IRequestHandler<CommandStub, CommandStub> c, PostCommitRegister r, ILogger l)
             {
                 /* Arrange */
                 void shouldThrow() => new TransactionRequestDecorator<CommandStub, CommandStub>(v, c, r, l);

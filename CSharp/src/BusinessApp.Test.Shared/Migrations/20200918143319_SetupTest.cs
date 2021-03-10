@@ -7,6 +7,18 @@ namespace BusinessApp.Test.Shared.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "AggregateRootStub",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AggregateRootStub", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DomainEventStub",
                 columns: table => new
                 {
@@ -74,6 +86,9 @@ namespace BusinessApp.Test.Shared.Migrations
 
             migrationBuilder.DropTable(
                 name: "DomainEventStub");
+
+            migrationBuilder.DropTable(
+                name: "AggregateRootStub");
 
             migrationBuilder.DropTable(
                 name: "ResponseStub");

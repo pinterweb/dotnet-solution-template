@@ -1,7 +1,12 @@
-﻿namespace BusinessApp.Domain
+﻿using System;
+using System.Collections.Generic;
+
+namespace BusinessApp.Domain
 {
     using System.Threading;
     using System.Threading.Tasks;
+
+    using HandlerResult = Result<IEnumerable<IDomainEvent>, Exception>;
 
     /// <summary>
     /// Handles events emitted from the domain
@@ -16,11 +21,11 @@
             this.repo = repo.NotNull().Expect(nameof(repo));
         }
 
-        public Task HandleAsync(TEvent @event, CancellationToken cancelToken)
+        public Task<HandlerResult> HandleAsync(TEvent @event, CancellationToken cancelToken)
         {
             repo.Add(@event);
 
-            return Task.CompletedTask;
+            return Task.FromResult(HandlerResult.Ok(new IDomainEvent[0]));
         }
     }
 }

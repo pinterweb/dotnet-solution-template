@@ -12,13 +12,13 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly CancellationToken cancelToken;
         private readonly MacroBatchRequestAdapter<CommandMacro, CommandStub, IEnumerable<CommandStub>> sut;
-        private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
+        private readonly IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>> inner;
         private readonly IBatchMacro<CommandMacro, CommandStub> expander;
 
         public MacroBatchRequestAdapterTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
+            inner = A.Fake<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>();
             expander = A.Fake<IBatchMacro<CommandMacro, CommandStub>>();
 
             sut = new MacroBatchRequestAdapter<CommandMacro, CommandStub, IEnumerable<CommandStub>>(
@@ -32,7 +32,7 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     null,
-                    A.Dummy<ICommandHandler<IEnumerable<CommandStub>>>(),
+                    A.Dummy<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>(),
                 },
                 new object[]
                 {
@@ -44,7 +44,7 @@ namespace BusinessApp.App.UnitTest
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
                 IBatchMacro<CommandMacro, CommandStub> g,
-                ICommandHandler<IEnumerable<CommandStub>> i)
+                IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
                 void shouldThrow() => new MacroBatchRequestAdapter<CommandMacro, CommandStub, IEnumerable<CommandStub>>(g, i);
@@ -129,7 +129,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
-                var innerResult = Result.Ok<IEnumerable<CommandStub>>(new CommandStub[0]);
+                var innerResult = Result.Ok<IEnumerable<CommandStub>>(A.CollectionOfDummy<CommandStub>(0));
                 var commands = new[] { A.Dummy<CommandStub>() };
                 A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
                 A.CallTo(() => inner.HandleAsync(commands, cancelToken)).Returns(innerResult);

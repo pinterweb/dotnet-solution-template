@@ -1,9 +1,15 @@
 namespace BusinessApp.App.UnitTest
 {
     using System.Collections.Generic;
+    using BusinessApp.Domain;
 
     public class CommandStub
     {}
+
+    public class EventStreamStub : IEventStream
+    {
+        public IEnumerable<IDomainEvent> Events { get; set; }
+    }
 
     [Authorize]
     public class AuthCommandStub : CommandStub
