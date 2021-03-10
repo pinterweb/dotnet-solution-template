@@ -473,7 +473,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         public sealed class EventStreamStub : IEventStream
         {
-            public IEnumerable<IDomainEvent> Events { get; }
+            public IEnumerable<IDomainEvent> Events { get; set; }
         }
 
         public sealed class MacroStub : IMacro<CommandStub> { }
