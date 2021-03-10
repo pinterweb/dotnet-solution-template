@@ -33,7 +33,11 @@ namespace BusinessApp.App
                 .AndThenAsync(ConsumeAsync, cancelToken))
                 .MapOrElse(
                     err => Result.Error<TResponse>(err),
-                    ok => streamResult
+                    ok =>
+                    {
+                        streamResult.Unwrap().Events = ok;
+                        return streamResult;
+                    }
                 );
         }
 
@@ -51,7 +55,8 @@ namespace BusinessApp.App
                 .Collect()
                 .Map(v => v.SelectMany(s => s))
                 .AndThenAsync(ConsumeAsync, cancelToken)
-            );
+            )
+                .Map(e => events.Concat(e));
         }
     }
 }

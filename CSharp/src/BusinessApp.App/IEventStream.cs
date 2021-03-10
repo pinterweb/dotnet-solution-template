@@ -8,6 +8,6 @@ namespace BusinessApp.App
     /// </summary>
     public interface IEventStream
     {
-        IEnumerable<IDomainEvent> Events { get; }
+        IEnumerable<IDomainEvent> Events { get; set; }
     }
 }

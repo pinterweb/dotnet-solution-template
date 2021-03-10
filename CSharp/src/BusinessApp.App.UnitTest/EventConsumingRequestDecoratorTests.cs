@@ -9,6 +9,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using BusinessApp.App;
     using BusinessApp.Domain;
+    using BusinessApp.Test.Shared;
 
     public class EventConsumerCommandDecoratorTests
     {
@@ -102,17 +103,18 @@ namespace BusinessApp.App.UnitTest
             public async Task EventCreatesMoreEvents_AllEventsPublished()
             {
                 /* Arrange */
+                var twoEvents = A.CollectionOfDummy<IDomainEvent>(2);
                 IEnumerable<IDomainEvent> noEvents = A.CollectionOfDummy<IDomainEvent>(0);
-                var twoEvents = new EventStreamStub
-                {
-                    Events = A.CollectionOfDummy<IDomainEvent>(2)
-                };
                 IEnumerable<IDomainEvent> firstEventEvents = A.CollectionOfDummy<IDomainEvent>(2);
+                var eventStream = new EventStreamStub
+                {
+                    Events = twoEvents.ToList()
+                };
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
-                    .Returns(Result.Ok(twoEvents));
-                A.CallTo(() => publisher.PublishAsync(twoEvents.Events.First(), cancelToken))
+                    .Returns(Result.Ok(eventStream));
+                A.CallTo(() => publisher.PublishAsync(twoEvents.First(), cancelToken))
                     .Returns(Result.Ok(firstEventEvents));
-                A.CallTo(() => publisher.PublishAsync(twoEvents.Events.Last(), cancelToken))
+                A.CallTo(() => publisher.PublishAsync(twoEvents.Last(), cancelToken))
                     .Returns(Result.Ok(noEvents));
                 A.CallTo(() => publisher.PublishAsync(firstEventEvents.First(), cancelToken))
                     .Returns(Result.Ok(noEvents));
@@ -123,14 +125,11 @@ namespace BusinessApp.App.UnitTest
                 var handlerResult = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => publisher.PublishAsync(twoEvents.Events.First(), cancelToken))
-                    .MustHaveHappened()
-                    .Then(A.CallTo(() => publisher.PublishAsync(twoEvents.Events.Last(), cancelToken))
-                        .MustHaveHappened())
-                    .Then(A.CallTo(() => publisher.PublishAsync(firstEventEvents.First(), cancelToken))
-                        .MustHaveHappened())
-                    .Then(A.CallTo(() => publisher.PublishAsync(firstEventEvents.Last(), cancelToken))
-                        .MustHaveHappened());
+                Assert.Collection(handlerResult.Unwrap().Events,
+                    e => Assert.Same(twoEvents.First(), e),
+                    e => Assert.Same(twoEvents.Last(), e),
+                    e => Assert.Same(firstEventEvents.First(), e),
+                    e => Assert.Same(firstEventEvents.Last(), e));
             }
 
             [Fact]
@@ -154,6 +153,15 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Same(exception, handlerResult.UnwrapError());
+            }
+
+            private class E : IEntityId
+            {
+                public int Id { get; set; }
+                public TypeCode GetTypeCode()
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
     }
