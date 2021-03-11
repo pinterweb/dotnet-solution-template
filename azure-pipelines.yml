@@ -36,7 +36,6 @@ steps:
       projects: '**/*.sln'
       configuration: '$(buildConfiguration)'
       versioningScheme: byBuildNumber
-      arguments: '-p:DefineConstants=dataannotations%2Befcore%3Bfluentvalidation%3Bdocker'
 
   - task: DotNetCoreCLI@2
     displayName: Test
