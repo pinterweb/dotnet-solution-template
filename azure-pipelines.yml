@@ -30,7 +30,7 @@ steps:
       projects: '**/*.sln'
 
   - task: DotNetCoreCLI@2
-    displayName: Build
+    displayName: 'Base Build'
     inputs:
       command: build
       projects: '**/*.sln'
