@@ -62,7 +62,7 @@
                     ),
                     endpoint.MapDelete("/api/resources/{id:int}", async ctx =>
                         await container
-                            .GetInstance<IHttpRequestHandler<Delete.Query, Delete.Query>>()
+                            .GetInstance<IHttpRequestHandler<Delete.Query, Delete.Response>>()
                             .HandleAsync(ctx, default)
                     ),
 #endif
@@ -191,11 +191,47 @@
             public EntityId Id { get; set; }
         }
 
-        public class Handler : App.IRequestHandler<Query, Query>
+        public class Response : App.IEventStream
         {
-            public Task<Result<Query, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
+            public IEnumerable<IDomainEvent> Events { get; set; }
+
+        }
+
+        public class Event : IDomainEvent
+        {
+            public IEntityId Id { get; set; }
+
+            public DateTimeOffset OccurredUtc { get; }
+        }
+
+
+        public class Handler : App.IRequestHandler<Query, Response>,
+            IEventHandler<Event>
+        {
+            // to prevent infinite loops
+            private readonly Event e = new Event();
+
+            public Task<Result<Response, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
             {
-                return Task.FromResult(Result.Ok(request));
+                var stream = new Response
+                {
+                    Events = new EventStream(new[] { new Event() })
+                };
+
+                return Task.FromResult(Result.Ok(stream));
+            }
+
+            public Task<Result<IEnumerable<IDomainEvent>, Exception>> HandleAsync(
+                Event @event, CancellationToken cancelToken)
+            {
+                if (@event == e)
+                {
+                    return Task.FromResult(
+                        Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
+                }
+
+                return Task.FromResult(
+                    Result.Ok<IEnumerable<IDomainEvent>>(new[] { e }));
             }
         }
     }

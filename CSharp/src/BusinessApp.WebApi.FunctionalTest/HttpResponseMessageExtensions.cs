@@ -8,6 +8,18 @@ namespace BusinessApp.WebApi.FunctionalTest
 
     public static class HttpResponseMessageExtensions
     {
+        public static async Task Success(this HttpResponseMessage response,
+            ITestOutputHelper output)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+
+            output.WriteLine("=============================");
+            output.WriteLine($"StatusCode: {response.StatusCode}");
+            output.WriteLine("payload:");
+            output.WriteLine(json);
+            Assert.True(response.IsSuccessStatusCode);
+        }
+
         public static async Task<T> Success<T>(this HttpResponseMessage response,
             ITestOutputHelper output)
         {

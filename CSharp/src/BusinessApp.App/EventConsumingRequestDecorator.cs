@@ -44,19 +44,21 @@ namespace BusinessApp.App
         private async Task<Result<IEnumerable<IDomainEvent>, Exception>> ConsumeAsync(
             IEnumerable<IDomainEvent> events, CancellationToken cancelToken)
         {
-            if (!events.Any()) return Result.Ok(events);
+            var consumedEvents = events.Select(s => s).ToList();
+
+            if (!consumedEvents.Any()) return Result.Ok<IEnumerable<IDomainEvent>>(consumedEvents);
 
             return
             (
                 await
                 (
-                    await Task.WhenAll(events.Select(e => publisher.PublishAsync(e, cancelToken)))
+                    await Task.WhenAll(consumedEvents.Select(e => publisher.PublishAsync(e, cancelToken)))
                 )
                 .Collect()
                 .Map(v => v.SelectMany(s => s))
                 .AndThenAsync(ConsumeAsync, cancelToken)
             )
-                .Map(e => events.Concat(e));
+                .Map(e => consumedEvents.Concat(e));
         }
     }
 }

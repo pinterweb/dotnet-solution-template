@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessApp.WebApi\BusinessApp.WebApi.csproj" />
+    <ProjectReference Include="..\BusinessApp.Test.Shared\BusinessApp.Test.Shared.csproj" />
   </ItemGroup>
 
 </Project>
