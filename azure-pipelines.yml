@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  buildConfiguration: 'Debug'
+  buildConfiguration: 'DEBUG'
   GitVersion.SemVer: ''
   testProjects: '**/*Test.csproj'
 
@@ -34,8 +34,15 @@ steps:
     inputs:
       command: build
       projects: '**/*.sln'
-      configuration: '$(buildConfiguration)'
       versioningScheme: byBuildNumber
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build EFCore'
+    inputs:
+      command: build
+      projects: '**/*.sln'
+      versioningScheme: byBuildNumber
+      arguments: '-p:DefineConstants=efcore%3B$(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: Test

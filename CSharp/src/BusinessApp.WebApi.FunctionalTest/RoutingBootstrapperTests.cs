@@ -1,6 +1,5 @@
 namespace BusinessApp.WebApi.FunctionalTest
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
@@ -8,7 +7,6 @@ namespace BusinessApp.WebApi.FunctionalTest
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using BusinessApp.Data;
     using BusinessApp.Domain;
     using FakeItEasy;
     using Microsoft.AspNetCore.Mvc.Testing;
