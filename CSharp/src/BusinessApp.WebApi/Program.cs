@@ -22,7 +22,8 @@
             try
             {
                 logger.Log(new LogEntry(LogSeverity.Info, $"Starting BusinessApp web host..."));
-                var builder = CreateWebHostBuilder(args);
+                var container = new Container();
+                var builder = CreateContainerizedWebHostBuilder(args, container);
 
 //#if DEBUG
                 if(string.Compare(Process.GetCurrentProcess().ProcessName, "iisexpress") != 0)
@@ -48,9 +49,15 @@
             }
         }
 
+        public static IWebHostBuilder CreateContainerizedWebHostBuilder(string[] args, Container container) =>
+            CreateWebHostBuilderCore(args).ConfigureServices(sc => sc.AddSingleton(container));
+
+        // XXX needed for tests
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            CreateWebHostBuilderCore(args);
+
+        private static IWebHostBuilder CreateWebHostBuilderCore(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .ConfigureServices(sc => sc.AddSingleton<Container>(new Container()))
                 .ConfigureAppConfiguration(builder =>
                 {
                     builder.AddCommandLine(args);

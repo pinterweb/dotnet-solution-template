@@ -45,6 +45,7 @@ namespace BusinessApp.Test.Shared
                 .HasConversion(id => id.ToInt64(null), val => new EventId(val));
             modelBuilder.Entity<ResponseStub>();
             modelBuilder.Entity<ChildResponseStub>();
+            modelBuilder.Entity<AggregateRootStub>();
             base.OnModelCreating(modelBuilder);
         }
     }

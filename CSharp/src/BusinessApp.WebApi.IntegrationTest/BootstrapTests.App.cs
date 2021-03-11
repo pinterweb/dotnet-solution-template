@@ -59,7 +59,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 /* Arrange */
                 CreateRegistrations(container);
                 container.Verify();
-                var serviceType = typeof(IRequestHandler<CommandStub, CommandStub>);
+                var serviceType = typeof(IRequestHandler<CommandStub, EventStreamStub>);
 
                 /* Act */
                 var _ = container.GetInstance(serviceType);
@@ -69,19 +69,22 @@ namespace BusinessApp.WebApi.IntegrationTest
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<CommandStub, CommandStub>),
+                        typeof(RequestExceptionDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<CommandStub, CommandStub>),
+                        typeof(AuthorizationRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                        typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<CommandStub, CommandStub>),
+                        typeof(DeadlockRetryRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<CommandStub, CommandStub>),
+                        typeof(TransactionRequestDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -95,46 +98,49 @@ namespace BusinessApp.WebApi.IntegrationTest
                 /* Arrange */
                 CreateRegistrations(container);
                 container.Verify();
-                var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>);
+                var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>);
 
                 /* Act */
                 var _ = container.GetInstance(serviceType);
 
                 /* Assert */
                 var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                    typeof(IRequestHandler<CommandStub, CommandStub>));
+                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                    typeof(IRequestHandler<CommandStub, EventStreamStub>));
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
+                        typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchRequestAdapter<CommandStub, CommandStub>),
+                        typeof(BatchRequestAdapter<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                        typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -149,56 +155,59 @@ namespace BusinessApp.WebApi.IntegrationTest
                 container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
                 CreateRegistrations(container);
                 container.Verify();
-                var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>);
+                var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>);
 
                 /* Act */
                 var _ = container.GetInstance(serviceType);
 
                 /* Assert */
                 var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>),
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                    typeof(IRequestHandler<CommandStub, CommandStub>));
+                    typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>),
+                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                    typeof(IRequestHandler<CommandStub, EventStreamStub>));
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<MacroStub, IEnumerable<CommandStub>>),
+                        typeof(RequestExceptionDecorator<MacroStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
+                        typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
+                        typeof(ValidationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<CommandStub>>),
+                        typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
+                        typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(MacroBatchProxyRequestHandler<CommandStub, CommandStub>),
+                        typeof(MacroBatchProxyRequestHandler<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchRequestAdapter<CommandStub, CommandStub>),
+                        typeof(BatchRequestAdapter<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                        typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
+                        typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -443,9 +452,9 @@ namespace BusinessApp.WebApi.IntegrationTest
                 .Select(ip => ip.Registration.ImplementationType);
         }
 
-        private sealed class CommandHandlerStub : ICommandHandler<CommandStub>
+        private sealed class CommandHandlerStub : IRequestHandler<CommandStub, EventStreamStub>
         {
-            public Task<Result<Unit, Exception>> RunAsync(CommandStub request,
+            public Task<Result<EventStreamStub, Exception>> HandleAsync(CommandStub request,
                 CancellationToken cancelToken)
             {
                 throw new NotImplementedException();
@@ -461,6 +470,11 @@ namespace BusinessApp.WebApi.IntegrationTest
         }
 
         public sealed class CommandStub { }
+
+        public sealed class EventStreamStub : IEventStream
+        {
+            public IEnumerable<IDomainEvent> Events { get; set; }
+        }
 
         public sealed class MacroStub : IMacro<CommandStub> { }
 

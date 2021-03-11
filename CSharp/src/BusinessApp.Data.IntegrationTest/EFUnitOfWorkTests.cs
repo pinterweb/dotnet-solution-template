@@ -15,23 +15,18 @@ namespace BusinessApp.Data.IntegrationTest
     [Collection(nameof(DatabaseCollection))]
     public class EFUnitOfWorkTests : IDisposable
     {
-        private readonly IUnitOfWork inner;
         private readonly BusinessAppDbContext db;
         private readonly EFUnitOfWork sut;
 
         public EFUnitOfWorkTests(DatabaseFixture fixture)
         {
-            inner = A.Fake<IUnitOfWork>();
             db = fixture.DbContext;
-            sut = new EFUnitOfWork(db, inner);
+            sut = new EFUnitOfWork(db);
         }
 
         public virtual void Dispose()
         {
-            foreach (var entry in db.ChangeTracker.Entries<ResponseStub>())
-            {
-                entry.State = EntityState.Detached;
-            }
+            db.ChangeTracker.Clear();
         }
 
         public class Constructor : EFUnitOfWorkTests
@@ -49,23 +44,16 @@ namespace BusinessApp.Data.IntegrationTest
                         new object[]
                         {
                             null,
-                            A.Dummy<EventUnitOfWork>(),
-                        },
-                        new object[]
-                        {
-                            A.Dummy<BusinessAppDbContext>(),
-                            null
                         },
                     };
                 }
             }
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidArgs_ExceptionThrown(BusinessAppDbContext d,
-                EventUnitOfWork p)
+            public void InvalidArgs_ExceptionThrown(BusinessAppDbContext d)
             {
                 /* Arrange */
-                void shouldThrow() => new EFUnitOfWork(d, p);
+                void shouldThrow() => new EFUnitOfWork(d);
 
                 /* Act */
                 var ex = Record.Exception((Action)shouldThrow);
@@ -82,16 +70,16 @@ namespace BusinessApp.Data.IntegrationTest
             { }
 
             [Fact]
-            public void AggregateRoot_InnerUnitOfWorkTrackCalled()
+            public void EntityStateUnchanged()
             {
                 /* Arrange */
-                var ar = A.Dummy<AggregateRoot>();
+                var ar = new AggregateRootStub() { Id = 1 };
 
                 /* Act */
                 sut.Track(ar);
 
                 /* Assert */
-                A.CallTo(() => inner.Track(ar)).MustHaveHappenedOnceExactly();
+                Assert.Equal(EntityState.Unchanged, db.Entry(ar).State);
             }
         }
 
@@ -102,29 +90,16 @@ namespace BusinessApp.Data.IntegrationTest
             { }
 
             [Fact]
-            public void AggregateRoot_InnerUnitOfWorkAddCalled()
+            public void EntityStateAdded()
             {
                 /* Arrange */
-                var ar = A.Dummy<AggregateRoot>();
+                var ar = new AggregateRootStub();
 
                 /* Act */
                 sut.Add(ar);
 
                 /* Assert */
-                A.CallTo(() => inner.Add(ar)).MustHaveHappenedOnceExactly();
-            }
-
-            [Fact]
-            public void IDomainEvent_InnerUnitOfWorkAddCalled()
-            {
-                /* Arrange */
-                var e = A.Dummy<IDomainEvent>();
-
-                /* Act */
-                sut.AddEvent(e);
-
-                /* Assert */
-                A.CallTo(() => inner.AddEvent(e)).MustHaveHappenedOnceExactly();
+                Assert.Equal(EntityState.Added, db.Entry(ar).State);
             }
         }
 
@@ -135,16 +110,16 @@ namespace BusinessApp.Data.IntegrationTest
             { }
 
             [Fact]
-            public void AggregateRoot_InnerUnitOfWorkRemoveC()
+            public void EntityStateDeleted()
             {
                 /* Arrange */
-                var ar = A.Dummy<AggregateRoot>();
+                var ar = new AggregateRootStub() { Id = 44 };
 
                 /* Act */
                 sut.Remove(ar);
 
                 /* Assert */
-                A.CallTo(() => inner.Remove(ar)).MustHaveHappenedOnceExactly();
+                Assert.Equal(EntityState.Deleted, db.Entry(ar).State);
             }
         }
 
@@ -159,13 +134,15 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task CommittingEvent_CalledBeforeInnerUow()
+            public async Task CommittingEvent_CalledBeforeSaveChanges()
             {
                 /* Arrange */
-                int innerCalls = 1;
+                var ar = new AggregateRootStub();
+                var state = EntityState.Unchanged;
+                sut.Add(ar);
                 sut.Committing += (sender, args) =>
                 {
-                    innerCalls = Fake.GetCalls(inner).Count();
+                    state = db.Entry(ar).State;
                 };
 
                 /* Act */
@@ -175,31 +152,7 @@ namespace BusinessApp.Data.IntegrationTest
                 }
 
                 /* Assert */
-                Assert.Equal(0, innerCalls);
-            }
-
-            [Fact]
-            public async Task InnerUnitOfWork_CalledBeforeDbContextSaveChanges()
-            {
-                /* Arrange */
-                EntityState? stateDuringEvents = null;
-                var entity = new ResponseStub();
-                db.Add(entity);
-
-                A.CallTo(() => inner.CommitAsync(cancelToken))
-                    .Invokes(ctx =>
-                    {
-                        stateDuringEvents = db.Entry(entity).State;
-                    });
-
-                /* Act */
-                using (var tran = db.Database.BeginTransaction())
-                {
-                    await sut.CommitAsync(cancelToken);
-                }
-
-                /* Assert - Entity would be unchanged if called after SaveChanges */
-                Assert.Equal(EntityState.Added, stateDuringEvents);
+                Assert.Equal(EntityState.Added, state);
             }
 
             [Fact]
@@ -356,26 +309,6 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public async Task BeforeSaveChanges_InnerRevertAsyncCalled()
-            {
-                /* Arrange */
-                EntityState? stateDuringEvent = null;
-                var entity = new ResponseStub();
-                var entry = db.Add(entity);
-                A.CallTo(() => inner.RevertAsync(cancelToken))
-                    .Invokes(ctx => stateDuringEvent = entry.State);
-
-                /* Act */
-                using (var tran = db.Database.BeginTransaction())
-                {
-                    await sut.RevertAsync(cancelToken);
-                }
-
-                /* Assert */
-                Assert.Equal(EntityState.Added, stateDuringEvent);
-            }
-
-            [Fact]
             public async Task HasExternalTranscation_DoesNotCommit()
             {
                 /* Arrange */
@@ -431,25 +364,15 @@ namespace BusinessApp.Data.IntegrationTest
             public void ReturnsAllTypedAggregateRoots()
             {
                 /* Arrange */
-                var ar1 = new ARStub();
-                Func<ARStub, bool> filter = a => a.Equals(ar1);
-                A.CallTo(() => inner.Find<ARStub>(filter)).Returns(ar1);
+                var ar1 = new AggregateRootStub();
+                db.Add(ar1);
+                Func<AggregateRootStub, bool> filter = a => a.Equals(ar1);
 
                 /* Act */
-                var instance = sut.Find<ARStub>(filter);
+                var instance = sut.Find<AggregateRootStub>(filter);
 
                 /* Assert */
                 Assert.Same(ar1, instance);
-            }
-
-            private sealed class ARStub : AggregateRoot
-            {
-                public int Id { get; set; }
-            }
-
-            private sealed class AnotherARStub : AggregateRoot
-            {
-                public int Id { get; set; }
             }
         }
     }

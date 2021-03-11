@@ -1,11 +1,17 @@
 namespace BusinessApp.WebApi.FunctionalTest
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
+    using BusinessApp.Domain;
+    using FakeItEasy;
     using Microsoft.AspNetCore.Mvc.Testing;
     using Newtonsoft.Json;
+    using SimpleInjector;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -89,6 +95,7 @@ namespace BusinessApp.WebApi.FunctionalTest
             var response = await client.PutAsync("/api/resources/1", content);
 
             // Then
+
             Assert.True(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
@@ -97,23 +104,84 @@ namespace BusinessApp.WebApi.FunctionalTest
         public async Task GivenARequestToDeleteAResource_WhenIsSuccessful_NoContentReturned()
         {
             // Given
-            var client = factory.NewClient();
+            var notifier = A.Fake<ITestNotifier>();
+            Container testContainer = null;
+            var client = factory.NewClient(container =>
+            {
+                container.RegisterInstance(notifier);
+                container.RegisterDecorator(
+                    typeof(IEventRepository),
+                    typeof(NullEventRepositoryDecorator));
+                container.RegisterDecorator(
+                    typeof(IEventHandler<Delete.Event>),
+                    typeof(EventDecorator));
+                testContainer = container;
+            });
             var payload = new { id = 1 };
             var content = new StringContent(JsonConvert.SerializeObject(payload),
                 Encoding.UTF8,
                 "application/json");
+            // each handler will fire twice since events are chained
+            var expectedCalls = testContainer
+                .GetAllInstances<IEventHandler<Delete.Event>>()
+                .Count() * 2;
 
             // When
             var response = await client.DeleteAsync("/api/resources/1");
 
             // Then
-            Assert.True(response.IsSuccessStatusCode);
+            await response.Success(output);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            A.CallTo(() => notifier.Notify())
+                .MustHaveHappened(expectedCalls, Times.Exactly);
+        }
+
+        /// <summary>
+        /// Test that are events are firing correctly;
+        /// </summary>
+        public class EventDecorator : IEventHandler<Delete.Event>
+        {
+            private readonly IEventHandler<Delete.Event> inner;
+            private readonly ITestNotifier tester;
+
+            public EventDecorator(ITestNotifier tester, IEventHandler<Delete.Event> inner)
+            {
+                this.inner = inner;
+                this.tester = tester;
+            }
+
+            public Task<Result<IEnumerable<IDomainEvent>, System.Exception>> HandleAsync(
+                Delete.Event @event, CancellationToken cancelToken)
+            {
+                tester.Notify();
+                return inner.HandleAsync(@event, cancelToken);
+            }
+        }
+
+        /// <summary>
+        /// Service to inject to test actual services are called
+        /// </summary>
+        public interface ITestNotifier
+        {
+            void Notify();
         }
 
         public class Response
         {
             public int Id { get; set; }
+        }
+
+        /// <summary>
+        /// Prevents actual impl from  being called. Some of the fake events
+        /// are not in the actual database
+        /// </summary>
+        private class NullEventRepositoryDecorator : IEventRepository
+        {
+            public NullEventRepositoryDecorator(IEventRepository inner)
+            {}
+
+            public void Add<T>(T @event) where T : IDomainEvent
+            {}
         }
     }
 }

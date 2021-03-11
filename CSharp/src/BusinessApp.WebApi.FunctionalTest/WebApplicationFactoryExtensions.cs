@@ -13,29 +13,43 @@ namespace BusinessApp.WebApi.FunctionalTest
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using SimpleInjector;
 
     public static class WebApplicationFactoryExtensions
     {
         private const string AuthenticationScheme = "FakeAuthenticationScheme";
 
-        public static HttpClient NewClient<T>(this WebApplicationFactory<T> factory)
+        public static HttpClient NewClient<T>(this WebApplicationFactory<T> factory,
+            Action<Container> configuringServices = null)
             where T : class
         {
-            var client = factory.WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureAppConfiguration((hostingContext, config) =>
+            var container = new Container();
+            var client = factory
+                .WithWebHostBuilder(builder =>
                 {
-                    config.AddJsonFile("appsettings.test.json");
+                    builder.ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                        hostingContext.HostingEnvironment.EnvironmentName = "Test";
+                        config.AddJsonFile("appsettings.test.json");
+                    })
+                    .ConfigureServices(services =>
+                    {
+                        services.AddSingleton(container);
+                    })
+                    .ConfigureTestServices(services =>
+                    {
+                        configuringServices?.Invoke(container);
+                        services.AddAuthentication(AuthenticationScheme)
+                                .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>
+                                (AuthenticationScheme, options => { });
+                    });
                 })
-                .ConfigureTestServices(services =>
-                {
-                    services.AddAuthentication(AuthenticationScheme)
-                            .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>
-                            (AuthenticationScheme, options => { });
-                });
-            }).CreateClient(new WebApplicationFactoryClientOptions());
+                .CreateClient(new WebApplicationFactoryClientOptions());
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(AuthenticationScheme);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+                AuthenticationScheme);
+
+            container.Verify();
 
             return client;
         }
@@ -48,8 +62,7 @@ namespace BusinessApp.WebApi.FunctionalTest
                 UrlEncoder
                 encoder,
                 ISystemClock clock) : base(options, logger, encoder, clock)
-            {
-            }
+            {}
 
             protected override Task<AuthenticateResult> HandleAuthenticateAsync()
             {

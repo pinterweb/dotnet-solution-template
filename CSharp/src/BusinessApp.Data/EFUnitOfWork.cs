@@ -2,6 +2,7 @@ namespace BusinessApp.Data
 {
     using System;
     using System.Data;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessApp.App;
@@ -12,12 +13,10 @@ namespace BusinessApp.Data
     {
         private bool transactionFromFactory = false;
         public readonly BusinessAppDbContext db;
-        public readonly IUnitOfWork inner;
 
-        public EFUnitOfWork(BusinessAppDbContext db, IUnitOfWork inner)
+        public EFUnitOfWork(BusinessAppDbContext db)
         {
             this.db = db.NotNull().Expect(nameof(db));
-            this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
         public event EventHandler Committing = delegate {};
@@ -25,29 +24,22 @@ namespace BusinessApp.Data
 
         public void Track<T>(T aggregate) where T : AggregateRoot
         {
-            inner.Track(aggregate);
+            db.Attach(aggregate);
         }
 
         public void Add<T>(T aggregate) where T : AggregateRoot
         {
-            inner.Add(aggregate);
-        }
-
-        public void AddEvent<T>(T @event) where T : IDomainEvent
-        {
-            inner.AddEvent(@event);
+            db.Add(aggregate);
         }
 
         public void Remove<T>(T aggregate) where T : AggregateRoot
         {
-            inner.Remove(aggregate);
+            db.Remove(aggregate);
         }
 
         public async Task CommitAsync(CancellationToken cancelToken)
         {
             Volatile.Read(ref Committing).Invoke(this, EventArgs.Empty);
-
-            await inner.CommitAsync(cancelToken);
 
             try
             {
@@ -73,10 +65,12 @@ namespace BusinessApp.Data
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Resaves tracked entities. Assumes entity data has been rollbacked/chanaged
+        /// before being called
+        /// </summary>
         public async Task RevertAsync(CancellationToken cancelToken)
         {
-            await inner.RevertAsync(cancelToken);
-
             await db.SaveChangesAsync(false, cancelToken);
 
             if (db.Database.CurrentTransaction != null && transactionFromFactory)
@@ -101,7 +95,9 @@ namespace BusinessApp.Data
 
         public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
         {
-            return inner.Find<TRoot>(filter);
+            return db.ChangeTracker.Entries<TRoot>()
+                .Select(e => e.Entity)
+                .SingleOrDefault(filter);
         }
     }
 }

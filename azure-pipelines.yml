@@ -10,7 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  buildConfiguration: 'Release'
+  buildConfiguration: 'DEBUG'
   GitVersion.SemVer: ''
   testProjects: '**/*Test.csproj'
 
@@ -30,13 +30,19 @@ steps:
       projects: '**/*.sln'
 
   - task: DotNetCoreCLI@2
-    displayName: Build
+    displayName: 'Base Build'
     inputs:
       command: build
       projects: '**/*.sln'
-      configuration: '$(buildConfiguration)'
       versioningScheme: byBuildNumber
-      arguments: '-p:DefineConstants=dataannotations%2Befcore%3Bfluentvalidation%3Bdocker'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build EFCore'
+    inputs:
+      command: build
+      projects: '**/*.sln'
+      versioningScheme: byBuildNumber
+      arguments: '-p:DefineConstants=efcore%3B$(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: Test

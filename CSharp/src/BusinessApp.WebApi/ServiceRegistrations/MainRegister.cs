@@ -31,8 +31,6 @@ namespace BusinessApp.WebApi
             container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
             container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
 
-            container.Register<IUnitOfWork, EventUnitOfWork>();
-
             container.Register<PostCommitRegister>();
             container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
 
@@ -307,7 +305,8 @@ namespace BusinessApp.WebApi
                 .Run(typeof(GroupedBatchRequestDecorator<,>))
                 .Run(typeof(ScopedBatchRequestProxy<,>))
                 .RunOnce(typeof(DeadlockRetryRequestDecorator<,>))
-                .RunOnce(typeof(TransactionRequestDecorator<,>), RequestType.Command);
+                .RunOnce(typeof(TransactionRequestDecorator<,>), RequestType.Command)
+                .Run(typeof(EventConsumingRequestDecorator<,>));
 
             foreach (var d in pipeline.Build().Reverse())
             {

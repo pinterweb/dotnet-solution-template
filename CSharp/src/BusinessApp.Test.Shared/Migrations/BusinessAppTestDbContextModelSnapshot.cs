@@ -36,6 +36,18 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("ChildResponseStub");
                 });
 
+            modelBuilder.Entity("BusinessApp.Test.AggregateRootStub", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AggregateRootStub");
+                });
+
             modelBuilder.Entity("BusinessApp.Test.DomainEventStub", b =>
                 {
                     b.Property<int>("Id")

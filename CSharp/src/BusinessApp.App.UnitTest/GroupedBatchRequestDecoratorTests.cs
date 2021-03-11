@@ -14,13 +14,13 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly CancellationToken cancelToken;
         private readonly GroupedBatchRequestDecorator<CommandStub, CommandStub> sut;
-        private readonly ICommandHandler<IEnumerable<CommandStub>> inner;
+        private readonly IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>> inner;
         private readonly IBatchGrouper<CommandStub> grouper;
 
         public GroupedBatchRequestDecoratorTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<ICommandHandler<IEnumerable<CommandStub>>>();
+            inner = A.Fake<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>();
             grouper = A.Fake<IBatchGrouper<CommandStub>>();
 
             sut = new GroupedBatchRequestDecorator<CommandStub, CommandStub>(grouper, inner);
@@ -33,7 +33,7 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     null,
-                    A.Dummy<ICommandHandler<IEnumerable<CommandStub>>>()
+                    A.Dummy<IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>>()
                 },
                 new object[]
                 {
@@ -45,7 +45,7 @@ namespace BusinessApp.App.UnitTest
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
                 IBatchGrouper<CommandStub> g,
-                ICommandHandler<IEnumerable<CommandStub>> i)
+                IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>> i)
             {
                 /* Arrange */
                 void shouldThrow() => new GroupedBatchRequestDecorator<CommandStub, CommandStub>(g, i);
