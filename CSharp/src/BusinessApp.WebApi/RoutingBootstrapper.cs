@@ -191,7 +191,7 @@
             public EntityId Id { get; set; }
         }
 
-        public class Response : App.IEventStream
+        public class Response : IEventStream
         {
             public IEnumerable<IDomainEvent> Events { get; set; }
 

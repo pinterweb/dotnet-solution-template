@@ -110,9 +110,6 @@ namespace BusinessApp.WebApi.FunctionalTest
             {
                 container.RegisterInstance(notifier);
                 container.RegisterDecorator(
-                    typeof(IEventRepository),
-                    typeof(NullEventRepositoryDecorator));
-                container.RegisterDecorator(
                     typeof(IEventHandler<Delete.Event>),
                     typeof(EventDecorator));
                 testContainer = container;
@@ -169,19 +166,6 @@ namespace BusinessApp.WebApi.FunctionalTest
         public class Response
         {
             public int Id { get; set; }
-        }
-
-        /// <summary>
-        /// Prevents actual impl from  being called. Some of the fake events
-        /// are not in the actual database
-        /// </summary>
-        private class NullEventRepositoryDecorator : IEventRepository
-        {
-            public NullEventRepositoryDecorator(IEventRepository inner)
-            {}
-
-            public void Add<T>(T @event) where T : IDomainEvent
-            {}
         }
     }
 }

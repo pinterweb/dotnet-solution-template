@@ -41,6 +41,15 @@ namespace BusinessApp.Domain
         }
 
         public async static Task<Result<T, E>> AndThenAsync<T, E>(
+            this Task<Result<T, E>> source,
+            Func<T, Result<T, E>> next)
+        {
+            var result = await source;
+
+            return result.AndThen(next);
+        }
+
+        public async static Task<Result<T, E>> AndThenAsync<T, E>(
             this Result<T, E> source,
             Func<T, CancellationToken, Task<Result<T, E>>> next,
             CancellationToken cancelToken)

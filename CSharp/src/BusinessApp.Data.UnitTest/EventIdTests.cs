@@ -16,7 +16,7 @@ namespace BusinessApp.Data.UnitTest
                 long innerId = 1;
 
                 /* Act */
-                var sut = new EventId(innerId);
+                var sut = new Data.EventId(innerId);
 
                 /* Assert */
                 Assert.Equal(innerId, sut.Id);
@@ -32,7 +32,7 @@ namespace BusinessApp.Data.UnitTest
                 long innerId = 1;
 
                 /* Act */
-                IConvertible sut = new EventId(innerId);
+                IConvertible sut = new Data.EventId(innerId);
 
                 /* Assert */
                 Assert.Equal(innerId.GetTypeCode(), sut.GetTypeCode());
@@ -48,7 +48,7 @@ namespace BusinessApp.Data.UnitTest
                 long innerId = 1;
 
                 /* Act */
-                IConvertible sut = new EventId(innerId);
+                IConvertible sut = new Data.EventId(innerId);
 
                 /* Assert */
                 Assert.Equal(innerId, sut.ToInt64(null));
@@ -61,10 +61,10 @@ namespace BusinessApp.Data.UnitTest
             public void HasEntityIdTypeConverterWithInt32()
             {
                 /* Arrange */
-                var expectedType = typeof(EntityIdTypeConverter<EventId, long>);
+                var expectedType = typeof(EntityIdTypeConverter<Data.EventId, long>);
 
                 /* Act */
-                var converter = TypeDescriptor.GetConverter(typeof(EventId));
+                var converter = TypeDescriptor.GetConverter(typeof(Data.EventId));
 
                 /* Assert */
                 Assert.IsType(expectedType, converter);
@@ -78,7 +78,7 @@ namespace BusinessApp.Data.UnitTest
             {
                 /* Arrange */
                 long expectId = 1;
-                var sut = new EventId(expectId);
+                var sut = new Data.EventId(expectId);
 
                 /* Act */
                 var actualId = (long)sut;

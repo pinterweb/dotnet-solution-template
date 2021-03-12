@@ -42,7 +42,9 @@ namespace BusinessApp.WebApi
 
             pipeline
                 .IntegrateOnce(typeof(EFTrackingQueryDecorator<,>))
-                .After(typeof(RequestExceptionDecorator<,>));
+                .After(typeof(RequestExceptionDecorator<,>))
+                .IntegrateOnce(typeof(EFCommandStoreRequestDecorator<,>))
+                .After(typeof(TransactionRequestDecorator<,>));
 
             inner.Register(context);
 

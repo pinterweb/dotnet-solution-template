@@ -26,10 +26,8 @@ namespace BusinessApp.WebApi
         {
             var container = context.Container;
 
-            container.Register<IEventRepository, EventRepository>();
             container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
             container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
-            container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
 
             container.Register<PostCommitRegister>();
             container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
@@ -48,6 +46,7 @@ namespace BusinessApp.WebApi
         private void RegisterWebApiServices(Container container)
         {
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
+            container.Register<IEventPublisherFactory, EventMetadataPublisherFactory>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 

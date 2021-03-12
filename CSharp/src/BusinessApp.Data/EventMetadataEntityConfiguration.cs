@@ -1,5 +1,6 @@
 namespace BusinessApp.Data
 {
+    using BusinessApp.Domain;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,18 +10,21 @@ namespace BusinessApp.Data
         {
             builder.ToTable("EventMetadata", "evt");
 
-            builder.Property(p => p.Id)
-                .HasColumnName("EventId")
-                .HasConversion(id => id.ToInt64(null), val => new EventId(val));
+            builder.OwnsOne(e => e.Id, ob =>
+            {
+                ob.Property(p => p.Id)
+                    .HasConversion(id => id.ToInt64(null), val => new Domain.EventId(val));
 
-            builder.Property(p => p.CorrelationId)
-                .HasConversion(id => (long)id, val => new EventId(val));
+                ob.Property(p => p.CausationId)
+                    .HasColumnName("CausationId")
+                    .HasConversion(id => id.ToInt64(null), val => new Domain.EventId(val));
 
-            builder.Property(p => p.EventCreator)
-                .HasColumnType("varchar(50)")
-                .IsRequired();
+                ob.Property(p => p.CorrelationId)
+                    .HasColumnName("CorrelationId")
+                    .HasConversion(id => id.ToInt64(null), val => new Domain.EventId(val));
+            });
 
-            builder.Property(p => p.EventDisplayText)
+            builder.Property(p => p.EventName)
                 .HasColumnType("varchar(500)")
                 .IsRequired();
 

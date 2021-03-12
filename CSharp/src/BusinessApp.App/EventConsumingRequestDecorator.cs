@@ -13,14 +13,14 @@ namespace BusinessApp.App
     public class EventConsumingRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
         where TResponse : IEventStream
     {
-        private readonly IEventPublisher publisher;
+        private readonly IEventPublisherFactory publisherFactory;
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
         public EventConsumingRequestDecorator(IRequestHandler<TRequest, TResponse> inner,
-            IEventPublisher publisher)
+            IEventPublisherFactory publisherFactory)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
-            this.publisher = publisher.NotNull().Expect(nameof(inner));
+            this.publisherFactory = publisherFactory.NotNull().Expect(nameof(inner));
         }
 
         public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
@@ -28,9 +28,11 @@ namespace BusinessApp.App
         {
             var streamResult = await inner.HandleAsync(request, cancelToken);
 
+            var publisher = publisherFactory.Create(request);
+
             return (await streamResult
                 .Map(s => s.Events)
-                .AndThenAsync(ConsumeAsync, cancelToken))
+                .AndThenAsync((events, ct) => ConsumeAsync(publisher, events, ct), cancelToken))
                 .MapOrElse(
                     err => Result.Error<TResponse>(err),
                     ok =>
@@ -42,7 +44,7 @@ namespace BusinessApp.App
         }
 
         private async Task<Result<IEnumerable<IDomainEvent>, Exception>> ConsumeAsync(
-            IEnumerable<IDomainEvent> events, CancellationToken cancelToken)
+            IEventPublisher publisher, IEnumerable<IDomainEvent> events, CancellationToken cancelToken)
         {
             var consumedEvents = events.Select(s => s).ToList();
 
@@ -56,7 +58,7 @@ namespace BusinessApp.App
                 )
                 .Collect()
                 .Map(v => v.SelectMany(s => s))
-                .AndThenAsync(ConsumeAsync, cancelToken)
+                .AndThenAsync((events, ct) => ConsumeAsync(publisher, events, ct), cancelToken)
             )
                 .Map(e => consumedEvents.Concat(e));
         }

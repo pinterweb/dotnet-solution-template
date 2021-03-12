@@ -9,7 +9,6 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using BusinessApp.App;
     using BusinessApp.Domain;
-    using BusinessApp.Test.Shared;
 
     public class EventConsumerCommandDecoratorTests
     {
@@ -17,15 +16,17 @@ namespace BusinessApp.App.UnitTest
         private readonly EventConsumingRequestDecorator<CommandStub, EventStreamStub> sut;
         private readonly IRequestHandler<CommandStub, EventStreamStub> inner;
         private readonly IEventPublisher publisher;
+        private readonly IEventPublisherFactory publisherFactory;
 
         public EventConsumerCommandDecoratorTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<IRequestHandler<CommandStub, EventStreamStub>>();
             publisher = A.Fake<IEventPublisher>();
+            publisherFactory = A.Fake<IEventPublisherFactory>();
 
             sut = new EventConsumingRequestDecorator<CommandStub, EventStreamStub>(inner,
-                publisher);
+                publisherFactory);
         }
 
         public class Constructor : EventConsumerCommandDecoratorTests
@@ -35,7 +36,7 @@ namespace BusinessApp.App.UnitTest
                 new object[]
                 {
                     null,
-                    A.Dummy<IEventPublisher>()
+                    A.Dummy<IEventPublisherFactory>()
                 },
                 new object[]
                 {
@@ -46,7 +47,7 @@ namespace BusinessApp.App.UnitTest
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(IRequestHandler<CommandStub, EventStreamStub> i,
-                IEventPublisher p)
+                IEventPublisherFactory p)
             {
                 /* Arrange */
                 void shouldThrow() => new EventConsumingRequestDecorator<CommandStub, EventStreamStub>(i, p);
@@ -66,6 +67,8 @@ namespace BusinessApp.App.UnitTest
             public HandleAsync()
             {
                 request = A.Dummy<CommandStub>();
+
+                A.CallTo(() => publisherFactory.Create(request)).Returns(publisher);
             }
 
             [Fact]
