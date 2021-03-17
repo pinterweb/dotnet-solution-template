@@ -32,7 +32,7 @@ namespace BusinessApp.App
 
             public string AuthenticationType => inner.AuthenticationType;
             public bool IsAuthenticated => inner.IsAuthenticated;
-            public string Name => inner.IsAuthenticated ? "Anonymous" : inner.Name;
+            public string Name => !inner.IsAuthenticated ? "Anonymous" : inner.Name;
         }
     }
 }
