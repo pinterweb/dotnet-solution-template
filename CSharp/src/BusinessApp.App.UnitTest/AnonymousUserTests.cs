@@ -79,7 +79,7 @@ namespace BusinessApp.App.UnitTest
 
             [Theory]
             [InlineData(false, "Anonymous")]
-            [InlineData(true, "foo")]
+            [InlineData(true, "")]
             public void Name_AnonymousReturnedIfNameIsEmpty(bool authenticated, string expectedName)
             {
                 /* Arrange */
