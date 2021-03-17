@@ -48,6 +48,7 @@ namespace BusinessApp.WebApi
         private void RegisterWebApiServices(Container container)
         {
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
+            container.RegisterDecorator<IPrincipal, AnonymousUser>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
