@@ -2,30 +2,28 @@ namespace BusinessApp.App.IntegrationTest
 {
     using FakeItEasy;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.Threading;
     using Xunit;
     using BusinessApp.App;
     using BusinessApp.Domain;
     using System;
+    using System.Linq;
 
     public class EventMetadataPublisherFactoryTests
     {
         private readonly CancellationToken cancelToken;
         private readonly EventMetadataPublisherFactory sut;
         private readonly IEventPublisher inner;
-        private readonly IEventStore store;
-        private readonly IEntityIdFactory<EventId> idFactory;
+        private readonly IEventStoreFactory storeFactory;
 
         public EventMetadataPublisherFactoryTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
             inner = A.Fake<IEventPublisher>();
-            store = A.Fake<IEventStore>();
-            idFactory = A.Fake<IEntityIdFactory<EventId>>();
+            storeFactory = A.Fake<IEventStoreFactory>();
 
-            sut = new EventMetadataPublisherFactory(inner, store, idFactory);
+            sut = new EventMetadataPublisherFactory(inner, storeFactory);
         }
 
         public class Constructor : EventMetadataPublisherFactoryTests
@@ -35,29 +33,21 @@ namespace BusinessApp.App.IntegrationTest
                 new object[]
                 {
                     null,
-                    A.Dummy<IEventStore>(),
-                    A.Dummy<IEntityIdFactory<EventId>>()
+                    A.Dummy<IEventStoreFactory>(),
                 },
                 new object[]
                 {
                     A.Dummy<IEventPublisher>(),
                     null,
-                    A.Dummy<IEntityIdFactory<EventId>>()
                 },
-                new object[]
-                {
-                    A.Dummy<IEventPublisher>(),
-                    A.Dummy<IEventStore>(),
-                    null
-                }
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IEventPublisher p, IEventStore s,
-                IEntityIdFactory<EventId> f)
+            public void InvalidCtorArgs_ExceptionThrown(IEventPublisher p,
+                IEventStoreFactory s)
             {
                 /* Arrange */
-                void shouldThrow() => new EventMetadataPublisherFactory(p, s, f);
+                void shouldThrow() => new EventMetadataPublisherFactory(p, s);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -67,66 +57,33 @@ namespace BusinessApp.App.IntegrationTest
             }
         }
 
-        public class Create : EventMetadataPublisherFactoryTests
-        {
-            [Fact]
-            public void AddMetadataStreamToStore()
-            {
-                /* Arrange */
-                var originator = A.Dummy<object>();
-                EventMetadataStream<object> metadata = null;
-                A.CallTo(() => store.Add(A<EventMetadataStream<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadataStream<object>>(0));
-
-                /* Act */
-                var publisher = sut.Create(originator);
-
-                /* Assert */
-                Assert.Same(originator, metadata.Trigger);
-            }
-
-            [Fact]
-            public void CreatesIdOnMetadata()
-            {
-                /* Arrange */
-                var originator = A.Dummy<object>();
-                var id = A.Dummy<EventId>();
-                A.CallTo(() => idFactory.Create()).Returns(id);
-                EventMetadataStream<object> metadata = null;
-                A.CallTo(() => store.Add(A<EventMetadataStream<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadataStream<object>>(0));
-
-                /* Act */
-                var publisher = sut.Create(originator);
-
-                /* Assert */
-                Assert.Equal(id, metadata.Id);
-            }
-        }
-
         public class PublishAsync : EventMetadataPublisherFactoryTests
         {
             private readonly IEventPublisher publisher;
-            private readonly EventId originatorId;
-            private EventMetadataStream<object> metadata;
+            private readonly IEventStore store;
+            private readonly MetadataId triggerId;
 
             public PublishAsync()
             {
-                var originator = A.Dummy<object>();
-                originatorId = A.Dummy<EventId>();
-                A.CallTo(() => idFactory.Create()).Returns(originatorId).Once();
-                A.CallTo(() => store.Add(A<EventMetadataStream<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadataStream<object>>(0));
-                publisher = sut.Create(originator);
+                var trigger = A.Dummy<object>();
+                store = A.Fake<IEventStore>();
+                triggerId = A.Dummy<MetadataId>();
+
+                A.CallTo(() => storeFactory.Create(trigger)).Returns(store);
+
+                publisher = sut.Create(trigger);
             }
 
             [Fact]
-            public async Task CreatesIdOnMetadata()
+            public async Task IsOriginalEvent_CausationIdNotSet()
             {
                 /* Arrange */
+                var trackingId = new EventTrackingId((MetadataId)1, (MetadataId)2)
+                {
+                    CausationId = (MetadataId)3
+                };
                 var e = A.Dummy<IDomainEvent>();
-                var id = A.Dummy<EventId>();
-                A.CallTo(() => idFactory.Create()).Returns(id);
+                A.CallTo(() => store.Add(e)).Returns(trackingId);
                 A.CallTo(() => inner.PublishAsync(e, cancelToken))
                     .Returns(Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
 
@@ -134,154 +91,39 @@ namespace BusinessApp.App.IntegrationTest
                 var events = await publisher.PublishAsync(e, cancelToken);
 
                 /* Assert */
-                var eventMeta = Assert.Single(metadata.EventsSeen);
-                Assert.Same(id, eventMeta.Value.Id.Id);
+                Assert.Equal(3, trackingId.CausationId.Id);
             }
 
             [Fact]
-            public async Task NewEvent_UsesOriginatorIdForCausationId()
-            {
-                /* Arrange */
-                var e = A.Dummy<IDomainEvent>();
-                A.CallTo(() => inner.PublishAsync(e, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
-
-                /* Act */
-                var events = await publisher.PublishAsync(e, cancelToken);
-
-                /* Assert */
-                var eventMeta = Assert.Single(metadata.EventsSeen);
-                Assert.Same(originatorId, eventMeta.Value.Id.CausationId);
-            }
-
-            [Fact]
-            public async Task NewEvent_UsesOriginatorIdForCorrelationId()
-            {
-                /* Arrange */
-                var e = A.Dummy<IDomainEvent>();
-                A.CallTo(() => inner.PublishAsync(e, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
-
-                /* Act */
-                var events = await publisher.PublishAsync(e, cancelToken);
-
-                /* Assert */
-                var eventMeta = Assert.Single(metadata.EventsSeen);
-                Assert.Same(originatorId, eventMeta.Value.Id.CorrelationId);
-            }
-
-            [Fact]
-            public async Task NewEvent_HasEventInMetadata()
-            {
-                /* Arrange */
-                var e = A.Dummy<IDomainEvent>();
-                A.CallTo(() => inner.PublishAsync(e, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
-
-                /* Act */
-                var events = await publisher.PublishAsync(e, cancelToken);
-
-                /* Assert */
-                var eventMeta = Assert.Single(metadata.EventsSeen);
-                Assert.Same(e, eventMeta.Value.Event);
-            }
-
-            [Fact]
-            public async Task SameEventMultipleTimes_OnlyOneMetadataCreated()
-            {
-                /* Arrange */
-                var e = A.Dummy<IDomainEvent>();
-                A.CallTo(() => inner.PublishAsync(e, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
-
-                /* Act */
-                var tasks = Enumerable.Range(0, 50).Select(i => publisher.PublishAsync(e, cancelToken));
-                await Task.WhenAll(tasks);
-
-                /* Assert */
-                var eventMeta = Assert.Single(metadata.EventsSeen);
-            }
-
-            [Fact]
-            public async Task NewEvent_AddsOutcomesToMetadataStream()
+            public async Task HasEventOutcome_OriginalEventIdSetAsCausationId()
             {
                 /* Arrange */
                 var originalEvent = A.Dummy<IDomainEvent>();
                 var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
+                var firstTrackingId = new EventTrackingId((MetadataId)1, (MetadataId)2)
+                {
+                    CausationId = (MetadataId)3
+                };
+                var nextTrackingId = new EventTrackingId((MetadataId)4, (MetadataId)5)
+                {
+                    CausationId = (MetadataId)6
+                };
+                var trackingIds = new[] { firstTrackingId, nextTrackingId };
+                A.CallTo(() => store.Add(originalEvent)).Returns(firstTrackingId);
+                A.CallTo(() => store.Add(outcomes.First())).Returns(nextTrackingId);
                 A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
                     .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
+                A.CallTo(() => inner.PublishAsync(outcomes.First(), cancelToken))
+                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(A.CollectionOfDummy<IDomainEvent>(0)));
+                var _ = await publisher.PublishAsync(originalEvent, cancelToken);
 
                 /* Act */
-                var events = await publisher.PublishAsync(originalEvent, cancelToken);
+                await publisher.PublishAsync(outcomes.First(), cancelToken);
 
                 /* Assert */
-                Assert.Contains(originalEvent, metadata.EventsSeen);
-                Assert.Contains(outcomes.First(), metadata.EventsSeen);
-            }
-
-            [Fact]
-            public async Task EventOutcome_HasOwnId()
-            {
-                /* Arrange */
-                var originalEvent = A.Dummy<IDomainEvent>();
-                var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
-                var id = A.Dummy<EventId>();
-                A.CallTo(() => idFactory.Create())
-                    .Returns(A.Dummy<EventId>()) .Once()
-                    .Then.Returns(id);
-                A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
-
-                /* Act */
-                var events = await publisher.PublishAsync(originalEvent, cancelToken);
-
-                /* Assert */
-                var target = Assert.Contains(outcomes.First(), metadata.EventsSeen);
-                Assert.Same(id, target.Id.Id);
-            }
-
-            [Fact]
-            public async Task EventOutcome_HasOriginalEventIdAsCausationId()
-            {
-                /* Arrange */
-                var originalEvent = A.Dummy<IDomainEvent>();
-                var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
-                var id = A.Dummy<EventId>();
-                A.CallTo(() => idFactory.Create())
-                    .Returns(A.Dummy<EventId>()) .Once()
-                    .Then.Returns(id);
-                A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
-
-                /* Act */
-                var events = await publisher.PublishAsync(originalEvent, cancelToken);
-
-                /* Assert */
-                var target = Assert.Contains(outcomes.First(), metadata.EventsSeen);
-                var originalMetadata = metadata.EventsSeen.Single(s => !s.Value.Equals(target));
-                Assert.Same(originalMetadata.Value.Id.Id, target.Id.CausationId);
-            }
-
-            [Fact]
-            public async Task EventOutcome_HasOriginalOriginatorIdAsCorrelationId()
-            {
-                /* Arrange */
-                var originalEvent = A.Dummy<IDomainEvent>();
-                var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
-                var id = A.Dummy<EventId>();
-                A.CallTo(() => idFactory.Create())
-                    .Returns(A.Dummy<EventId>()) .Once()
-                    .Then.Returns(id);
-                A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
-
-                /* Act */
-                var events = await publisher.PublishAsync(originalEvent, cancelToken);
-
-                /* Assert */
-                var target = Assert.Contains(outcomes.First(), metadata.EventsSeen);
-                var originalMetadata = metadata.EventsSeen.Single(s => !s.Value.Equals(target));
-                Assert.Same(originatorId, target.Id.CorrelationId);
+                Assert.Collection(trackingIds,
+                    t => Assert.Equal(firstTrackingId.CausationId, t.CausationId),
+                    t => Assert.Equal(1, t.CausationId.Id));
             }
 
             [Fact]

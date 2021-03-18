@@ -1,27 +1,27 @@
-using System;
-using System.Collections.Generic;
-using FakeItEasy;
-using BusinessApp.Domain;
-using Xunit;
-
 namespace BusinessApp.Data.UnitTest
 {
+    using System;
+    using System.Collections.Generic;
+    using FakeItEasy;
+    using BusinessApp.Domain;
+    using Xunit;
+    using BusinessApp.Test.Shared;
+
     public class EventMetadataTests
     {
         public class Constructor : EventMetadataTests
         {
             public static IEnumerable<object[]> InvalidArgs => new[]
             {
-                new object[] { null, "foo" },
-                new object[] { A.Dummy<IDomainEvent>(), null },
-                new object[] { A.Dummy<IDomainEvent>(), "" },
+                new object[] { null, A.Dummy<EventTrackingId>() },
+                new object[] { A.Dummy<DomainEventStub>(), null},
             };
 
             [Theory, MemberData(nameof(InvalidArgs))]
-            public void InvalidArgs_ExceptionThrown(IDomainEvent e, string c)
+            public void InvalidArgs_ExceptionThrown(DomainEventStub e, EventTrackingId i)
             {
                 /* Arrange */
-                void shouldThrow() => new EventMetadata(e, A.Dummy<EventId>(), c);
+                void shouldThrow() => new EventMetadata<DomainEventStub>(i, e);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -31,91 +31,92 @@ namespace BusinessApp.Data.UnitTest
             }
 
             [Fact]
-            public void IDomainEventArg_IdPropertySet()
+            public void EventArg_EventPropertySet()
             {
                 /* Arrange */
-                var @event = A.Fake<IDomainEvent>();
-                var eventId = A.Dummy<IEntityId>();
-                A.CallTo(() => @event.Id).Returns(eventId);
+                var @event = A.Dummy<DomainEventStub>();
 
                 /* Act */
-                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "foo");
+                var sut = new EventMetadata<DomainEventStub>(A.Dummy<EventTrackingId>(), @event);
 
                 /* Assert */
-                Assert.Same(eventId, sut.Id);
+                Assert.Same(@event, sut.Event);
             }
 
             [Fact]
-            public void IDomainEventArg_EventDisplayTextPropertySet()
+            public void EventArg_EventNamePropertySet()
             {
                 /* Arrange */
-                var @event = A.Fake<IDomainEvent>();
+                var @event = A.Fake<DomainEventStub>();
                 A.CallTo(() => @event.ToString()).Returns("foobar");
 
                 /* Act */
-                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "f");
+                var sut = new EventMetadata<DomainEventStub>(A.Dummy<EventTrackingId>(), @event);
 
                 /* Assert */
-                Assert.Equal("foobar", sut.EventDisplayText);
+                Assert.Equal("foobar", sut.EventName);
             }
 
             [Fact]
-            public void IDomainEventArg_OccurredUtcPropertySet()
+            public void EventArg_OccurredUtcPropertySet()
             {
                 /* Arrange */
-                var @event = A.Fake<IDomainEvent>();
                 var now = DateTimeOffset.UtcNow;
-                A.CallTo(() => @event.OccurredUtc).Returns(now);
+                var @event = new DomainEventStub()
+                {
+                    OccurredUtc = now
+                };
 
                 /* Act */
-                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "foo");
+                var sut = new EventMetadata<DomainEventStub>(A.Dummy<EventTrackingId>(), @event);
 
                 /* Assert */
                 Assert.Equal(now, sut.OccurredUtc);
             }
 
             [Fact]
-            public void CorrelationIdArg_CorrelationIdPropertySet()
+            public void EvenTrackingIdArg_IdPropertySet()
             {
                 /* Arrange */
-                var correlationId = new EventId(1);
+                var eventId = new MetadataId(1);
+                var id = new EventTrackingId(eventId, A.Dummy<MetadataId>());
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<IDomainEvent>(), correlationId, "foo");
+                var sut = new EventMetadata<DomainEventStub>(id, A.Dummy<DomainEventStub>());
+
+                /* Assert */
+                Assert.Same(eventId, sut.Id);
+            }
+
+            [Fact]
+            public void EvenTrackingIdArg_CorrelationIdPropertySet()
+            {
+                /* Arrange */
+                var correlationId = new MetadataId(1);
+                var id = new EventTrackingId(A.Dummy<MetadataId>(), correlationId);
+
+                /* Act */
+                var sut = new EventMetadata<DomainEventStub>(id, A.Dummy<DomainEventStub>());
 
                 /* Assert */
                 Assert.Same(correlationId, sut.CorrelationId);
             }
 
             [Fact]
-            public void EventCreatorArg_EventCreatorPropertySet()
+            public void EvenTrackingIdArg_CausationIdPropertySet()
             {
                 /* Arrange */
-                var creator = "foobar";
+                var causationId = new MetadataId(1);
+                var id = new EventTrackingId(A.Dummy<MetadataId>(), A.Dummy<MetadataId>())
+                {
+                    CausationId = causationId
+                };
 
                 /* Act */
-                var sut = new EventMetadata(A.Dummy<IDomainEvent>(), A.Dummy<EventId>(), creator);
+                var sut = new EventMetadata<DomainEventStub>(id, A.Dummy<DomainEventStub>());
 
                 /* Assert */
-                Assert.Equal("foobar", sut.EventCreator);
-            }
-        }
-
-        public class ObjectToString : EventMetadataTests
-        {
-            [Fact]
-            public void ReturnsDisplayText()
-            {
-                /* Arrange */
-                var @event = A.Fake<IDomainEvent>();
-                A.CallTo(() => @event.ToString()).Returns("foobar");
-                var sut = new EventMetadata(@event, A.Dummy<EventId>(), "f");
-
-                /* Act */
-                var str = sut.ToString();
-
-                /* Assert */
-                Assert.Equal("foobar", str);
+                Assert.Same(causationId, sut.CausationId);
             }
         }
     }

@@ -9,6 +9,6 @@ namespace BusinessApp.Domain
         /// Creates an <see cref="IEventPublisher" />, using the <param name="caller"></param>
         /// as the originator of the events
         /// </summary>
-        IEventPublisher Create<T>(T trigger);
+        IEventPublisher Create<T>(T trigger) where T : class;
     }
 }

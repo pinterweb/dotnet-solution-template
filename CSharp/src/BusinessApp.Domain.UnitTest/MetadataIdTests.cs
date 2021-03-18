@@ -1,13 +1,12 @@
-namespace BusinessApp.Data.UnitTest
+namespace BusinessApp.Domain.UnitTest
 {
     using System;
     using System.ComponentModel;
-    using BusinessApp.Domain;
     using Xunit;
 
-    public class EventIdTests
+    public class MetadataIdTests
     {
-        public class Constructor : EventIdTests
+        public class Constructor : MetadataIdTests
         {
             [Fact]
             public void SetsIdProperty()
@@ -16,14 +15,14 @@ namespace BusinessApp.Data.UnitTest
                 long innerId = 1;
 
                 /* Act */
-                var sut = new Data.EventId(innerId);
+                var sut = new MetadataId(innerId);
 
                 /* Assert */
                 Assert.Equal(innerId, sut.Id);
             }
         }
 
-        public class GetTypeCode : EventIdTests
+        public class GetTypeCode : MetadataIdTests
         {
             [Fact]
             public void ReturnsInnerIdTypeCode()
@@ -32,14 +31,14 @@ namespace BusinessApp.Data.UnitTest
                 long innerId = 1;
 
                 /* Act */
-                IConvertible sut = new Data.EventId(innerId);
+                IConvertible sut = new MetadataId(innerId);
 
                 /* Assert */
                 Assert.Equal(innerId.GetTypeCode(), sut.GetTypeCode());
             }
         }
 
-        public class ToInt64 : EventIdTests
+        public class ToInt64 : MetadataIdTests
         {
             [Fact]
             public void ReturnsInnerIdValue()
@@ -48,43 +47,56 @@ namespace BusinessApp.Data.UnitTest
                 long innerId = 1;
 
                 /* Act */
-                IConvertible sut = new Data.EventId(innerId);
+                IConvertible sut = new MetadataId(innerId);
 
                 /* Assert */
                 Assert.Equal(innerId, sut.ToInt64(null));
             }
         }
 
-        public class TypeConverter : EventIdTests
+        public class TypeConverter : MetadataIdTests
         {
             [Fact]
             public void HasEntityIdTypeConverterWithInt32()
             {
                 /* Arrange */
-                var expectedType = typeof(EntityIdTypeConverter<Data.EventId, long>);
+                var expectedType = typeof(EntityIdTypeConverter<MetadataId, long>);
 
                 /* Act */
-                var converter = TypeDescriptor.GetConverter(typeof(Data.EventId));
+                var converter = TypeDescriptor.GetConverter(typeof(MetadataId));
 
                 /* Assert */
                 Assert.IsType(expectedType, converter);
             }
         }
 
-        public class ImplicitCast : EventIdTests
+        public class ExplicitCast : MetadataIdTests
         {
             [Fact]
-            public void ReturnsInnerIdValue()
+            public void ToLong_ReturnsInnerIdValue()
             {
                 /* Arrange */
                 long expectId = 1;
-                var sut = new Data.EventId(expectId);
+                var sut = new MetadataId(expectId);
 
                 /* Act */
                 var actualId = (long)sut;
 
                 /* Assert */
                 Assert.Equal(expectId, actualId);
+            }
+
+            [Fact]
+            public void FromLong_ReturnsNewMetadataId()
+            {
+                /* Arrange */
+                long primitive = 1;
+
+                /* Act */
+                var sut = (MetadataId)primitive;
+
+                /* Assert */
+                Assert.Equal(1, sut.Id);
             }
         }
     }

@@ -36,9 +36,9 @@ namespace BusinessApp.WebApi
             });
         }
 
-        public IPipelineIntegration IntegrateOnce(Type type)
+        public IPipelineBuilder Run(Type type, PipelineBuilderOptions options)
         {
-            return new PipelineIntegration(this, type, new PipelineBuilderOptions());
+            return RunCore(type, options);
         }
 
         public IPipelineIntegration Integrate(Type type)
@@ -58,7 +58,13 @@ namespace BusinessApp.WebApi
                         $"because ${i.Value.Type.Name} is not in the ${serviceType.Name} pipeline");
                 }
 
-                decorators.Insert(targetIndex + i.Value.Offset, (i.Key, i.Value.Options));
+                var integrationOptions = decorators[targetIndex].Item2 with
+                {
+                    ServiceFilter = i.Value.Options.ServiceFilter
+                };
+
+                decorators.Insert(targetIndex + i.Value.Offset,
+                    (i.Key, integrationOptions));
             }
 
             var finalDecorators = new List<(Type, PipelineBuilderOptions)>(decorators);
@@ -67,7 +73,7 @@ namespace BusinessApp.WebApi
             return finalDecorators.ToArray();
         }
 
-        private IPipelineBuilder Run(Type type, PipelineBuilderOptions options)
+        private IPipelineBuilder RunCore(Type type, PipelineBuilderOptions options)
         {
             if (decorators.Find(l => l.Item1 == type) != default)
             {
@@ -80,8 +86,8 @@ namespace BusinessApp.WebApi
                 ?.Any(p =>
                     serviceType == p.ParameterType ||
                     (
-                        p.ParameterType.IsGenericType&&
-                        serviceType == p.ParameterType.GetGenericTypeDefinition()
+                        p.ParameterType.IsGenericType
+                        && serviceType == p.ParameterType.GetGenericTypeDefinition()
                     ))
                 ?? false;
 

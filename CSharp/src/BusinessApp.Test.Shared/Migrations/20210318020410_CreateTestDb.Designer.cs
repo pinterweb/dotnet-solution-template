@@ -4,14 +4,16 @@ using BusinessApp.Test.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BusinessApp.Test.Shared.Migrations
 {
     [DbContext(typeof(BusinessAppTestDbContext))]
-    partial class BusinessAppTestDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210318020410_CreateTestDb")]
+    partial class CreateTestDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

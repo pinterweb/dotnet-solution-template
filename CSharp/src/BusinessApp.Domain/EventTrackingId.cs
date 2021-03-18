@@ -1,16 +1,33 @@
 namespace BusinessApp.Domain
 {
+    /// <summary>
+    /// Represents IDs to a track events in an <see cref="IEventStream" />
+    /// </summary>
     public class EventTrackingId
     {
-        public EventTrackingId(IEntityId id, IEntityId causationId, IEntityId correlationId)
+        public EventTrackingId(MetadataId id, MetadataId correlationId)
         {
             Id = id.NotNull().Expect(nameof(id));
-            CausationId = causationId.NotNull().Expect(nameof(causationId));
             CorrelationId = correlationId.NotNull().Expect(nameof(correlationId));
         }
 
-        public IEntityId Id { get; }
-        public IEntityId CausationId { get; }
-        public IEntityId CorrelationId { get; }
+        /// <summary>
+        /// The Id of the event
+        /// </summary>
+        public MetadataId Id { get; }
+
+        /// <summary>
+        /// Represents the id of all related events in a given scope.
+        /// </summary>
+        /// <remarks>
+        /// The correlation id is normally the original id of the trigger object
+        /// for all events that fire directly or indirectly
+        /// </remarks>
+        public MetadataId CorrelationId { get; }
+
+        /// <summary>
+        /// The id of the object that triggered the event
+        /// </summary>
+        public MetadataId CausationId { get; set; }
     }
 }

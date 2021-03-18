@@ -1,14 +1,13 @@
 namespace BusinessApp.Domain
 {
     /// <summary>
-    /// Interface to persist a stream of events
+    /// Interface to persist an event
     /// </summary>
     public interface IEventStore
     {
         /// <summary>
         /// Adds an event to the store
         /// </summary>
-        // void Add<T>(IEventOriginator<T> @event);
-        void Add(IEventStream stream);
+        EventTrackingId Add<T>(T @event) where T : IDomainEvent;
     }
 }

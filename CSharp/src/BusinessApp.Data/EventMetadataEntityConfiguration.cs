@@ -4,25 +4,27 @@ namespace BusinessApp.Data
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class EventMetadataEntityConfiguration : IEntityTypeConfiguration<EventMetadata>
+    public abstract class EventMetadataEntityConfiguration<T> :
+        IEntityTypeConfiguration<EventMetadata<T>>
+        where T : class, IDomainEvent
     {
-        public void Configure(EntityTypeBuilder<EventMetadata> builder)
+        protected abstract string TableName { get; }
+
+        public void Configure(EntityTypeBuilder<EventMetadata<T>> builder)
         {
-            builder.ToTable("EventMetadata", "evt");
+            builder.ToTable(TableName, "evt");
 
-            builder.OwnsOne(e => e.Id, ob =>
-            {
-                ob.Property(p => p.Id)
-                    .HasConversion(id => id.ToInt64(null), val => new Domain.EventId(val));
+            builder.Property(p => p.Id)
+                .HasColumnName("EventMetadataId")
+                .HasConversion(id => (long)id, val => new MetadataId(val));
 
-                ob.Property(p => p.CausationId)
-                    .HasColumnName("CausationId")
-                    .HasConversion(id => id.ToInt64(null), val => new Domain.EventId(val));
+            builder.Property(p => p.CausationId)
+                .HasColumnName("CausationId")
+                .HasConversion(id => (long)id, val => new MetadataId(val));
 
-                ob.Property(p => p.CorrelationId)
-                    .HasColumnName("CorrelationId")
-                    .HasConversion(id => id.ToInt64(null), val => new Domain.EventId(val));
-            });
+            builder.Property(p => p.CorrelationId)
+                .HasColumnName("CorrelationId")
+                .HasConversion(id => (long)id, val => new MetadataId(val));
 
             builder.Property(p => p.EventName)
                 .HasColumnType("varchar(500)")
@@ -31,6 +33,15 @@ namespace BusinessApp.Data
             builder.Property(i => i.OccurredUtc)
                 .HasColumnType("datetimeoffset(0)")
                 .IsRequired();
+
+            var owned = builder.OwnsOne(o => o.Event);
+
+            ConfigureEvent(owned);
+        }
+
+        protected virtual void ConfigureEvent(OwnedNavigationBuilder<EventMetadata<T>, T> builder)
+        {
+
         }
     }
 }

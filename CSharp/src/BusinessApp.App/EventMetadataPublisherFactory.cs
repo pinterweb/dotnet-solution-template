@@ -5,83 +5,69 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using BusinessApp.Domain;
+    using System.Collections.Concurrent;
 
     public class EventMetadataPublisherFactory : IEventPublisherFactory
     {
         private readonly IEventPublisher inner;
-        private readonly IEventStore store;
-        private readonly IEntityIdFactory<EventId> idFactory;
+        private readonly IEventStoreFactory storeFactory;
 
         public EventMetadataPublisherFactory(IEventPublisher inner,
-            IEventStore store,
-            IEntityIdFactory<EventId> idFactory)
+            IEventStoreFactory storeFactory)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
-            this.store = store.NotNull().Expect(nameof(store));
-            this.idFactory = idFactory.NotNull().Expect(nameof(idFactory));
+            this.storeFactory = storeFactory.NotNull().Expect(nameof(storeFactory));
         }
 
-        public IEventPublisher Create<T>(T trigger)
+        public IEventPublisher Create<T>(T trigger) where T : class
         {
-            var metadata = new EventMetadataStream<T>(idFactory.Create(), trigger);
+            var store = storeFactory.Create(trigger);
 
-            store.Add(metadata);
-
-            return new EventMetadataPublisher<T>(inner, metadata, idFactory);
+            return new EventMetadataPublisher(inner, store);
         }
 
-        private class EventMetadataPublisher<T> : IEventPublisher
+        private class EventMetadataPublisher : IEventPublisher
         {
-            private readonly EventMetadataStream<T> triggerMetadata;
+            private readonly ConcurrentDictionary<IDomainEvent, EventTrackingId> outcomeTracking;
             private readonly IEventPublisher inner;
-            private readonly IEntityIdFactory<EventId> idFactory;
+            private readonly IEventStore store;
 
-            public EventMetadataPublisher(IEventPublisher inner,
-                EventMetadataStream<T> triggerMetadata,
-                IEntityIdFactory<EventId> idFactory)
+            public EventMetadataPublisher(IEventPublisher inner, IEventStore store)
             {
-                this.triggerMetadata = triggerMetadata.NotNull().Expect(nameof(triggerMetadata));
                 this.inner = inner.NotNull().Expect(nameof(inner));
-                this.idFactory = idFactory.NotNull().Expect(nameof(idFactory));
+                this.store = store.NotNull().Expect(nameof(store));
+                outcomeTracking = new ConcurrentDictionary<IDomainEvent, EventTrackingId>();
             }
 
-            public async Task<Result<IEnumerable<IDomainEvent>, Exception>> PublishAsync(
-                IDomainEvent @event, CancellationToken cancelToken)
+            public async Task<Result<IEnumerable<IDomainEvent>, Exception>> PublishAsync<T>(
+                T @event, CancellationToken cancelToken)
+                where T : IDomainEvent
             {
-                if (!triggerMetadata.EventsSeen.TryGetValue(@event, out EventMetadata metadata))
-                {
-                    metadata = CreateInitialMetadata(@event);
-                }
-
-                var outcomes = await inner.PublishAsync(@event, cancelToken);
-
                 return await inner.PublishAsync(@event, cancelToken)
-                    .AndThenAsync(events => AddMetadata(metadata, events));
+                    .AndThenAsync(o => TrackOutcomes(@event, o));
             }
 
-            private EventMetadata CreateInitialMetadata(IDomainEvent @event)
+            /// <summary>
+            /// Add the current event to the store and track unpublished events
+            /// so we can associate causation id
+            /// </summary>
+            private Result<IEnumerable<IDomainEvent>, Exception> TrackOutcomes<T>(
+                T published, IEnumerable<IDomainEvent> outcomes)
+                where T : IDomainEvent
             {
-                return new EventMetadata(
-                    new EventTrackingId(idFactory.Create(), triggerMetadata.Id, triggerMetadata.Id),
-                    @event
-                );
-            }
+                var publishedTrackingId = store.Add(published);
 
-            private Result<IEnumerable<IDomainEvent>, Exception> AddMetadata(EventMetadata published,
-                IEnumerable<IDomainEvent> nextEvents)
-            {
-                var _ = triggerMetadata.EventsSeen.TryAdd(published.Event, published);
-
-                foreach (var n in nextEvents)
+                if (outcomeTracking.TryGetValue(published, out EventTrackingId causedById))
                 {
-                    var metadata = new EventMetadata(
-                        new EventTrackingId(idFactory.Create(), published.Id.Id, triggerMetadata.Id),
-                        n
-                    );
-                    triggerMetadata.EventsSeen.TryAdd(n, metadata);
+                    publishedTrackingId.CausationId = causedById.Id;
                 }
 
-                return Result.Ok(nextEvents);
+                foreach (var o in outcomes)
+                {
+                    var _ = outcomeTracking.TryAdd(o, publishedTrackingId);
+                }
+
+                return Result.Ok(outcomes);
             }
         }
     }

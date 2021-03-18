@@ -12,6 +12,7 @@ namespace BusinessApp.Domain
     /// </summary>
     public interface IEventPublisher
     {
-        Task<EventsResult> PublishAsync(IDomainEvent @event, CancellationToken cancelToken);
+        Task<EventsResult> PublishAsync<T>(T @event, CancellationToken cancelToken)
+            where T : IDomainEvent;
     }
 }

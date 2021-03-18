@@ -10,23 +10,31 @@ namespace BusinessApp.Data
     /// <summary>
     /// Persist the requests
     /// </summary>
-    public class EFCommandStoreRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+    public class EFCommandStoreRequestDecorator<TRequest, TResponse> :
+        IRequestHandler<TRequest, TResponse>
+        where TRequest : class
     {
         private readonly BusinessAppDbContext db;
         private readonly IPrincipal user;
         private readonly IRequestHandler<TRequest, TResponse> inner;
+        private readonly IEntityIdFactory<MetadataId> idFactory;
 
         public EFCommandStoreRequestDecorator(IRequestHandler<TRequest, TResponse> inner,
-            IPrincipal user, BusinessAppDbContext db)
+            IPrincipal user, BusinessAppDbContext db, IEntityIdFactory<MetadataId> idFactory)
         {
+            this.user = user.NotNull().Expect(nameof(user));
             this.inner = inner.NotNull().Expect(nameof(inner));
             this.db = db.NotNull().Expect(nameof(inner));
+            this.idFactory = idFactory.NotNull().Expect(nameof(idFactory));
         }
 
         public Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
-            db.Add(new RequestMetadata<TRequest>(request, user.Identity.Name));
+            var eventId = idFactory.Create();
+            var metadata = new Metadata<TRequest>(eventId, user.Identity.Name, MetadataType.Request, request);
+
+            db.Add(metadata);
 
             return inner.HandleAsync(request, cancelToken);
         }

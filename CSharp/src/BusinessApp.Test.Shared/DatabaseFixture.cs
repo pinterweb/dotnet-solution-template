@@ -49,10 +49,9 @@ namespace BusinessApp.Test.Shared
                 .Options;
 
             realDb = new BusinessAppDbContext(options);
-            DbContext = new BusinessAppTestDbContext(options);
+            DbContext = new BusinessAppTestDbContext(realDb, options);
 
             DbContext.Database.Migrate();
-            realDb.Database.Migrate();
 		}
 
 		public BusinessAppDbContext DbContext { get; }
