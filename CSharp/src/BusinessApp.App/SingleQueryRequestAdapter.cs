@@ -20,6 +20,11 @@ namespace BusinessApp.App
         where TConsumer : IRequestHandler<TRequest, IEnumerable<TResponse>>
         where TRequest : IQuery
     {
+        private static Exception MoreThanOneResultErr =
+            new BusinessAppAppException("Your query expected to return one result, but " +
+                "for some reason more than one result was returned. Please try the " +
+                "request again or contact support");
+
         private readonly TConsumer handler;
 
         public SingleQueryRequestAdapter(TConsumer handler)
@@ -30,10 +35,11 @@ namespace BusinessApp.App
         public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
-            var response = await handler.HandleAsync(request, cancelToken);
-
-            // TODO return error if more than one
-            return Result.Ok(response.Unwrap().SingleOrDefault());
+            return await handler.HandleAsync(request, cancelToken)
+                .AndThenAsync(r => r.Count() == 1
+                    ? Result.Ok(r)
+                    : Result.Error<IEnumerable<TResponse>>(MoreThanOneResultErr))
+                .MapAsync(r => r.Single());
         }
     }
 }

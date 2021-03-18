@@ -40,6 +40,14 @@ namespace BusinessApp.Domain
             };
         }
 
+        public async static Task<Result<R, E>> MapAsync<T, E, R>(
+            this Task<Result<T, E>> source, Func<T, R> next)
+        {
+            var result = await source;
+
+            return result.Map(next);
+        }
+
         public async static Task<Result<T, E>> AndThenAsync<T, E>(
             this Task<Result<T, E>> source,
             Func<T, Result<T, E>> next)
