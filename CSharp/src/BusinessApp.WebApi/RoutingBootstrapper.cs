@@ -66,31 +66,6 @@
                             .HandleAsync(ctx, default)
                     ),
 #endif
-                    //endpoint.MapGet("/api/<resource>", async ctx =>
-                    //    await container
-                    //        .GetInstance<IHttpRequestHandler<SomeQuery, IEnumerable<BusinessContract>>>()
-                    //        .HandleAsync(ctx, default)
-                    //),
-                    //endpoint.MapGet("/api/<resource>/{id:long}", async ctx =>
-                    //    await container
-                    //        .GetInstance<IHttpRequestHandler<SomeQuery, BusinessContract>>()
-                    //        .HandleAsync(ctx, default)
-                    //),
-                    //endpoint.MapPost("/api/<resource>", async ctx =>
-                    //    await container
-                    //        .GetInstance<IHttpRequestHandler<BusinessCommand, BusinessCommand>>()
-                    //        .HandleAsync(ctx, default)
-                    //),
-                    //endpoint.MapPut("/api/<resource>/{id:long}", async ctx =>
-                    //    await container
-                    //        .GetInstance<IHttpRequestHandler<BusinessCommand, BusinessCommand>>()
-                    //        .HandleAsync(ctx, default)
-                    //),
-                    //endpoint.MapDelete("/api/<resource>/{id:long}", async ctx =>
-                    //    await container
-                    //        .GetInstance<IHttpRequestHandler<DeleteCommand, DeleteCommand>>()
-                    //        .HandleAsync(ctx, default)
-                    //),
                 };
 
 #if winauth

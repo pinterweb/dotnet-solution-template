@@ -4,14 +4,14 @@ namespace BusinessApp.WebApi
     using System.Linq;
     using System.Collections.Generic;
 
-    public class ScopedPipeline : IPipelineBuilder
+    public class DecorationPipeline : IPipelineBuilder
     {
         private readonly List<(Type, PipelineBuilderOptions)> decorators;
         private readonly IDictionary<Type, IntegrationTarget> integrations;
         private readonly List<int> scopeIndexes;
         private readonly Type serviceType;
 
-        public ScopedPipeline(Type serviceType)
+        public DecorationPipeline(Type serviceType)
         {
             integrations = new Dictionary<Type, IntegrationTarget>();
             decorators = new List<(Type, PipelineBuilderOptions)>();
@@ -104,10 +104,10 @@ namespace BusinessApp.WebApi
         private class PipelineIntegration : IPipelineIntegration
         {
             private readonly Type integrationType;
-            private readonly ScopedPipeline pipeline;
+            private readonly DecorationPipeline pipeline;
             private readonly PipelineBuilderOptions options;
 
-            public PipelineIntegration(ScopedPipeline pipeline,
+            public PipelineIntegration(DecorationPipeline pipeline,
                 Type integrationType,
                 PipelineBuilderOptions options)
             {

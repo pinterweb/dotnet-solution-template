@@ -183,22 +183,6 @@ namespace BusinessApp.App.IntegrationTest.Json
                     Assert.Equal(1, model.Bar);
                 }
             }
-
-            [Fact]
-            public void HasError_LogsError()
-            {
-                /* Arrange */
-                using var ms = new MemoryStream();
-                using var sw = new StreamWriter(ms);
-                sw.Write("{\"foo\":\"foo\"}");
-                sw.Flush();
-                ms.Position = 0;
-
-                /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-
-                /* Assert TODO can we remove the "Path portion? "*/
-            }
         }
 
         public class Serialize : NewtonsoftJsonSerializerTests

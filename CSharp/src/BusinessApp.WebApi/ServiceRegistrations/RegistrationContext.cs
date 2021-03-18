@@ -22,7 +22,7 @@ namespace BusinessApp.WebApi
                 return builder;
             }
 
-            builder = new ScopedPipeline(serviceType);
+            builder = new DecorationPipeline(serviceType);
             builders.Add(serviceType, builder);
 
             return builder;
