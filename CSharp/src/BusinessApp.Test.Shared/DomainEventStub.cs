@@ -7,7 +7,7 @@ namespace BusinessApp.Test.Shared
     public class DomainEventStub : IDomainEvent
     {
         public IEntityId Id { get; set; }
-        public DateTimeOffset OccurredUtc => A.Dummy<DateTimeOffset>();
+        public DateTimeOffset OccurredUtc { get; set; } = A.Dummy<DateTimeOffset>();
 
         public string ToString(string format, IFormatProvider formatProvider) => "";
     }

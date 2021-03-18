@@ -16,8 +16,8 @@ namespace BusinessApp.WebApi
             this.httpContextAccessor = httpContextAccessor.NotNull().Expect(nameof(httpContextAccessor));
         }
 
-        public IIdentity Identity => Principal.Identity;
-        public bool IsInRole(string role) => Principal.IsInRole(role);
-        private IPrincipal Principal => httpContextAccessor.HttpContext.User;
+        public IIdentity Identity => Principal?.Identity;
+        public bool IsInRole(string role) => Principal?.IsInRole(role) ?? false;
+        private IPrincipal Principal => httpContextAccessor.HttpContext?.User;
     }
 }

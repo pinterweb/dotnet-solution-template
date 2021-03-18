@@ -6,14 +6,18 @@ namespace BusinessApp.WebApi.FunctionalTest
     using System.Security.Claims;
     using System.Text.Encodings.Web;
     using System.Threading.Tasks;
+    using BusinessApp.Data;
+    using BusinessApp.Test.Shared;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Mvc.Testing;
     using Microsoft.AspNetCore.TestHost;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using SimpleInjector;
+    using SimpleInjector.Lifestyles;
 
     public static class WebApplicationFactoryExtensions
     {
@@ -29,7 +33,6 @@ namespace BusinessApp.WebApi.FunctionalTest
                 {
                     builder.ConfigureAppConfiguration((hostingContext, config) =>
                     {
-                        hostingContext.HostingEnvironment.EnvironmentName = "Test";
                         config.AddJsonFile("appsettings.test.json");
                     })
                     .ConfigureServices(services =>
@@ -42,6 +45,10 @@ namespace BusinessApp.WebApi.FunctionalTest
                         services.AddAuthentication(AuthenticationScheme)
                                 .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>
                                 (AuthenticationScheme, options => { });
+
+                        container.RegisterDecorator(
+                            typeof(BusinessAppDbContext),
+                            typeof(BusinessAppTestDbContext));
                     });
                 })
                 .CreateClient(new WebApplicationFactoryClientOptions());
@@ -50,6 +57,12 @@ namespace BusinessApp.WebApi.FunctionalTest
                 AuthenticationScheme);
 
             container.Verify();
+
+            using (AsyncScopedLifestyle.BeginScope(container))
+            {
+                var db = container.GetInstance<BusinessAppDbContext>();
+                db.Database.Migrate();
+            }
 
             return client;
         }

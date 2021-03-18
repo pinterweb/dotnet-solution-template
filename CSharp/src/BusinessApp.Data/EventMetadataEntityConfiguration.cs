@@ -1,32 +1,51 @@
 namespace BusinessApp.Data
 {
+    using BusinessApp.Domain;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class EventMetadataEntityConfiguration : IEntityTypeConfiguration<EventMetadata>
+    public abstract class EventMetadataEntityConfiguration<T> :
+        IEntityTypeConfiguration<EventMetadata<T>>
+        where T : class, IDomainEvent
     {
-        public void Configure(EntityTypeBuilder<EventMetadata> builder)
+        protected abstract string TableName { get; }
+
+        public void Configure(EntityTypeBuilder<EventMetadata<T>> builder)
         {
-            builder.ToTable("EventMetadata", "evt");
+            builder.ToTable(TableName, "evt");
 
             builder.Property(p => p.Id)
-                .HasColumnName("EventId")
-                .HasConversion(id => id.ToInt64(null), val => new EventId(val));
-
-            builder.Property(p => p.CorrelationId)
-                .HasConversion(id => (long)id, val => new EventId(val));
-
-            builder.Property(p => p.EventCreator)
-                .HasColumnType("varchar(50)")
+                .HasColumnName("EventMetadataId")
+                .HasConversion(id => (long)id, val => new MetadataId(val))
                 .IsRequired();
 
-            builder.Property(p => p.EventDisplayText)
+            builder.Property(p => p.CausationId)
+                .HasColumnName("CausationId")
+                .HasConversion(id => (long)id, val => new MetadataId(val))
+                .IsRequired();
+
+            builder.Property(p => p.CorrelationId)
+                .HasColumnName("CorrelationId")
+                .HasConversion(id => (long)id, val => new MetadataId(val))
+                .IsRequired();
+
+            builder.Property(p => p.EventName)
                 .HasColumnType("varchar(500)")
                 .IsRequired();
 
             builder.Property(i => i.OccurredUtc)
                 .HasColumnType("datetimeoffset(0)")
                 .IsRequired();
+
+            builder.HasOne<Metadata>()
+                .WithOne()
+                .HasForeignKey<EventMetadata<T>>(e => e.CorrelationId);
+
+            var owned = builder.OwnsOne(o => o.Event);
+
+            ConfigureEvent(owned);
         }
+
+        protected abstract void ConfigureEvent(OwnedNavigationBuilder<EventMetadata<T>, T> builder);
     }
 }

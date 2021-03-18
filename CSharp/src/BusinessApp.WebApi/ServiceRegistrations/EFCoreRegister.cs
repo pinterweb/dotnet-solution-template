@@ -8,6 +8,11 @@ namespace BusinessApp.WebApi
     //#endif
     using BusinessApp.Data;
     using BusinessApp.App;
+    using BusinessApp.Domain;
+    using SimpleInjector;
+    using Microsoft.AspNetCore;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.AspNetCore.Hosting;
 
     public class EFCoreRegister : IBootstrapRegister
     {
@@ -40,17 +45,24 @@ namespace BusinessApp.WebApi
             var pipeline = context.GetPipelineBuilder(serviceType);
             var container = context.Container;
 
-            pipeline
-                .IntegrateOnce(typeof(EFTrackingQueryDecorator<,>))
+            pipeline.Integrate(typeof(EFTrackingQueryDecorator<,>))
                 .After(typeof(RequestExceptionDecorator<,>));
 
             inner.Register(context);
+
+            pipeline.Run(typeof(EFMetadataStoreRequestDecorator<,>), new PipelineBuilderOptions()
+            {
+                ServiceFilter = type =>
+                    !type.GetGenericArguments()[0].IsGenericIEnumerable()
+                    && !typeof(IEventStream).IsAssignableFrom(type.GetGenericArguments()[1]),
+                RequestType = RequestType.Command
+            });
 
             container.Collection.Append(
                 typeof(IQueryVisitorFactory<,>),
                 typeof(EFQueryVisitorFactory<,>));
 
-            container.Register(typeof(IDatastore<>), typeof(EFDatastore<>));
+            container.Register<IEventStoreFactory, EFEventStoreFactory>();
 
             container.Register(typeof(IDbSetVisitorFactory<,>), options.RegistrationAssemblies);
 
@@ -87,7 +99,14 @@ namespace BusinessApp.WebApi
         {
             public BusinessAppDbContext CreateDbContext(string[] args)
             {
-                var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+                var config = (IConfiguration)WebHost.CreateDefaultBuilder(args)
+                    .ConfigureServices(sc => sc.AddSingleton(new Container()))
+                    .ConfigureAppConfiguration(builder =>
+                    {
+                        builder.AddCommandLine(args);
+                        builder.AddEnvironmentVariables();
+                    })
+                    .UseStartup<Startup>()
                     .Build()
                     .Services
                     .GetService(typeof(IConfiguration));

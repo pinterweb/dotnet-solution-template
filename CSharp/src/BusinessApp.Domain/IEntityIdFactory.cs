@@ -1,7 +1,5 @@
-namespace BusinessApp.Data
+namespace BusinessApp.Domain
 {
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Factory to generate unique ids
     /// </summary>

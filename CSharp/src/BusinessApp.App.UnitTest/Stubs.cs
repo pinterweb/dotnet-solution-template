@@ -8,7 +8,7 @@ namespace BusinessApp.App.UnitTest
 
     public class EventStreamStub : IEventStream
     {
-        public IEnumerable<IDomainEvent> Events { get; set; }
+        public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
     }
 
     [Authorize]

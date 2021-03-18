@@ -7,7 +7,6 @@ namespace BusinessApp.Domain
     /// </summary>
     public interface IDomainEvent
     {
-        IEntityId Id { get; set; }
         DateTimeOffset OccurredUtc { get; }
     }
 }

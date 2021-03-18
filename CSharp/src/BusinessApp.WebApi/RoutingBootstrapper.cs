@@ -118,6 +118,7 @@
 
         public int ToInt32(IFormatProvider provider) => Id;
         public TypeCode GetTypeCode() => Id.GetTypeCode();
+        public static implicit operator int (EntityId id) => id.Id;
     }
 
     public class Get
@@ -191,7 +192,7 @@
             public EntityId Id { get; set; }
         }
 
-        public class Response : App.IEventStream
+        public class Response : IEventStream
         {
             public IEnumerable<IDomainEvent> Events { get; set; }
 
@@ -199,7 +200,7 @@
 
         public class Event : IDomainEvent
         {
-            public IEntityId Id { get; set; }
+            public EntityId Id { get; set; }
 
             public DateTimeOffset OccurredUtc { get; }
         }

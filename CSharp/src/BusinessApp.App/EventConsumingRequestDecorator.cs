@@ -1,36 +1,44 @@
+using System;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
     using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
+
+    using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
 
     /// <summary>
     /// Consume event data from the prior handlers
     /// </summary>
     public class EventConsumingRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : class
         where TResponse : IEventStream
     {
-        private readonly IEventPublisher publisher;
+        private static MethodInfo PublishMethod = typeof(IEventPublisher).GetMethod(nameof(IEventPublisher.PublishAsync));
+        private readonly IEventPublisherFactory publisherFactory;
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
         public EventConsumingRequestDecorator(IRequestHandler<TRequest, TResponse> inner,
-            IEventPublisher publisher)
+            IEventPublisherFactory publisherFactory)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
-            this.publisher = publisher.NotNull().Expect(nameof(inner));
+            this.publisherFactory = publisherFactory.NotNull().Expect(nameof(inner));
         }
 
         public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
+            var publisher = publisherFactory.Create(request);
+
             var streamResult = await inner.HandleAsync(request, cancelToken);
 
             return (await streamResult
                 .Map(s => s.Events)
-                .AndThenAsync(ConsumeAsync, cancelToken))
+                .AndThenAsync((events, ct) => ConsumeAsync(publisher, events, ct), cancelToken))
                 .MapOrElse(
                     err => Result.Error<TResponse>(err),
                     ok =>
@@ -41,8 +49,8 @@ namespace BusinessApp.App
                 );
         }
 
-        private async Task<Result<IEnumerable<IDomainEvent>, Exception>> ConsumeAsync(
-            IEnumerable<IDomainEvent> events, CancellationToken cancelToken)
+        private async Task<EventResult> ConsumeAsync(
+            IEventPublisher publisher, IEnumerable<IDomainEvent> events, CancellationToken cancelToken)
         {
             var consumedEvents = events.Select(s => s).ToList();
 
@@ -52,13 +60,22 @@ namespace BusinessApp.App
             (
                 await
                 (
-                    await Task.WhenAll(consumedEvents.Select(e => publisher.PublishAsync(e, cancelToken)))
+                    await Task.WhenAll(consumedEvents.Select(e => PublishAsync(publisher, e, cancelToken)))
                 )
                 .Collect()
                 .Map(v => v.SelectMany(s => s))
-                .AndThenAsync(ConsumeAsync, cancelToken)
+                .AndThenAsync((events, ct) => ConsumeAsync(publisher, events, ct), cancelToken)
             )
                 .Map(e => consumedEvents.Concat(e));
+        }
+
+        public Task<EventResult> PublishAsync(IEventPublisher publisher, IDomainEvent @event,
+            CancellationToken cancelToken)
+        {
+            var generic = PublishMethod.MakeGenericMethod(@event.GetType());
+
+            return (Task<EventResult>)generic.Invoke(publisher,
+                new object[] { @event, cancelToken });
         }
     }
 }

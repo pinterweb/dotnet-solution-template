@@ -23,6 +23,11 @@ namespace BusinessApp.Test.Shared
         public IEnumerable<string> Fields { get; set; }
     }
 
+    public class RequestStub
+    {
+        public int Id { get; set; }
+    }
+
     public class ResponseStub
     {
         public int Id { get; set; }

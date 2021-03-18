@@ -1,9 +1,12 @@
 namespace BusinessApp.WebApi
 {
-    public class PipelineBuilderOptions
+    using System;
+
+    public record PipelineBuilderOptions
     {
         public ScopeBehavior ScopeBehavior { get; set; }
         public RequestType RequestType { get; set; }
         public Lifetime Lifetime { get; set; }
+        public Func<Type, bool> ServiceFilter { get; set; }
     }
 }

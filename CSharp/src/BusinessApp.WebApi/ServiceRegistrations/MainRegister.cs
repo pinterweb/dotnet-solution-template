@@ -26,11 +26,10 @@ namespace BusinessApp.WebApi
         {
             var container = context.Container;
 
-            container.Register<IEventRepository, EventRepository>();
             container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
             container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
-            container.Collection.Append(typeof(IEventHandler<>), typeof(DomainEventHandler<>));
 
+            container.Register<IEventPublisherFactory, EventMetadataPublisherFactory>();
             container.Register<PostCommitRegister>();
             container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
 
@@ -48,6 +47,7 @@ namespace BusinessApp.WebApi
         private void RegisterWebApiServices(Container container)
         {
             container.RegisterSingleton<IPrincipal, HttpUserContext>();
+            container.RegisterDecorator<IPrincipal, AnonymousUser>();
             container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
@@ -269,31 +269,7 @@ namespace BusinessApp.WebApi
 
         private void RegisterDecoratePipeline(RegistrationContext context)
         {
-            static bool IsOuterScope(DecoratorPredicateContext ctx)
-            {
-                var implType = ctx.ImplementationType;
-
-                return !implType.IsConstructedGenericType ||
-                (
-                    implType.GetGenericTypeDefinition() != typeof(BatchProxyRequestHandler<,,>)
-                    && implType.GetGenericTypeDefinition() != typeof(MacroBatchProxyRequestHandler<,>)
-                );
-            }
-
-            static bool IsInnerScope(DecoratorPredicateContext ctx)
-            {
-                var implType = ctx.ImplementationType;
-
-                return !implType.IsConstructedGenericType ||
-                (
-                    implType.GetGenericTypeDefinition() == typeof(BatchRequestAdapter<,>)
-                    || implType.GetGenericTypeDefinition() == typeof(MacroBatchProxyRequestHandler<,>)
-                    || implType.GetGenericTypeDefinition() == typeof(SingleQueryRequestAdapter<,,>)
-                );
-            }
-
             var serviceType = typeof(IRequestHandler<,>);
-
             var pipeline = context.GetPipelineBuilder(serviceType);
 
             // Request / Command Pipeline
@@ -308,30 +284,6 @@ namespace BusinessApp.WebApi
                 .RunOnce(typeof(TransactionRequestDecorator<,>), RequestType.Command)
                 .Run(typeof(EventConsumingRequestDecorator<,>));
 
-            foreach (var d in pipeline.Build().Reverse())
-            {
-                Predicate<DecoratorPredicateContext> filter = d.Item2.ScopeBehavior switch
-                {
-                    ScopeBehavior.Inner => (ctx) => IsInnerScope(ctx),
-                    ScopeBehavior.Outer => (ctx) => IsOuterScope(ctx),
-                    _ => (ctx) => true
-                };
-
-                var filter2 = d.Item2.RequestType switch
-                {
-                    RequestType.Command => (ctx) => filter(ctx) &&
-                        !ctx.ServiceType.GetGenericArguments()[0].IsQueryType(),
-                    RequestType.Query => (ctx) => filter(ctx) &&
-                        ctx.ServiceType.GetGenericArguments()[0].IsQueryType(),
-                    _ => filter,
-                };
-
-                context.Container.RegisterDecorator(
-                    serviceType,
-                    d.Item1,
-                    d.Item2.Lifetime.MapLifestyle(),
-                    filter2);
-            }
         }
 
         /// <summary>

@@ -32,7 +32,6 @@ namespace BusinessApp.WebApi.FunctionalTest
         {
             // Given
             var client = factory.NewClient();
-            var payload = new { id = 1 };
 
             // When
             var response = await client.GetAsync("/api/resources/1");
@@ -47,13 +46,12 @@ namespace BusinessApp.WebApi.FunctionalTest
         {
             // Given
             var client = factory.NewClient();
-            var payload = new { id = 1 };
 
             // When
             var response = await client.GetAsync("/api/resources");
 
             // Then
-            Assert.True(response.IsSuccessStatusCode);
+            await response.Success(output);
             var accessHeader = Assert.Single(
                 response.Headers.GetValues("Access-Control-Expose-Headers"));
             var pageHeader = Assert.Single(
@@ -76,7 +74,7 @@ namespace BusinessApp.WebApi.FunctionalTest
             var response = await client.PostAsync("/api/resources", content);
 
             // Then
-            Assert.True(response.IsSuccessStatusCode);
+            await response.Success(output);
             var json = await response.Content.ReadAsStringAsync();
             Assert.Equal("{\r\n  \"longerId\": \"99\",\r\n  \"id\": 1\r\n}", json);
         }
@@ -96,7 +94,7 @@ namespace BusinessApp.WebApi.FunctionalTest
 
             // Then
 
-            Assert.True(response.IsSuccessStatusCode);
+            await response.Success(output);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
@@ -109,9 +107,6 @@ namespace BusinessApp.WebApi.FunctionalTest
             var client = factory.NewClient(container =>
             {
                 container.RegisterInstance(notifier);
-                container.RegisterDecorator(
-                    typeof(IEventRepository),
-                    typeof(NullEventRepositoryDecorator));
                 container.RegisterDecorator(
                     typeof(IEventHandler<Delete.Event>),
                     typeof(EventDecorator));
@@ -169,19 +164,6 @@ namespace BusinessApp.WebApi.FunctionalTest
         public class Response
         {
             public int Id { get; set; }
-        }
-
-        /// <summary>
-        /// Prevents actual impl from  being called. Some of the fake events
-        /// are not in the actual database
-        /// </summary>
-        private class NullEventRepositoryDecorator : IEventRepository
-        {
-            public NullEventRepositoryDecorator(IEventRepository inner)
-            {}
-
-            public void Add<T>(T @event) where T : IDomainEvent
-            {}
         }
     }
 }

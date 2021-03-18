@@ -23,10 +23,11 @@ namespace BusinessApp.WebApi
             this.container = container.NotNull().Expect(nameof(container));
         }
 
-        public Task<EventResult> PublishAsync(IDomainEvent @event, CancellationToken cancelToken)
+        public Task<EventResult> PublishAsync<T>(T @event, CancellationToken cancelToken)
+            where T : IDomainEvent
         {
             var handler = (EventHandler)Activator.CreateInstance(
-                typeof(GenericEventHandler<>).MakeGenericType(@event.GetType()));
+                typeof(GenericEventHandler<>).MakeGenericType(typeof(T)));
 
             return handler.HandleAsync(@event, cancelToken, container);
         }

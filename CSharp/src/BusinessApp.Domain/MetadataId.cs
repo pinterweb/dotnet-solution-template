@@ -1,20 +1,16 @@
-namespace BusinessApp.Data
+namespace BusinessApp.Domain
 {
     using System;
     using System.ComponentModel;
-    using BusinessApp.Domain;
 
     /// <summary>
     /// Unique id of an event
     /// </summary>
     /// <remarks>Uses a class to share id values on save</remarks>
-    [TypeConverter(typeof(EntityIdTypeConverter<EventId, long>))]
-    public class EventId : IEntityId
+    [TypeConverter(typeof(EntityIdTypeConverter<MetadataId, long>))]
+    public class MetadataId : IEntityId
     {
-        public EventId(long id)
-        {
-            Id = id;
-        }
+        public MetadataId(long id) => Id = id;
 
         [KeyId]
         public long Id { get; set; }
@@ -23,6 +19,8 @@ namespace BusinessApp.Data
 
         long IConvertible.ToInt64(IFormatProvider provider) => Id;
 
-        public static explicit operator long (EventId id) => id.Id;
+        public static explicit operator long (MetadataId id) => id.Id;
+
+        public static explicit operator MetadataId (long id) => new MetadataId(id);
     }
 }

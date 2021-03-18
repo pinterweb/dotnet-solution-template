@@ -3,54 +3,46 @@ namespace BusinessApp.Data
     using System;
     using BusinessApp.Domain;
 
-    /// <summary>
-    /// Represents event data over time. Abstracts the time component away from
-    /// the meaningful event data
-    /// </summary>
-    public sealed class EventMetadata
+    public abstract class EventMetadata
     {
-        private EventMetadata() {  }
+        protected EventMetadata()
+        {}
 
-        public EventMetadata(IDomainEvent originalEvent, EventId correlationId, string eventCreator)
+        public EventMetadata(EventTrackingId id, IDomainEvent e)
         {
-            originalEvent.NotNull().Expect(nameof(originalEvent));
-            eventCreator.NotEmpty().Expect(nameof(eventCreator));
+            id.NotNull().Expect(nameof(id));
 
-            Id = originalEvent.Id;
-            CorrelationId = correlationId;
-            EventDisplayText = originalEvent.ToString();
-            EventCreator = eventCreator;
-            OccurredUtc = originalEvent.OccurredUtc;
+            Id = id.Id;
+            CorrelationId = id.CorrelationId;
+            CausationId = id.CausationId;
+            EventName = e.ToString();
+            OccurredUtc = e.OccurredUtc;
         }
 
-        /// <summary>
-        /// Unique Id of the event
-        /// </summary>
-        public IEntityId Id { get; set; }
+        public string EventName { get; }
+        public MetadataId Id { get; }
+        public MetadataId CausationId { get; }
+        public MetadataId CorrelationId { get; }
+        public DateTimeOffset OccurredUtc { get; }
+    }
 
-        /// <summary>
-        /// Shared Id of all related events
-        /// </summary>
-        public EventId CorrelationId { get; private set; }
+    /// <summary>
+    /// Model to store event metadata.
+    /// </summary>
+    public class EventMetadata<T> : EventMetadata
+        where T : IDomainEvent
+    {
+        private EventMetadata()
+        {}
 
-        /// <summary>
-        /// The display text of the original event
-        /// </summary>
-        public string EventDisplayText { get; private set; }
+        public EventMetadata(EventTrackingId id, T e)
+            : base(id, e)
+        {
+            id.NotNull().Expect(nameof(id));
 
-        /// <summary>
-        /// The display text for the creator of the event
-        /// </summary>
-        public string EventCreator { get; private set; }
+            Event = e.NotNull().Expect(nameof(e));
+        }
 
-        /// <summary>
-        /// The occurred UTC datetime of the original event
-        /// </summary>
-        public DateTimeOffset OccurredUtc { get; private set; }
-
-        /// <summary>
-        /// The display text for the underlying event
-        /// </summary>
-        public override string ToString() => EventDisplayText;
+        public T Event { get; set; }
     }
 }
