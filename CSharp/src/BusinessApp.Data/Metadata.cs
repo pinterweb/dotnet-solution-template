@@ -3,13 +3,6 @@ namespace BusinessApp.Data
     using System;
     using BusinessApp.Domain;
 
-    public enum MetadataType
-    {
-        Unknown,
-        Request,
-        EventTrigger,
-    }
-
     public class Metadata
     {
         protected Metadata()
