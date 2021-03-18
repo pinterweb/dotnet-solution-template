@@ -87,7 +87,14 @@ namespace BusinessApp.Test.Shared
 
             base.OnModelCreating(modelBuilder);
 
+#region Event Streaming
             modelBuilder.ApplyConfiguration(new DeleteEventConfiguration());
+#endregion
+
+#region Command Streaming
+            modelBuilder.ApplyConfiguration(new DeleteQueryConfiguration());
+            modelBuilder.ApplyConfiguration(new PostOrPutBodyConfiguration());
+#endregion
         }
 
         private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.Event>
@@ -98,6 +105,46 @@ namespace BusinessApp.Test.Shared
                 OwnedNavigationBuilder<EventMetadata<Delete.Event>, Delete.Event> builder)
             {
                 builder.Property(p => p.Id)
+                    .HasConversion(id => (int)id, val => new EntityId(val));
+            }
+        }
+
+        private class PostOrPutBodyConfiguration : MetadataEntityConfiguration<PostOrPut.Body>
+        {
+            protected override string TableName => "PostOrPutBody";
+
+            public override void Configure(EntityTypeBuilder<PostOrPut.Body> builder)
+            {
+                base.Configure(builder);
+
+                builder.ToTable("PostOrPutBody");
+
+                builder.Property<int>("PostOrPutBodyRequestId")
+                    .ValueGeneratedOnAdd();
+
+                builder.HasKey("PostOrPutBodyRequestId");
+
+                builder.Property(p => p.Id)
+                    .HasColumnName("PostOrPutId")
+                    .HasConversion(id => (int)id, val => new EntityId(val));
+            }
+        }
+
+        private class DeleteQueryConfiguration : MetadataEntityConfiguration<Delete.Query>
+        {
+            protected override string TableName => "DeleteQuery";
+
+            public override void Configure(EntityTypeBuilder<Delete.Query> builder)
+            {
+                base.Configure(builder);
+
+                builder.Property<int>("DeleteQueryRequestId")
+                    .ValueGeneratedOnAdd();
+
+                builder.HasKey("DeleteQueryRequestId");
+
+                builder.Property(p => p.Id)
+                    .HasColumnName("DeleteQueryId")
                     .HasConversion(id => (int)id, val => new EntityId(val));
             }
         }

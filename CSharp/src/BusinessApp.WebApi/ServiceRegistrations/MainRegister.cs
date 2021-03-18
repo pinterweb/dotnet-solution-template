@@ -265,6 +265,11 @@ namespace BusinessApp.WebApi
                         !c.ServiceType.GetGenericArguments()[1].IsGenericType
                         || c.ServiceType.GetGenericArguments()[1].GetGenericTypeDefinition() != typeof(IEnumerable<>)
                     ));
+
+            container.RegisterConditional(typeof(IRequestHandler<,>),
+                typeof(NoBusinessLogicRequestHandler<>),
+                Lifestyle.Scoped,
+                c => !c.Handled);
         }
 
         private void RegisterDecoratePipeline(RegistrationContext context)

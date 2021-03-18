@@ -175,14 +175,6 @@
             public long LongerId { get; set; }
             public EntityId Id { get; set; }
         }
-
-        public class Handler : App.IRequestHandler<Body, Body>
-        {
-            public Task<Result<Body, Exception>> HandleAsync(Body request, CancellationToken cancelToken)
-            {
-                return Task.FromResult(Result.Ok(request));
-            }
-        }
     }
 
     public class Delete

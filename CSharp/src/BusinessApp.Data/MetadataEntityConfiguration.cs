@@ -35,15 +35,18 @@ namespace BusinessApp.Data
         }
     }
 
-    public abstract class MetadataEntityConfiguration<T> :
-        IEntityTypeConfiguration<Metadata<T>>
+    public abstract class MetadataEntityConfiguration<T> : IEntityTypeConfiguration<T>
         where T : class
     {
         protected abstract string TableName { get; }
 
-        public virtual void Configure(EntityTypeBuilder<Metadata<T>> builder)
+        public virtual void Configure(EntityTypeBuilder<T> builder)
         {
             builder.ToTable(TableName, "dbo");
+
+            builder.HasOne<Metadata<T>>()
+                .WithOne(e => e.Data)
+                .HasForeignKey<T>("MetadataId");
         }
     }
 }

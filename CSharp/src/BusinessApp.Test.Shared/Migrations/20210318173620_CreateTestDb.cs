@@ -46,7 +46,8 @@ namespace BusinessApp.Test.Shared.Migrations
                     Username = table.Column<string>(type: "varchar(100)", nullable: false),
                     DataSetName = table.Column<string>(type: "varchar(100)", nullable: false),
                     TypeName = table.Column<string>(type: "varchar(100)", nullable: false),
-                    OccurredUtc = table.Column<DateTimeOffset>(type: "datetimeoffset(0)", nullable: false)
+                    OccurredUtc = table.Column<DateTimeOffset>(type: "datetimeoffset(0)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,6 +110,50 @@ namespace BusinessApp.Test.Shared.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DeleteQuery",
+                schema: "dbo",
+                columns: table => new
+                {
+                    DeleteQueryRequestId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DeleteQueryId = table.Column<int>(type: "int", nullable: true),
+                    MetadataId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeleteQuery", x => x.DeleteQueryRequestId);
+                    table.ForeignKey(
+                        name: "FK_DeleteQuery_Metadata_MetadataId",
+                        column: x => x.MetadataId,
+                        principalSchema: "dbo",
+                        principalTable: "Metadata",
+                        principalColumn: "MetadataId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostOrPutBody",
+                columns: table => new
+                {
+                    PostOrPutBodyRequestId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    LongerId = table.Column<long>(type: "bigint", nullable: false),
+                    PostOrPutId = table.Column<int>(type: "int", nullable: true),
+                    MetadataId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostOrPutBody", x => x.PostOrPutBodyRequestId);
+                    table.ForeignKey(
+                        name: "FK_PostOrPutBody_Metadata_MetadataId",
+                        column: x => x.MetadataId,
+                        principalSchema: "dbo",
+                        principalTable: "Metadata",
+                        principalColumn: "MetadataId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ChildResponseStub",
                 columns: table => new
                 {
@@ -140,6 +185,21 @@ namespace BusinessApp.Test.Shared.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_DeleteQuery_MetadataId",
+                schema: "dbo",
+                table: "DeleteQuery",
+                column: "MetadataId",
+                unique: true,
+                filter: "[MetadataId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostOrPutBody_MetadataId",
+                table: "PostOrPutBody",
+                column: "MetadataId",
+                unique: true,
+                filter: "[MetadataId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ResponseStub_ResponseStubId",
                 table: "ResponseStub",
                 column: "ResponseStubId");
@@ -158,7 +218,14 @@ namespace BusinessApp.Test.Shared.Migrations
                 schema: "evt");
 
             migrationBuilder.DropTable(
+                name: "DeleteQuery",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
                 name: "DomainEventStub");
+
+            migrationBuilder.DropTable(
+                name: "PostOrPutBody");
 
             migrationBuilder.DropTable(
                 name: "RequestStub");
