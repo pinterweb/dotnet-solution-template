@@ -16,13 +16,6 @@
         private readonly IQuery query;
         private static IEnumerable<string> IncludablePropNames = typeof(TResult)
            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-           .Where(prop =>
-               (
-                   prop.PropertyType.IsGenericIEnumerable() ?
-                   prop.PropertyType.GetGenericArguments()[0] :
-                   prop.PropertyType
-               ) != null
-           )
            .Select(p => p.Name)
            .ToList();
 
