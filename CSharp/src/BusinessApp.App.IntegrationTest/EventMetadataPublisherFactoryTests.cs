@@ -95,6 +95,22 @@ namespace BusinessApp.App.IntegrationTest
             }
 
             [Fact]
+            public async Task HasEventOutcome_ThoseEventsReturns()
+            {
+                /* Arrange */
+                var originalEvent = A.Dummy<IDomainEvent>();
+                var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
+                A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
+                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
+
+                /* Act */
+                var events = await publisher.PublishAsync(originalEvent, cancelToken);
+
+                /* Assert */
+                Assert.Same(outcomes, events.Unwrap());
+            }
+
+            [Fact]
             public async Task HasEventOutcome_OriginalEventIdSetAsCausationId()
             {
                 /* Arrange */

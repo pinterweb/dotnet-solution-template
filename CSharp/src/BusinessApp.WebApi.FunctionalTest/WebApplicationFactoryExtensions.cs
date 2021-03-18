@@ -61,7 +61,6 @@ namespace BusinessApp.WebApi.FunctionalTest
             using (AsyncScopedLifestyle.BeginScope(container))
             {
                 var db = container.GetInstance<BusinessAppDbContext>();
-                var m = db.Database.GetMigrations();
                 db.Database.Migrate();
             }
 

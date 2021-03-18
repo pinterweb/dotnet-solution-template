@@ -12,16 +12,16 @@ namespace BusinessApp.Data.IntegrationTest
     using System.Threading.Tasks;
 
     [Collection(nameof(DatabaseCollection))]
-    public class EFCommandStoreRequestDecoratorTests
+    public class EFMetadataStoreRequestDecoratorTests
     {
-        private readonly EFCommandStoreRequestDecorator<RequestStub, ResponseStub> sut;
+        private readonly EFMetadataStoreRequestDecorator<RequestStub, ResponseStub> sut;
         private readonly IRequestHandler<RequestStub, ResponseStub> inner;
         private readonly BusinessAppDbContext db;
         private readonly IPrincipal user;
         private readonly IEntityIdFactory<MetadataId> idFactory;
         private readonly CancellationToken cancelToken;
 
-        public EFCommandStoreRequestDecoratorTests(DatabaseFixture fixture)
+        public EFMetadataStoreRequestDecoratorTests(DatabaseFixture fixture)
         {
             user = A.Fake<IPrincipal>();
             inner = A.Fake<IRequestHandler<RequestStub, ResponseStub>>();
@@ -29,13 +29,13 @@ namespace BusinessApp.Data.IntegrationTest
             idFactory = A.Fake<IEntityIdFactory<MetadataId>>();
             cancelToken = A.Dummy<CancellationToken>();
 
-            sut = new EFCommandStoreRequestDecorator<RequestStub, ResponseStub>(inner, user,
+            sut = new EFMetadataStoreRequestDecorator<RequestStub, ResponseStub>(inner, user,
                 db, idFactory);
 
             A.CallTo(() => user.Identity.Name).Returns("f");
         }
 
-        public class Constructor : EFCommandStoreRequestDecoratorTests
+        public class Constructor : EFMetadataStoreRequestDecoratorTests
         {
             public Constructor(DatabaseFixture f) : base(f)
             {}
@@ -83,7 +83,7 @@ namespace BusinessApp.Data.IntegrationTest
                 IPrincipal p, BusinessAppDbContext db, IEntityIdFactory<MetadataId> d)
             {
                 /* Arrange */
-                void shouldThrow() => new EFCommandStoreRequestDecorator<RequestStub, ResponseStub>(
+                void shouldThrow() => new EFMetadataStoreRequestDecorator<RequestStub, ResponseStub>(
                     i, p, db, d);
 
                 /* Act */
@@ -94,7 +94,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
         }
 
-        public class HandleAsync : EFCommandStoreRequestDecoratorTests
+        public class HandleAsync : EFMetadataStoreRequestDecoratorTests
         {
             private readonly DatabaseFixture fixture;
 

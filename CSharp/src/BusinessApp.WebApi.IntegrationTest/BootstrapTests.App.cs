@@ -124,7 +124,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(TransactionRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(EFCommandStoreRequestDecorator<CommandStub, CommandStub>),
+                        typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(CommandHandlerStub),
@@ -233,7 +233,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(EFCommandStoreRequestDecorator<CommandStub, CommandStub>),
+                        typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
@@ -273,7 +273,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(EFCommandStoreRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
+                        typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
                         implType),
                     implType => Assert.Equal(
                         typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<EventStreamStub>>),
@@ -343,7 +343,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(EFCommandStoreRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
+                        typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                         implType),
                     implType => Assert.Equal(
                         typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<CommandStub>>),
@@ -373,7 +373,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(EFCommandStoreRequestDecorator<CommandStub, CommandStub>),
+                        typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),

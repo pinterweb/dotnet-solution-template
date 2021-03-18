@@ -50,7 +50,7 @@ namespace BusinessApp.WebApi
 
             inner.Register(context);
 
-            pipeline.Run(typeof(EFCommandStoreRequestDecorator<,>), new PipelineBuilderOptions()
+            pipeline.Run(typeof(EFMetadataStoreRequestDecorator<,>), new PipelineBuilderOptions()
             {
                 ServiceFilter = type =>
                     !type.GetGenericArguments()[0].IsGenericIEnumerable()

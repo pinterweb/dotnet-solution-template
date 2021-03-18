@@ -195,7 +195,7 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void SetsEventMetadataCausatiotnIdFromCausationId()
+            public void SetsEventMetadataToTheEvent()
             {
                 /* Arrange */
                 var e = A.Dummy<DomainEventStub>();

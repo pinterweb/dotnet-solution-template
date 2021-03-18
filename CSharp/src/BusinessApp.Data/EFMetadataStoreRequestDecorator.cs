@@ -10,7 +10,7 @@ namespace BusinessApp.Data
     /// <summary>
     /// Persist the requests
     /// </summary>
-    public class EFCommandStoreRequestDecorator<TRequest, TResponse> :
+    public class EFMetadataStoreRequestDecorator<TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
         where TRequest : class
     {
@@ -19,7 +19,7 @@ namespace BusinessApp.Data
         private readonly IRequestHandler<TRequest, TResponse> inner;
         private readonly IEntityIdFactory<MetadataId> idFactory;
 
-        public EFCommandStoreRequestDecorator(IRequestHandler<TRequest, TResponse> inner,
+        public EFMetadataStoreRequestDecorator(IRequestHandler<TRequest, TResponse> inner,
             IPrincipal user, BusinessAppDbContext db, IEntityIdFactory<MetadataId> idFactory)
         {
             this.user = user.NotNull().Expect(nameof(user));

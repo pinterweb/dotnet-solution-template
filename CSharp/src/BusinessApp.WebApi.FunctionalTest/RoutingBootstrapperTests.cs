@@ -165,40 +165,5 @@ namespace BusinessApp.WebApi.FunctionalTest
         {
             public int Id { get; set; }
         }
-
-        /// <summary>
-        /// I dont not have a good strategy to insert test models
-        /// </summary>
-        // private class NoSaveDbContext : BusinessAppDbContext
-        // {
-        //     private readonly BusinessAppDbContext inner;
-
-        //     public NoSaveDbContext(DbContextOptions<BusinessAppDbContext> opts,
-        //         BusinessAppDbContext inner)
-        //     : base(opts)
-        //     {
-        //         this.inner = inner;
-        //     }
-
-        //     // public override DatabaseFacade Database => inner.Database;
-
-        //     protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //     {
-        //         base.OnModelCreating(modelBuilder);
-
-        //         // modelBuilder.Entity<RequestMetadata<Delete.Query>>();
-        //         // modelBuilder.Entity<EventTrigger<Delete.Query>>();
-
-        //         // modelBuilder.ApplyConfiguration(new GetRequestMetadataEntityConfiguration());
-        //         // modelBuilder.ApplyConfiguration(new PostOrPutRequestMetadataEntityConfiguration());
-        //         modelBuilder.ApplyConfiguration(new DeleteRoutingRequestMetadataEntityConfiguration());
-        //         // modelBuilder.ApplyConfiguration(new DeleteRoutingEventTriggerEntityConfiguration());
-        //         // modelBuilder.ApplyConfiguration(new DeleteRoutingEventMetadataEntityConfiguration());
-        //         // modelBuilder.Ignore<Get.Request>();
-        //         // modelBuilder.Ignore<Delete.Query>();
-        //         // modelBuilder.Ignore<Delete.Event>();
-        //         // modelBuilder.Ignore<PostOrPut.Body>();
-        //     }
-        // }
     }
 }
