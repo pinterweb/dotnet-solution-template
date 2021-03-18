@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessApp.Test.Shared.Migrations
 {
     [DbContext(typeof(BusinessAppTestDbContext))]
-    [Migration("20210318020410_CreateTestDb")]
+    [Migration("20210318120051_CreateTestDb")]
     partial class CreateTestDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,11 @@ namespace BusinessApp.Test.Shared.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("EventMetadataId");
 
-                    b.Property<long?>("CausationId")
+                    b.Property<long>("CausationId")
                         .HasColumnType("bigint")
                         .HasColumnName("CausationId");
 
-                    b.Property<long?>("CorrelationId")
+                    b.Property<long>("CorrelationId")
                         .HasColumnType("bigint")
                         .HasColumnName("CorrelationId");
 
@@ -43,6 +43,9 @@ namespace BusinessApp.Test.Shared.Migrations
                         .HasColumnType("datetimeoffset(0)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId")
+                        .IsUnique();
 
                     b.ToTable("DeleteEvent", "evt");
                 });
@@ -148,42 +151,28 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("ResponseStub");
                 });
 
-            modelBuilder.Entity("BusinessApp.WebApi.EntityId", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EntityId");
-                });
-
             modelBuilder.Entity("BusinessApp.Data.EventMetadata<BusinessApp.WebApi.Delete+Event>", b =>
                 {
+                    b.HasOne("BusinessApp.Data.Metadata", null)
+                        .WithOne()
+                        .HasForeignKey("BusinessApp.Data.EventMetadata<BusinessApp.WebApi.Delete+Event>", "CorrelationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("BusinessApp.WebApi.Delete+Event", "Event", b1 =>
                         {
                             b1.Property<long>("EventMetadata<Event>Id")
                                 .HasColumnType("bigint");
 
-                            b1.Property<int?>("Id1")
+                            b1.Property<int?>("Id")
                                 .HasColumnType("int");
 
                             b1.HasKey("EventMetadata<Event>Id");
-
-                            b1.HasIndex("Id1");
 
                             b1.ToTable("DeleteEvent");
 
                             b1.WithOwner()
                                 .HasForeignKey("EventMetadata<Event>Id");
-
-                            b1.HasOne("BusinessApp.WebApi.EntityId", "Id")
-                                .WithMany()
-                                .HasForeignKey("Id1");
-
-                            b1.Navigation("Id");
                         });
 
                     b.Navigation("Event");

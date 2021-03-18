@@ -16,15 +16,18 @@ namespace BusinessApp.Data
 
             builder.Property(p => p.Id)
                 .HasColumnName("EventMetadataId")
-                .HasConversion(id => (long)id, val => new MetadataId(val));
+                .HasConversion(id => (long)id, val => new MetadataId(val))
+                .IsRequired();
 
             builder.Property(p => p.CausationId)
                 .HasColumnName("CausationId")
-                .HasConversion(id => (long)id, val => new MetadataId(val));
+                .HasConversion(id => (long)id, val => new MetadataId(val))
+                .IsRequired();
 
             builder.Property(p => p.CorrelationId)
                 .HasColumnName("CorrelationId")
-                .HasConversion(id => (long)id, val => new MetadataId(val));
+                .HasConversion(id => (long)id, val => new MetadataId(val))
+                .IsRequired();
 
             builder.Property(p => p.EventName)
                 .HasColumnType("varchar(500)")
@@ -34,14 +37,15 @@ namespace BusinessApp.Data
                 .HasColumnType("datetimeoffset(0)")
                 .IsRequired();
 
+            builder.HasOne<Metadata>()
+                .WithOne()
+                .HasForeignKey<EventMetadata<T>>(e => e.CorrelationId);
+
             var owned = builder.OwnsOne(o => o.Event);
 
             ConfigureEvent(owned);
         }
 
-        protected virtual void ConfigureEvent(OwnedNavigationBuilder<EventMetadata<T>, T> builder)
-        {
-
-        }
+        protected abstract void ConfigureEvent(OwnedNavigationBuilder<EventMetadata<T>, T> builder);
     }
 }

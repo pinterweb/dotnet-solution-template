@@ -9,6 +9,7 @@ namespace BusinessApp.Test.Shared
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using SimpleInjector;
@@ -92,6 +93,13 @@ namespace BusinessApp.Test.Shared
         private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.Event>
         {
             protected override string TableName => "DeleteEvent";
+
+            protected override void ConfigureEvent(
+                OwnedNavigationBuilder<EventMetadata<Delete.Event>, Delete.Event> builder)
+            {
+                builder.Property(p => p.Id)
+                    .HasConversion(id => (int)id, val => new EntityId(val));
+            }
         }
     }
 }

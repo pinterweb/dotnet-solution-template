@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessApp.Data.Migrations
 {
     [DbContext(typeof(BusinessAppDbContext))]
-    [Migration("20210317204229_AddMetadataTable")]
+    [Migration("20210318115404_AddMetadataTable")]
     partial class AddMetadataTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

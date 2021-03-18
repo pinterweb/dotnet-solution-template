@@ -100,7 +100,7 @@ namespace BusinessApp.App.UnitTest
                 var handlerResult = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
-                Assert.Equal(0, Fake.GetCalls(publisher).Count());
+                Assert.Empty(Fake.GetCalls(publisher));
             }
 
             [Fact]

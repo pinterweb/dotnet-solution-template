@@ -38,18 +38,6 @@ namespace BusinessApp.Test.Shared.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EntityId",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EntityId", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Metadata",
                 schema: "dbo",
                 columns: table => new
@@ -102,21 +90,22 @@ namespace BusinessApp.Test.Shared.Migrations
                 columns: table => new
                 {
                     EventMetadataId = table.Column<long>(type: "bigint", nullable: false),
-                    Event_Id1 = table.Column<int>(type: "int", nullable: true),
+                    Event_Id = table.Column<int>(type: "int", nullable: true),
                     EventName = table.Column<string>(type: "varchar(500)", nullable: false),
-                    CausationId = table.Column<long>(type: "bigint", nullable: true),
-                    CorrelationId = table.Column<long>(type: "bigint", nullable: true),
+                    CausationId = table.Column<long>(type: "bigint", nullable: false),
+                    CorrelationId = table.Column<long>(type: "bigint", nullable: false),
                     OccurredUtc = table.Column<DateTimeOffset>(type: "datetimeoffset(0)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DeleteEvent", x => x.EventMetadataId);
                     table.ForeignKey(
-                        name: "FK_DeleteEvent_EntityId_Event_Id1",
-                        column: x => x.Event_Id1,
-                        principalTable: "EntityId",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        name: "FK_DeleteEvent_Metadata_CorrelationId",
+                        column: x => x.CorrelationId,
+                        principalSchema: "dbo",
+                        principalTable: "Metadata",
+                        principalColumn: "MetadataId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -144,10 +133,11 @@ namespace BusinessApp.Test.Shared.Migrations
                 column: "ResponseStubId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DeleteEvent_Event_Id1",
+                name: "IX_DeleteEvent_CorrelationId",
                 schema: "evt",
                 table: "DeleteEvent",
-                column: "Event_Id1");
+                column: "CorrelationId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ResponseStub_ResponseStubId",
@@ -171,17 +161,14 @@ namespace BusinessApp.Test.Shared.Migrations
                 name: "DomainEventStub");
 
             migrationBuilder.DropTable(
-                name: "Metadata",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
                 name: "RequestStub");
 
             migrationBuilder.DropTable(
                 name: "ResponseStub");
 
             migrationBuilder.DropTable(
-                name: "EntityId");
+                name: "Metadata",
+                schema: "dbo");
         }
     }
 }
