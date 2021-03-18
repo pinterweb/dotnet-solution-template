@@ -59,6 +59,10 @@ namespace BusinessApp.Test.Shared.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("DataSetName");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("OccurredUtc")
                         .HasColumnType("datetimeoffset(0)")
                         .HasColumnName("OccurredUtc");
@@ -76,6 +80,8 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Metadata", "dbo");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Metadata");
                 });
 
             modelBuilder.Entity("BusinessApp.Test.Shared.AggregateRootStub", b =>
@@ -149,6 +155,69 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("ResponseStub");
                 });
 
+            modelBuilder.Entity("BusinessApp.WebApi.Delete+Query", b =>
+                {
+                    b.Property<int>("DeleteQueryRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("Id")
+                        .HasColumnType("int")
+                        .HasColumnName("DeleteQueryId");
+
+                    b.Property<long?>("MetadataId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("DeleteQueryRequestId");
+
+                    b.HasIndex("MetadataId")
+                        .IsUnique()
+                        .HasFilter("[MetadataId] IS NOT NULL");
+
+                    b.ToTable("DeleteQuery", "dbo");
+                });
+
+            modelBuilder.Entity("BusinessApp.WebApi.PostOrPut+Body", b =>
+                {
+                    b.Property<int>("PostOrPutBodyRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("Id")
+                        .HasColumnType("int")
+                        .HasColumnName("PostOrPutId");
+
+                    b.Property<long>("LongerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("MetadataId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("PostOrPutBodyRequestId");
+
+                    b.HasIndex("MetadataId")
+                        .IsUnique()
+                        .HasFilter("[MetadataId] IS NOT NULL");
+
+                    b.ToTable("PostOrPutBody");
+                });
+
+            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
+                {
+                    b.HasBaseType("BusinessApp.Data.Metadata");
+
+                    b.HasDiscriminator().HasValue("Metadata<Query>");
+                });
+
+            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
+                {
+                    b.HasBaseType("BusinessApp.Data.Metadata");
+
+                    b.HasDiscriminator().HasValue("Metadata<Body>");
+                });
+
             modelBuilder.Entity("BusinessApp.Data.EventMetadata<BusinessApp.WebApi.Delete+Event>", b =>
                 {
                     b.HasOne("BusinessApp.Data.Metadata", null)
@@ -194,9 +263,33 @@ namespace BusinessApp.Test.Shared.Migrations
                         .HasForeignKey("ResponseStubId");
                 });
 
+            modelBuilder.Entity("BusinessApp.WebApi.Delete+Query", b =>
+                {
+                    b.HasOne("BusinessApp.Data.Metadata<BusinessApp.WebApi.Delete+Query>", null)
+                        .WithOne("Data")
+                        .HasForeignKey("BusinessApp.WebApi.Delete+Query", "MetadataId");
+                });
+
+            modelBuilder.Entity("BusinessApp.WebApi.PostOrPut+Body", b =>
+                {
+                    b.HasOne("BusinessApp.Data.Metadata<BusinessApp.WebApi.PostOrPut+Body>", null)
+                        .WithOne("Data")
+                        .HasForeignKey("BusinessApp.WebApi.PostOrPut+Body", "MetadataId");
+                });
+
             modelBuilder.Entity("BusinessApp.Test.Shared.ResponseStub", b =>
                 {
                     b.Navigation("ChildResponseStubs");
+                });
+
+            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
+                {
+                    b.Navigation("Data");
+                });
+
+            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
+                {
+                    b.Navigation("Data");
                 });
 #pragma warning restore 612, 618
         }
