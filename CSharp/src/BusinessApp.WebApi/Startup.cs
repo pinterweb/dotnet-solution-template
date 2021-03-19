@@ -12,9 +12,7 @@
     using SimpleInjector.Lifestyles;
     using System;
     using BusinessApp.Data;
-//#if DEBUG
     using Microsoft.Extensions.Logging;
-//#endif
 #if winauth
     using Microsoft.AspNetCore.Server.HttpSys;
 #endif
@@ -52,7 +50,6 @@
         public void ConfigureServices(IServiceCollection services)
         {
 //#if DEBUG
-            services.AddLogging(configure => configure.AddConsole().AddDebug());
 #if cors
             services.AddCors(options =>
             {
@@ -82,7 +79,8 @@
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            ILoggerFactory loggerFactory)
         {
             app.UseSimpleInjector(container);
 
@@ -92,7 +90,7 @@
 #endif
             app.SetupEndpoints(container);
 
-            Bootstrapper.RegisterServices(container, options, env);
+            Bootstrapper.RegisterServices(container, options, env, loggerFactory);
 
             container.Verify();
 

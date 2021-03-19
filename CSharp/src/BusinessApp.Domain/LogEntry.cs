@@ -20,6 +20,11 @@
             Data = data;
         }
 
+        public static LogEntry FromException(Exception e)
+        {
+            return new LogEntry(LogSeverity.Error, e?.Message, e, e.Data);
+        }
+
         public LogSeverity Severity { get; }
         public string Message { get; }
         public object Data { get; }

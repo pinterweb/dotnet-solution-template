@@ -9,6 +9,7 @@
 //#endif
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
     using BusinessApp.App;
     using BusinessApp.Domain;
     using SimpleInjector;
@@ -58,6 +59,11 @@
 
         private static IWebHostBuilder CreateWebHostBuilderCore(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
                 .ConfigureAppConfiguration(builder =>
                 {
                     builder.AddCommandLine(args);
