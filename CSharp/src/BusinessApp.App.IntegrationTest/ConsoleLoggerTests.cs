@@ -5,6 +5,7 @@ namespace BusinessApp.App.IntegrationTest
     using FakeItEasy;
     using BusinessApp.Domain;
     using Xunit;
+    using System.Diagnostics;
 
     [Collection(CommonFixture.Name)]
     public class ConsoleLoggerTests
@@ -81,6 +82,24 @@ namespace BusinessApp.App.IntegrationTest
                 /* Assert */
                 Assert.Equal("foobar", stdout.ToString());
                 Assert.Empty(stderr.ToString());
+            }
+
+            [Fact]
+            public void WithTrace_WritesToTrace()
+            {
+                /* Arrange */
+                var listener = A.Fake<TraceListener>();
+                Trace.Listeners.Add(listener);
+                var trace = new TraceSwitch("foo", "bar");
+                var entry = new LogEntry(A.Dummy<LogSeverity>(), "foo");
+                A.CallTo(() => formatter.Format(entry)).Returns("foobar");
+
+                /* Act */
+                sut.Log(entry);
+
+                /* Assert */
+                A.CallTo(() => listener.WriteLine(entry.ToString())).MustHaveHappenedOnceExactly();
+                A.CallTo(() => listener.Flush()).MustHaveHappenedOnceExactly();
             }
 
             public void Dispose()

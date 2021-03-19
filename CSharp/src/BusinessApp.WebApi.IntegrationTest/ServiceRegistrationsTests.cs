@@ -17,6 +17,7 @@ namespace BusinessApp.WebApi.IntegrationTest
     using Microsoft.Extensions.Configuration;
     using BusinessApp.Data;
     using System.Linq.Expressions;
+    using Microsoft.Extensions.Logging;
 
     // TODO rename
     public partial class BootstrapTests : IDisposable
@@ -48,7 +49,8 @@ namespace BusinessApp.WebApi.IntegrationTest
             container.RegisterInstance(A.Fake<IHttpContextAccessor>());
             Bootstrapper.RegisterServices(container,
                 bootstrapOptions,
-                (env ?? A.Dummy<IWebHostEnvironment>()));
+                (env ?? A.Dummy<IWebHostEnvironment>()),
+                A.Dummy<ILoggerFactory>());
         }
 
 
@@ -551,62 +553,37 @@ namespace BusinessApp.WebApi.IntegrationTest
         public class Loggers : BootstrapTests
         {
             [Fact]
-            public void RegistersAllLoggersInDevMode()
+            public void UsesStringLogEntryFormatterInDevMode()
             {
                 /* Arrange */
                 var env = A.Fake<IWebHostEnvironment>();
                 A.CallTo(() => env.EnvironmentName).Returns("Development");
                 CreateRegistrations(container, env);
                 container.Verify();
-                var serviceType = typeof(ILogger);
+                var serviceType = typeof(ILogEntryFormatter);
 
                 /* Act */
-                var _ = container.GetInstance(serviceType);
-
+                var instance = container.GetInstance(serviceType);
 
                 /* Assert */
-                var firstType = container.GetRegistration(serviceType);
-                var loggers = container.GetRegistration(serviceType)
-                    .GetDependencies().Prepend(firstType);
-
-                Assert.Collection(loggers,
-                    rel => Assert.Equal(
-                        typeof(CompositeLogger),
-                        rel.Registration.ImplementationType),
-                    rel => Assert.Equal(
-                        typeof(IEnumerable<ILogger>),
-                        rel.Registration.ImplementationType),
-                    rel => Assert.Equal(
-                        typeof(TraceLogger),
-                        rel.Registration.ImplementationType),
-                    rel => Assert.IsType<BackgroundLogDecorator>(
-                        Expression.Lambda(rel.BuildExpression()).Compile().DynamicInvoke()));
+                Assert.IsType<StringLogEntryFormatter>(instance);
             }
 
             [Fact]
-            public void RemovesTraceLoggerInOtherEnvironments()
+            public void UsesSerializedLogEntryFormatterNotInDevMode()
             {
                 /* Arrange */
-                CreateRegistrations(container);
+                var env = A.Fake<IWebHostEnvironment>();
+                A.CallTo(() => env.EnvironmentName).Returns("Production");
+                CreateRegistrations(container, env);
                 container.Verify();
-                var serviceType = typeof(ILogger);
+                var serviceType = typeof(ILogEntryFormatter);
 
                 /* Act */
-                var _ = container.GetInstance(serviceType);
+                var instance = container.GetInstance(serviceType);
 
                 /* Assert */
-                var firstType = container.GetRegistration(serviceType);
-                var loggers = firstType.GetDependencies().Prepend(firstType);
-
-                Assert.Collection(loggers,
-                    rel => Assert.Equal(
-                        typeof(CompositeLogger),
-                        rel.Registration.ImplementationType),
-                    rel => Assert.Equal(
-                        typeof(IEnumerable<ILogger>),
-                        rel.Registration.ImplementationType),
-                    rel => Assert.IsType<BackgroundLogDecorator>(
-                        Expression.Lambda(rel.BuildExpression()).Compile().DynamicInvoke()));
+                Assert.IsType<SerializedLogEntryFormatter>(instance);
             }
         }
 

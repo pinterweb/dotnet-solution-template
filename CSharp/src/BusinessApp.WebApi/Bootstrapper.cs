@@ -4,15 +4,17 @@ namespace BusinessApp.WebApi
     using System.Linq;
     using BusinessApp.App;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Logging;
     using SimpleInjector;
 
     public static partial class Bootstrapper
     {
         public static void RegisterServices(Container container,
             BootstrapOptions options,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            ILoggerFactory loggerFactory)
         {
-            var bootstrapContainer = SetupBootstrapContainer(options, env);
+            var bootstrapContainer = SetupBootstrapContainer(options, env, loggerFactory);
 
             RegisterBootstrapDecorators(bootstrapContainer);
 
@@ -65,13 +67,14 @@ namespace BusinessApp.WebApi
         }
 
         private static Container SetupBootstrapContainer(BootstrapOptions options,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             var bootstrapContainer = new Container();
 
             bootstrapContainer.Register<IBootstrapRegister, MainRegister>();
             bootstrapContainer.RegisterInstance(options);
             bootstrapContainer.RegisterInstance(env);
+            bootstrapContainer.RegisterInstance(loggerFactory);
 
             return bootstrapContainer;
         }

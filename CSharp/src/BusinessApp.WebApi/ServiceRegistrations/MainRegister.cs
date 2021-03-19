@@ -10,16 +10,20 @@ namespace BusinessApp.WebApi
     using System.Security.Principal;
     using System.Collections.Generic;
     using System.Linq;
+    using MSLogging = Microsoft.Extensions.Logging;
 
     public class MainRegister : IBootstrapRegister
     {
         private readonly BootstrapOptions options;
         private readonly IWebHostEnvironment env;
+        private readonly MSLogging.ILoggerFactory loggerFactory;
 
-        public MainRegister(BootstrapOptions options, IWebHostEnvironment env)
+        public MainRegister(BootstrapOptions options, IWebHostEnvironment env,
+            MSLogging.ILoggerFactory loggerFactory)
         {
             this.options = options;
             this.env = env;
+            this.loggerFactory = loggerFactory;
         }
 
         public void Register(RegistrationContext context)
@@ -136,29 +140,18 @@ namespace BusinessApp.WebApi
 
         private void RegisterLogging(Container container)
         {
-            container.Register(typeof(ILogger), typeof(CompositeLogger), Lifestyle.Singleton);
-
             if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
             {
-                container.Collection.Append<ILogger, TraceLogger>();
+                container.RegisterSingleton<ILogEntryFormatter, StringLogEntryFormatter>();
+            }
+            else
+            {
+                container.RegisterSingleton<ILogEntryFormatter, SerializedLogEntryFormatter>();
             }
 
-            container.RegisterSingleton<ILogEntryFormatter, SerializedLogEntryFormatter>();
-            container.RegisterInstance<IFileProperties>(new RollingFileProperties
-            {
-                Name = options.LogFilePath ?? $"{env.ContentRootPath}/app.log"
-            });
-
-            container.RegisterSingleton<ConsoleLogger>();
-
-            container.RegisterSingleton<FileLogger>();
-
-            container.Collection.Append<ILogger>(() =>
-                new BackgroundLogDecorator(
-                    container.GetInstance<FileLogger>(),
-                    container.GetInstance<ConsoleLogger>()),
-                Lifestyle.Singleton);
-
+            container.RegisterSingleton<ILogger, MicrosoftLoggerAdapter>();
+            container.RegisterInstance<MSLogging.ILogger>(
+                loggerFactory.CreateLogger("BusinessApp"));
         }
 
         private void RegisterAppHandlers(Container container)
