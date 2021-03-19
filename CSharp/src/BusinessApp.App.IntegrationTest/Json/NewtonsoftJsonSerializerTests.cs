@@ -44,7 +44,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             }
 
             [Fact]
-            public void OnError_ThrowsModelValidationException()
+            public void OnError_WhenHasMemeberName_ThrowsModelValidationException()
             {
                 /* Arrange */
                 using var ms = new MemoryStream();
@@ -102,6 +102,23 @@ namespace BusinessApp.App.IntegrationTest.Json
                         "Path 'foo', line 1, position 12.",
                         e.Errors)
                 );
+            }
+
+            [Fact]
+            public void OnError_WithoutAMemberName_ThrowsOriginalException()
+            {
+                /* Arrange */
+                using var ms = new MemoryStream();
+                using var sw = new StreamWriter(ms);
+                sw.Write("[{\"foo\":\"foo\"}]");
+                sw.Flush();
+                ms.Position = 0;
+
+                /* Act */
+                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
+
+                /* Assert */
+                var error = Assert.IsType<JsonSerializationException>(ex);
             }
 
             public class OnError : NewtonsoftJsonSerializerTests

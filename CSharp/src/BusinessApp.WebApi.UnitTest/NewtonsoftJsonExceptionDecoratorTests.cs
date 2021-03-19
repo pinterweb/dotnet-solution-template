@@ -8,22 +8,24 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Threading;
+    using BusinessApp.WebApi.Json;
+    using Newtonsoft.Json;
 
     // TODO wrong name
-    public class HttpRequestLoggingHandlerTests
+    public class NewtonsoftJsonExceptionHandlerTests
     {
         private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
         private readonly ILogger logger;
-        private readonly HttpRequestLoggingDecorator<RequestStub, ResponseStub> sut;
+        private readonly NewtonsoftJsonExceptionDecorator<RequestStub, ResponseStub> sut;
 
-        public HttpRequestLoggingHandlerTests()
+        public NewtonsoftJsonExceptionHandlerTests()
         {
             logger = A.Fake<ILogger>();
             inner = A.Fake<IHttpRequestHandler<RequestStub, ResponseStub>>();
-            sut = new HttpRequestLoggingDecorator<RequestStub, ResponseStub>(inner, logger);
+            sut = new NewtonsoftJsonExceptionDecorator<RequestStub, ResponseStub>(inner, logger);
         }
 
-        public class Constructor : HttpRequestLoggingHandlerTests
+        public class Constructor : NewtonsoftJsonExceptionHandlerTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -42,7 +44,7 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 void shouldThrow() =>
-                    new HttpRequestLoggingDecorator<RequestStub, ResponseStub>(i, l);
+                    new NewtonsoftJsonExceptionDecorator<RequestStub, ResponseStub>(i, l);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -52,7 +54,7 @@ namespace BusinessApp.WebApi.UnitTest
             }
         }
 
-        public class HandleAsync : HttpRequestLoggingHandlerTests
+        public class HandleAsync : NewtonsoftJsonExceptionHandlerTests
         {
             private readonly CancellationToken cancelToken;
             private readonly HttpContext context;
@@ -62,12 +64,6 @@ namespace BusinessApp.WebApi.UnitTest
                 context = A.Dummy<HttpContext>();
                 cancelToken = A.Dummy<CancellationToken>();
             }
-
-            public static IEnumerable<object[]> Exceptions => new[]
-            {
-                new object[] { new Exception("foobar") },
-                new object[] { new ArgumentException("foobar", new FormatException("b")) },
-            };
 
             [Fact]
             public async Task NoException_NotLogged()
@@ -79,11 +75,27 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => logger.Log(A<LogEntry>._)).MustNotHaveHappened();
             }
 
-            [Theory, MemberData(nameof(Exceptions))]
-            public async Task Exception_LogsItOnce(Exception e)
+            [Fact]
+            public async Task GeneralException_NotLogged()
             {
                 /* Arrange */
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(e);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
+                    .Throws<Exception>();
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
+
+                /* Assert */
+                A.CallTo(() => logger.Log(A<LogEntry>._)).MustNotHaveHappened();
+            }
+
+
+            [Fact]
+            public async Task JsonSerializationException_LogsItOnce()
+            {
+                /* Arrange */
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
+                    .Throws<JsonSerializationException>();
 
                 /* Act */
                 var _ = await sut.HandleAsync(context, cancelToken);
@@ -92,11 +104,12 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallTo(() => logger.Log(A<LogEntry>._)).MustHaveHappened();
             }
 
-            [Theory, MemberData(nameof(Exceptions))]
-            public async Task Exception_LogsSeverity(Exception e)
+            [Fact]
+            public async Task JsonSerializationException_LogsSeverity()
             {
                 /* Arrange */
                 LogEntry entry = null;
+                var e = new JsonSerializationException();
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(e);
                 A.CallTo(() => logger.Log(A<LogEntry>._))
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
@@ -108,10 +121,11 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal(LogSeverity.Error, entry.Severity);
             }
 
-            [Theory, MemberData(nameof(Exceptions))]
-            public async Task Exception_LogsExceptionMessage(Exception exception)
+            [Fact]
+            public async Task JsonSerializationException_LogsExceptionMessage()
             {
                 /* Arrange */
+                var exception = new JsonSerializationException("foobar");
                 LogEntry entry = null;
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
                 A.CallTo(() => logger.Log(A<LogEntry>._))
@@ -124,10 +138,11 @@ namespace BusinessApp.WebApi.UnitTest
                 Assert.Equal("foobar", exception.Message);
             }
 
-            [Theory, MemberData(nameof(Exceptions))]
-            public async Task Exception_LogsException(Exception exception)
+            [Fact]
+            public async Task JsonSerializationException_LogsException()
             {
                 /* Arrange */
+                var exception = new JsonSerializationException();
                 LogEntry entry = null;
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
                 A.CallTo(() => logger.Log(A<LogEntry>._))
@@ -141,31 +156,14 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Fact]
-            public async Task UnknownException_ReturnsErrorResult()
+            public async Task JsonSerializationException_ReturnsErrorResult()
             {
                 /* Arrange */
-                var expectedMsg = "An unknown error occurred while processing your " +
-                    "request. Please try again or contact support if this continues";
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws<Exception>();
-
-                /* Act */
-                var result = await sut.HandleAsync(context, cancelToken);
-
-                /* Assert */
-                var error = Assert.IsType<BusinessAppWebApiException>(result.UnwrapError());
-                Assert.Equal(expectedMsg, error.Message);
-            }
-
-            [Fact]
-            public async Task FormatException_ReturnsErrorResult()
-            {
-                /* Arrange */
-                var expectedMsg = "Your request could not be read because some " +
-                    "arguments may be in the wrong format. Please review your requets " +
+                var expectedMsg = "Your request could not be read because " +
+                    "your payload is in an invalid format. Please review your data " +
                     "and try again";
-                var formatError = new FormatException();
-                var exception = new ArgumentException("foo", formatError);
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
+                    .Throws<JsonSerializationException>();
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);

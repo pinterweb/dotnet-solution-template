@@ -58,11 +58,16 @@ namespace BusinessApp.App.Json
 
         private void OnError(object sender, ErrorEventArgs e)
         {
-            var error = new MemberValidationException(
-                e.ErrorContext.Member?.ToString(),
-                new[] { e.ErrorContext.Error.Message });
+            if (e.ErrorContext.Member != null)
+            {
+                var error = new MemberValidationException(
+                    e.ErrorContext.Member?.ToString(),
+                    new[] { e.ErrorContext.Error.Message });
 
-            errors.Add(error);
+                errors.Add(error);
+
+                e.ErrorContext.Handled = true;
+            }
 
             logger.Log(
                 new LogEntry(
@@ -71,8 +76,6 @@ namespace BusinessApp.App.Json
                     e.ErrorContext.Error,
                     e.ErrorContext.OriginalObject)
             );
-
-            e.ErrorContext.Handled = true;
         }
     }
 }
