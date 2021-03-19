@@ -23,6 +23,9 @@ namespace BusinessApp.WebApi.Json
                 Lifestyle.Singleton,
                 c => !c.Handled);
 
+            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
+                typeof(SystemJsonExceptionDecorator<,>));
+
             container.RegisterInstance(
                 new JsonSerializerOptions
                 {

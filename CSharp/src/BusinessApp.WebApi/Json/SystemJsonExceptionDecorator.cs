@@ -1,21 +1,22 @@
-namespace BusinessApp.WebApi
+namespace BusinessApp.WebApi.Json
 {
     using System;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
     using BusinessApp.Domain;
     using System.Threading;
+    using System.Text.Json;
 
     /// <summary>
     /// Logs certains aspects of a request
     /// </summary>
-    public class HttpRequestLoggingDecorator<TRequest, TResponse>
+    public class SystemJsonExceptionDecorator<TRequest, TResponse>
         : IHttpRequestHandler<TRequest, TResponse>
     {
         private readonly IHttpRequestHandler<TRequest, TResponse> inner;
         private readonly ILogger logger;
 
-        public HttpRequestLoggingDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
+        public SystemJsonExceptionDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
             ILogger logger)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
@@ -29,22 +30,14 @@ namespace BusinessApp.WebApi
             {
                 return await inner.HandleAsync(context, cancelToken);
             }
-            catch (ArgumentException exception) when (exception.InnerException is FormatException)
+            catch (JsonException exception)
             {
                 Log(exception);
 
                 return Result.Error<TResponse>(
-                    new BadStateException("Your request could not be read because some " +
-                        "arguments may be in the wrong format. Please review your requets " +
+                    new BadStateException("Your request could not be read because " +
+                        "your payload is in an invalid format. Please review your data " +
                         "and try again"));
-            }
-            catch (Exception exception)
-            {
-                Log(exception);
-
-                return Result.Error<TResponse>(new BusinessAppWebApiException(
-                    "An unknown error occurred while processing your request. Please try " +
-                    "again or contact support if this continues"));
             }
         }
 
