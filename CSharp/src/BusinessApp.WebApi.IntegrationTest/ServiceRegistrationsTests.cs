@@ -16,7 +16,6 @@ namespace BusinessApp.WebApi.IntegrationTest
     using BusinessApp.Domain;
     using Microsoft.Extensions.Configuration;
     using BusinessApp.Data;
-    using System.Linq.Expressions;
     using Microsoft.Extensions.Logging;
 
     // TODO rename
@@ -56,6 +55,45 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         public class Handlers : BootstrapTests, IDisposable
         {
+            [Fact]
+            public void NoCommandRequestHandler_HasAllDefaultHandlers()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                /* Assert */
+                var handlers = GetServiceGraph(serviceType);
+
+                Assert.Collection(handlers,
+                    implType => Assert.Equal(
+                        typeof(RequestExceptionDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(AuthorizationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(DeadlockRetryRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(TransactionRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
+                        implType)
+                );
+            }
+
             [Fact]
             public void NotABatchCommand_WithEventStreamResponse_NoBatchDecoratorsInHandlers()
             {
@@ -623,6 +661,8 @@ namespace BusinessApp.WebApi.IntegrationTest
                 throw new NotImplementedException();
             }
         }
+
+        public sealed class NoHandlerCommandStub { }
 
         public sealed class CommandStub { }
 

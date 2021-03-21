@@ -105,6 +105,7 @@ namespace BusinessApp.WebApi
                 implType.GetGenericTypeDefinition() == typeof(BatchRequestAdapter<,>)
                 || implType.GetGenericTypeDefinition() == typeof(MacroBatchProxyRequestHandler<,>)
                 || implType.GetGenericTypeDefinition() == typeof(SingleQueryRequestAdapter<,,>)
+                || implType.GetGenericTypeDefinition() == typeof(NoBusinessLogicRequestHandler<>)
             );
         }
 
