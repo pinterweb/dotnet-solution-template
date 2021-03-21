@@ -29,7 +29,7 @@ namespace BusinessApp.WebApi
         {
             var result = await inner.HandleAsync(context, cancelToken);
 
-            StartResponse(context);
+            var canWrite = StartResponse(context);
 
             if (result.Kind == ValueKind.Error)
             {
@@ -39,7 +39,7 @@ namespace BusinessApp.WebApi
 
                 await WriteResponse(context, cancelToken, problem);
             }
-            else
+            else if (canWrite)
             {
                 var model = result.Unwrap();
 
@@ -49,7 +49,12 @@ namespace BusinessApp.WebApi
             return result;
         }
 
-        private static void StartResponse(HttpContext context)
+        /// <summary>
+        /// Starts the response by checking the current status and setting a status
+        /// based on the method if applicable
+        /// </summary>
+        /// </returns>true if can write</returns>
+        private static bool StartResponse(HttpContext context)
         {
             if (context.Response.HasStarted)
             {
@@ -64,7 +69,10 @@ namespace BusinessApp.WebApi
             )
             {
                 context.Response.StatusCode = StatusCodes.Status204NoContent;
+                return false;
             }
+
+            return true;
         }
 
         private async Task WriteResponse<T>(HttpContext context, CancellationToken cancelToken,

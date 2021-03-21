@@ -177,13 +177,30 @@ namespace BusinessApp.WebApi.UnitTest
                 A.CallToSet(() => context.Response.StatusCode).To(204)
                     .MustHaveHappened(statusSetCalls, Times.Exactly);
             }
+
+            [Fact]
+            public async Task OkNoContent_NoBodyWritten()
+            {
+                /* Arrange */
+                A.CallTo(() => context.Response.StatusCode).Returns(200);
+                A.CallTo(() => context.Request.Method).Returns("put");
+                var model = A.Dummy<ResponseStub>();
+                var result = Result.Ok(model);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
+
+                /* Act */
+                await sut.HandleAsync(context, cancelToken);
+
+                /* Assert */
+                A.CallTo(() => context.Response.BodyWriter.WriteAsync(A<ReadOnlyMemory<byte>>._, cancelToken))
+                    .MustNotHaveHappened();
+            }
         }
 
         private sealed class TestProblemDetail : ProblemDetail
         {
             public TestProblemDetail(int statusCode = 1) : base(statusCode)
-            {
-            }
+            {}
         }
     }
 }
