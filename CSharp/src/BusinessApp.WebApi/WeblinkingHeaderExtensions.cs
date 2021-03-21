@@ -6,7 +6,7 @@
     /// <summary>
     /// Extensions for the HATEOAS weblinking
     /// </summary>
-    public static class WeblinkingExtensions
+    public static class WeblinkingHeaderExtensions
     {
         /// <summary>
         /// Converts the <see cref="HateoasLink{R}" /> to a header string

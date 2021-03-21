@@ -1,4 +1,4 @@
-namespace BusinessApp.WebApi
+﻿namespace BusinessApp.WebApi
 {
     using System.Threading;
     using System.Threading.Tasks;
@@ -12,14 +12,14 @@ namespace BusinessApp.WebApi
     /// <summary>
     /// Decorator to add the web link headers for the particular response
     /// </summary>
-    public class WeblinkingEventRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+    public class WeblinkingHeaderEventRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
        where TResponse : IEventStream
     {
         private readonly IHttpRequestHandler<TRequest, TResponse> handler;
         private readonly IEnumerable<HateoasLink<TResponse>> links;
         private readonly IEventLinkFactory factory;
 
-        public WeblinkingEventRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
+        public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
             IEnumerable<HateoasLink<TResponse>> links,
             IEventLinkFactory factory)
         {

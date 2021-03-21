@@ -45,16 +45,6 @@
             "defaultValue": "true",
             "description": "Adds services for entity framework core in your data layer"
         },
-        "hateoas": {
-            "type": "parameter",
-            "dataType": "choice",
-            "defaultValue": "weblinking",
-            "description": "Adds hateoas services",
-            "choices": [{
-                "choice": "weblinking",
-                "description": "Uses weblinking as specified in rfc5988"
-            }]
-        },
         "json": {
             "type": "parameter",
             "dataType": "choice",
@@ -118,6 +108,19 @@
             "defaultValue": "true",
             "description": "Adds support to serve static files"
         },
+        "hateoas": {
+            "type": "parameter",
+            "dataType": "choice",
+            "defaultValue": "none",
+            "description": "Adds hateoas services",
+            "choices": [{
+                "choice": "none",
+                "description": "Use no HATEOAS strategy"
+            }, {
+                "choice": "headers",
+                "description": "Uses weblinking as specified in RFC8288 (in headers)"
+            }]
+        },
         "copyrightReplacer": {
             "type": "generated",
             "generator": "coalesce",
@@ -142,8 +145,8 @@
                 {
                     "exclude": [
                         "**/Json/**.cs",
-                        "**/Hateoas*.cs",
-                        "**/Weblinking*.cs"
+                        "src/**/Hateoas*.cs",
+                        "src/**/Weblinking*.cs"
                     ]
                 },
                 {
@@ -220,10 +223,10 @@
                     ]
                 },
                 {
-                    "condition": "(hateoas=='weblinking')",
+                    "condition": "(hateoas=='header')",
                     "include": [
                         "src/**/Hateoas*.cs",
-                        "src/**/Weblinking*.cs"
+                        "src/**/WeblinkingHeader.cs"
                     ]
                 }
             ]

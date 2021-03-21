@@ -1,13 +1,13 @@
 ﻿namespace BusinessApp.WebApi
 {
     /// <summary>
-    /// Registers services to support HATEOAS as defined in rfc5988
+    /// Registers services to support HATEOAS as defined in RFC8288
     /// </summary>
-    public class WeblinkingRegister : IBootstrapRegister
+    public class WeblinkingHeaderRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;
 
-        public WeblinkingRegister(IBootstrapRegister inner)
+        public WeblinkingHeaderRegister(IBootstrapRegister inner)
         {
             this.inner = inner;
         }
@@ -19,7 +19,7 @@
             var serviceType = typeof(IHttpRequestHandler<,>);
             var pipeline = context.GetPipelineBuilder(serviceType);
 
-            pipeline.RunOnce(typeof(WeblinkingRequestDecorator<,>));
+            pipeline.RunOnce(typeof(WeblinkingHeaderRequestDecorator<,>));
         }
     }
 }

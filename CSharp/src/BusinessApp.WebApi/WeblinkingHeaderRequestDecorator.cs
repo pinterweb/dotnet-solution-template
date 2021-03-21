@@ -11,12 +11,12 @@
     /// <summary>
     /// Decorator to add the web link headers for the particular response
     /// </summary>
-    public class WeblinkingRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+    public class WeblinkingHeaderRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
     {
         private readonly IHttpRequestHandler<TRequest, TResponse> handler;
         private readonly IEnumerable<HateoasLink<TResponse>> links;
 
-        public WeblinkingRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
+        public WeblinkingHeaderRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
             IEnumerable<HateoasLink<TResponse>> links)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));

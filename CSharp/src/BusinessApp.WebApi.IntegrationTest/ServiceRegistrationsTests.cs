@@ -546,7 +546,7 @@
                         typeof(HttpRequestLoggingDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(WeblinkingRequestDecorator<CommandStub, CommandStub>),
+                        typeof(WeblinkingHeaderRequestDecorator<CommandStub, CommandStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(NewtonsoftJsonExceptionDecorator<CommandStub, CommandStub>),
