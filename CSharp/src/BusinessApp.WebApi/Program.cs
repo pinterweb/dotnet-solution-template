@@ -3,10 +3,6 @@
     using System;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
-//#if DEBUG
-    using System.Diagnostics;
-    using Microsoft.AspNetCore.Server.HttpSys;
-//#endif
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -25,19 +21,6 @@
                 logger.Log(new LogEntry(LogSeverity.Info, $"Starting BusinessApp web host..."));
                 var container = new Container();
                 var builder = CreateContainerizedWebHostBuilder(args, container);
-
-//#if DEBUG
-                if(string.Compare(Process.GetCurrentProcess().ProcessName, "iisexpress") != 0)
-                {
-                    logger.Log(new LogEntry(LogSeverity.Info, $"Using httpsys options..."));
-                    builder.UseHttpSys(opt =>
-                    {
-                        opt.Authentication.Schemes =
-                            AuthenticationSchemes.NTLM | AuthenticationSchemes.Negotiate;
-                        opt.Authentication.AllowAnonymous = true;
-                    });
-                }
-//#endif
 
                 builder.Build().Run();
             }

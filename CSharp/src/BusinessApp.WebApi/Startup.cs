@@ -14,7 +14,7 @@
     using BusinessApp.Data;
     using Microsoft.Extensions.Logging;
 #if winauth
-    using Microsoft.AspNetCore.Server.HttpSys;
+    using Microsoft.AspNetCore.Authentication.Negotiate;
 #endif
 
     public class Startup
@@ -72,7 +72,7 @@
 //#endif
             services.AddRouting();
 #if winauth
-            services.AddAuthentication(HttpSysDefaults.AuthenticationScheme);
+            services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
             services.AddAuthorization();
 #endif
             services.AddSimpleInjector(container, options => options.AddAspNetCore());
