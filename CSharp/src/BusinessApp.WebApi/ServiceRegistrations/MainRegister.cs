@@ -43,32 +43,34 @@ namespace BusinessApp.WebApi
             RegisterLogging(context.Container);
             RegisterQueryHandling(context.Container);
             RegisterValidators(context.Container);
-            RegisterWebApiServices(context.Container);
+            RegisterWebApiServices(context);
             RegisterAppHandlers(context.Container);
-            RegisterDecoratePipeline(context);
+            RegisterRequestDecoratePipeline(context);
         }
 
-        private void RegisterWebApiServices(Container container)
+        private void RegisterWebApiServices(RegistrationContext context)
         {
-            container.RegisterSingleton<IPrincipal, HttpUserContext>();
-            container.RegisterDecorator<IPrincipal, AnonymousUser>();
-            container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
-            container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
+            context.Container.RegisterSingleton<IPrincipal, HttpUserContext>();
+            context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
+            context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
+            context.Container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
-            container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
+            context.Container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
 
-            container.RegisterConditional(
+            context.Container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
                 typeof(EnvelopeQueryResourceHandler<,>),
                 ctx => !ctx.Handled);
 
-            container.RegisterConditional(
+            context.Container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
                 typeof(HttpRequestHandler<,>),
                 ctx => !ctx.Handled);
 
-            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
-                typeof(HttpRequestLoggingDecorator<,>));
+            var serviceType = typeof(IHttpRequestHandler<,>);
+            var pipeline = context.GetPipelineBuilder(serviceType);
+
+            pipeline.Run(typeof(HttpRequestLoggingDecorator<,>));
         }
 
         private void RegisterValidators(Container container)
@@ -265,7 +267,7 @@ namespace BusinessApp.WebApi
                 c => !c.Handled);
         }
 
-        private void RegisterDecoratePipeline(RegistrationContext context)
+        private void RegisterRequestDecoratePipeline(RegistrationContext context)
         {
             var serviceType = typeof(IRequestHandler<,>);
             var pipeline = context.GetPipelineBuilder(serviceType);

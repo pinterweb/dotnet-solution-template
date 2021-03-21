@@ -24,8 +24,10 @@ namespace BusinessApp.WebApi.Json
         {
             var container = context.Container;
 
-            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
-                typeof(JsonHttpDecorator<,>));
+            var serviceType = typeof(IHttpRequestHandler<,>);
+            var pipeline = context.GetPipelineBuilder(serviceType);
+
+            pipeline.Run(typeof(JsonHttpDecorator<,>));
 
             ProblemDetailOptionBootstrap.KnownProblems.Add(JsonProblemDetailOption);
 

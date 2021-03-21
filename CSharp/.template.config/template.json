@@ -45,6 +45,16 @@
             "defaultValue": "true",
             "description": "Adds services for entity framework core in your data layer"
         },
+        "hateoas": {
+            "type": "parameter",
+            "dataType": "choice",
+            "defaultValue": "weblinking",
+            "description": "Adds hateoas services",
+            "choices": [{
+                "choice": "weblinking",
+                "description": "Uses weblinking as specified in rfc5988"
+            }]
+        },
         "json": {
             "type": "parameter",
             "dataType": "choice",
@@ -131,7 +141,9 @@
             "modifiers": [
                 {
                     "exclude": [
-                        "**/Json/**.cs"
+                        "**/Json/**.cs",
+                        "**/Hateoas*.cs",
+                        "**/Weblinking*.cs"
                     ]
                 },
                 {
@@ -205,6 +217,13 @@
                         "src/docker_run.cmd",
                         "src/.dockerignore",
                         "src/BusinessApp.WebApi/.env.docker"
+                    ]
+                },
+                {
+                    "condition": "(hateoas=='weblinking')",
+                    "include": [
+                        "src/**/Hateoas*.cs",
+                        "src/**/Weblinking*.cs"
                     ]
                 }
             ]

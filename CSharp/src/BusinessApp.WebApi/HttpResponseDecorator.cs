@@ -8,8 +8,7 @@ namespace BusinessApp.WebApi
     using BusinessApp.App;
     using System.Threading;
 
-    public class HttpResponseDecorator<TRequest, TResponse>
-        : IHttpRequestHandler<TRequest, TResponse>
+    public class HttpResponseDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
     {
         private readonly IHttpRequestHandler<TRequest, TResponse> inner;
         private readonly IProblemDetailFactory problemFactory;

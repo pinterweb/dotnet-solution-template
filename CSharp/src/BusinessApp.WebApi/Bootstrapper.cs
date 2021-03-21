@@ -25,9 +25,14 @@ namespace BusinessApp.WebApi
 
             bootstrap.Register(regContext);
 
-            var serviceType = typeof(IRequestHandler<,>);
+            BuildRequestDecoratorPipeline(regContext);
+            BuildHttpRequestDecoratorPipeline(regContext);
+        }
 
-            var pipeline = regContext.GetPipelineBuilder(serviceType);
+        private static void BuildRequestDecoratorPipeline(RegistrationContext context)
+        {
+            var serviceType = typeof(IRequestHandler<,>);
+            var pipeline = context.GetPipelineBuilder(serviceType);
 
             foreach (var d in pipeline.Build().Reverse())
             {
@@ -53,17 +58,30 @@ namespace BusinessApp.WebApi
                     _ => (ctx) => filter2(ctx) && d.Item2.ServiceFilter(ctx.ServiceType)
                 };
 
-                container.RegisterDecorator(
+                context.Container.RegisterDecorator(
                     serviceType,
                     d.Item1,
                     d.Item2.Lifetime.MapLifestyle(),
                     filter3);
             }
+        }
 
-            // XXX make sure this is absolultey last
-            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
+        private static void BuildHttpRequestDecoratorPipeline(RegistrationContext context)
+        {
+            var serviceType = typeof(IHttpRequestHandler<,>);
+            var pipeline = context.GetPipelineBuilder(serviceType);
+
+            foreach (var d in pipeline.Build().Reverse())
+            {
+                context.Container.RegisterDecorator(
+                    serviceType,
+                    d.Item1,
+                    d.Item2.Lifetime.MapLifestyle());
+            }
+
+            // XXX make sure this is absolultey last to prevent response errors
+            context.Container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
                 typeof(HttpResponseDecorator<,>));
-
         }
 
         private static Container SetupBootstrapContainer(BootstrapOptions options,
