@@ -527,7 +527,7 @@
                 });
                 CreateRegistrations(container);
                 container.Verify();
-                var serviceType = typeof(IHttpRequestHandler<CommandStub, CommandStub>);
+                var serviceType = typeof(IHttpRequestHandler<CommandStub, EventStreamStub>);
 
                 /* Act */
                 var _ = container.GetInstance(serviceType);
@@ -537,25 +537,28 @@
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
-                        typeof(HttpResponseDecorator<CommandStub, CommandStub>),
+                        typeof(HttpResponseDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(JsonHttpDecorator<CommandStub, CommandStub>),
+                        typeof(JsonHttpDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(HttpRequestLoggingDecorator<CommandStub, CommandStub>),
+                        typeof(HttpRequestLoggingDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(WeblinkingHeaderRequestDecorator<CommandStub, CommandStub>),
+                        typeof(WeblinkingHeaderRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, CommandStub>),
+                        typeof(WeblinkingHeaderEventRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(SystemJsonExceptionDecorator<CommandStub, CommandStub>),
+                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(HttpRequestHandler<CommandStub, CommandStub>),
+                        typeof(SystemJsonExceptionDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(HttpRequestHandler<CommandStub, EventStreamStub>),
                         implType)
                 );
             }

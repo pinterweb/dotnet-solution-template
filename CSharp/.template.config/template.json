@@ -117,8 +117,8 @@
                 "choice": "none",
                 "description": "Use no HATEOAS strategy"
             }, {
-                "choice": "headers",
-                "description": "Uses weblinking as specified in RFC8288 (in headers)"
+                "choice": "header",
+                "description": "Uses weblinking as specified in RFC8288 (in header)"
             }]
         },
         "copyrightReplacer": {
@@ -226,7 +226,7 @@
                     "condition": "(hateoas=='header')",
                     "include": [
                         "src/**/Hateoas*.cs",
-                        "src/**/WeblinkingHeader.cs"
+                        "src/**/WeblinkingHeader*.cs"
                     ]
                 }
             ]

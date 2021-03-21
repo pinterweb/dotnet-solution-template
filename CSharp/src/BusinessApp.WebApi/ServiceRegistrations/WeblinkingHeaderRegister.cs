@@ -19,7 +19,9 @@
             var serviceType = typeof(IHttpRequestHandler<,>);
             var pipeline = context.GetPipelineBuilder(serviceType);
 
-            pipeline.RunOnce(typeof(WeblinkingHeaderRequestDecorator<,>));
+            pipeline
+                .Run(typeof(WeblinkingHeaderRequestDecorator<,>))
+                .Run(typeof(WeblinkingHeaderEventRequestDecorator<,>));
         }
     }
 }
