@@ -523,8 +523,10 @@
                 var linkFactory = A.Fake<Func<CommandStub, string>>();
                 container.Collection.Register<HateoasLink<CommandStub>>(new[]
                 {
-                    new HateoasLink<CommandStub>(linkFactory, "foo", "bar")
+                    new HateoasLink<CommandStub>(linkFactory, "foo")
                 });
+                container.RegisterInstance<IDictionary<Type, HateoasLink<IDomainEvent>>>(
+                    new Dictionary<Type, HateoasLink<IDomainEvent>>());
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IHttpRequestHandler<CommandStub, EventStreamStub>);
