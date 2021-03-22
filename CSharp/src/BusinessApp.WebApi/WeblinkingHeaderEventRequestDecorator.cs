@@ -19,12 +19,10 @@
         private readonly IDictionary<Type, HateoasLink<IDomainEvent>> lookup;
 
         public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
-            IEnumerable<HateoasLink<IDomainEvent>> links)
+            IDictionary<Type, HateoasLink<IDomainEvent>> links)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
-            this.lookup = links.NotNull()
-                .Expect(nameof(links))
-                .ToDictionary(l => l.GetType().GetGenericArguments()[0], l => l);
+            this.lookup = links.NotNull().Expect(nameof(links));
         }
 
         public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,

@@ -29,9 +29,12 @@
             return (await handler.HandleAsync(context, cancelToken))
                 .Map(data =>
                 {
-                    var headerLinks = string.Join(',', links.Select(l => l.ToHeaderValue(context.Request, data)));
+                    var headerLinks = links.Select(l => l.ToHeaderValue(context.Request, data));
 
-                    context.Response.Headers.Add("Link", headerLinks);
+                    if (headerLinks.Any())
+                    {
+                        context.Response.Headers.Add("Link", headerLinks.ToArray());
+                    }
 
                     return data;
                 });

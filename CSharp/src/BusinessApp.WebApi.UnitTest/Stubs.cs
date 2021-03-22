@@ -2,8 +2,20 @@ namespace BusinessApp.WebApi.UnitTest
 {
     using System;
     using System.Collections.Generic;
+    using BusinessApp.Domain;
 
     public enum EnumQueryStub { Foobar }
+
+    public class EventStub : IDomainEvent
+    {
+        public string Id { get; set; }
+        public DateTimeOffset OccurredUtc { get; }
+    }
+
+    public class EventStreamStub : IEventStream
+    {
+        public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
+    }
 
     public class QueryStub
     {

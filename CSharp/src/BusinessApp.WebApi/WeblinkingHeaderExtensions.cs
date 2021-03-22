@@ -14,8 +14,9 @@
         public static string ToHeaderValue<R>(this HateoasLink<R> link, HttpRequest request, R response)
         {
             var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
+            var title = string.IsNullOrWhiteSpace(link.Title) ? "" : $";title={link.Title}";
 
-            return $"<{new Uri(new Uri(baseUrl), link.RelativeLinkFactory(response))}>;rel={link.Rel};title={link.Title}";
+            return $"<{new Uri(new Uri(baseUrl), link.RelativeLinkFactory(response))}>;rel={link.Rel}{title}";
 
         }
     }

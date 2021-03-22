@@ -8,15 +8,19 @@ namespace BusinessApp.WebApi
     /// </summary>
     public class HateoasLink<R>
     {
-        public HateoasLink(Func<R, string> relativeLinkFactory, string rel, string title)
+        protected HateoasLink(string rel)
         {
-            RelativeLinkFactory = relativeLinkFactory.NotNull().Expect(nameof(relativeLinkFactory));
-            Rel = rel.NotNull().Expect(rel);
-            Title = title;
+            Rel = rel.NotEmpty().Expect(rel);
         }
 
-        public Func<R, string> RelativeLinkFactory { get; }
+        public HateoasLink(Func<R, string> relativeLinkFactory, string rel)
+            : this(rel)
+        {
+            RelativeLinkFactory = relativeLinkFactory.NotNull().Expect(nameof(relativeLinkFactory));
+        }
+
+        public Func<R, string> RelativeLinkFactory { get; protected set; }
         public string Rel { get; }
-        public string Title { get; }
+        public string Title { get; init; }
     }
 }
