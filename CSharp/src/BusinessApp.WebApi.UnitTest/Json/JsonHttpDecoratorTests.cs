@@ -10,6 +10,9 @@ namespace BusinessApp.WebApi.UnitTest.Json
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
+    using Result = Domain.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
+    using HandlerResponse = HandlerContext<RequestStub, ResponseStub>;
+
     public class JsonHttpDecoratorTests
     {
         private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
@@ -93,7 +96,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(Result.Ok(A.Dummy<ResponseStub>()));
+                    .Returns(Result.Ok(A.Dummy<HandlerResponse>()));
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);
@@ -108,7 +111,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             {
                 /* Arrange */
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(Result.Error<ResponseStub>(A.Dummy<Exception>()));
+                    .Returns(Result.Error(A.Dummy<Exception>()));
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);
