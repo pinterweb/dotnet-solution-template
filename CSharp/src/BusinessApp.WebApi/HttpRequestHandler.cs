@@ -7,30 +7,29 @@ namespace BusinessApp.WebApi
     using BusinessApp.Domain;
     using System;
 
-    public class HttpRequestHandler<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+    public class HttpRequestHandler<T, R> : IHttpRequestHandler<T, R>
     {
-        private readonly IRequestHandler<TRequest, TResponse> handler;
+        private readonly IRequestHandler<T, R> handler;
         private readonly ISerializer serializer;
 
-        public HttpRequestHandler(
-            IRequestHandler<TRequest, TResponse> handler,
-            ISerializer serializer)
+        public HttpRequestHandler(IRequestHandler<T, R> handler, ISerializer serializer)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
             this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
-            CancellationToken cancelToken)
+        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+            HttpContext context, CancellationToken cancelToken)
         {
-            var request = await context.Request.DeserializeAsync<TRequest>(serializer, cancelToken);
+            var request = await context.Request.DeserializeAsync<T>(serializer, cancelToken);
 
             if (request == null)
             {
                 throw new BusinessAppWebApiException("Request cannot be null");
             }
 
-            return await handler.HandleAsync(request, cancelToken);
+            return await handler.HandleAsync(request, cancelToken)
+                .MapAsync(response => HandlerContext.Create(request, response));
         }
     }
 }

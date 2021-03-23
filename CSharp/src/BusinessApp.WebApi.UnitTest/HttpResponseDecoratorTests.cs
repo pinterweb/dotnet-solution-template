@@ -10,7 +10,7 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Collections.Generic;
     using System.Threading;
 
-    using Result = Domain.Result<ResponseStub, System.Exception>;
+    using HandlerResult = Domain.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
 
     public class HttpResponseDecoratorTests
     {
@@ -84,7 +84,8 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task ResponseStarted_ExceptionThrown()
             {
                 /* Arrange */
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(A.Dummy<Result>());
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
+                    .Returns(A.Dummy<HandlerResult>());
                 A.CallTo(() => context.Response.HasStarted).Returns(true);
 
                 /* Act */
@@ -105,7 +106,7 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Arrange */
                 var blob = new byte[0];
                 var model = A.Dummy<ResponseStub>();
-                var result = Result.Ok(model);
+                var result = HandlerResult.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), model));
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
                 A.CallTo(() => serializer.Serialize(model)).Returns(blob);
 
@@ -123,7 +124,7 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Arrange */
                 var error = A.Dummy<Exception>();
                 ProblemDetail problem = new TestProblemDetail();
-                var result = Result.Error(error);
+                var result = HandlerResult.Error(error);
                 A.CallTo(() => problemFactory.Create(error)).Returns(problem);
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
 
@@ -140,7 +141,7 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Arrange */
                 var error = A.Dummy<Exception>();
                 ProblemDetail problem = new TestProblemDetail(400);
-                var result = Result.Error(error);
+                var result = HandlerResult.Error(error);
                 A.CallTo(() => problemFactory.Create(error)).Returns(problem);
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
 
@@ -164,10 +165,10 @@ namespace BusinessApp.WebApi.UnitTest
                 int currentStatus, string method, int statusSetCalls)
             {
                 /* Arrange */
+                var model = A.Dummy<ResponseStub>();
+                var result = HandlerResult.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), model));
                 A.CallTo(() => context.Response.StatusCode).Returns(currentStatus);
                 A.CallTo(() => context.Request.Method).Returns(method);
-                var model = A.Dummy<ResponseStub>();
-                var result = Result.Ok(model);
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
 
                 /* Act */
@@ -184,9 +185,8 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Arrange */
                 A.CallTo(() => context.Response.StatusCode).Returns(200);
                 A.CallTo(() => context.Request.Method).Returns("put");
-                var model = A.Dummy<ResponseStub>();
-                var result = Result.Ok(model);
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(result);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken))
+                    .Returns(A.Dummy<HandlerResult>());
 
                 /* Act */
                 await sut.HandleAsync(context, cancelToken);
