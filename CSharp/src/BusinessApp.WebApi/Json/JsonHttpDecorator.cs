@@ -9,17 +9,17 @@
     /// <summary>
     /// Runs logic on the request/response for json requests
     /// </summary>
-    public class JsonHttpDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+    public class JsonHttpDecorator<T, R> : IHttpRequestHandler<T, R>
     {
-        private readonly IHttpRequestHandler<TRequest, TResponse> inner;
+        private readonly IHttpRequestHandler<T, R> inner;
 
-        public JsonHttpDecorator(IHttpRequestHandler<TRequest, TResponse> inner)
+        public JsonHttpDecorator(IHttpRequestHandler<T, R> inner)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
-            CancellationToken cancelToken)
+        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+            HttpContext context, CancellationToken cancelToken)
         {
             var validContentType = !string.IsNullOrWhiteSpace(context.Request.ContentType)
                 && context.Request.ContentType.Contains("application/json");
@@ -28,7 +28,7 @@
             {
                 context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
 
-                return Result.Error<TResponse>(
+                return Result.Error<HandlerContext<T, R>>(
                     new BusinessAppWebApiException("Expected content-type to be application/json"));
             }
 

@@ -161,7 +161,7 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 var expectedMsg = "Your request could not be read because some " +
-                    "arguments may be in the wrong format. Please review your requets " +
+                    "arguments may be in the wrong format. Please review your request " +
                     "and try again";
                 var formatError = new FormatException();
                 var exception = new ArgumentException("foo", formatError);
