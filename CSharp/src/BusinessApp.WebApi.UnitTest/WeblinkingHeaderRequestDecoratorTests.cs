@@ -10,10 +10,12 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading;
     using Microsoft.Extensions.Primitives;
 
+    using HandlerResponse = HandlerContext<RequestStub, ResponseStub>;
+
     public class WeblinkingHeaderRequestDecoratorTests
     {
         private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
-        private IEnumerable<HateoasLink<ResponseStub>> links;
+        private IEnumerable<HateoasLink<RequestStub, ResponseStub>> links;
         private WeblinkingHeaderRequestDecorator<RequestStub, ResponseStub> sut;
 
         public WeblinkingHeaderRequestDecoratorTests()
@@ -21,9 +23,9 @@ namespace BusinessApp.WebApi.UnitTest
             inner = A.Fake<IHttpRequestHandler<RequestStub, ResponseStub>>();
         }
 
-        public void Setup(IEnumerable<HateoasLink<ResponseStub>> links = null)
+        public void Setup(IEnumerable<HateoasLink<RequestStub, ResponseStub>> links = null)
         {
-            this.links = links ?? new List<HateoasLink<ResponseStub>>();
+            this.links = links ?? new List<HateoasLink<RequestStub, ResponseStub>>();
             sut = new WeblinkingHeaderRequestDecorator<RequestStub, ResponseStub>(inner, this.links);
         }
 
@@ -36,12 +38,12 @@ namespace BusinessApp.WebApi.UnitTest
                     A.Dummy<IHttpRequestHandler<RequestStub, ResponseStub>>(),
                     null,
                 },
-                new object[] { null, A.CollectionOfDummy<HateoasLink<ResponseStub>>(0) },
+                new object[] { null, A.CollectionOfDummy<HateoasLink<RequestStub, ResponseStub>>(0) },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(IHttpRequestHandler<RequestStub, ResponseStub> i,
-                IEnumerable<HateoasLink<ResponseStub>> d)
+                IEnumerable<HateoasLink<RequestStub, ResponseStub>> d)
             {
                 /* Arrange */
                 void shouldThrow() =>
@@ -71,7 +73,7 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 Setup();
-                var error = Result.Error<ResponseStub>(new Exception());
+                var error = Result.Error<HandlerResponse>(new Exception());
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Returns(error);
 
@@ -87,8 +89,9 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 Setup();
+                var response = HandlerContext.Create(A.Dummy<RequestStub>(), A.Dummy<ResponseStub>());
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(Result.Ok(new ResponseStub()));
+                    .Returns(Result.Ok(response));
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);
@@ -102,7 +105,8 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task HasLinks_HeadersAdded()
             {
                 /* Arrange */
-                Setup(new HateoasLink<ResponseStub>[]
+                var response = HandlerContext.Create(A.Dummy<RequestStub>(), A.Dummy<ResponseStub>());
+                Setup(new HateoasLink<RequestStub, ResponseStub>[]
                     {
                         new ResponseHateoasLink(),
                         new ResponseHateoasLink2() { Title = "bar" }
@@ -110,7 +114,7 @@ namespace BusinessApp.WebApi.UnitTest
                 StringValues _;
                 StringValues headerValue = default;
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(Result.Ok(new ResponseStub()));
+                    .Returns(Result.Ok(response));
                 A.CallTo(() => context.Response.Headers.TryGetValue("Link", out _))
                     .Returns(false);
                 A.CallTo(() => context.Response.Headers.Add("Link", A<StringValues>._))
@@ -129,15 +133,15 @@ namespace BusinessApp.WebApi.UnitTest
                     headerValue);
             }
 
-            public class ResponseHateoasLink : HateoasLink<ResponseStub>
+            public class ResponseHateoasLink : HateoasLink<RequestStub, ResponseStub>
             {
-                public ResponseHateoasLink() : base(_ => "lorem", "foo")
+                public ResponseHateoasLink() : base((t, r) => "lorem", "foo")
                 { }
             }
 
-            public class ResponseHateoasLink2 : HateoasLink<ResponseStub>
+            public class ResponseHateoasLink2 : HateoasLink<RequestStub, ResponseStub>
             {
-                public ResponseHateoasLink2() : base(_ => "ipsum", "foo")
+                public ResponseHateoasLink2() : base((t, r) => "ipsum", "foo")
                 { }
             }
         }

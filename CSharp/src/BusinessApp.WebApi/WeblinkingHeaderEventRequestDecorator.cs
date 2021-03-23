@@ -12,32 +12,33 @@
     /// <summary>
     /// Decorator to add the web link headers for generate events
     /// </summary>
-    public class WeblinkingHeaderEventRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
-       where TResponse : IEventStream
+    public class WeblinkingHeaderEventRequestDecorator<T, R> : IHttpRequestHandler<T, R>
+       where R : IEventStream
     {
-        private readonly IHttpRequestHandler<TRequest, TResponse> handler;
-        private readonly IDictionary<Type, HateoasLink<IDomainEvent>> lookup;
+        private readonly IHttpRequestHandler<T, R> handler;
+        private readonly IDictionary<Type, HateoasLink<T, IDomainEvent>> lookup;
 
-        public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
-            IDictionary<Type, HateoasLink<IDomainEvent>> links)
+        public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<T, R> handler,
+            IDictionary<Type, HateoasLink<T, IDomainEvent>> links)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
             this.lookup = links.NotNull().Expect(nameof(links));
         }
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(HttpContext context,
-            CancellationToken cancelToken)
+        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+            HttpContext context, CancellationToken cancelToken)
         {
             return (await handler.HandleAsync(context, cancelToken))
-                .Map(data =>
+                .Map(okVal =>
                 {
-                    var headerLinks = data.Events
+                    var headerLinks = okVal.Response.Events
                         .Select(e => (e, e.GetType()))
                         .Where(HasLink)
-                        .Select(l => lookup[l.Item2].ToHeaderValue(context.Request, l.Item1))
+                        .Select(l => lookup[l.Item2]
+                            .ToHeaderValue(context.Request, okVal.Request, l.Item1))
                         .ToArray();
 
-                    if (!headerLinks.Any()) return data;
+                    if (!headerLinks.Any()) return okVal;
 
                     if (context.Response.Headers.TryGetValue("Link", out StringValues sv))
                     {
@@ -49,11 +50,11 @@
                         context.Response.Headers.Add("Link", headerLinks);
                     }
 
-                    return data;
+                    return okVal;
                 });
         }
 
         private bool HasLink((IDomainEvent e, Type eventType) eventLookup)
-            => lookup.TryGetValue(eventLookup.Item2, out HateoasLink<IDomainEvent> _);
+            => lookup.TryGetValue(eventLookup.Item2, out HateoasLink<T, IDomainEvent> _);
     }
 }

@@ -10,10 +10,12 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading;
     using Microsoft.Extensions.Primitives;
 
+    using HandlerResponse = HandlerContext<RequestStub, EventStreamStub>;
+
     public class WeblinkingHeaderEventRequestDecoratorTests
     {
         private readonly IHttpRequestHandler<RequestStub, EventStreamStub> inner;
-        private IDictionary<Type, HateoasLink<IDomainEvent>> links;
+        private IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> links;
         private WeblinkingHeaderEventRequestDecorator<RequestStub, EventStreamStub> sut;
 
         public WeblinkingHeaderEventRequestDecoratorTests()
@@ -21,9 +23,9 @@ namespace BusinessApp.WebApi.UnitTest
             inner = A.Fake<IHttpRequestHandler<RequestStub, EventStreamStub>>();
         }
 
-        public void Setup(IDictionary<Type, HateoasLink<IDomainEvent>> links = null)
+        public void Setup(IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> links = null)
         {
-            this.links = links ?? new Dictionary<Type, HateoasLink<IDomainEvent>>();
+            this.links = links ?? new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>();
             sut = new WeblinkingHeaderEventRequestDecorator<RequestStub, EventStreamStub>(inner, this.links);
         }
 
@@ -36,12 +38,12 @@ namespace BusinessApp.WebApi.UnitTest
                     A.Dummy<IHttpRequestHandler<RequestStub, EventStreamStub>>(),
                     null,
                 },
-                new object[] { null, new Dictionary<Type, HateoasLink<IDomainEvent>>() },
+                new object[] { null, new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>() },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(IHttpRequestHandler<RequestStub, EventStreamStub> i,
-                IDictionary<Type, HateoasLink<IDomainEvent>> d)
+                IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> d)
             {
                 /* Arrange */
                 void shouldThrow() =>
@@ -71,7 +73,7 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 Setup();
-                var error = Result.Error<EventStreamStub>(new Exception());
+                var error = Result.Error<HandlerResponse>(new Exception());
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Returns(error);
 
@@ -91,7 +93,7 @@ namespace BusinessApp.WebApi.UnitTest
                 {
                     Events = A.CollectionOfDummy<IDomainEvent>(2)
                 };
-                var innerResult = Result.Ok(stream);
+                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), stream));
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Returns(innerResult);
 
@@ -107,7 +109,7 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task HasEventLink_HeaderAdded()
             {
                 /* Arrange */
-                Setup(new Dictionary<Type, HateoasLink<IDomainEvent>>
+                Setup(new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>
                 {
                     { typeof(EventStub) ,new EventStubEventHateoasLink() { Title = "bar" } }
                 });
@@ -115,11 +117,10 @@ namespace BusinessApp.WebApi.UnitTest
                 {
                     Events = new[] { new EventStub(), new EventStub() { Id = 2 } }
                 };
-                var innerResult = Result.Ok(stream);
+                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), stream));
                 StringValues _;
                 StringValues headerValue = default;
-                A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(innerResult);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerResult);
                 A.CallTo(() => context.Response.Headers.TryGetValue("Link", out _))
                     .Returns(false);
                 A.CallTo(() => context.Response.Headers.Add("Link", A<StringValues>._))
@@ -142,7 +143,7 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task HasEventLinksWithExistingLinkHeader_HeadersAdded()
             {
                 /* Arrange */
-                Setup(new Dictionary<Type, HateoasLink<IDomainEvent>>
+                Setup(new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>
                 {
                     { typeof(EventStub) ,new EventStubEventHateoasLink() }
                 });
@@ -152,9 +153,8 @@ namespace BusinessApp.WebApi.UnitTest
                 {
                     Events = new[] { new EventStub() }
                 };
-                var innerResult = Result.Ok(stream);
-                A.CallTo(() => inner.HandleAsync(context, cancelToken))
-                    .Returns(innerResult);
+                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), stream));
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerResult);
                 A.CallTo(() => context.Response.Headers.TryGetValue("Link", out initialHeader))
                     .Returns(true);
                 A.CallToSet(() => context.Response.Headers["Link"])
@@ -175,13 +175,13 @@ namespace BusinessApp.WebApi.UnitTest
                 public DateTimeOffset OccurredUtc { get; }
             }
 
-            public class EventStubEventHateoasLink : HateoasEventLink<EventStub>
+            public class EventStubEventHateoasLink : HateoasEventLink<RequestStub, EventStub>
             {
                 public EventStubEventHateoasLink() : base("foo")
                 { }
 
-                protected override Func<EventStub, string> EventRelativeLinkFactory
-                    => (e) => $"id/{e.Id.ToString()}";
+                protected override Func<RequestStub, EventStub, string> EventRelativeLinkFactory
+                    => (r, e) => $"id/{e.Id.ToString()}";
             }
         }
     }

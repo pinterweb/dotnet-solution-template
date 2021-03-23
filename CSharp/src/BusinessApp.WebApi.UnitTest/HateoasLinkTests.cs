@@ -16,18 +16,31 @@ namespace BusinessApp.WebApi.UnitTest
                 {
                     return new []
                     {
-                        new object[] { null, "rel" },
-                        new object[] { A.Dummy<Func<QueryStub, string>>(), null },
-                        new object[] { A.Dummy<Func<QueryStub, string>>(), "" },
+                        new object[]
+                        {
+                            null,
+                            "rel"
+                        },
+                        new object[]
+                        {
+                            A.Dummy<Func<RequestStub, QueryStub, string>>(),
+                            null
+                        },
+                        new object[]
+                        {
+                            A.Dummy<Func<RequestStub, QueryStub, string>>(),
+                            ""
+                        },
                     };
                 }
             }
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidArgs_ExceptionThrown(Func<QueryStub, string> f, string r)
+            public void InvalidArgs_ExceptionThrown(Func<RequestStub, QueryStub, string> f,
+                string r)
             {
                 /* Arrange */
-                Action create = () => new HateoasLink<QueryStub>(f, r);
+                Action create = () => new HateoasLink<RequestStub, QueryStub>(f, r);
 
                 /* Act */
                 var exception = Record.Exception(create);

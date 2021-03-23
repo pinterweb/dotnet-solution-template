@@ -520,13 +520,13 @@
             public void HasCorrectOrder()
             {
                 /* Arrange */
-                var linkFactory = A.Fake<Func<CommandStub, string>>();
-                container.Collection.Register<HateoasLink<CommandStub>>(new[]
+                var linkFactory = A.Fake<Func<CommandStub, EventStreamStub, string>>();
+                container.Collection.Register<HateoasLink<CommandStub, EventStreamStub>>(new[]
                 {
-                    new HateoasLink<CommandStub>(linkFactory, "foo")
+                    new HateoasLink<CommandStub, EventStreamStub>(linkFactory, "foo")
                 });
-                container.RegisterInstance<IDictionary<Type, HateoasLink<IDomainEvent>>>(
-                    new Dictionary<Type, HateoasLink<IDomainEvent>>());
+                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IDomainEvent>>>(
+                    new Dictionary<Type, HateoasLink<CommandStub, IDomainEvent>>());
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IHttpRequestHandler<CommandStub, EventStreamStub>);

@@ -3,6 +3,7 @@ namespace BusinessApp.WebApi.UnitTest
     using System;
     using System.Collections.Generic;
     using BusinessApp.Domain;
+    using FakeItEasy;
     using Xunit;
 
     public class HateoasEventLinkTests
@@ -38,24 +39,24 @@ namespace BusinessApp.WebApi.UnitTest
             public void RelativeLinkFactory_CastsToEvent()
             {
                 /* Arrange */
-                HateoasLink<IDomainEvent> link =  new EventLinkStub("next");
+                HateoasLink<RequestStub, IDomainEvent> link =  new EventLinkStub("next");
                 var e = new EventStub() { Id = "foobar" };
 
                 /* Act */
-                var linkTxt = link.RelativeLinkFactory(e);
+                var linkTxt = link.RelativeLinkFactory(A.Dummy<RequestStub>(), e);
 
                 /* Assert */
                 Assert.Equal("foobar", linkTxt);
             }
 
-            private class EventLinkStub : HateoasEventLink<EventStub>
+            private class EventLinkStub : HateoasEventLink<RequestStub, EventStub>
             {
                 public EventLinkStub(string rel)
                     : base(rel)
                 {}
 
-                protected override Func<EventStub, string> EventRelativeLinkFactory { get; }
-                    = e => e.Id.ToString();
+                protected override Func<RequestStub, EventStub, string> EventRelativeLinkFactory { get; }
+                    = (r, e) => e.Id.ToString();
             }
         }
     }
