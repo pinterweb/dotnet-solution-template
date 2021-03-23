@@ -1,5 +1,6 @@
 namespace BusinessApp.WebApi.FunctionalTest
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
@@ -31,7 +32,10 @@ namespace BusinessApp.WebApi.FunctionalTest
         public async Task GivenARequestToGetOneResource_WhenIsValidQuery_ReturnsOneResult()
         {
             // Given
-            var client = factory.NewClient();
+            var client = factory.NewClient(container =>
+            {
+                container.RegisterInstance(GetEmptyLinks<Get.Request, Get.Response>());
+            });
 
             // When
             var response = await client.GetAsync("/api/resources/1");
@@ -45,7 +49,10 @@ namespace BusinessApp.WebApi.FunctionalTest
         public async Task GivenARequestToGetManyResources_WhenIsAnEnvelope_HeadersReturnedToo()
         {
             // Given
-            var client = factory.NewClient();
+            var client = factory.NewClient(container =>
+            {
+                container.RegisterInstance(GetEmptyLinks<Get.Request, IEnumerable<Get.Response>>());
+            });
 
             // When
             var response = await client.GetAsync("/api/resources");
@@ -64,7 +71,11 @@ namespace BusinessApp.WebApi.FunctionalTest
         public async Task GivenARequestToSaveANewResource_WhenIsValidRequest_EchosResut()
         {
             // Given
-            var client = factory.NewClient();
+            var client = factory.NewClient(container =>
+            {
+                container.RegisterInstance(GetEmptyLinks<PostOrPut.Body, PostOrPut.Body>());
+            });
+
             var payload = new { id = 1, longerId = 99 };
             var content = new StringContent(JsonConvert.SerializeObject(payload),
                 Encoding.UTF8,
@@ -83,7 +94,11 @@ namespace BusinessApp.WebApi.FunctionalTest
         public async Task GivenARequestToReplaceAResource_WhenIsSuccessful_NoContentReturned()
         {
             // Given
-            var client = factory.NewClient();
+            var client = factory.NewClient(container =>
+            {
+                container.RegisterInstance(GetEmptyLinks<PostOrPut.Body, PostOrPut.Body>());
+            });
+
             var payload = new { id = 1 };
             var content = new StringContent(JsonConvert.SerializeObject(payload),
                 Encoding.UTF8,
@@ -93,7 +108,6 @@ namespace BusinessApp.WebApi.FunctionalTest
             var response = await client.PutAsync("/api/resources/1", content);
 
             // Then
-
             await response.Success(output);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
@@ -110,6 +124,9 @@ namespace BusinessApp.WebApi.FunctionalTest
                 container.RegisterDecorator(
                     typeof(IEventHandler<Delete.Event>),
                     typeof(EventDecorator));
+                container.RegisterInstance(GetEmptyLinks<Delete.Query, Delete.Response>());
+                container.RegisterInstance(GetEventLinks<Delete.Query>());
+
                 testContainer = container;
             });
             var payload = new { id = 1 };
@@ -165,5 +182,11 @@ namespace BusinessApp.WebApi.FunctionalTest
         {
             public int Id { get; set; }
         }
+
+        private IEnumerable<HateoasLink<T, R>> GetEmptyLinks<T, R>()
+            => new List<HateoasLink<T, R>>();
+
+        private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
+            => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
     }
 }

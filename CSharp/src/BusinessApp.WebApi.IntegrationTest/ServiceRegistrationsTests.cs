@@ -1,4 +1,4 @@
-namespace BusinessApp.WebApi.IntegrationTest
+﻿namespace BusinessApp.WebApi.IntegrationTest
 {
     using Xunit;
     using SimpleInjector;
@@ -17,14 +17,14 @@ namespace BusinessApp.WebApi.IntegrationTest
     using Microsoft.Extensions.Configuration;
     using BusinessApp.Data;
     using Microsoft.Extensions.Logging;
+    using BusinessApp.WebApi.Json;
 
-    // TODO rename
-    public partial class BootstrapTests : IDisposable
+    public partial class ServiceRegistrationsTests : IDisposable
     {
         private readonly Container container;
         private readonly Scope scope;
 
-        public BootstrapTests()
+        public ServiceRegistrationsTests()
         {
             container = new Container();
             new Startup(A.Dummy<IConfiguration>(), container);
@@ -40,7 +40,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 DbConnectionString = "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
                 RegistrationAssemblies = new[]
                 {
-                    typeof(BootstrapTests).Assembly,
+                    typeof(ServiceRegistrationsTests).Assembly,
                     typeof(IQuery).Assembly,
                     typeof(IQueryVisitor<>).Assembly
                 }
@@ -53,7 +53,7 @@ namespace BusinessApp.WebApi.IntegrationTest
         }
 
 
-        public class Handlers : BootstrapTests, IDisposable
+        public class RequestHandlers : ServiceRegistrationsTests
         {
             [Fact]
             public void NoCommandRequestHandler_HasAllDefaultHandlers()
@@ -514,7 +514,59 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
         }
 
-        public class Validators : BootstrapTests
+        public class HttpRequestHandlers : ServiceRegistrationsTests
+        {
+            [Fact]
+            public void HasCorrectOrder()
+            {
+                /* Arrange */
+                var linkFactory = A.Fake<Func<CommandStub, EventStreamStub, string>>();
+                container.Collection.Register<HateoasLink<CommandStub, EventStreamStub>>(new[]
+                {
+                    new HateoasLink<CommandStub, EventStreamStub>(linkFactory, "foo")
+                });
+                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IDomainEvent>>>(
+                    new Dictionary<Type, HateoasLink<CommandStub, IDomainEvent>>());
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IHttpRequestHandler<CommandStub, EventStreamStub>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                /* Assert */
+                var handlers = GetServiceGraph(serviceType);
+
+                Assert.Collection(handlers,
+                    implType => Assert.Equal(
+                        typeof(HttpResponseDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(JsonHttpDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(HttpRequestLoggingDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(WeblinkingHeaderRequestDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(WeblinkingHeaderEventRequestDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(SystemJsonExceptionDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(HttpRequestHandler<CommandStub, EventStreamStub>),
+                        implType)
+                );
+            }
+        }
+
+        public class Validators : ServiceRegistrationsTests
         {
             [Fact]
             public void RegistersAllValidators()
@@ -588,7 +640,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
         }
 
-        public class Loggers : BootstrapTests
+        public class Loggers : ServiceRegistrationsTests
         {
             [Fact]
             public void UsesStringLogEntryFormatterInDevMode()
