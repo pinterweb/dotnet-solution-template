@@ -34,10 +34,10 @@
 #endif
 
             #region TODO: Your APIS here. Replace the test examples with your actual endpoints
-//#if DEBUG
 
             app.UseEndpoints(endpoint =>
             {
+//#if DEBUG
                 // make a func so we can get it in the http request scope
                 // and use other scope services
                 Func<IHttpRequestHandler> getHandler = () => container.GetInstance<IHttpRequestHandler>();
@@ -59,6 +59,7 @@
                     endpoint.MapDelete("/api/resources/{id:int}",
                         getHandler().HandleAsync<Delete.Query, Delete.Response>),
                 };
+//#endif
 
 #if winauth
                 foreach (var ep in endpoints)
@@ -72,6 +73,7 @@
         }
     }
 
+//#if DEBUG
     #region TODO DELETE THESE. These support the test apis which should be replaces by your implementation
 
     [System.ComponentModel.TypeConverter(typeof(EntityIdTypeConverter<EntityId, int>))]

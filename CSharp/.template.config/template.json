@@ -200,17 +200,19 @@
                 {
                     "condition": "(json=='newtonsoft')",
                     "include": [
-                        "**/Json/**.cs",
-                        "src/BusinessApp.WebApi/Json/Newtonsoft**",
-                        "src/BusinessApp.App/Json/Newtonsoft**"
+                        "**/Json/**.cs"
+                    ],
+                    "exclude": [
+                        "**/Json/SystemJson*.cs"
                     ]
                 },
                 {
                     "condition": "(json=='systemjson')",
                     "include": [
-                        "**/Json/**.cs",
-                        "src/BusinessApp.WebApi/Json/System**",
-                        "src/BusinessApp.App/Json/System**"
+                        "**/Json/**.cs"
+                    ],
+                    "exclude": [
+                        "**/Json/Newtonsoft*.cs"
                     ]
                 },
                 {
