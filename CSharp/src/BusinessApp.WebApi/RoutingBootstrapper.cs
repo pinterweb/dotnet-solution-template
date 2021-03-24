@@ -10,10 +10,10 @@
     using Microsoft.AspNetCore.Builder;
     using SimpleInjector;
 
-#if DEBUG
+//#if DEBUG
     using System.Collections.Generic;
     using System.Linq;
-#endif
+//#endif
 
     /// <summary>
     /// Creates your routes
@@ -33,40 +33,33 @@
             app.UseAuthorization();
 #endif
 
-            #region TODO APIS HERE
+            #region TODO: Your APIS here. Replace the test examples with your actual endpoints
 
             app.UseEndpoints(endpoint =>
             {
+//#if DEBUG
+                // make a func so we can get it in the http request scope
+                // and use other scope services
+                Func<IHttpRequestHandler> getHandler = () => container.GetInstance<IHttpRequestHandler>();
+
                 var endpoints = new IEndpointConventionBuilder[]
                 {
-#if DEBUG
-                    endpoint.MapGet("/api/resources", async ctx =>
-                        await container
-                            .GetInstance<IHttpRequestHandler<Get.Request, IEnumerable<Get.Response>>>()
-                            .HandleAsync(ctx, default)
-                    ),
-                    endpoint.MapGet("/api/resources/{id:int}", async ctx =>
-                        await container
-                            .GetInstance<IHttpRequestHandler<Get.Request, Get.Response>>()
-                            .HandleAsync(ctx, default)
-                    ),
-                    endpoint.MapPost("/api/resources", async ctx =>
-                        await container
-                            .GetInstance<IHttpRequestHandler<PostOrPut.Body, PostOrPut.Body>>()
-                            .HandleAsync(ctx, default)
-                    ),
-                    endpoint.MapPut("/api/resources/{id:int}", async ctx =>
-                        await container
-                            .GetInstance<IHttpRequestHandler<PostOrPut.Body, PostOrPut.Body>>()
-                            .HandleAsync(ctx, default)
-                    ),
-                    endpoint.MapDelete("/api/resources/{id:int}", async ctx =>
-                        await container
-                            .GetInstance<IHttpRequestHandler<Delete.Query, Delete.Response>>()
-                            .HandleAsync(ctx, default)
-                    ),
-#endif
+                    endpoint.MapGet("/api/resources",
+                        getHandler().HandleAsync<Get.Request, IEnumerable<Get.Response>>),
+
+                    endpoint.MapGet("/api/resources/{id:int}",
+                        getHandler().HandleAsync<Get.Request, Get.Response>),
+
+                    endpoint.MapPost("/api/resources",
+                        getHandler().HandleAsync<PostOrPut.Body, PostOrPut.Body>),
+
+                    endpoint.MapPut("/api/resources/{id:int}",
+                        getHandler().HandleAsync<PostOrPut.Body, PostOrPut.Body>),
+
+                    endpoint.MapDelete("/api/resources/{id:int}",
+                        getHandler().HandleAsync<Delete.Query, Delete.Response>),
                 };
+//#endif
 
 #if winauth
                 foreach (var ep in endpoints)
@@ -80,7 +73,9 @@
         }
     }
 
-#if DEBUG
+//#if DEBUG
+    #region TODO DELETE THESE. These support the test apis which should be replaces by your implementation
+
     [System.ComponentModel.TypeConverter(typeof(EntityIdTypeConverter<EntityId, int>))]
     public class EntityId : IEntityId
     {
@@ -203,5 +198,7 @@
             }
         }
     }
-#endif
+
+    #endregion
+//#endif
 }

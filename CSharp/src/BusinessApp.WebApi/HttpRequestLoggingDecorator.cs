@@ -4,52 +4,33 @@ namespace BusinessApp.WebApi
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
     using BusinessApp.Domain;
-    using System.Threading;
 
     /// <summary>
-    /// Logs certains aspects of a request
+    /// Logs request errors
     /// </summary>
-    public class HttpRequestLoggingDecorator<T, R> : IHttpRequestHandler<T, R>
+    public class HttpRequestLoggingDecorator : IHttpRequestHandler
     {
-        private readonly IHttpRequestHandler<T, R> inner;
+        private readonly IHttpRequestHandler inner;
         private readonly ILogger logger;
 
-        public HttpRequestLoggingDecorator(IHttpRequestHandler<T, R> inner,
-            ILogger logger)
+        public HttpRequestLoggingDecorator(IHttpRequestHandler inner, ILogger logger)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
-            HttpContext context, CancellationToken cancelToken)
+        public async Task HandleAsync<T, R>(HttpContext context)
         {
             try
             {
-                return await inner.HandleAsync(context, cancelToken);
-            }
-            catch (ArgumentException exception) when (exception.InnerException is FormatException)
-            {
-                Log(exception);
-
-                return Result.Error<HandlerContext<T, R>>(
-                    new BadStateException("Your request could not be read because some " +
-                        "arguments may be in the wrong format. Please review your request " +
-                        "and try again"));
+                await inner.HandleAsync<T, R>(context);
             }
             catch (Exception exception)
             {
-                Log(exception);
+                logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
 
-                return Result.Error<HandlerContext<T, R>>(
-                    new BusinessAppWebApiException("An unknown error occurred while processing " +
-                        "your request. Please try again or contact support if this continues"));
+                throw;
             }
-        }
-
-        private void Log(Exception exception)
-        {
-            logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
         }
     }
 }
