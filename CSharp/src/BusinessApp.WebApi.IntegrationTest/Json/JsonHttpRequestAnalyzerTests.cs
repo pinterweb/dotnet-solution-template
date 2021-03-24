@@ -1,4 +1,4 @@
-namespace BusinessApp.WebApi.IntegrationTest
+namespace BusinessApp.WebApi.IntegrationTest.Json
 {
     using System.Buffers;
     using System.IO.Pipelines;
