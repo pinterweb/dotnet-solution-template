@@ -19,7 +19,7 @@
     using Microsoft.Extensions.Logging;
     using BusinessApp.WebApi.Json;
 
-    public partial class ServiceRegistrationsTests : IDisposable
+    public class ServiceRegistrationsTests : IDisposable
     {
         private readonly Container container;
         private readonly Scope scope;
@@ -518,6 +518,30 @@
         {
             [Fact]
             public void HasCorrectOrder()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IHttpRequestHandler);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                /* Assert */
+                var handlers = GetServiceGraph(serviceType);
+
+                Assert.Collection(handlers,
+                    implType => Assert.Equal(
+                        typeof(HttpRequestBodyAnalyzer),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(SimpleInjectorHttpRequestHandler),
+                        implType)
+                );
+            }
+
+            [Fact]
+            public void OfTR_HasCorrectOrder()
             {
                 /* Arrange */
                 var linkFactory = A.Fake<Func<CommandStub, EventStreamStub, string>>();

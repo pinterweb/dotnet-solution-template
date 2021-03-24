@@ -88,11 +88,11 @@
             app.UseDefaultFiles();
             app.UseStaticFiles();
 #endif
-            app.SetupEndpoints(container);
-
             Bootstrapper.RegisterServices(container, options, env, loggerFactory);
 
             container.Verify();
+
+            app.SetupEndpoints(container);
 
             if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
             {

@@ -18,13 +18,21 @@ namespace BusinessApp.WebApi
         };
 
         /// <summary>
-        /// Checks the request to determine if there may be content to process
+        /// Checks the request body to determine if there may be content
         /// </summary>
         /// <remarks>Could give false positives</remarks>
         public static bool MayHaveContent(this HttpRequest request)
         {
-            return BodyMethods.Contains(request.Method)
+            return request.IsCommand()
                 && (request.ContentLength == null || request.ContentLength > 0);
+        }
+
+        /// <summary>
+        /// Checks if the request is a command method
+        /// </summary>
+        public static bool IsCommand(this HttpRequest request)
+        {
+            return BodyMethods.Contains(request.Method);
         }
 
         /// <summary>
@@ -61,7 +69,7 @@ namespace BusinessApp.WebApi
                     model = serializer.Deserialize<T>(buffer.ToArray());
 
                     // Finally, reset the EXAMINED POSITION here
-                    bodyReader.AdvanceTo(readResult.Buffer.Start, readResult.Buffer.Start);
+                    bodyReader.RewindTo(readResult.Buffer);
                 }
                 finally
                 {

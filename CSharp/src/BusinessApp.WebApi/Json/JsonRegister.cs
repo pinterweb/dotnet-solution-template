@@ -31,6 +31,8 @@ namespace BusinessApp.WebApi.Json
 
             ProblemDetailOptionBootstrap.KnownProblems.Add(JsonProblemDetailOption);
 
+            container.RegisterSingleton<IHttpRequestAnalyzer,JsonHttpRequestAnalyzer>();
+
             inner.Register(context);
         }
     }

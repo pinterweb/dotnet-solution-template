@@ -62,6 +62,13 @@ namespace BusinessApp.WebApi
                 typeof(EnvelopeQueryResourceHandler<,>),
                 ctx => !ctx.Handled);
 
+            context.Container
+                .RegisterSingleton<IHttpRequestHandler, SimpleInjectorHttpRequestHandler>();
+
+            context.Container.RegisterDecorator(typeof(IHttpRequestHandler),
+                typeof(HttpRequestBodyAnalyzer),
+                Lifestyle.Singleton);
+
             context.Container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
                 typeof(HttpRequestHandler<,>),

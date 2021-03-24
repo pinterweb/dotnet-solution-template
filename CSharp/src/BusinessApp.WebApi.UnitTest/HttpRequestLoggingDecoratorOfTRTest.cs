@@ -7,33 +7,41 @@ namespace BusinessApp.WebApi.UnitTest
     using System;
     using System.Threading.Tasks;
     using System.Collections.Generic;
+    using System.Threading;
 
-    public class HttpRequestLoggingDecoratorTest
+    public class HttpRequestLoggingDecoratorOfTRTest
     {
-        private readonly IHttpRequestHandler inner;
+        private readonly IHttpRequestHandler<RequestStub, ResponseStub> inner;
         private readonly ILogger logger;
-        private readonly HttpRequestLoggingDecorator sut;
+        private readonly HttpRequestLoggingDecorator<RequestStub, ResponseStub> sut;
 
-        public HttpRequestLoggingDecoratorTest()
+        public HttpRequestLoggingDecoratorOfTRTest()
         {
             logger = A.Fake<ILogger>();
-            inner = A.Fake<IHttpRequestHandler>();
-            sut = new HttpRequestLoggingDecorator(inner, logger);
+            inner = A.Fake<IHttpRequestHandler<RequestStub, ResponseStub>>();
+            sut = new HttpRequestLoggingDecorator<RequestStub, ResponseStub>(inner, logger);
         }
 
-        public class Constructor : HttpRequestLoggingDecoratorTest
+        public class Constructor : HttpRequestLoggingDecoratorOfTRTest
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
-                new object[] { A.Dummy<IHttpRequestHandler>(), null, },
+                new object[]
+                {
+                    A.Dummy<IHttpRequestHandler<RequestStub, ResponseStub>>(),
+                    null,
+                },
                 new object[] { null, A.Dummy<ILogger>() },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IHttpRequestHandler i, ILogger l)
+            public void InvalidCtorArgs_ExceptionThrown(
+                IHttpRequestHandler<RequestStub, ResponseStub> i,
+                ILogger l)
             {
                 /* Arrange */
-                void shouldThrow() => new HttpRequestLoggingDecorator(i, l);
+                void shouldThrow() =>
+                    new HttpRequestLoggingDecorator<RequestStub, ResponseStub>(i, l);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -43,13 +51,15 @@ namespace BusinessApp.WebApi.UnitTest
             }
         }
 
-        public class HandleAsync : HttpRequestLoggingDecoratorTest
+        public class HandleAsync : HttpRequestLoggingDecoratorOfTRTest
         {
+            private readonly CancellationToken cancelToken;
             private readonly HttpContext context;
 
             public HandleAsync()
             {
                 context = A.Dummy<HttpContext>();
+                cancelToken = A.Dummy<CancellationToken>();
             }
 
             public static IEnumerable<object[]> Exceptions => new[]
@@ -62,7 +72,7 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task NoException_NotLogged()
             {
                 /* Act */
-                await sut.HandleAsync<RequestStub, ResponseStub>(context);
+                await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => logger.Log(A<LogEntry>._)).MustNotHaveHappened();
@@ -72,11 +82,10 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task Exception_LogsItOnce(Exception e)
             {
                 /* Arrange */
-                A.CallTo(() => inner.HandleAsync<RequestStub, ResponseStub>(context)).Throws(e);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(e);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync<RequestStub, ResponseStub>(context));
+                var _ = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => logger.Log(A<LogEntry>._)).MustHaveHappenedOnceExactly();
@@ -87,13 +96,12 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 LogEntry entry = null;
-                A.CallTo(() => inner.HandleAsync<RequestStub, ResponseStub>(context)).Throws(e);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(e);
                 A.CallTo(() => logger.Log(A<LogEntry>._))
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync<RequestStub, ResponseStub>(context));
+                var _ = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 Assert.Equal(LogSeverity.Error, entry.Severity);
@@ -104,14 +112,12 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 LogEntry entry = null;
-                A.CallTo(() => inner.HandleAsync<RequestStub, ResponseStub>(context))
-                    .Throws(exception);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
                 A.CallTo(() => logger.Log(A<LogEntry>._))
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync<RequestStub, ResponseStub>(context));
+                var _ = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 Assert.Equal("foobar", exception.Message);
@@ -122,33 +128,50 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 LogEntry entry = null;
-                A.CallTo(() => inner.HandleAsync<RequestStub, ResponseStub>(context))
-                    .Throws(exception);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
                 A.CallTo(() => logger.Log(A<LogEntry>._))
                     .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync<RequestStub, ResponseStub>(context));
+                var _ = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
                 Assert.Same(exception, entry.Exception);
             }
 
             [Fact]
-            public async Task Exception_Rethrows()
+            public async Task UnknownException_ReturnsErrorResult()
             {
                 /* Arrange */
-                var exception = new Exception();
-                A.CallTo(() => inner.HandleAsync<RequestStub, ResponseStub>(context))
-                    .Throws(exception);
+                var expectedMsg = "An unknown error occurred while processing your " +
+                    "request. Please try again or contact support if this continues";
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws<Exception>();
 
                 /* Act */
-                var thrownException = await Record.ExceptionAsync(() =>
-                    sut.HandleAsync<RequestStub, ResponseStub>(context));
+                var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
-                Assert.Same(exception, thrownException);
+                var error = Assert.IsType<BusinessAppWebApiException>(result.UnwrapError());
+                Assert.Equal(expectedMsg, error.Message);
+            }
+
+            [Fact]
+            public async Task FormatException_ReturnsErrorResult()
+            {
+                /* Arrange */
+                var expectedMsg = "Your request could not be read because some " +
+                    "arguments may be in the wrong format. Please review your request " +
+                    "and try again";
+                var formatError = new FormatException();
+                var exception = new ArgumentException("foo", formatError);
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
+
+                /* Act */
+                var result = await sut.HandleAsync(context, cancelToken);
+
+                /* Assert */
+                var error = Assert.IsType<BadStateException>(result.UnwrapError());
+                Assert.Equal(expectedMsg, error.Message);
             }
         }
     }

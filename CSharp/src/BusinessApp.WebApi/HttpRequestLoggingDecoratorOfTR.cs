@@ -1,0 +1,55 @@
+namespace BusinessApp.WebApi
+{
+    using System;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using BusinessApp.Domain;
+    using System.Threading;
+
+    /// <summary>
+    /// Logs request errors and returns an error
+    /// </summary>
+    public class HttpRequestLoggingDecorator<T, R> : IHttpRequestHandler<T, R>
+    {
+        private readonly IHttpRequestHandler<T, R> inner;
+        private readonly ILogger logger;
+
+        public HttpRequestLoggingDecorator(IHttpRequestHandler<T, R> inner,
+            ILogger logger)
+        {
+            this.inner = inner.NotNull().Expect(nameof(inner));
+            this.logger = logger.NotNull().Expect(nameof(logger));
+        }
+
+        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+            HttpContext context, CancellationToken cancelToken)
+        {
+            try
+            {
+                return await inner.HandleAsync(context, cancelToken);
+            }
+            catch (ArgumentException exception) when (exception.InnerException is FormatException)
+            {
+                Log(exception);
+
+                return Result.Error<HandlerContext<T, R>>(
+                    new BadStateException("Your request could not be read because some " +
+                        "arguments may be in the wrong format. Please review your request " +
+                        "and try again"));
+            }
+            catch (Exception exception)
+            {
+                Log(exception);
+
+                return Result.Error<HandlerContext<T, R>>(
+                    new BusinessAppWebApiException("An unknown error occurred while processing " +
+                        "your request. Please try again or contact support if this continues"));
+            }
+        }
+
+        private void Log(Exception exception)
+        {
+            logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
+        }
+    }
+}
