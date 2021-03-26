@@ -1,31 +1,15 @@
 namespace BusinessApp.WebApi
 {
-    using System;
-    using System.Collections.Generic;
+    using BusinessApp.Domain;
     using SimpleInjector;
 
     public class RegistrationContext
     {
-        private readonly IDictionary<Type, IPipelineBuilder> builders;
-
-        public RegistrationContext()
+        public RegistrationContext(Container container)
         {
-            builders = new Dictionary<Type, IPipelineBuilder>();
+            Container = container.NotNull().Expect(nameof(container));
         }
 
-        public Container Container { get; set; }
-
-        public IPipelineBuilder GetPipelineBuilder(Type serviceType)
-        {
-            if (builders.TryGetValue(serviceType, out IPipelineBuilder builder))
-            {
-                return builder;
-            }
-
-            builder = new DecorationPipeline(serviceType);
-            builders.Add(serviceType, builder);
-
-            return builder;
-        }
+        public Container Container { get; }
     }
 }

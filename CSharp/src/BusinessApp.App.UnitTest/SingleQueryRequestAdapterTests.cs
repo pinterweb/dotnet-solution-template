@@ -11,15 +11,15 @@ namespace BusinessApp.App.UnitTest
     public class SingleQueryRequestAdapterTests
     {
         private readonly CancellationToken cancelToken;
-        private readonly SingleQueryRequestAdapter<ConsumerStub, QueryStub, ResponseStub> sut;
-        private readonly ConsumerStub consumer;
+        private readonly SingleQueryRequestAdapter<QueryStub, ResponseStub> sut;
+        private readonly IRequestHandler<QueryStub, IEnumerable<ResponseStub>> inner;
 
         public SingleQueryRequestAdapterTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            consumer = A.Dummy<ConsumerStub>();
+            inner = A.Fake<IRequestHandler<QueryStub, IEnumerable<ResponseStub>>>();
 
-            sut = new SingleQueryRequestAdapter<ConsumerStub, QueryStub, ResponseStub>(consumer);
+            sut = new SingleQueryRequestAdapter<QueryStub, ResponseStub>(inner);
         }
 
         public class Constructor : SingleQueryRequestAdapterTests
@@ -30,10 +30,11 @@ namespace BusinessApp.App.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(ConsumerStub s)
+            public void InvalidCtorArgs_ExceptionThrown(
+                IRequestHandler<QueryStub, IEnumerable<ResponseStub>> s)
             {
                 /* Arrange */
-                void shouldThrow() => new SingleQueryRequestAdapter<ConsumerStub, QueryStub, ResponseStub>(s);
+                void shouldThrow() => new SingleQueryRequestAdapter<QueryStub, ResponseStub>(s);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -52,7 +53,7 @@ namespace BusinessApp.App.UnitTest
                 var err = new Exception();
                 var innerResult = Result.Error<IEnumerable<ResponseStub>>(err);
                 var request = A.Dummy<QueryStub>();
-                A.CallTo(() => consumer.HandleAsync(request, cancelToken)).Returns(innerResult);
+                A.CallTo(() => inner.HandleAsync(request, cancelToken)).Returns(innerResult);
 
                 /* Act */
                 var result = await sut.HandleAsync(request, cancelToken);
@@ -70,7 +71,7 @@ namespace BusinessApp.App.UnitTest
                 var responses = new[] { expectedResponse };
                 var innerResult = Result.Ok<IEnumerable<ResponseStub>>(responses);
                 var request = A.Dummy<QueryStub>();
-                A.CallTo(() => consumer.HandleAsync(request, cancelToken)).Returns(innerResult);
+                A.CallTo(() => inner.HandleAsync(request, cancelToken)).Returns(innerResult);
 
                 /* Act */
                 var result = await sut.HandleAsync(request, cancelToken);
@@ -90,7 +91,7 @@ namespace BusinessApp.App.UnitTest
                 var responses = new[] { new ResponseStub(), new ResponseStub() };
                 var innerResult = Result.Ok<IEnumerable<ResponseStub>>(responses);
                 var request = A.Dummy<QueryStub>();
-                A.CallTo(() => consumer.HandleAsync(request, cancelToken)).Returns(innerResult);
+                A.CallTo(() => inner.HandleAsync(request, cancelToken)).Returns(innerResult);
 
                 /* Act */
                 var result = await sut.HandleAsync(request, cancelToken);
@@ -98,15 +99,6 @@ namespace BusinessApp.App.UnitTest
                 /* Assert */
                 var ex = Assert.IsType<BusinessAppAppException>(result.UnwrapError());
                 Assert.Equal(expectedErrMsg, ex.Message);
-            }
-        }
-
-        public class ConsumerStub : IRequestHandler<QueryStub, IEnumerable<ResponseStub>>
-        {
-            public virtual Task<Result<IEnumerable<ResponseStub>, Exception>> HandleAsync(
-                QueryStub request, CancellationToken cancelToken)
-            {
-                return Task.FromResult(Result.Ok<IEnumerable<ResponseStub>>(new ResponseStub[0]));
             }
         }
     }
