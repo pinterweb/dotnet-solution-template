@@ -53,7 +53,7 @@ namespace BusinessApp.WebApi
             context.Container.RegisterSingleton<IPrincipal, HttpUserContext>();
             context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
-            context.Container.RegisterSingleton(typeof(IAppScope), typeof(SimpleInjectorWebApiAppScope));
+            context.Container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
             context.Container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
 
