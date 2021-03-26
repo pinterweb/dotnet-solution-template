@@ -53,7 +53,6 @@ namespace BusinessApp.WebApi
             context.Container.RegisterSingleton<IPrincipal, HttpUserContext>();
             context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
-            context.Container.RegisterSingleton(typeof(IAppScope<>), typeof(SimpleInjectorWebApiAppScope<,>));
             context.Container.RegisterSingleton(typeof(IAppScope), typeof(SimpleInjectorWebApiAppScope));
 
             context.Container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
@@ -255,32 +254,8 @@ namespace BusinessApp.WebApi
                     && actual.GetGenericTypeDefinition() == test;
             };
 
-            // var typeOrder = new[]
-            // {
-            //     /*(Q)*/typeof(SingleQueryRequestAdapter<,,>),
-            //     /*(A)*/typeof(RequestExceptionDecorator<,>),
-            //     /*(Q)*/typeof(EFTrackingQueryDecorator<,>),
-            //     /*(Q)*/typeof(InstanceCacheQueryDecorator<,>),
-            //     /*(A)*/typeof(AuthorizationRequestDecorator<,>),
-            //     /*(A)*/typeof(ValidationRequestDecorator<,>),
-            //     /*(Q)*/typeof(EntityNotFoundQueryDecorator<,>),
-
-            //     /*(C)*/typeof(EFMetadataStoreRequestDecorator<,>),
-            //     /*(M)*/typeof(MacroBatchRequestAdapter<,,>),
-
-            //     /*(A)*/typeof(ValidationRequestDecorator<,>),
-            //     /*(BM)*/typeof(GroupedBatchRequestDecorator<,>),
-            //     /*(BM)*/typeof(ScopedBatchRequestProxy<,>),
-            //     /*(A)*/typeof(DeadlockRetryRequestDecorator<,>),
-            //     /*(A)*/typeof(TransactionRequestDecorator<,>),
-
-            //     /*(BM)*/typeof(BatchRequestAdapter<,>),
-            //     /*(BM)*/typeof(ValidationRequestDecorator<,>),
-            //     /*(A)*/typeof(EFMetadataStoreRequestDecorator<,>), // or event stream
-            //     /*(A)*/// handler
-            // };
-
             #region Query Pipeline
+
             container.RegisterConditional(
                 serviceType,
                 typeof(AuthorizationRequestDecorator<,>),
@@ -321,7 +296,7 @@ namespace BusinessApp.WebApi
 
             #endregion
 
-            #region Single Request
+            #region Single Request Pipeline Additions
 
             context.Container.RegisterConditional(
                 serviceType,
@@ -332,7 +307,7 @@ namespace BusinessApp.WebApi
 
             #endregion
 
-            #region Event Stream Pipeline
+            #region Event Stream Pipeline Additions
 
             // decorate the inner most handler
             context.Container.RegisterDecorator(
@@ -346,7 +321,7 @@ namespace BusinessApp.WebApi
 
             #endregion
 
-            #region Batch & Macro
+            #region Batch & Macro Additions
 
             context.Container.RegisterDecorator(
                 serviceType,
@@ -372,11 +347,6 @@ namespace BusinessApp.WebApi
                         || IsTypeDefinition(c.Consumer.ImplementationType, typeof(MacroBatchRequestAdapter<,,>))
                         || c.ServiceType.GetGenericArguments()[0].IsMacro()
                     ));
-
-            #endregion
-
-            #region Batch
-
 
             #endregion
         }
