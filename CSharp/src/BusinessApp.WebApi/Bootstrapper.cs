@@ -1,8 +1,6 @@
 namespace BusinessApp.WebApi
 {
-    using System;
     using System.Linq;
-    using BusinessApp.App;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Logging;
     using SimpleInjector;
@@ -21,67 +19,9 @@ namespace BusinessApp.WebApi
             bootstrapContainer.Verify();
 
             var bootstrap = bootstrapContainer.GetInstance<IBootstrapRegister>();
-            var regContext = new RegistrationContext { Container = container };
+            var regContext = new RegistrationContext(container);
 
             bootstrap.Register(regContext);
-
-            BuildRequestDecoratorPipeline(regContext);
-            BuildHttpRequestDecoratorPipeline(regContext);
-        }
-
-        private static void BuildRequestDecoratorPipeline(RegistrationContext context)
-        {
-            var serviceType = typeof(IRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
-
-            foreach (var d in pipeline.Build().Reverse())
-            {
-                Predicate<DecoratorPredicateContext> filter = d.Item2.ScopeBehavior switch
-                {
-                    ScopeBehavior.Inner => (ctx) => IsInnerScope(ctx),
-                    ScopeBehavior.Outer => (ctx) => IsOuterScope(ctx),
-                    _ => (ctx) => true
-                };
-
-                var filter2 = d.Item2.RequestType switch
-                {
-                    RequestType.Command => (ctx) => filter(ctx) &&
-                        !ctx.ServiceType.GetGenericArguments()[0].IsQueryType(),
-                    RequestType.Query => (ctx) => filter(ctx) &&
-                        ctx.ServiceType.GetGenericArguments()[0].IsQueryType(),
-                    _ => filter,
-                };
-
-                var filter3 = d.Item2.ServiceFilter switch
-                {
-                    null => filter2,
-                    _ => (ctx) => filter2(ctx) && d.Item2.ServiceFilter(ctx.ServiceType)
-                };
-
-                context.Container.RegisterDecorator(
-                    serviceType,
-                    d.Item1,
-                    d.Item2.Lifetime.MapLifestyle(),
-                    filter3);
-            }
-        }
-
-        private static void BuildHttpRequestDecoratorPipeline(RegistrationContext context)
-        {
-            var serviceType = typeof(IHttpRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
-
-            foreach (var d in pipeline.Build().Reverse())
-            {
-                context.Container.RegisterDecorator(
-                    serviceType,
-                    d.Item1,
-                    d.Item2.Lifetime.MapLifestyle());
-            }
-
-            // XXX make sure this is absolultey last to prevent response errors
-            context.Container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
-                typeof(HttpResponseDecorator<,>));
         }
 
         private static Container SetupBootstrapContainer(BootstrapOptions options,
@@ -112,30 +52,6 @@ namespace BusinessApp.WebApi
             {
                 container.RegisterDecorator(typeof(IBootstrapRegister),type);
             }
-        }
-
-        private static bool IsInnerScope(DecoratorPredicateContext ctx)
-        {
-            var implType = ctx.ImplementationType;
-
-            return !implType.IsConstructedGenericType ||
-            (
-                implType.GetGenericTypeDefinition() == typeof(BatchRequestAdapter<,>)
-                || implType.GetGenericTypeDefinition() == typeof(MacroBatchProxyRequestHandler<,>)
-                || implType.GetGenericTypeDefinition() == typeof(SingleQueryRequestAdapter<,,>)
-                || implType.GetGenericTypeDefinition() == typeof(NoBusinessLogicRequestHandler<>)
-            );
-        }
-
-        private static bool IsOuterScope(DecoratorPredicateContext ctx)
-        {
-                var implType = ctx.ImplementationType;
-
-                return !implType.IsConstructedGenericType ||
-                (
-                    implType.GetGenericTypeDefinition() != typeof(BatchProxyRequestHandler<,,>)
-                    && implType.GetGenericTypeDefinition() != typeof(MacroBatchProxyRequestHandler<,>)
-                );
         }
     }
  }

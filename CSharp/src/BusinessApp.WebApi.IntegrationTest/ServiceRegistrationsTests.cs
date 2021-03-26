@@ -55,462 +55,573 @@
 
         public class RequestHandlers : ServiceRegistrationsTests
         {
-            [Fact]
-            public void NoCommandRequestHandler_HasAllDefaultHandlers()
+            public class SingleRequest : ServiceRegistrationsTests
             {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>);
+                [Fact]
+                public void NoHandler_UsesNoBusinessLogicHandler()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>);
 
-                /* Act */
-                var _ = container.GetInstance(serviceType);
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
 
-                /* Assert */
-                var handlers = GetServiceGraph(serviceType);
+                    /* Assert */
+                    var handlers = GetServiceGraph(serviceType);
 
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
-                        implType)
-                );
+                  Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
+                            implType)
+                    );
+                }
+
+                [Fact]
+                public void WithEventStreamResponse_HasSingleAndEventDecorators()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<CommandStub, EventStreamStub>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(serviceType);
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerStreamStub),
+                            implType)
+                    );
+                }
+
+                [Fact]
+                public void WithoutEventStreamResponse_HasSingleRequestDecorators()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<CommandStub, CommandStub>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(serviceType);
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerStub),
+                            implType)
+                    );
+                }
             }
 
-            [Fact]
-            public void NotABatchCommand_WithEventStreamResponse_NoBatchDecoratorsInHandlers()
+            public class BatchRequest : ServiceRegistrationsTests
             {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<CommandStub, EventStreamStub>);
+                [Fact]
+                public void NoHandler_UsesNoBusinessLogicHandler()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>);
 
-                /* Act */
-                var _ = container.GetInstance(serviceType);
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
 
-                /* Assert */
-                var handlers = GetServiceGraph(serviceType);
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                        typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>));
 
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(CommandHandlerStreamStub),
-                        implType)
-                );
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(GroupedBatchRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(BatchRequestAdapter<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
+                            implType)
+                    );
+                }
+
+                [Fact]
+                public void WithEventStreamResponse_HasBatchAndEventDecorators()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                        typeof(IRequestHandler<CommandStub, EventStreamStub>));
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(BatchRequestAdapter<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerStreamStub),
+                            implType)
+                    );
+                }
+
+                [Fact]
+                public void WithoutEventStreamResponse_HasBatchDecorators()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(IRequestHandler<CommandStub, CommandStub>));
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(BatchRequestAdapter<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerStub),
+                            implType)
+                    );
+                }
             }
 
-            [Fact]
-            public void NotABatchCommand_WithoutEventStreamResponse_NoBatchDecoratorsInHandlers()
+            public class MacroRequest : ServiceRegistrationsTests
             {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<CommandStub, CommandStub>);
+                [Fact]
+                public void NoHandler_UsesNoBusinessLogicHandler()
+                {
+                    /* Arrange */
+                    container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>);
 
-                /* Act */
-                var _ = container.GetInstance(serviceType);
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
 
-                /* Assert */
-                var handlers = GetServiceGraph(serviceType);
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
+                        typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                        typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>));
 
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(CommandHandlerStub),
-                        implType)
-                );
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(MacroBatchRequestAdapter<NoHandlerMacroStub, NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(GroupedBatchRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(BatchRequestAdapter<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
+                            implType)
+                    );
+                }
+
+                [Fact]
+                public void WithStreamResponse_BatchMacroDecoratorsInHandlers()
+                {
+                    /* Arrange */
+                    container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>),
+                        typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                        typeof(IRequestHandler<CommandStub, EventStreamStub>));
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<MacroStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(BatchRequestAdapter<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerStreamStub),
+                            implType)
+                    );
+                }
+
+                [Fact]
+                public void WithOutStreamResponse_BatchMacroDecoratorsInHandlers()
+                {
+                    /* Arrange */
+                    container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>),
+                        typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                        typeof(IRequestHandler<CommandStub, CommandStub>));
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<MacroStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(BatchRequestAdapter<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerStub),
+                            implType)
+                    );
+                }
             }
 
-            [Fact]
-            public void IsABatchCommand_WithEventStreamResponse_BatchDecoratorsInHandlers()
+            public class QueryRequest : ServiceRegistrationsTests
             {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>);
+                [Fact]
+                public void QueryRequest_QueryDecoratorsAdded()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<QueryStub, ResponseStub>);
 
-                /* Act */
-                var _ = container.GetInstance(serviceType);
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
 
-                /* Assert */
-                var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                    typeof(IRequestHandler<CommandStub, EventStreamStub>));
+                    /* Assert */
+                    var handlers = GetServiceGraph(typeof(IRequestHandler<QueryStub, ResponseStub>));
 
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchRequestAdapter<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchProxyRequestHandler<CommandHandlerStreamStub, CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(CommandHandlerStreamStub),
-                        implType)
-                );
-            }
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFTrackingQueryDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(InstanceCacheQueryDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EntityNotFoundQueryDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<QueryStub, ResponseStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(QueryHandlerStub),
+                            implType)
+                    );
+                }
 
-            [Fact]
-            public void IsABatchCommand_WithoutEventStreamResponse_BatchDecoratorsInHandlers()
-            {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>);
+                [Fact]
+                public void NoExplicityQueryRequestRegistration_SingleQueryHandlerDecoratorsAdded()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>);
 
-                /* Act */
-                var _ = container.GetInstance(serviceType);
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
 
-                /* Assert */
-                var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                    typeof(IRequestHandler<CommandStub, CommandStub>));
+                    /* Assert */
+                    var handlers = GetServiceGraph(
+                        typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>),
+                        typeof(IRequestHandler<UnregisteredQuery, IEnumerable<UnregisteredQuery>>));
 
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchRequestAdapter<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(CommandHandlerStub),
-                        implType)
-                );
-            }
-
-            [Fact]
-            public void IsABatchMacroCommand_WithStreamResponse_BatchMacroDecoratorsInHandlers()
-            {
-                /* Arrange */
-                container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>);
-
-                /* Act */
-                var _ = container.GetInstance(serviceType);
-
-                /* Assert */
-                var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>),
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                    typeof(IRequestHandler<CommandStub, EventStreamStub>));
-
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<MacroStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(MacroBatchProxyRequestHandler<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchRequestAdapter<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchProxyRequestHandler<CommandHandlerStreamStub, CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(CommandHandlerStreamStub),
-                        implType)
-                );
-            }
-
-            [Fact]
-            public void IsABatchMacroCommand_WithOutStreamResponse_BatchMacroDecoratorsInHandlers()
-            {
-                /* Arrange */
-                container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>);
-
-                /* Act */
-                var _ = container.GetInstance(serviceType);
-
-                /* Assert */
-                var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>),
-                    typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                    typeof(IRequestHandler<CommandStub, CommandStub>));
-
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<MacroStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(TransactionRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(MacroBatchProxyRequestHandler<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchRequestAdapter<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(BatchProxyRequestHandler<CommandHandlerStub, CommandStub, CommandStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(CommandHandlerStub),
-                        implType)
-                );
-            }
-
-            [Fact]
-            public void QueryRequest_QueryDecoratorsAdded()
-            {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<QueryStub, ResponseStub>);
-
-                /* Act */
-                var _ = container.GetInstance(serviceType);
-
-                /* Assert */
-                var handlers = GetServiceGraph(typeof(IRequestHandler<QueryStub, ResponseStub>));
-
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFTrackingQueryDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(InstanceCacheQueryDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EntityNotFoundQueryDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<QueryStub, ResponseStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(QueryHandlerStub),
-                        implType)
-                );
-            }
-
-            [Fact]
-            public void NoExplicityQueryRequestRegistration_SingleQueryHandlerDecoratorsAdded()
-            {
-                /* Arrange */
-                CreateRegistrations(container);
-                container.Verify();
-                var serviceType = typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>);
-
-                /* Act */
-                var _ = container.GetInstance(serviceType);
-
-                /* Assert */
-                var handlers = GetServiceGraph(
-                    typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>),
-                    typeof(IRequestHandler<UnregisteredQuery, IEnumerable<UnregisteredQuery>>));
-
-                Assert.Collection(handlers,
-                    implType => Assert.Equal(
-                        typeof(RequestExceptionDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFTrackingQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(AuthorizationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(InstanceCacheQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(ValidationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EntityNotFoundQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(DeadlockRetryRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(SingleQueryRequestAdapter<EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>, UnregisteredQuery, UnregisteredQuery>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>),
-                        implType)
-                );
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFTrackingQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(InstanceCacheQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EntityNotFoundQueryDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(SingleQueryRequestAdapter<UnregisteredQuery, UnregisteredQuery>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(EFQueryStrategyHandler<UnregisteredQuery, UnregisteredQuery>),
+                            implType)
+                    );
+                }
             }
         }
 
@@ -531,6 +642,9 @@
                 var handlers = GetServiceGraph(serviceType);
 
                 Assert.Collection(handlers,
+                    implType => Assert.Equal(
+                        typeof(HttpRequestLoggingDecorator),
+                        implType),
                     implType => Assert.Equal(
                         typeof(HttpRequestBodyAnalyzer),
                         implType),
@@ -563,19 +677,19 @@
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
-                        typeof(HttpResponseDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(JsonHttpDecorator<CommandStub, EventStreamStub>),
-                        implType),
-                    implType => Assert.Equal(
                         typeof(HttpRequestLoggingDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(HttpResponseDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(WeblinkingHeaderRequestDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(WeblinkingHeaderEventRequestDecorator<CommandStub, EventStreamStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(JsonHttpDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(NewtonsoftJsonExceptionDecorator<CommandStub, EventStreamStub>),
@@ -748,6 +862,8 @@
         }
 
         public sealed class MacroStub : IMacro<CommandStub> { }
+
+        public sealed class NoHandlerMacroStub : IMacro<NoHandlerCommandStub> { }
 
         public sealed class UnregisteredQuery : Query
         {

@@ -14,14 +14,17 @@
 
         public void Register(RegistrationContext context)
         {
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler<,>),
+                typeof(WeblinkingHeaderEventRequestDecorator<,>)
+            );
+
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler<,>),
+                typeof(WeblinkingHeaderRequestDecorator<,>)
+            );
+
             inner.Register(context);
-
-            var serviceType = typeof(IHttpRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
-
-            pipeline
-                .Run(typeof(WeblinkingHeaderRequestDecorator<,>))
-                .Run(typeof(WeblinkingHeaderEventRequestDecorator<,>));
         }
     }
 }

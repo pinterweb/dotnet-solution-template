@@ -41,22 +41,25 @@ namespace BusinessApp.WebApi
 
         public void Register(RegistrationContext context)
         {
-            var serviceType = typeof(IRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
+            var requestHandlerType = typeof(IRequestHandler<,>);
             var container = context.Container;
 
-            pipeline.Integrate(typeof(EFTrackingQueryDecorator<,>))
-                .After(typeof(RequestExceptionDecorator<,>));
+            static bool CanHandle(PredicateContext context)
+            {
+                return !context.Handled
+                    && context.HasConsumer
+                    && context.Consumer.ImplementationType != context.ImplementationType;
+            }
+
+            container.RegisterDecorator(
+                typeof(IRequestHandler<,>),
+                typeof(EFMetadataStoreRequestDecorator<,>),
+                c => !c.ServiceType.GetGenericArguments()[0].IsGenericIEnumerable()
+                    && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
+                    && !c.ImplementationType.Name.Contains("Decorator")
+                    && !typeof(IEventStream).IsAssignableFrom(c.ServiceType.GetGenericArguments()[1]));
 
             inner.Register(context);
-
-            pipeline.Run(typeof(EFMetadataStoreRequestDecorator<,>), new PipelineBuilderOptions()
-            {
-                ServiceFilter = type =>
-                    !type.GetGenericArguments()[0].IsGenericIEnumerable()
-                    && !typeof(IEventStream).IsAssignableFrom(type.GetGenericArguments()[1]),
-                RequestType = RequestType.Command
-            });
 
             container.Collection.Append(
                 typeof(IQueryVisitorFactory<,>),
@@ -74,7 +77,7 @@ namespace BusinessApp.WebApi
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
                 typeof(EFQueryStrategyHandler<,>),
-                ctx => !ctx.Handled
+                ctx => CanHandle(ctx)
             );
             container.RegisterConditional(typeof(IRequestHandler<,>),
                 typeof(EFEnvelopedQueryHandler<,>),

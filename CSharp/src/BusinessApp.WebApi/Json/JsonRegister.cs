@@ -24,14 +24,12 @@ namespace BusinessApp.WebApi.Json
         {
             var container = context.Container;
 
-            var serviceType = typeof(IHttpRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
-
-            pipeline.Run(typeof(JsonHttpDecorator<,>));
-
             ProblemDetailOptionBootstrap.KnownProblems.Add(JsonProblemDetailOption);
 
             container.RegisterSingleton<IHttpRequestAnalyzer,JsonHttpRequestAnalyzer>();
+
+            container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
+                typeof(JsonHttpDecorator<,>));
 
             inner.Register(context);
         }

@@ -1,6 +1,5 @@
 namespace BusinessApp.WebApi
 {
-    using SimpleInjector;
     using BusinessApp.App;
 
     public class FluentValidationRegister : IBootstrapRegister

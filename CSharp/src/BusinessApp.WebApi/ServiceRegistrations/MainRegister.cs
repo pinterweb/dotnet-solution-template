@@ -44,8 +44,8 @@ namespace BusinessApp.WebApi
             RegisterQueryHandling(context.Container);
             RegisterValidators(context.Container);
             RegisterWebApiServices(context);
-            RegisterAppHandlers(context.Container);
             RegisterRequestDecoratePipeline(context);
+            RegisterAppHandlers(context.Container);
         }
 
         private void RegisterWebApiServices(RegistrationContext context)
@@ -53,7 +53,8 @@ namespace BusinessApp.WebApi
             context.Container.RegisterSingleton<IPrincipal, HttpUserContext>();
             context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
-            context.Container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
+            context.Container.RegisterSingleton(typeof(IAppScope<>), typeof(SimpleInjectorWebApiAppScope<,>));
+            context.Container.RegisterSingleton(typeof(IAppScope), typeof(SimpleInjectorWebApiAppScope));
 
             context.Container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
 
@@ -65,19 +66,31 @@ namespace BusinessApp.WebApi
             context.Container
                 .RegisterSingleton<IHttpRequestHandler, SimpleInjectorHttpRequestHandler>();
 
-            context.Container.RegisterDecorator(typeof(IHttpRequestHandler),
-                typeof(HttpRequestBodyAnalyzer),
-                Lifestyle.Singleton);
-
             context.Container.RegisterConditional(
                 typeof(IHttpRequestHandler<,>),
                 typeof(HttpRequestHandler<,>),
                 ctx => !ctx.Handled);
 
-            var serviceType = typeof(IHttpRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler),
+                typeof(HttpRequestBodyAnalyzer),
+                Lifestyle.Singleton
+            );
 
-            pipeline.Run(typeof(HttpRequestLoggingDecorator<,>));
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler),
+                typeof(HttpRequestLoggingDecorator),
+                Lifestyle.Singleton
+            );
+
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler<,>),
+                typeof(HttpResponseDecorator<,>));
+
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler<,>),
+                typeof(HttpRequestLoggingDecorator<,>)
+            );
         }
 
         private void RegisterValidators(Container container)
@@ -185,34 +198,6 @@ namespace BusinessApp.WebApi
 
             var handlers = RegisterConcreteHandlers();
 
-            Type CreateQueryType(TypeFactoryContext c)
-            {
-                var requestType = c.ServiceType.GetGenericArguments()[0];
-                var responseType = c.ServiceType.GetGenericArguments()[1];
-                var concreteType = container.GetRootRegistrations()
-                                .FirstOrDefault(reg => reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
-                                .ServiceType;
-
-                if (concreteType != null) return concreteType;
-
-                var fallbackType = typeof(IRequestHandler<,>)
-                    .MakeGenericType(requestType,
-                        typeof(IEnumerable<>).MakeGenericType(responseType));
-
-                var fallbackRegistration = container.GetRegistration(fallbackType);
-
-                if (fallbackRegistration == null)
-                {
-                    throw new BusinessAppWebApiException(
-                        $"No query handler is setup for '{requestType.Name}'. Please set one up.");
-                }
-
-                return typeof(SingleQueryRequestAdapter<,,>).MakeGenericType(
-                    fallbackRegistration.Registration.ImplementationType,
-                    requestType,
-                    responseType);
-            }
-
             bool HasConcereteType(Type type )
             {
                 return container.GetRootRegistrations()
@@ -228,16 +213,8 @@ namespace BusinessApp.WebApi
                         reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
                     .ServiceType;
 
-                return c.Consumer?.ImplementationType.GetGenericTypeDefinition() == typeof(BatchRequestAdapter<,>)
-                    ? typeof(BatchProxyRequestHandler<,,>).MakeGenericType(concreteType, requestType, responseType)
-                    : concreteType;
+                return concreteType;
             }
-
-            container.RegisterConditional(
-                typeof(IRequestHandler<,>),
-                typeof(MacroBatchProxyRequestHandler<,>),
-                ctx => ctx.HasConsumer
-                    && ctx.Consumer.ImplementationType.GetGenericTypeDefinition() == typeof(MacroBatchRequestAdapter<,,>));
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
@@ -256,41 +233,159 @@ namespace BusinessApp.WebApi
 
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
-                c => CreateQueryType(c),
-                Lifestyle.Singleton,
-                c => !c.Handled
-                    && typeof(IQuery).IsAssignableFrom(c.ServiceType.GetGenericArguments()[0])
-                    // to prevent stackoverflow, this is only looking for queries
-                    // that return a signal value
-                    &&
-                    (
-                        !c.ServiceType.GetGenericArguments()[1].IsGenericType
-                        || c.ServiceType.GetGenericArguments()[1].GetGenericTypeDefinition() != typeof(IEnumerable<>)
-                    ));
+                typeof(SingleQueryRequestAdapter<,>),
+                c => CanHandle(c)
+                    && c.ServiceType.GetGenericArguments()[0].IsQueryType()
+                    && !c.ServiceType.GetGenericArguments()[1].IsGenericIEnumerable());
 
             container.RegisterConditional(typeof(IRequestHandler<,>),
                 typeof(NoBusinessLogicRequestHandler<>),
                 Lifestyle.Scoped,
-                c => !c.Handled);
+                c => CanHandle(c) && !c.ServiceType.GetGenericArguments()[0].IsQueryType());
         }
 
         private void RegisterRequestDecoratePipeline(RegistrationContext context)
         {
             var serviceType = typeof(IRequestHandler<,>);
-            var pipeline = context.GetPipelineBuilder(serviceType);
+            var container = context.Container;
 
-            // Request / Command Pipeline
-            pipeline.RunOnce(typeof(RequestExceptionDecorator<,>))
-                .RunOnce(typeof(AuthorizationRequestDecorator<,>))
-                .RunOnce(typeof(InstanceCacheQueryDecorator<,>))
-                .Run(typeof(ValidationRequestDecorator<,>))
-                .RunOnce(typeof(EntityNotFoundQueryDecorator<,>))
-                .Run(typeof(GroupedBatchRequestDecorator<,>))
-                .Run(typeof(ScopedBatchRequestProxy<,>))
-                .RunOnce(typeof(DeadlockRetryRequestDecorator<,>))
-                .RunOnce(typeof(TransactionRequestDecorator<,>), RequestType.Command)
-                .Run(typeof(EventConsumingRequestDecorator<,>));
+            static bool IsTypeDefinition(Type actual, Type test)
+            {
+                return actual.IsGenericType
+                    && actual.GetGenericTypeDefinition() == test;
+            };
 
+            // var typeOrder = new[]
+            // {
+            //     /*(Q)*/typeof(SingleQueryRequestAdapter<,,>),
+            //     /*(A)*/typeof(RequestExceptionDecorator<,>),
+            //     /*(Q)*/typeof(EFTrackingQueryDecorator<,>),
+            //     /*(Q)*/typeof(InstanceCacheQueryDecorator<,>),
+            //     /*(A)*/typeof(AuthorizationRequestDecorator<,>),
+            //     /*(A)*/typeof(ValidationRequestDecorator<,>),
+            //     /*(Q)*/typeof(EntityNotFoundQueryDecorator<,>),
+
+            //     /*(C)*/typeof(EFMetadataStoreRequestDecorator<,>),
+            //     /*(M)*/typeof(MacroBatchRequestAdapter<,,>),
+
+            //     /*(A)*/typeof(ValidationRequestDecorator<,>),
+            //     /*(BM)*/typeof(GroupedBatchRequestDecorator<,>),
+            //     /*(BM)*/typeof(ScopedBatchRequestProxy<,>),
+            //     /*(A)*/typeof(DeadlockRetryRequestDecorator<,>),
+            //     /*(A)*/typeof(TransactionRequestDecorator<,>),
+
+            //     /*(BM)*/typeof(BatchRequestAdapter<,>),
+            //     /*(BM)*/typeof(ValidationRequestDecorator<,>),
+            //     /*(A)*/typeof(EFMetadataStoreRequestDecorator<,>), // or event stream
+            //     /*(A)*/// handler
+            // };
+
+            #region Query Pipeline
+            container.RegisterConditional(
+                serviceType,
+                typeof(AuthorizationRequestDecorator<,>),
+                c => !c.Handled && !c.HasConsumer);
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(EntityNotFoundQueryDecorator<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(AuthorizationRequestDecorator<,>)));
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(InstanceCacheQueryDecorator<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(AuthorizationRequestDecorator<,>)));
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(EFTrackingQueryDecorator<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(AuthorizationRequestDecorator<,>)));
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(RequestExceptionDecorator<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(AuthorizationRequestDecorator<,>)));
+
+            context.Container.RegisterConditional(
+                serviceType,
+                typeof(DeadlockRetryRequestDecorator<,>),
+                c => CanHandle(c)
+                    && IsTypeDefinition(c.Consumer.ImplementationType, typeof(AuthorizationRequestDecorator<,>))
+                    && !c.ServiceType.GetGenericArguments()[0].IsMacro()
+                    ||
+                    (
+                        CanHandle(c)
+                        && IsTypeDefinition(c.Consumer.ImplementationType, typeof(MacroBatchRequestAdapter<,,>))
+                    ));
+
+
+            #endregion
+
+            #region Single Request
+
+            context.Container.RegisterConditional(
+                serviceType,
+                typeof(TransactionRequestDecorator<,>),
+                c => CanHandle(c)
+                    && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
+                    && IsTypeDefinition(c.Consumer.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>)));
+
+            #endregion
+
+            #region Event Stream Pipeline
+
+            // decorate the inner most handler
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(EventConsumingRequestDecorator<,>),
+                c => !IsTypeDefinition(c.ImplementationType, typeof(AuthorizationRequestDecorator<,>))
+                    && !IsTypeDefinition(c.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>))
+                    && !IsTypeDefinition(c.ImplementationType, typeof(TransactionRequestDecorator<,>))
+                    && !IsTypeDefinition(c.ImplementationType, typeof(ValidationRequestDecorator<,>))
+            );
+
+            #endregion
+
+            #region Batch & Macro
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(ScopedBatchRequestProxy<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>)));
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(GroupedBatchRequestDecorator<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>)));
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(ValidationRequestDecorator<,>),
+                c => IsTypeDefinition(c.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>)));
+
+            context.Container.RegisterConditional(
+                serviceType,
+                typeof(ValidationRequestDecorator<,>),
+                c => CanHandle(c)
+                    && (
+                        IsTypeDefinition(c.Consumer.ImplementationType, typeof(BatchRequestAdapter<,>))
+                        || IsTypeDefinition(c.Consumer.ImplementationType, typeof(MacroBatchRequestAdapter<,,>))
+                        || c.ServiceType.GetGenericArguments()[0].IsMacro()
+                    ));
+
+            #endregion
+
+            #region Batch
+
+
+            #endregion
+        }
+
+        private static bool CanHandle(PredicateContext context)
+        {
+            return !context.Handled
+                && context.HasConsumer
+                && context.Consumer.ImplementationType != context.ImplementationType;
         }
 
         /// <summary>

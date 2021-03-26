@@ -15,9 +15,8 @@ namespace BusinessApp.App
     /// This help reduce the number of handlers/decorators needed when all we care about
     /// is returning one resource
     /// </remarks>
-    public class SingleQueryRequestAdapter<TConsumer, TRequest, TResponse> :
+    public class SingleQueryRequestAdapter<TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
-        where TConsumer : IRequestHandler<TRequest, IEnumerable<TResponse>>
         where TRequest : IQuery
     {
         private static Exception MoreThanOneResultErr =
@@ -25,9 +24,9 @@ namespace BusinessApp.App
                 "for some reason more than one result was returned. Please try the " +
                 "request again or contact support");
 
-        private readonly TConsumer handler;
+        private readonly IRequestHandler<TRequest, IEnumerable<TResponse>> handler;
 
-        public SingleQueryRequestAdapter(TConsumer handler)
+        public SingleQueryRequestAdapter(IRequestHandler<TRequest, IEnumerable<TResponse>> handler)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
