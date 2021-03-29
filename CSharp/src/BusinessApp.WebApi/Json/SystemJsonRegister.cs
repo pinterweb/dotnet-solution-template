@@ -30,6 +30,7 @@ namespace BusinessApp.WebApi.Json
                 new JsonSerializerOptions
                 {
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
 //#if DEBUG
                     WriteIndented = true,
 //#endif
