@@ -22,17 +22,6 @@
     {
         public static void SetupEndpoints(this IApplicationBuilder app, Container container)
         {
-            app.UseRouting();
-#if cors
-//#if DEBUG
-            app.UseCors();
-//#endif
-#endif
-#if winauth
-            app.UseAuthentication();
-            app.UseAuthorization();
-#endif
-
             #region TODO: Your APIS here. Replace the test examples with your actual endpoints
 
             app.UseEndpoints(endpoint =>
