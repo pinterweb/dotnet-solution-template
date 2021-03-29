@@ -18,6 +18,7 @@
     using BusinessApp.Data;
     using Microsoft.Extensions.Logging;
     using BusinessApp.WebApi.Json;
+    using Microsoft.Extensions.Localization;
 
     public class ServiceRegistrationsTests : IDisposable
     {
@@ -46,6 +47,9 @@
                 }
             };
             container.RegisterInstance(A.Fake<IHttpContextAccessor>());
+            container.RegisterInstance(A.Fake<IStringLocalizerFactory>());
+            container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
+            container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
             Bootstrapper.RegisterServices(container,
                 bootstrapOptions,
                 (env ?? A.Dummy<IWebHostEnvironment>()),
@@ -55,6 +59,92 @@
 
         public class RequestHandlers : ServiceRegistrationsTests
         {
+            public class CommandRequests : ServiceRegistrationsTests
+            {
+                public static IEnumerable<object[]> HandlerTypes => new[]
+                {
+                    new object[] { typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>) },
+                    new object[] { typeof(IRequestHandler<CommandStub, EventStreamStub>) },
+                    new object[] { typeof(IRequestHandler<CommandStub, CommandStub>) },
+                    new object[] { typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>) },
+                    new object[] { typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>) },
+                    new object[] { typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>) },
+                    new object[] { typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>) },
+                    new object[] { typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>) },
+                    new object[] { typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>) },
+                };
+
+                [Theory, MemberData(nameof(HandlerTypes))]
+                public void NoConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(serviceType);
+
+                    Assert.Collection(handlers.Take(3),
+                          implType => Assert.Equal(
+                              typeof(RequestExceptionDecorator<,>),
+                              implType.GetGenericTypeDefinition()),
+                          implType => Assert.Equal(
+                              typeof(AuthorizationRequestDecorator<,>),
+                              implType.GetGenericTypeDefinition()),
+                          implType => Assert.Equal(
+                              typeof(ValidationRequestDecorator<,>),
+                              implType.GetGenericTypeDefinition())
+                      );
+                }
+
+
+                [Theory, MemberData(nameof(HandlerTypes))]
+                public void HasDifferentConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
+                {
+                    /* Arrange */
+                    var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
+                        serviceType.GetGenericArguments()[0],
+                        typeof(IDomainEvent));
+                    var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
+                    var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
+                    Type MakeSvcGenericType(Type type)
+                    {
+                        return type.MakeGenericType(serviceType.GetGenericArguments()[0],
+                           serviceType.GetGenericArguments()[1]);
+                    }
+                    container.Collection.Register(MakeSvcGenericType(typeof(HateoasLink<,>))
+                        , new Type[0]);
+                    container.RegisterInstance(hateoasSvcType, Activator.CreateInstance(hateoasImplType));
+                    CreateRegistrations(container);
+                    container.Verify();
+                    container.GetInstance(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
+                    container.GetInstance(serviceType);
+
+                    /* Act */
+                    var firstType = container.GetRegistration(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
+
+                    /* Assert */
+                    var graph = firstType
+                        .GetDependencies()
+                        .Where(t => t.ServiceType == serviceType)
+                        .Select(ip => ip.Registration.ImplementationType);
+                    Assert.Collection(graph.Take(3),
+                          implType => Assert.Equal(
+                              typeof(RequestExceptionDecorator<,>),
+                              implType.GetGenericTypeDefinition()),
+                          implType => Assert.Equal(
+                              typeof(AuthorizationRequestDecorator<,>),
+                              implType.GetGenericTypeDefinition()),
+                          implType => Assert.Equal(
+                              typeof(ValidationRequestDecorator<,>),
+                              implType.GetGenericTypeDefinition())
+                      );
+                }
+            }
+
             public class SingleRequest : ServiceRegistrationsTests
             {
                 [Fact]
@@ -71,29 +161,29 @@
                     /* Assert */
                     var handlers = GetServiceGraph(serviceType);
 
-                  Assert.Collection(handlers,
-                        implType => Assert.Equal(
-                            typeof(RequestExceptionDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(AuthorizationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(DeadlockRetryRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(TransactionRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
-                            implType)
-                    );
+                    Assert.Collection(handlers,
+                          implType => Assert.Equal(
+                              typeof(RequestExceptionDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                              implType),
+                          implType => Assert.Equal(
+                              typeof(AuthorizationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                              implType),
+                          implType => Assert.Equal(
+                              typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                              implType),
+                          implType => Assert.Equal(
+                              typeof(DeadlockRetryRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                              implType),
+                          implType => Assert.Equal(
+                              typeof(TransactionRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                              implType),
+                          implType => Assert.Equal(
+                              typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
+                              implType),
+                          implType => Assert.Equal(
+                              typeof(NoBusinessLogicRequestHandler<NoHandlerCommandStub>),
+                              implType)
+                      );
                 }
 
                 [Fact]
@@ -343,7 +433,6 @@
                 public void NoHandler_UsesNoBusinessLogicHandler()
                 {
                     /* Arrange */
-                    container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
                     CreateRegistrations(container);
                     container.Verify();
                     var serviceType = typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>);
@@ -407,7 +496,6 @@
                 public void WithStreamResponse_BatchMacroDecoratorsInHandlers()
                 {
                     /* Arrange */
-                    container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
                     CreateRegistrations(container);
                     container.Verify();
                     var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<EventStreamStub>>);
@@ -471,7 +559,6 @@
                 public void WithOutStreamResponse_BatchMacroDecoratorsInHandlers()
                 {
                     /* Arrange */
-                    container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
                     CreateRegistrations(container);
                     container.Verify();
                     var serviceType = typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>);
@@ -756,10 +843,10 @@
             }
 
             private class FirstFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
-            {}
+            { }
 
             private class SecondFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
-            {}
+            { }
 
             private class FirstValidatorStub : IValidator<CommandStub>
             {

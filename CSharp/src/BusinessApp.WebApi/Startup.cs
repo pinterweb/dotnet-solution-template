@@ -49,6 +49,7 @@
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
 //#if DEBUG
 #if cors
             services.AddCors(options =>
@@ -83,10 +84,30 @@
             ILoggerFactory loggerFactory)
         {
             app.UseSimpleInjector(container);
+            app.UseRequestLocalization(opt =>
+            {
+                opt.ApplyCurrentCultureToResponseHeaders = true;
+                opt.SupportedUICultures = new[]
+                {
+                    new System.Globalization.CultureInfo("en-US"),
+                };
+            });
 
 #if staticfiles
             app.UseDefaultFiles();
             app.UseStaticFiles();
+#endif
+            app.UseRouting();
+
+#if cors
+//#if DEBUG
+            app.UseCors();
+//#endif
+#endif
+
+#if winauth
+            app.UseAuthentication();
+            app.UseAuthorization();
 #endif
             Bootstrapper.RegisterServices(container, options, env, loggerFactory);
 

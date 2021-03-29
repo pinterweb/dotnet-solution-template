@@ -11,6 +11,7 @@ namespace BusinessApp.WebApi
     using System.Collections.Generic;
     using System.Linq;
     using MSLogging = Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Localization;
 
     public class MainRegister : IBootstrapRegister
     {
@@ -157,6 +158,11 @@ namespace BusinessApp.WebApi
             container.RegisterInstance(ProblemDetailOptionBootstrap.KnownProblems);
 
             container.RegisterSingleton<IProblemDetailFactory, ProblemDetailFactory>();
+            container.RegisterDecorator<IProblemDetailFactory, LocalizedProblemDetailFactory>();
+            container.RegisterConditional(typeof(IStringLocalizer),
+                c => typeof(StringLocalizer<>).MakeGenericType(c.Consumer.ImplementationType),
+                Lifestyle.Singleton,
+                c => true);
         }
 
         private void RegisterLogging(Container container)
@@ -259,7 +265,15 @@ namespace BusinessApp.WebApi
             container.RegisterConditional(
                 serviceType,
                 typeof(AuthorizationRequestDecorator<,>),
-                c => !c.Handled && !c.HasConsumer);
+                c => (!c.Handled && !c.HasConsumer)
+                    || (
+                        !c.Handled
+                        && c.Consumer
+                            .ImplementationType
+                            .GetInterfaces()
+                            .All(i => i.IsGenericType
+                                && i.GetGenericTypeDefinition() != typeof(IRequestHandler<,>))
+                        ));
 
             context.Container.RegisterDecorator(
                 serviceType,
