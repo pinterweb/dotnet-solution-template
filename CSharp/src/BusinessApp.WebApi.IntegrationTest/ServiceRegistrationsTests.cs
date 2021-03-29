@@ -100,7 +100,6 @@
                       );
                 }
 
-
                 [Theory, MemberData(nameof(HandlerTypes))]
                 public void HasDifferentConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
                 {
