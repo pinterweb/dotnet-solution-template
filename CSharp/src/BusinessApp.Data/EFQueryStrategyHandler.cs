@@ -12,7 +12,7 @@
     /// Entity Framework query handler for many record sets
     /// </summary>
     public class EFQueryStrategyHandler<TQuery, TResult> : IRequestHandler<TQuery, IEnumerable<TResult>>
-        where TQuery : IQuery
+        where TQuery : notnull, IQuery
         where TResult : class
     {
         private readonly BusinessAppDbContext db;

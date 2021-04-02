@@ -15,6 +15,7 @@ namespace BusinessApp.App
     /// </remarks>
     public class NoBusinessLogicRequestHandler<TRequest> :
         IRequestHandler<TRequest, TRequest>
+        where TRequest : notnull
     {
         public Task<Result<TRequest, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)

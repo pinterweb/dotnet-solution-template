@@ -5,7 +5,11 @@
     using System.Threading.Tasks;
     using BusinessApp.Domain;
 
+    /// <summary>
+    /// Handles starting and committing a transaction for the scope of the request
+    /// </summary>
     public class TransactionRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> inner;
         private readonly ITransactionFactory transactionFactory;
@@ -26,8 +30,6 @@
         public async Task<Result<TResponse, Exception>> HandleAsync(
             TRequest command, CancellationToken cancelToken)
         {
-            command.NotNull().Expect(nameof(command));
-
             var trans = transactionFactory.Begin();
 
             var result = await inner.HandleAsync(command, cancelToken);
@@ -50,14 +52,11 @@
                     }
                     catch (Exception revertError)
                     {
-                        logger.Log(
-                            new LogEntry(
-                                LogSeverity.Critical,
-                                revertError.Message,
-                                revertError,
-                                command
-                            )
-                        );
+                        logger.Log(new LogEntry(LogSeverity.Critical, revertError.Message)
+                        {
+                            Exception = revertError,
+                            Data = command
+                        });
                     }
 
                     throw;

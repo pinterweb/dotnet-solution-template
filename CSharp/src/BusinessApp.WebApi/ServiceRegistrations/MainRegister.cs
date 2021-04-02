@@ -85,12 +85,11 @@ namespace BusinessApp.WebApi
 
             context.Container.RegisterDecorator(
                 typeof(IHttpRequestHandler<,>),
-                typeof(HttpResponseDecorator<,>));
+                typeof(HttpRequestLoggingDecorator<,>));
 
             context.Container.RegisterDecorator(
                 typeof(IHttpRequestHandler<,>),
-                typeof(HttpRequestLoggingDecorator<,>)
-            );
+                typeof(HttpResponseDecorator<,>));
         }
 
         private void RegisterValidators(Container container)
@@ -160,9 +159,13 @@ namespace BusinessApp.WebApi
             container.RegisterSingleton<IProblemDetailFactory, ProblemDetailFactory>();
             container.RegisterDecorator<IProblemDetailFactory, LocalizedProblemDetailFactory>();
             container.RegisterConditional(typeof(IStringLocalizer),
-                c => typeof(StringLocalizer<>).MakeGenericType(c.Consumer.ImplementationType),
+                c => typeof(StringLocalizer<>).MakeGenericType(c.Consumer!.ImplementationType),
                 Lifestyle.Singleton,
-                c => true);
+                c => c.HasConsumer);
+            container.RegisterConditional(typeof(IStringLocalizer),
+                c => typeof(StringLocalizer<>).MakeGenericType(typeof(Unit)),
+                Lifestyle.Singleton,
+                c => !c.HasConsumer);
         }
 
         private void RegisterLogging(Container container)
@@ -209,7 +212,7 @@ namespace BusinessApp.WebApi
                     .Any(reg => reg.ServiceType.GetInterfaces().Any(i => i == type));
             }
 
-            Type CreateRequestHandler(TypeFactoryContext c)
+            Type? CreateRequestHandler(TypeFactoryContext c)
             {
                 var requestType = c.ServiceType.GetGenericArguments()[0];
                 var responseType = c.ServiceType.GetGenericArguments()[1];
@@ -232,7 +235,7 @@ namespace BusinessApp.WebApi
                 ctx => !ctx.Handled);
 
             container.RegisterConditional(typeof(IRequestHandler<,>),
-                c => CreateRequestHandler(c),
+                c => CreateRequestHandler(c)!,
                 Lifestyle.Scoped,
                 c => !c.Handled && HasConcereteType(c.ServiceType));
 
@@ -376,6 +379,7 @@ namespace BusinessApp.WebApi
         /// Null object pattern. When no authorization is used on a request
         /// </summary>
         private sealed class NullAuthorizer<T> : IAuthorizer<T>
+            where T : notnull
         {
             public void AuthorizeObject(T instance)
             {}

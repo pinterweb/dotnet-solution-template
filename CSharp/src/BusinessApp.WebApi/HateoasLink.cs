@@ -13,6 +13,7 @@ namespace BusinessApp.WebApi
         protected HateoasLink(string rel)
         {
             Rel = rel.NotEmpty().Expect(rel);
+            RelativeLinkFactory = (t, r) => rel;
         }
 
         public HateoasLink(Func<T, R, string> relativeLinkFactory, string rel)
@@ -21,8 +22,8 @@ namespace BusinessApp.WebApi
             RelativeLinkFactory = relativeLinkFactory.NotNull().Expect(nameof(relativeLinkFactory));
         }
 
-        public Func<T, R, string> RelativeLinkFactory { get; protected set; }
+        public virtual Func<T, R, string> RelativeLinkFactory { get; }
         public string Rel { get; }
-        public string Title { get; init; }
+        public string? Title { get; init; }
     }
 }

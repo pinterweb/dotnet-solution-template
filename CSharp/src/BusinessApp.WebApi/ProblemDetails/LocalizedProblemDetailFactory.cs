@@ -18,42 +18,44 @@ namespace BusinessApp.WebApi.ProblemDetails
             this.localizer = localizer.NotNull().Expect(nameof(localizer));
         }
 
-        public ProblemDetail Create(Exception error = null)
+        public ProblemDetail Create(Exception error)
         {
             var problem = inner.Create(error);
-            var detail = localizer[problem.Detail];
+            var detail = problem.Detail == null ? null : localizer[problem.Detail];
 
             var localizedProblem = new ProblemDetail(problem.StatusCode, problem.Type)
             {
-                Detail = detail
+                Detail = detail?.Value
             };
 
             foreach (var kvp in problem.GetExtensions())
             {
-                localizedProblem[kvp.Key] = TranslateExtension(kvp.Value);
+                var extValue = TranslateExtension(kvp.Value) ?? "";
+                localizedProblem[kvp.Key] = extValue;
             }
 
             return localizedProblem;
         }
 
-        private object TranslateExtension(object value)
+        private object? TranslateExtension(object? value)
         {
             return value switch
             {
                 IDictionary d => TranslateExtension(d),
                 IEnumerable e when e is not string => TranslateExtension(e),
-                _ => localizer[value.ToString()].Value,
+                null => null,
+                _ => localizer[value.ToString()!].Value,
             };
         }
 
 
         private object TranslateExtension(IDictionary dic)
         {
-            var genericDic = new Dictionary<string, object>();
+            var genericDic = new Dictionary<string, object?>();
 
             foreach (DictionaryEntry kvp in dic)
             {
-                genericDic[kvp.Key.ToString()] = TranslateExtension(kvp.Value);
+                genericDic[kvp.Key?.ToString() ?? ""] = TranslateExtension(kvp.Value);
             }
 
             return genericDic;
@@ -61,7 +63,7 @@ namespace BusinessApp.WebApi.ProblemDetails
 
         private object TranslateExtension(IEnumerable enumerable)
         {
-            var genericList = new List<object>();
+            var genericList = new List<object?>();
 
             foreach (var item in enumerable)
             {

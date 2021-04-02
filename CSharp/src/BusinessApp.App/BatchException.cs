@@ -34,7 +34,7 @@ namespace BusinessApp.App
                     default:
                         allResults.Add(result.MapOrElse(
                             e => Result.Error<object>(e),
-                            v => Result.Ok<object>(v)
+                            v => Result.Ok<object>(v!)
                         ));
                         break;
                 };

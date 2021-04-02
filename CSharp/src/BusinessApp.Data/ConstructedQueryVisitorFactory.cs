@@ -7,6 +7,7 @@ namespace BusinessApp.Data
     /// from the runtime <typeparam name="TQuery"/>
     /// </summary>
     public sealed class ConstructedQueryVisitorFactory<TQuery, TResult> : IQueryVisitorFactory<TQuery, TResult>
+        where TQuery : notnull
         where TResult : class
     {
         private readonly IQueryVisitor<TResult> visitor;

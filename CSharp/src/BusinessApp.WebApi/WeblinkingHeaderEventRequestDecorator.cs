@@ -13,6 +13,7 @@
     /// Decorator to add the web link headers for generate events
     /// </summary>
     public class WeblinkingHeaderEventRequestDecorator<T, R> : IHttpRequestHandler<T, R>
+       where T : notnull
        where R : IEventStream
     {
         private readonly IHttpRequestHandler<T, R> handler;

@@ -71,19 +71,6 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : TransactionDecoratorTests
         {
             [Fact]
-            public async Task NullCommand_ExceptionThrown()
-            {
-                /* Arrange */
-                Task shouldthrow() => sut.HandleAsync(null, A.Dummy<CancellationToken>());
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(shouldthrow);
-
-                /* Assert */
-                Assert.IsType<BadStateException>(ex);
-            }
-
-            [Fact]
             public async Task BeforeRegister_TransFactoryAndHandlerCalledInOrder()
             {
                 /* Arrange */

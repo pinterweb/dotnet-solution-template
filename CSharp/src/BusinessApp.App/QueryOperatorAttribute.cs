@@ -25,7 +25,7 @@ namespace BusinessApp.App
             TargetProp = targetProp.NotEmpty().Expect(nameof(targetProp));
         }
 
-        public string OperatorToUse { get; }
+        public string? OperatorToUse { get; }
         public string TargetProp { get; }
     }
 }

@@ -8,6 +8,7 @@ namespace BusinessApp.WebApi
     using System;
 
     public class HttpRequestHandler<T, R> : IHttpRequestHandler<T, R>
+        where T : notnull
     {
         private readonly IRequestHandler<T, R> handler;
         private readonly ISerializer serializer;

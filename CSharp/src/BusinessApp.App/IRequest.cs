@@ -6,6 +6,7 @@ namespace BusinessApp.App
     /// <typeparam name="TResult">
     /// The result set type returned from the query
     /// </typeparam>
+    [System.Obsolete]
     public interface IRequest<out TResponse>
     {
     }

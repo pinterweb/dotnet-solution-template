@@ -89,6 +89,19 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
+            public void NullIdentityName_AnonymousName()
+            {
+                /* Arrange */
+                A.CallTo(() => inner.Identity.Name).Returns(null);
+
+                /* Act */
+                var identity = sut.Identity;
+
+                /* Assert */
+                Assert.Equal("Anonymous", identity.Name);
+            }
+
+            [Fact]
             public void AuthenticationType_InnerIdentityValueReturned()
             {
                 /* Arrange */

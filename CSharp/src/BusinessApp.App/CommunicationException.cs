@@ -5,7 +5,7 @@ namespace BusinessApp.App
     [Serializable]
     public class CommunicationException : Exception
     {
-        public CommunicationException(string message, Exception inner = null)
+        public CommunicationException(string message, Exception? inner = null)
             :base(message, inner)
         {
             Data.Add("", message);

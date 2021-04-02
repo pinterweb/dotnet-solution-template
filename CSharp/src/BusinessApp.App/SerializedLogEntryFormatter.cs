@@ -23,7 +23,7 @@ namespace BusinessApp.App
         {
             entry.NotNull().Expect(nameof(entry));
 
-            if (messageCache.TryGetValue(entry, out string msg))
+            if (messageCache.TryGetValue(entry, out string? msg))
             {
                 return msg;
             }

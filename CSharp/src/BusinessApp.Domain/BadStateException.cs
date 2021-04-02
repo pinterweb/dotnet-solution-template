@@ -8,11 +8,7 @@
     [Serializable]
     public class BadStateException : Exception
     {
-        public BadStateException(string message)
-            : this(message, null)
-        { }
-
-        public BadStateException(string message, Exception innerException)
+        public BadStateException(string message, Exception? innerException = null)
             : base(message, innerException)
         {
             Data[""] = message;

@@ -57,7 +57,7 @@ namespace BusinessApp.App
             {
                 var publishedTrackingId = store.Add(published);
 
-                if (outcomeTracking.TryGetValue(published, out EventTrackingId causedById))
+                if (outcomeTracking.TryGetValue(published, out EventTrackingId? causedById))
                 {
                     publishedTrackingId.CausationId = causedById.Id;
                 }

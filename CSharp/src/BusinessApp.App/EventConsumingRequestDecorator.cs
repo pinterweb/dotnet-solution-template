@@ -18,7 +18,7 @@ namespace BusinessApp.App
         where TRequest : class
         where TResponse : IEventStream
     {
-        private static MethodInfo PublishMethod = typeof(IEventPublisher).GetMethod(nameof(IEventPublisher.PublishAsync));
+        private static MethodInfo PublishMethod = typeof(IEventPublisher).GetMethod(nameof(IEventPublisher.PublishAsync))!;
         private readonly IEventPublisherFactory publisherFactory;
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
@@ -75,7 +75,7 @@ namespace BusinessApp.App
             var generic = PublishMethod.MakeGenericMethod(@event.GetType());
 
             return (Task<EventResult>)generic.Invoke(publisher,
-                new object[] { @event, cancelToken });
+                new object[] { @event, cancelToken })!;
         }
     }
 }

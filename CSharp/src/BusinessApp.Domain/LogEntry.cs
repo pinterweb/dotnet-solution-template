@@ -9,26 +9,27 @@
     /// </summary>
     public class LogEntry
     {
-        public LogEntry(LogSeverity severity,
-            string message,
-            Exception e = null,
-            object data = null)
+        public LogEntry(LogSeverity severity, string message)
         {
             Severity = severity;
-            Message = message;
-            Exception = e;
-            Data = data;
+            Message = message.NotEmpty().Expect("A log entry must have a message");
         }
 
         public static LogEntry FromException(Exception e)
         {
-            return new LogEntry(LogSeverity.Error, e?.Message, e, e.Data);
+            e.NotNull().Expect("Logging from an exception cannot be null");
+
+            return new LogEntry(LogSeverity.Error, e.Message)
+            {
+                Exception = e,
+                Data = e.Data
+            };
         }
 
-        public LogSeverity Severity { get; }
-        public string Message { get; }
-        public object Data { get; }
-        public Exception Exception { get; }
+        public LogSeverity Severity { get; init; }
+        public string Message { get; init; }
+        public object? Data { get; init; }
+        public Exception? Exception { get; init; }
         public DateTimeOffset Logged { get; } = DateTimeOffset.UtcNow;
 
         public override string ToString()

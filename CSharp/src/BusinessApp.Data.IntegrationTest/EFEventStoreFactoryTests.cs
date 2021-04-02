@@ -6,6 +6,7 @@ namespace BusinessApp.Data.IntegrationTest
     using BusinessApp.Domain;
     using BusinessApp.Test.Shared;
     using System.Security.Principal;
+    using BusinessApp.App;
 
     [Collection(nameof(DatabaseCollection))]
     public class EFEventStoreFactoryTests
@@ -84,12 +85,14 @@ namespace BusinessApp.Data.IntegrationTest
                 Assert.Equal(id, metadata.Id);
             }
 
-            [Fact]
-            public void SetsMetadataUsername()
+            [Theory]
+            [InlineData("foouser", "foouser")]
+            [InlineData(null, "Anonymous")]
+            public void SetsMetadataUsername(string identityName, string setName)
             {
                 /* Arrange */
                 Metadata<object> metadata = null;
-                A.CallTo(() => user.Identity.Name).Returns("foouser");
+                A.CallTo(() => user.Identity.Name).Returns(identityName);
                 A.CallTo(() => db.Add(A<Metadata<object>>._))
                     .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
 
@@ -97,7 +100,23 @@ namespace BusinessApp.Data.IntegrationTest
                 var _ = sut.Create(A.Dummy<object>());
 
                 /* Assert */
-                Assert.Equal("foouser", metadata.Username);
+                Assert.Equal(setName, metadata.Username);
+            }
+
+            [Fact]
+            public void NullIdentity_SetsAnonymousUsername()
+            {
+                /* Arrange */
+                Metadata<object> metadata = null;
+                A.CallTo(() => user.Identity).Returns(null);
+                A.CallTo(() => db.Add(A<Metadata<object>>._))
+                    .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+
+                /* Act */
+                var _ = sut.Create(A.Dummy<object>());
+
+                /* Assert */
+                Assert.Equal(AnonymousUser.Name, metadata.Username);
             }
 
             [Fact]

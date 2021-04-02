@@ -8,6 +8,7 @@ namespace BusinessApp.App
 
     public class ScopedBatchRequestProxy<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, TResponse>
+        where TRequest : notnull
     {
         private readonly IAppScope scope;
         private readonly Func<IRequestHandler<IEnumerable<TRequest>, TResponse>> factory;

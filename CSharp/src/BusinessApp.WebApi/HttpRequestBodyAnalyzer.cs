@@ -16,7 +16,7 @@
             this.analyzer = analyzer.NotNull().Expect(nameof(analyzer));
         }
 
-        public async Task HandleAsync<T, R>(HttpContext context)
+        public async Task HandleAsync<T, R>(HttpContext context) where T : notnull
         {
             var payloadType = await Analyze(context.Request);
 

@@ -10,7 +10,7 @@ namespace BusinessApp.Domain
     /// <summary>
     /// Interface to handle event logic
     /// </summary>
-    public interface IEventHandler<TEvent> where TEvent : IDomainEvent
+    public interface IEventHandler<TEvent> where TEvent : notnull, IDomainEvent
     {
         Task<HandlerResult> HandleAsync(TEvent @event, CancellationToken cancelToken);
     }

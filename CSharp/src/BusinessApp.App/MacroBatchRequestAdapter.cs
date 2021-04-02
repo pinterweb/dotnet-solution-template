@@ -25,8 +25,6 @@ namespace BusinessApp.App
         public async Task<Result<TResponse, Exception>> HandleAsync(TMacro macro,
             CancellationToken cancelToken)
         {
-            macro.NotNull().Expect(nameof(macro));
-
             var payloads = await expander.ExpandAsync(macro, cancelToken);
 
             if (!payloads.Any())

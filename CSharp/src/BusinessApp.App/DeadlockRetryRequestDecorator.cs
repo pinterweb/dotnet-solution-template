@@ -11,6 +11,7 @@ namespace BusinessApp.App
     /// </summary>
     public class DeadlockRetryRequestDecorator<TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
+        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> decoratee;
         private readonly int sleepBetweenRetries = 500;

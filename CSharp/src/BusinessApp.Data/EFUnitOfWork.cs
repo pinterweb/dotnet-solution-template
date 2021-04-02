@@ -93,9 +93,9 @@ namespace BusinessApp.Data
             return this;
         }
 
-        public TRoot Find<TRoot>(Func<TRoot, bool> filter) where TRoot : AggregateRoot
+        public T? Find<T>(Func<T, bool> filter) where T : AggregateRoot
         {
-            return db.ChangeTracker.Entries<TRoot>()
+            return db.ChangeTracker.Entries<T>()
                 .Select(e => e.Entity)
                 .SingleOrDefault(filter);
         }

@@ -47,19 +47,6 @@ namespace BusinessApp.App.UnitTest
         public class HandleAsync : BatchRequestAdapterTests
         {
             [Fact]
-            public async Task WithoutCommandArg_ExceptionThrown()
-            {
-                /* Arrange */
-                Task shouldthrow() => sut.HandleAsync(null, cancelToken);
-
-                /* Act */
-                var ex = await Record.ExceptionAsync(shouldthrow);
-
-                /* Assert */
-                Assert.NotNull(ex);
-            }
-
-            [Fact]
             public async Task WithMultipleCommands_HandlerCalledForEach()
             {
                 /* Arrange */

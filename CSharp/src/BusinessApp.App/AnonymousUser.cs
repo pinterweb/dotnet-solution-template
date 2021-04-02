@@ -4,10 +4,12 @@ namespace BusinessApp.App
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Http user implementation of the IPrincipal
+    /// <see cref="IPrincipal" /> implementation for an anonymous user
     /// </summary>
     public class AnonymousUser : IPrincipal
     {
+        public const string Name = "Anonymous";
+
         private readonly IPrincipal inner;
         private readonly IIdentity identity;
 
@@ -23,16 +25,18 @@ namespace BusinessApp.App
 
         private class AnonymousIdentity : IIdentity
         {
-            private readonly IIdentity inner;
+            private readonly IIdentity? inner;
 
-            public AnonymousIdentity(IIdentity inner)
+            public AnonymousIdentity(IIdentity? inner)
             {
                 this.inner = inner;
             }
 
-            public string AuthenticationType => inner?.AuthenticationType;
+            public string? AuthenticationType => inner?.AuthenticationType;
             public bool IsAuthenticated => inner?.IsAuthenticated ?? false;
-            public string Name => !IsAuthenticated ? "Anonymous" : inner.Name;
+            public string Name => !IsAuthenticated
+                ? AnonymousUser.Name
+                : (inner?.Name ?? AnonymousUser.Name);
         }
     }
 }

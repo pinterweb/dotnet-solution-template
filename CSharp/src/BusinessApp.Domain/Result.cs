@@ -45,19 +45,27 @@
     /// </summary>
     public struct Result<T, E> : IEquatable<Result<T, E>>, IComparable<Result<T, E>>
     {
-        private readonly T value;
-        private readonly E error;
+        private readonly T? value;
+        private readonly E? error;
 
-        private Result(T value = default, E error = default, ValueKind result = default)
+        private Result(T? value, E? error, ValueKind result)
         {
             this.value = value;
             this.error = error;
             this.Kind = result;
         }
 
-        public static Result<T, E> Ok(T value) => new Result<T, E>(value, default, ValueKind.Ok);
+        public static Result<T, E> Ok(T val)
+        {
+            return new Result<T, E>(val, default, ValueKind.Ok);
+        }
 
-        public static Result<T, E> Error(E error) => new Result<T, E>(default, error, ValueKind.Error);
+        public static Result<T, E> Error(E error)
+        {
+            return error == null
+                ? throw new BadStateException("A error result must have an error value")
+                : new Result<T, E>(default, error, ValueKind.Error);
+        }
 
         public ValueKind Kind { get; }
 
@@ -65,7 +73,7 @@
         {
             return Kind switch
             {
-                ValueKind.Ok => value,
+                ValueKind.Ok => value!,
                 ValueKind.Error => throw new BadStateException($"{message}: {error}"),
                     _ => throw new NotImplementedException(),
             };
@@ -76,7 +84,7 @@
             return Kind switch
             {
                 ValueKind.Ok => throw new BadStateException($"{message}: {value}"),
-                ValueKind.Error => error,
+                ValueKind.Error => error!,
                 _ => throw new NotImplementedException(),
             };
         }
@@ -86,7 +94,7 @@
             return Kind switch
             {
                 ValueKind.Ok => throw new BadStateException($"{value}"),
-                ValueKind.Error => error,
+                ValueKind.Error => error!,
                 _ => throw new NotImplementedException(),
             };
         }
@@ -95,7 +103,7 @@
         {
             return Kind switch
             {
-                ValueKind.Ok => value,
+                ValueKind.Ok => value!,
                 ValueKind.Error => throw new BadStateException($"{error}"),
                 _ => throw new NotImplementedException(),
             };
@@ -115,7 +123,7 @@
         {
             return Kind switch
             {
-                ValueKind.Ok => next(value),
+                ValueKind.Ok => next(value!),
                 ValueKind.Error => this,
                 _ => throw new NotImplementedException(),
             };
@@ -125,7 +133,7 @@
         {
             return Kind switch
             {
-                ValueKind.Error => onError(error),
+                ValueKind.Error => onError(error!),
                 ValueKind.Ok => this,
                 _ => throw new NotImplementedException(),
             };
@@ -135,8 +143,8 @@
         {
             return Kind switch
             {
-                ValueKind.Error => Result<R, E>.Error(error),
-                ValueKind.Ok => Result<R, E>.Ok(onOk(value)),
+                ValueKind.Error => Result<R, E>.Error(error!),
+                ValueKind.Ok => Result<R, E>.Ok(onOk(value!)),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -145,8 +153,8 @@
         {
             return Kind switch
             {
-                ValueKind.Error => onError(error),
-                ValueKind.Ok => onOk(value),
+                ValueKind.Error => onError(error!),
+                ValueKind.Ok => onOk(value!),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -159,10 +167,10 @@
             {
                 ValueKind.Ok =>
                     (value == null && other.value == null) ||
-                    value.Equals(other.value),
+                    value!.Equals(other.value),
                 ValueKind.Error =>
                     (error == null && other.error == null) ||
-                    error.Equals(other.error),
+                    error!.Equals(other.error),
                 _ => throw new NotImplementedException(),
             };
         }
@@ -179,7 +187,7 @@
             };
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is Result<T, E> other)
             {
@@ -200,8 +208,8 @@
 
                 return (hash * HashingMultiplier) ^  Kind switch
                 {
-                    ValueKind.Error => error.GetHashCode(),
-                    ValueKind.Ok => value.GetHashCode(),
+                    ValueKind.Error => error!.GetHashCode(),
+                    ValueKind.Ok => value!.GetHashCode(),
                     _ => throw new NotImplementedException()
                 };
             }

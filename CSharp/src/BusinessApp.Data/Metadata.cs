@@ -5,8 +5,10 @@ namespace BusinessApp.Data
 
     public class Metadata
     {
+#nullable disable
         protected Metadata()
         {}
+#nullable restore
 
         public Metadata(string dataSetName, MetadataId id, string username, MetadataType type)
         {
@@ -27,13 +29,15 @@ namespace BusinessApp.Data
     public class Metadata<T> : Metadata
         where T : class
     {
+#nullable disable
         private Metadata()
         {}
+#nullable restore
 
         public Metadata(MetadataId id, string username, MetadataType type, T data)
-            :base (data?.ToString(), id, username, type)
+            :base (data?.ToString()!, id, username, type)
         {
-            Data = data.NotDefault().Expect(nameof(data));
+            Data = data.NotDefault().Expect(nameof(data))!;
         }
 
         public T Data { get; }

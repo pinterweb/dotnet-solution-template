@@ -45,9 +45,11 @@ namespace BusinessApp.Domain
                 this.to = to;
             }
 
-            public override Expression Visit(Expression node)
+            public override Expression Visit(Expression? node)
             {
-                return node == from ? to : base.Visit(node);
+                // XXX node cannot be null because this is private class and we
+                // know what we are passing
+                return node == from ? to : base.Visit(node)!;
             }
         }
     }

@@ -31,7 +31,7 @@ namespace BusinessApp.Domain
         {
             private readonly Queue<IDomainEvent> enumeratored;
             private Queue<IDomainEvent> queue;
-            private IDomainEvent currentEvent;
+            private IDomainEvent? currentEvent;
 
             public EventEnumerator(Queue<IDomainEvent> queue)
             {
@@ -45,7 +45,7 @@ namespace BusinessApp.Domain
                 {
                     lock (queue)
                     {
-                        return currentEvent;
+                        return currentEvent.Unwrap();
                     }
                 }
             }

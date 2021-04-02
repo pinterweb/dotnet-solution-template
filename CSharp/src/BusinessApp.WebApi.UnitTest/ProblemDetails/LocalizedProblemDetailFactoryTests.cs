@@ -47,6 +47,62 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         public class Create : LocalizedProblemDetailFactoryTests
         {
             [Fact]
+            public void NoDetailProp_TranslationCalled()
+            {
+                /* Arrange */
+                var exception = A.Dummy<Exception>();
+                var problem = new ProblemDetail(400);
+                A.CallTo(() => inner.Create(exception)).Returns(problem);
+
+                /* Act */
+                var localizedProblem = sut.Create(exception);
+
+                /* Assert */
+                A.CallTo(() => localizer[A<string>._]).MustNotHaveHappened();
+                Assert.Null(localizedProblem.Detail);
+            }
+
+            [Fact]
+            public void DetailProp_TranslationCalled()
+            {
+                /* Arrange */
+                var exception = A.Dummy<Exception>();
+                var localizedStr = new LocalizedString("bar", "ipsum");
+                var problem = new ProblemDetail(400)
+                {
+                    Detail = "foobar"
+
+                };
+                A.CallTo(() => localizer["foobar"]).Returns(localizedStr);
+                A.CallTo(() => inner.Create(exception)).Returns(problem);
+
+                /* Act */
+                var localizedProblem = sut.Create(exception);
+
+                /* Assert */
+                Assert.Equal("ipsum", localizedProblem.Detail);
+            }
+
+            [Fact]
+            public void NullExtensionValue_AddedAsEmptyString()
+            {
+                /* Arrange */
+                var exception = A.Dummy<Exception>();
+                var localizedStr = new LocalizedString("bar", "ipsum");
+                var problem = new ProblemDetail(400)
+                {
+                    { "foo", null }
+                };
+                A.CallTo(() => inner.Create(exception)).Returns(problem);
+
+                /* Act */
+                var localizedProblem = sut.Create(exception);
+
+                /* Assert */
+                Assert.Equal("", localizedProblem["foo"]);
+            }
+
+            [Fact]
             public void StringExtension_TranslationCalled()
             {
                 /* Arrange */

@@ -6,7 +6,7 @@ namespace BusinessApp.App
 
     public class SecurityResourceException : SecurityException
     {
-        public SecurityResourceException(string resourceName, string message, Exception inner = null)
+        public SecurityResourceException(string resourceName, string message, Exception? inner = null)
             :base(message, inner)
         {
             ResourceName = resourceName.NotEmpty().Expect(nameof(resourceName));

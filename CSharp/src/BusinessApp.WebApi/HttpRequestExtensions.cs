@@ -38,7 +38,7 @@ namespace BusinessApp.WebApi
         /// <summary>
         /// Deserializes the uri or body depending on the request method
         /// </summary>
-        public static async Task<T> DeserializeAsync<T>(this HttpRequest request,
+        public static async Task<T?> DeserializeAsync<T>(this HttpRequest request,
             ISerializer serializer,
             CancellationToken cancelToken)
         {
@@ -46,7 +46,7 @@ namespace BusinessApp.WebApi
             {
                 var bodyReader = request.BodyReader;
                 ReadResult readResult = await bodyReader.ReadAsync();
-                T model;
+                T? model;
 
                 try
                 {
@@ -76,7 +76,7 @@ namespace BusinessApp.WebApi
                     await bodyReader.CompleteAsync();
                 }
 
-                if (request.RouteValues.Count > 0)
+                if (model != null && request.RouteValues.Count > 0)
                 {
                     HttpRequestSerializationHelpers<T>.SetProperties(model, request.RouteValues);
                 }

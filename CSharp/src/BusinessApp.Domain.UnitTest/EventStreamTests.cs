@@ -60,6 +60,26 @@ namespace BusinessApp.Domain.UnitTest
                 /* Assert */
                 Assert.Equal(4, stream.Count());
             }
+
+            [Fact]
+            public void CurrentIsNull_Throws()
+            {
+                /* Arrange */
+                var events = A.CollectionOfDummy<IDomainEvent>(2);
+                var stream = new EventStream(events);
+                var _ = stream.Select(s => s).ToList();
+                var enumerator = stream.GetEnumerator();
+                enumerator.MoveNext();
+                enumerator.MoveNext();
+                enumerator.MoveNext();
+
+                /* Act */
+                var ex = Record.Exception(() => enumerator.Current);
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal("Object cannot be access because it is null", ex.Message);
+            }
         }
     }
 }

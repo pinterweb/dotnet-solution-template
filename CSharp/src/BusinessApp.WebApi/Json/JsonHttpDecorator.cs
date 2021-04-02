@@ -10,6 +10,7 @@
     /// Runs logic on the request/response for json requests
     /// </summary>
     public class JsonHttpDecorator<T, R> : IHttpRequestHandler<T, R>
+       where T : notnull
     {
         private readonly IHttpRequestHandler<T, R> inner;
 

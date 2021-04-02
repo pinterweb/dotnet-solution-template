@@ -7,9 +7,10 @@ namespace BusinessApp.App
 
     /// <summary>
     /// Handles uncaught errors during handling so it can transform the response into
-    /// a <see cref="ValueKind"/> type
+    /// a <see cref="Result"/> type
     /// </summary>
     public class RequestExceptionDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> inner;
         private readonly ILogger logger;
@@ -30,7 +31,11 @@ namespace BusinessApp.App
             }
             catch(Exception e)
             {
-                logger.Log(new LogEntry(LogSeverity.Critical, e.Message, e, request));
+                logger.Log(new LogEntry(LogSeverity.Critical, e.Message)
+                {
+                    Exception = e,
+                    Data = request
+                });
 
                 return Result.Error<TResponse>(e);
             }

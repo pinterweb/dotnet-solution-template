@@ -11,7 +11,7 @@
     {
         event EventHandler Committing;
         event EventHandler Committed;
-        T Find<T>(Func<T, bool> filter) where T : AggregateRoot;
+        T? Find<T>(Func<T, bool> filter) where T : AggregateRoot;
         void Add<T>(T aggregate) where T : AggregateRoot;
         void Remove<T>(T aggregate) where T : AggregateRoot;
         void Track<T>(T aggregate) where T : AggregateRoot;

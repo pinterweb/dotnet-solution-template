@@ -10,6 +10,7 @@ namespace BusinessApp.App
     /// Runs multiple validators for one instance of <typeparam name="T">T</typeparam>
     /// </summary>
     public class CompositeValidator<T> : IValidator<T>
+        where T : notnull
     {
         private readonly IEnumerable<IValidator<T>> validators;
 

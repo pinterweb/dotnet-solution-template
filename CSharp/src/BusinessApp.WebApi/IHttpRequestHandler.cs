@@ -17,7 +17,7 @@ namespace BusinessApp.WebApi
         /// </summary>
         /// <typeparam name="T">The request type</typeparam>
         /// <typeparam name="R">The response type</typeparam>
-        Task HandleAsync<T, R>(HttpContext context);
+        Task HandleAsync<T, R>(HttpContext context) where T : notnull;
     }
 
     /// <summary>
@@ -26,6 +26,7 @@ namespace BusinessApp.WebApi
     /// <typeparam name="T">The request type</typeparam>
     /// <typeparam name="R">The response type</typeparam>
     public interface IHttpRequestHandler<T, R>
+        where T : notnull
     {
         Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
             HttpContext context, CancellationToken cancelToken);

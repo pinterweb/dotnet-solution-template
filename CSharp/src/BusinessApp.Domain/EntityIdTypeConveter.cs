@@ -14,7 +14,7 @@
         private static readonly Type InnerType = typeof(T);
         private static readonly Type IdType = typeof(TId);
         private static readonly TypeConverter Inner;
-        private static readonly ConstructorInfo ConvertFromCtor;
+        private static readonly ConstructorInfo? ConvertFromCtor;
 
         static EntityIdTypeConverter()
         {
@@ -66,20 +66,6 @@
             if (InnerType == destinationType) return innerValue;
 
             return Inner.ConvertTo(context, culture, innerValue, destinationType);
-        }
-
-        public override bool IsValid(ITypeDescriptorContext context, object value)
-        {
-            try
-            {
-                var valueType = value?.GetType();
-
-                return CanConvertFrom(context, valueType);
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }

@@ -8,7 +8,7 @@ namespace BusinessApp.App
     /// Consolidate batch requests into units of work
     /// </summary>
     public interface IBatchMacro<TMacro, TCommand>
-        where TMacro :IMacro<TCommand>
+        where TMacro : notnull, IMacro<TCommand>
     {
         /// <summary>
         /// Groups the <paramref name="commands"/>

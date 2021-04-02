@@ -28,7 +28,11 @@
         public ServiceRegistrationsTests()
         {
             container = new Container();
-            new Startup(A.Dummy<IConfiguration>(), container);
+            var config = A.Fake<IConfiguration>();
+            var configSection = A.Fake<IConfigurationSection>();
+            A.CallTo(() => config.GetSection("ConnectionStrings")).Returns(configSection);
+            A.CallTo(() => configSection["local"]).Returns("foo");
+            new Startup(config, container);
             scope = AsyncScopedLifestyle.BeginScope(container);
         }
 
@@ -36,9 +40,8 @@
 
         public void CreateRegistrations(Container container, IWebHostEnvironment env = null)
         {
-            var bootstrapOptions = new BootstrapOptions
+            var bootstrapOptions = new BootstrapOptions("Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar")
             {
-                DbConnectionString = "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
                 RegistrationAssemblies = new[]
                 {
                     typeof(ServiceRegistrationsTests).Assembly,
@@ -763,10 +766,10 @@
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
-                        typeof(HttpRequestLoggingDecorator<CommandStub, EventStreamStub>),
+                        typeof(HttpResponseDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(HttpResponseDecorator<CommandStub, EventStreamStub>),
+                        typeof(HttpRequestLoggingDecorator<CommandStub, EventStreamStub>),
                         implType),
                     implType => Assert.Equal(
                         typeof(WeblinkingHeaderRequestDecorator<CommandStub, EventStreamStub>),
@@ -899,6 +902,61 @@
                 /* Assert */
                 Assert.IsType<SerializedLogEntryFormatter>(instance);
             }
+        }
+
+        public class StringLocalization : ServiceRegistrationsTests
+        {
+            [Fact]
+            public void HasConsumer_UsesConsumerAsGeneric()
+            {
+                /* Arrange */
+                var env = A.Fake<IWebHostEnvironment>();
+                A.CallTo(() => env.EnvironmentName).Returns("Development");
+                CreateRegistrations(container, env);
+                container.Verify();
+                var serviceType = typeof(IRequestHandler<LocalizedCommand, LocalizedCommand>);
+
+                /* Act */
+                var instance = container.GetInstance(serviceType);
+
+                /* Assert */
+                var firstType = container.GetRegistration(serviceType);
+                var graph = firstType
+                    .GetDependencies()
+                    .Select(ip => ip.Registration.ImplementationType);
+                Assert.Contains(typeof(StringLocalizer<LocalizationConsumer>), graph);
+            }
+
+            [Fact]
+            public void NoConsumer_UsesUnitAsGeneric()
+            {
+                /* Arrange */
+                CreateRegistrations(container);
+                container.Verify();
+
+                /* Act */
+                var instance = container.GetInstance(typeof(IStringLocalizer));
+
+                /* Assert */
+                Assert.IsType<StringLocalizer<Unit>>(instance);
+            }
+
+            private sealed class LocalizationConsumer : IRequestHandler<LocalizedCommand, LocalizedCommand>
+            {
+                private readonly IStringLocalizer localizer;
+
+                public LocalizationConsumer(IStringLocalizer localizer)
+                {
+                    this.localizer = localizer;
+                }
+
+                public Task<Result<LocalizedCommand, Exception>> HandleAsync(LocalizedCommand request, CancellationToken cancelToken)
+                {
+                    throw new NotImplementedException();
+                }
+            }
+
+            private sealed class LocalizedCommand {  }
         }
 
         private IEnumerable<Type> GetServiceGraph(params Type[] serviceTypes)

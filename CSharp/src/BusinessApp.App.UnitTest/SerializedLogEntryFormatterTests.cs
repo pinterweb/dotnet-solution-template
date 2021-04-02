@@ -84,7 +84,10 @@ namespace BusinessApp.App.UnitTest
             public void WithEntry_DataSerialized()
             {
                 object data = new {};
-                var entry = new LogEntry(LogSeverity.Info, "foobar", null, data);
+                var entry = new LogEntry(LogSeverity.Info, "foobar")
+                {
+                    Data = data
+                };
 
                 var formatted = sut.Format(entry);
 
@@ -95,7 +98,10 @@ namespace BusinessApp.App.UnitTest
             public void WithOneExceptionEntry_ExceptionMessageSerialized()
             {
                 var exception = new Exception("foobar");
-                var entry = new LogEntry(LogSeverity.Info, "foobar", exception);
+                var entry = new LogEntry(LogSeverity.Info, "foobar")
+                {
+                    Exception = exception
+                };
 
                 var formatted = sut.Format(entry);
 
@@ -108,7 +114,10 @@ namespace BusinessApp.App.UnitTest
             public void WithOneExceptionEntry_ExceptionHResultSerialized()
             {
                 var exception = new Exception();
-                var entry = new LogEntry(LogSeverity.Info, "foobar", exception);
+                var entry = new LogEntry(LogSeverity.Info, "foobar")
+                {
+                    Exception = exception
+                };
 
                 var formatted = sut.Format(entry);
 
@@ -121,7 +130,10 @@ namespace BusinessApp.App.UnitTest
             public void WithOneExceptionEntry_ExceptionSourceSerialized()
             {
                 var exception = new Exception();
-                var entry = new LogEntry(LogSeverity.Info, "foobar", exception);
+                var entry = new LogEntry(LogSeverity.Info, "foobar")
+                {
+                    Exception = exception
+                };
 
                 var formatted = sut.Format(entry);
 
@@ -136,7 +148,10 @@ namespace BusinessApp.App.UnitTest
             public void WithOneExceptionEntry_ExceptionStackTraceSerialized()
             {
                 var exception = new Exception();
-                var entry = new LogEntry(LogSeverity.Info, "foobar", exception);
+                var entry = new LogEntry(LogSeverity.Info, "foobar")
+                {
+                    Exception = exception
+                };
 
                 var formatted = sut.Format(entry);
 
@@ -152,7 +167,10 @@ namespace BusinessApp.App.UnitTest
             {
                 var inner = new Exception("bar");
                 var exception = new Exception("foo", inner);
-                var entry = new LogEntry(LogSeverity.Info, "foobar", exception);
+                var entry = new LogEntry(LogSeverity.Info, "foobar")
+                {
+                    Exception = exception
+                };
 
                 var formatted = sut.Format(entry);
 
@@ -185,7 +203,11 @@ namespace BusinessApp.App.UnitTest
             [Fact]
             public void WithMultipleEntries_SeriazliedOnce()
             {
-                var entry = new LogEntry(LogSeverity.Info, "foo", new Exception(), new {});
+                var entry = new LogEntry(LogSeverity.Info, "foo")
+                {
+                    Exception = new Exception(),
+                    Data = new {}
+                };
 
                 sut.Format(entry);
                 sut.Format(entry);

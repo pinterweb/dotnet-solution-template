@@ -9,6 +9,7 @@ namespace BusinessApp.WebApi
     using System.Threading;
 
     public class HttpResponseDecorator<T, R> : IHttpRequestHandler<T, R>
+        where T : notnull
     {
         private readonly IHttpRequestHandler<T, R> inner;
         private readonly IProblemDetailFactory problemFactory;

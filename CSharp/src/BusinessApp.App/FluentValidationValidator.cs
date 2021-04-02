@@ -11,6 +11,7 @@ namespace BusinessApp.App
     /// Runs validations for any fluent validation rules
     /// </summary>
     public class FluentValidationValidator<T> : IValidator<T>
+        where T : notnull
     {
         private readonly IEnumerable<FluentValidation.IValidator<T>> validators;
 

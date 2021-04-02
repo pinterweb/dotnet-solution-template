@@ -10,7 +10,7 @@ namespace BusinessApp.WebApi
     using System;
 
     public class EnvelopeQueryResourceHandler<T, R> : IHttpRequestHandler<T, IEnumerable<R>>
-        where T : IQuery
+        where T : notnull, IQuery
     {
         private readonly IRequestHandler<T, EnvelopeContract<R>> handler;
         private readonly ISerializer serializer;

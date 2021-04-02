@@ -20,7 +20,7 @@
     public class Startup
     {
         private readonly Container container;
-        private readonly BootstrapOptions options = new BootstrapOptions();
+        private readonly BootstrapOptions options;
 
         public Startup(IConfiguration configuration, Container container)
         {
@@ -29,20 +29,23 @@
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            options.LogFilePath = configuration.GetSection("Logging")
+            var loggingPath = configuration.GetSection("Logging")
                 .GetValue<string>("LogFilePath");
-            options.DbConnectionString =
 #if docker
-                configuration.GetConnectionString("docker");
+            var connStr = configuration.GetConnectionString("docker");
 #else
-                configuration.GetConnectionString("local");
+            var connStr = configuration.GetConnectionString("local");
 #endif
-            options.RegistrationAssemblies = new[]
+            options = new BootstrapOptions(connStr)
             {
-                typeof(App.IQuery).Assembly,
-                typeof(IQueryVisitor<>).Assembly,
-                typeof(IEventHandler<>).Assembly,
-                typeof(Startup).Assembly
+                LogFilePath = loggingPath,
+                RegistrationAssemblies = new[]
+                {
+                    typeof(App.IQuery).Assembly,
+                    typeof(IQueryVisitor<>).Assembly,
+                    typeof(IEventHandler<>).Assembly,
+                    typeof(Startup).Assembly
+                }
             };
         }
 

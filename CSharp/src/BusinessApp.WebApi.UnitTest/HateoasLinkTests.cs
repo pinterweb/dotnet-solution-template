@@ -14,7 +14,7 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 get
                 {
-                    return new []
+                    return new[]
                     {
                         new object[]
                         {
@@ -48,6 +48,22 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Assert */
                 Assert.IsType<BadStateException>(exception);
             }
+
+            [Fact]
+            public void RelArgOnlyInChildClass_SetsRelLink()
+            {
+                /* Act */
+                var child = new ChildHateoasLinkStub("foo");
+
+                /* Assert */
+                Assert.Equal("foo", child.RelativeLinkFactory(1, 2));
+            }
+        }
+
+        private sealed class ChildHateoasLinkStub : HateoasLink<int, int>
+        {
+            public ChildHateoasLinkStub(string rel) : base(rel)
+            { }
         }
     }
 }

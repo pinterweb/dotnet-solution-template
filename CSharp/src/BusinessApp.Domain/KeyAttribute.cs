@@ -31,17 +31,13 @@ namespace BusinessApp.Domain
                 .Where(p => p.IsDefined(typeof(KeyIdAttribute)))
                 .ToList();
 
-            Functions = new EqualityFunctions
-            {
-                EqualsFunc = MakeEqualsMethod(),
-                GetHashCodeFunc = MakeGetHashCodeMethod()
-            };
+            Functions = new EqualityFunctions(MakeEqualsMethod(), MakeGetHashCodeMethod());
         }
 
-        public bool Equals(T x, T y)
+        public bool Equals(T? x, T? y)
         {
             if (x is null && y is null) return true;
-            if (x is null) return y.Equals(x);
+            if (x is null) return y!.Equals(x);
             if (y is null) return x.Equals(y);
 
             if (KeyProperties.Count == 0)
@@ -82,7 +78,7 @@ namespace BusinessApp.Domain
                 }
 
                 return Expression.Call(
-                  typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static),
+                  typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static)!,
                   Expression.Convert(propa, typeof(object)),
                   Expression.Convert(propb, typeof(object)));
             };
@@ -138,8 +134,14 @@ namespace BusinessApp.Domain
 
         private sealed class EqualityFunctions
         {
-            public Func<object, object, bool> EqualsFunc;
-            public Func<object, int> GetHashCodeFunc;
+            public EqualityFunctions(Func<object, object, bool> equalsFn, Func<object, int> hashFn)
+            {
+                EqualsFunc = equalsFn;
+                GetHashCodeFunc = hashFn;
+            }
+
+            public Func<object, object, bool> EqualsFunc { get; }
+            public Func<object, int> GetHashCodeFunc { get; }
         }
 
         private sealed class CaseInsensitiveExpressionVisitor : ExpressionVisitor
@@ -148,8 +150,14 @@ namespace BusinessApp.Domain
             {
                 if (node.Type == typeof(String))
                 {
-                    var methodInfo = typeof(String).GetMethod("ToLower", new Type[] { });
-                    var expression = Expression.Condition(Expression.NotEqual(node, Expression.Constant(null)), Expression.Call(node, methodInfo), node);
+                    var methodInfo = typeof(String).GetMethod("ToLower", new Type[] { })!;
+                    var expression = Expression.Condition(
+                        Expression.NotEqual(
+                            node,
+                            Expression.Constant(null)
+                        ),
+                        Expression.Call(node, methodInfo),
+                        node);
                     return expression;
                 }
 

@@ -9,6 +9,7 @@ namespace BusinessApp.App
 
     public class GroupedBatchRequestDecorator<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
+        where TRequest : notnull
     {
         private readonly IBatchGrouper<TRequest> grouper;
         private readonly IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>> handler;
@@ -25,8 +26,6 @@ namespace BusinessApp.App
             IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
-            request.NotNull().Expect(nameof(request));
-
             var payloads = await grouper.GroupAsync(request, cancelToken);
 
             ThrowIfInvalid(request, payloads.SelectMany(p => p));
