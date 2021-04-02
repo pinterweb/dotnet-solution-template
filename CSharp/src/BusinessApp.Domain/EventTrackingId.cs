@@ -5,10 +5,13 @@ namespace BusinessApp.Domain
     /// </summary>
     public class EventTrackingId
     {
+        private MetadataId causationId;
+
         public EventTrackingId(MetadataId id, MetadataId correlationId)
         {
             Id = id.NotNull().Expect(nameof(id));
             CorrelationId = correlationId.NotNull().Expect(nameof(correlationId));
+            causationId = correlationId;
         }
 
         /// <summary>
@@ -28,6 +31,10 @@ namespace BusinessApp.Domain
         /// <summary>
         /// The id of the object that triggered the event
         /// </summary>
-        public MetadataId CausationId { get; set; }
+        public MetadataId CausationId
+        {
+            get => causationId;
+            set => causationId = value.NotNull().Expect(nameof(CausationId));
+        }
     }
 }

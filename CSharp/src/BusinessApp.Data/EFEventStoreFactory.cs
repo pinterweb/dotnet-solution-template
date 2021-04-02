@@ -48,10 +48,7 @@ namespace BusinessApp.Data
             public EventTrackingId Add<T>(T @event) where T : notnull, IDomainEvent
             {
                 var eventId =  idFactory.Create();
-                var id = new EventTrackingId(eventId, correlationId)
-                {
-                    CausationId = correlationId
-                };
+                var id = new EventTrackingId(eventId, correlationId);
 
                 var metadata =  new EventMetadata<T>(id, @event);
 

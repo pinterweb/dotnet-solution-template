@@ -199,21 +199,6 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void SetsEventMetadataCausationIdFromTriggerMetadataId()
-            {
-                /* Arrange */
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
-
-                /* Act */
-                var _ = store.Add(A.Dummy<DomainEventStub>());
-
-                /* Assert */
-                Assert.Same(triggerId, metadata.CausationId);
-            }
-
-            [Fact]
             public void SetsEventMetadataToTheEvent()
             {
                 /* Arrange */

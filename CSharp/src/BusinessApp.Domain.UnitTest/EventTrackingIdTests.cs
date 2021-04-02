@@ -52,6 +52,19 @@ namespace BusinessApp.Domain.UnitTest
                 /* Assert */
                 Assert.Equal(correlationId, sut.CorrelationId);
             }
+
+            [Fact]
+            public void SetsCausationIdFromCorrelationIdProperty()
+            {
+                /* Arrange */
+                var correlationId = (MetadataId)1;
+
+                /* Act */
+                var sut = new EventTrackingId(A.Dummy<MetadataId>(), correlationId);
+
+                /* Assert */
+                Assert.Equal(correlationId, sut.CausationId);
+            }
         }
     }
 }
