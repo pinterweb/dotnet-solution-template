@@ -41,7 +41,7 @@ namespace BusinessApp.Data
                     .Expect("data ToString() must return a value for the DataSetName"),
                 id, username, type)
         {
-            Data = data.NotDefault().Expect(nameof(data))!;
+            Data = data.NotDefault().Expect(nameof(data));
         }
 
         public T Data { get; }
