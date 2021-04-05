@@ -9,14 +9,11 @@ namespace BusinessApp.App.UnitTest
 
     public class AnonymousUserTests
     {
-        private readonly AnonymousUser sut;
         private readonly IPrincipal inner;
 
         public AnonymousUserTests()
         {
             inner = A.Fake<IPrincipal>();
-
-            sut = new AnonymousUser(inner);
         }
 
         public class Constructor : AnonymousUserTests
@@ -46,20 +43,20 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-
         public class IdentityProperty : AnonymousUserTests
         {
             [Fact]
-            public void NullIdentity_EmptyAuthenticationType()
+            public void NullIdentity_NullAuthenticationType()
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity).Returns(null);
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;
 
                 /* Assert */
-                Assert.Empty(identity.AuthenticationType);
+                Assert.Null(identity.AuthenticationType);
             }
 
             [Fact]
@@ -67,6 +64,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity).Returns(null);
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;
@@ -80,6 +78,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity).Returns(null);
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;
@@ -93,6 +92,7 @@ namespace BusinessApp.App.UnitTest
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity.Name).Returns(null);
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;
@@ -102,10 +102,11 @@ namespace BusinessApp.App.UnitTest
             }
 
             [Fact]
-            public void AuthenticationType_InnerIdentityValueReturned()
+            public void AuthenticationType_InnerValueReturned()
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity.AuthenticationType).Returns("foo");
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;
@@ -117,10 +118,11 @@ namespace BusinessApp.App.UnitTest
             [Theory]
             [InlineData(true)]
             [InlineData(false)]
-            public void IsAuthentication_InnerIdentityValueReturned(bool authenticated)
+            public void IsAuthentication_InnerValueReturned(bool authenticated)
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity.IsAuthenticated).Returns(authenticated);
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;
@@ -132,10 +134,11 @@ namespace BusinessApp.App.UnitTest
             [Theory]
             [InlineData(false, "Anonymous")]
             [InlineData(true, "")]
-            public void Name_AnonymousReturnedIfNameIsEmpty(bool authenticated, string expectedName)
+            public void Name_WhenNameIsEmpty_AnonymousReturned(bool authenticated, string expectedName)
             {
                 /* Arrange */
                 A.CallTo(() => inner.Identity.IsAuthenticated).Returns(authenticated);
+                var sut = new AnonymousUser(inner);
 
                 /* Act */
                 var identity = sut.Identity;

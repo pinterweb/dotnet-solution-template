@@ -32,10 +32,11 @@ namespace BusinessApp.Data
         {
             if (DescriptorCache.TryGetValue(query.GetType(), out ICollection<SpecificationDescriptor>? e))
             {
-                var spec = e.Select(p => CreateSpec(query, p))
-                    .Where(s => s != null);
+                IEnumerable<LinqSpecification<TContract>> spec = e
+                    .Select(p => CreateSpec(query, p))
+                    .Where(s => s != null)!;
 
-                return spec.Any() ? spec.Aggregate((a, b) => a! & b!)! : new NullSpecification<TContract>(true);
+                return spec.Any() ? spec.Aggregate((a, b) => a & b) : new NullSpecification<TContract>(true);
             }
 
             DescriptorCache[query.GetType()] = new List<SpecificationDescriptor>();

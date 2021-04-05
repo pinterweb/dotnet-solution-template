@@ -103,6 +103,27 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
+            public void NullExtensionToStringValue_AddedAsEmptyString()
+            {
+                /* Arrange */
+                var exception = A.Dummy<Exception>();
+                var localizedStr = new LocalizedString("bar", "ipsum");
+                var problem = new ProblemDetail(400)
+                {
+                    { "foo", new ExtensionValue() }
+                };
+                A.CallTo(() => inner.Create(exception)).Returns(problem);
+
+                /* Act */
+                var localizedProblem = sut.Create(exception);
+
+                /* Assert */
+                A.CallTo(() => localizer[null]).MustNotHaveHappened();
+                Assert.Equal("", localizedProblem["foo"]);
+            }
+
+
+            [Fact]
             public void StringExtension_TranslationCalled()
             {
                 /* Arrange */
@@ -201,6 +222,11 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                     val => Assert.Equal("ipsum", val),
                     val => Assert.Equal("lorem", val));
             }
+        }
+
+        private sealed class ExtensionValue
+        {
+            public override string ToString() => null;
         }
     }
 }

@@ -35,7 +35,6 @@
                     throw new BusinessAppAppException("All errors must have an error message.");
                 }
 
-
                 var memberMsgs = (members.Any() ? members : new[] { "" })
                     .ToDictionary(
                         m => m,

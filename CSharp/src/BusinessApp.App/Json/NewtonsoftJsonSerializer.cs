@@ -60,11 +60,11 @@ namespace BusinessApp.App.Json
         private void OnError(object? sender, ErrorEventArgs e)
         {
             ErrorEventArgs args = e;
+            var memberName = args.ErrorContext.Member?.ToString();
 
-            if (args.ErrorContext.Member != null)
+            if (!string.IsNullOrWhiteSpace(memberName))
             {
-                var error = new MemberValidationException(
-                    args.ErrorContext.Member.ToString()!,
+                var error = new MemberValidationException(memberName,
                     new[] { args.ErrorContext.Error.Message });
 
                 errors.Add(error);

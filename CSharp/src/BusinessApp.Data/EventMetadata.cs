@@ -17,7 +17,9 @@ namespace BusinessApp.Data
             Id = id.Id;
             CorrelationId = id.CorrelationId;
             CausationId = id.CausationId;
-            EventName = e.NotNull().Expect(nameof(e)).ToString()!;
+            EventName = e.NotNull().Expect(nameof(e))
+                .ToString()
+                .Expect("Event ToString must return a value");
             OccurredUtc = e.OccurredUtc;
         }
 

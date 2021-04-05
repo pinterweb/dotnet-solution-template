@@ -44,6 +44,7 @@ namespace BusinessApp.WebApi.ProblemDetails
                 IDictionary d => TranslateExtension(d),
                 IEnumerable e when e is not string => TranslateExtension(e),
                 null => null,
+                object o when o.ToString() is null => null,
                 _ => localizer[value.ToString()!].Value,
             };
         }
