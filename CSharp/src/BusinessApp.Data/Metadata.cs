@@ -35,8 +35,11 @@ namespace BusinessApp.Data
 #nullable restore
 
         public Metadata(MetadataId id, string username, MetadataType type, T data)
-            // TODO left off ==> test this
-            :base (data.Expect(nameof(data)).ToString().Expect("data ToString() must return a value for the DataSetName"), id, username, type)
+            :base (
+                data.Expect(nameof(data))
+                    .ToString()
+                    .Expect("data ToString() must return a value for the DataSetName"),
+                id, username, type)
         {
             Data = data.NotDefault().Expect(nameof(data))!;
         }

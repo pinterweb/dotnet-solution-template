@@ -47,7 +47,6 @@ namespace BusinessApp.Data.UnitTest
                 Assert.Equal("Event ToString must return a value: object cannot be null", ex.Message);
             }
 
-
             [Fact]
             public void EventArg_EventPropertySet()
             {
