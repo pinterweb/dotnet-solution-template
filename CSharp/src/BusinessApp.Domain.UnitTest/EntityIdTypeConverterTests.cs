@@ -176,51 +176,6 @@ namespace BusinessApp.Domain.UnitTest
             }
         }
 
-        public class IsValid : EntityIdTypeConverterTests
-        {
-            [Fact]
-            public void WithoutInnerValueConstructor_FalseReturned()
-            {
-                /* Arrange */
-                var sut = new EntityIdTypeConverter<BadEntityIdStub, int>();
-                int val = 1;
-
-                /* Act */
-                var isValid = sut.IsValid(null, val);
-
-                /* Assert */
-                Assert.False(isValid);
-            }
-
-            [Fact]
-            public void EqualSourceType_TrueReturned()
-            {
-                /* Arrange */
-                var sut = new EntityIdTypeConverter<EntityIdStub, int>();
-                int val = 1;
-
-                /* Act */
-                var isValid = sut.IsValid(null, val);
-
-                /* Assert */
-                Assert.True(isValid);
-            }
-
-            [Fact]
-            public void DifferentType_WhenInnerConverterCanConvert_TrueReturned()
-            {
-                /* Arrange */
-                var sut = new EntityIdTypeConverter<EntityIdStub, int>();
-                string val = "+123";
-
-                /* Act */
-                var isValid = sut.IsValid(null, val);
-
-                /* Assert */
-                Assert.True(isValid);
-            }
-        }
-
         public struct EntityIdStub : IEntityId
         {
             public EntityIdStub(int id)

@@ -7,10 +7,8 @@ namespace BusinessApp.WebApi.Json
     public class JsonRegister : IBootstrapRegister
     {
         private static ProblemDetailOptions JsonProblemDetailOption =
-            new ProblemDetailOptions
+            new ProblemDetailOptions(typeof(JsonException), StatusCodes.Status400BadRequest)
             {
-                ProblemType = typeof(JsonException),
-                StatusCode = StatusCodes.Status400BadRequest,
                 MessageOverride = "Data is not in the correct format"
             };
         private readonly IBootstrapRegister inner;

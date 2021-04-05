@@ -44,6 +44,7 @@ namespace BusinessApp.WebApi.UnitTest
 
     public class Dummy
     {
+        public int ReadOnlyId { get; }
         public DummyId Id { get; set; }
         public bool? Bool { get; set; }
         public int? Int { get; set; }
@@ -392,6 +393,26 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithNullModel_NullReturned(string method)
+            {
+                /* Arrange */
+                var bytes = Encoding.UTF8.GetBytes("foobarish");
+                var result = new ValueTask<ReadResult>(
+                    new ReadResult(new ReadOnlySequence<byte>(bytes), true, true));
+                var token = A.Dummy<CancellationToken>();
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token))
+                    .Returns(result);
+                A.CallTo(() => serializer.Deserialize<Dummy>(A<byte[]>._)).Returns(null);
+
+                /* Act */
+                var returned = await sut.DeserializeAsync<Dummy>(serializer, token);
+
+                /* Assert */
+                Assert.Null(returned);
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
             public async Task NotGetOrDeleteWithBody_BodyDeserialized(string method)
             {
                 /* Arrange */
@@ -439,6 +460,60 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Assert */
                 Assert.Equal("bar", returned.Foo);
                 Assert.True(returned.Bool);
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBodyAndRouteData_WhenNullRouteValue_NullSet(string method)
+            {
+                /* Arrange */
+                var token = A.Dummy<CancellationToken>();
+                var routeData = new RouteValueDictionary
+                {
+                    { "foo", null }
+                };
+                var result = new ValueTask<ReadResult>(
+                    new ReadResult(new ReadOnlySequence<byte>(), true, true));
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.RouteValues).Returns(routeData);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token))
+                    .Returns(result);
+                var query = new Dummy { Bool = true, Foo = null };
+                A.CallTo(() => serializer.Deserialize<Dummy>(A<byte[]>._))
+                    .Returns(query);
+
+                /* Act */
+                var returned = await sut.DeserializeAsync<Dummy>(serializer,
+                    A.Dummy<CancellationToken>());
+
+                /* Assert */
+                Assert.Null(returned.Foo);
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBody_WhenReadOnlyProperty_Ignored(string method)
+            {
+                /* Arrange */
+                var token = A.Dummy<CancellationToken>();
+                var routeData = new RouteValueDictionary
+                {
+                    { "ReadOnlyId", 1 }
+                };
+                var result = new ValueTask<ReadResult>(
+                    new ReadResult(new ReadOnlySequence<byte>(), true, true));
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.RouteValues).Returns(routeData);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token))
+                    .Returns(result);
+                var query = new Dummy { Bool = true, Foo = null };
+                A.CallTo(() => serializer.Deserialize<Dummy>(A<byte[]>._))
+                    .Returns(query);
+
+                /* Act */
+                var returned = await sut.DeserializeAsync<Dummy>(serializer,
+                    A.Dummy<CancellationToken>());
+
+                /* Assert */
+                Assert.Equal(0, returned.ReadOnlyId);
             }
         }
     }

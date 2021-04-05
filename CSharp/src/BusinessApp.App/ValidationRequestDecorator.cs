@@ -10,6 +10,7 @@ namespace BusinessApp.App
     /// </summary>
     public class ValidationRequestDecorator<TRequest, TResult> :
         IRequestHandler<TRequest, TResult>
+        where TRequest : notnull
     {
         private readonly IValidator<TRequest> validator;
         private readonly IRequestHandler<TRequest, TResult> inner;

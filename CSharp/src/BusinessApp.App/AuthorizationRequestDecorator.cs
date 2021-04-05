@@ -6,6 +6,7 @@
     using BusinessApp.Domain;
 
     public class AuthorizationRequestDecorator<TRequest, TResult> : IRequestHandler<TRequest, TResult>
+        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResult> inner;
         private readonly IAuthorizer<TRequest> authorizer;

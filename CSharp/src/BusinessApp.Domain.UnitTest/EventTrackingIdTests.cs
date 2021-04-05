@@ -52,6 +52,33 @@ namespace BusinessApp.Domain.UnitTest
                 /* Assert */
                 Assert.Equal(correlationId, sut.CorrelationId);
             }
+
+            [Fact]
+            public void SetsCausationIdFromCorrelationIdProperty()
+            {
+                /* Arrange */
+                var correlationId = (MetadataId)1;
+
+                /* Act */
+                var sut = new EventTrackingId(A.Dummy<MetadataId>(), correlationId);
+
+                /* Assert */
+                Assert.Equal(correlationId, sut.CausationId);
+            }
+
+            [Fact]
+            public void TrySetNullCausationId_Throws()
+            {
+                /* Arrange */
+                var sut = new EventTrackingId(A.Dummy<MetadataId>(), A.Dummy<MetadataId>());
+
+                /* Act */
+                 var ex = Record.Exception(() => sut.CausationId = null);
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal("CausationId: Value cannot be null", ex.Message);
+            }
         }
     }
 }

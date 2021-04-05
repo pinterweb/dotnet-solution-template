@@ -2,6 +2,7 @@ namespace BusinessApp.WebApi
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.ComponentModel;
     using System.Linq;
     using System.Linq.Expressions;
@@ -11,6 +12,7 @@ namespace BusinessApp.WebApi
     using BusinessApp.Data;
     using BusinessApp.Domain;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Routing;
 
     public static class HttpRequestSerializationHelpers<T>
     {
@@ -26,10 +28,12 @@ namespace BusinessApp.WebApi
             GetTopLevelProperties(typeof(T));
         }
 
-        public static T SerializeRouteAndQueryValues(HttpRequest request, ISerializer serializer)
+        public static T? SerializeRouteAndQueryValues(HttpRequest request, ISerializer serializer)
         {
-            var queryArgs = new Dictionary<string, object>(request.RouteValues);
-            var collection = HttpUtility.ParseQueryString(request.QueryString.Value);
+            var queryArgs = new Dictionary<string, object?>(request.RouteValues);
+            var collection = request.QueryString.Value != null
+                ? HttpUtility.ParseQueryString(request.QueryString.Value)
+                : new NameValueCollection();
 
             foreach (string r in collection)
             {
@@ -49,7 +53,7 @@ namespace BusinessApp.WebApi
             return serializer.Deserialize<T>(data);
         }
 
-        public static void SetProperties(T target, IDictionary<string, object> properties)
+        public static void SetProperties(T target, RouteValueDictionary properties)
         {
             foreach (var kvp in properties)
             {
@@ -57,7 +61,7 @@ namespace BusinessApp.WebApi
                 {
                     var converter = TypeDescriptor.GetConverter(setterGetter.Item1);
 
-                    if (converter.CanConvertFrom(kvp.Value.GetType()))
+                    if (kvp.Value != null && converter.CanConvertFrom(kvp.Value.GetType()))
                     {
                         setterGetter.Item2(
                             target,
@@ -74,6 +78,7 @@ namespace BusinessApp.WebApi
             {
                 var appClass = !IsIEntityId(property.PropertyType)
                     && property.PropertyType.IsClass
+                    && property.PropertyType.Namespace != null
                     && property.PropertyType.Namespace.StartsWith("BusinessApp");
 
                 // prevent infinite recursion
@@ -92,12 +97,17 @@ namespace BusinessApp.WebApi
         {
             foreach (var property in type.GetProperties())
             {
-                setterCache.Add(property.Name, (property.PropertyType, BuildSetter(property)));
+                var setter = BuildSetter(property);
+
+                if (setter != null)
+                {
+                    setterCache.Add(property.Name, (property.PropertyType, setter));
+                }
             }
         }
 
         private static IDictionary<string, object> CreateDictionary(string prefix,
-            IDictionary<string, object> dictionary)
+            IDictionary<string, object?> dictionary)
         {
             var data =
                 from kvp in dictionary
@@ -129,20 +139,23 @@ namespace BusinessApp.WebApi
             return converter.ConvertFrom(val);
         }
 
-        private static IDictionary<string, object> FilterByPropertyName(
-            IDictionary<string, object> dictionary, string propertyName)
+        private static IDictionary<string, object?> FilterByPropertyName(
+            IDictionary<string, object?> dictionary, string propertyName)
         {
             string prefix = propertyName + ".";
+
             return dictionary.Keys
                 .Where(key => key.StartsWith(prefix))
                 .ToDictionary(key => key.Substring(prefix.Length), key => dictionary[key]);
         }
 
-        public static Action<T, object> BuildSetter(PropertyInfo p)
+        public static Action<T, object>? BuildSetter(PropertyInfo p)
         {
-            var instance = Expression.Parameter(p.DeclaringType, "instance");
-
             var setter = p.GetSetMethod(true);
+
+            if (setter == null || p.DeclaringType == null) return null;
+
+            var instance = Expression.Parameter(p.DeclaringType, "instance");
             var valParam = Expression.Parameter(typeof(object), "p");
             var caller = Expression.Call(instance,
                     setter,

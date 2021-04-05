@@ -58,7 +58,7 @@ namespace BusinessApp.Data
 
         private static Expression<Func<TResult, object>> CreateSortExpression(string fieldName)
         {
-            if (ExpressionCache.TryGetValue(fieldName, out Expression<Func<TResult, object>> selector))
+            if (ExpressionCache.TryGetValue(fieldName, out Expression<Func<TResult, object>>? selector))
             {
                 return selector;
             }

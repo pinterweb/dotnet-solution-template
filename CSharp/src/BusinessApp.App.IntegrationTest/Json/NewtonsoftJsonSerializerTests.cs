@@ -44,7 +44,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             }
 
             [Fact]
-            public void OnError_WhenHasMemeberName_ThrowsModelValidationException()
+            public void OnError_WhenHasMemberName_ThrowsModelValidationException()
             {
                 /* Arrange */
                 using var ms = new MemoryStream();
@@ -61,7 +61,7 @@ namespace BusinessApp.App.IntegrationTest.Json
             }
 
             [Fact]
-            public void OnError_HasMemberValidationForEachInvalidMember()
+            public void OnError_HasMultipleMembers_ReturnsEachInvalidMember()
             {
                 /* Arrange */
                 using var ms = new MemoryStream();
@@ -72,9 +72,9 @@ namespace BusinessApp.App.IntegrationTest.Json
 
                 /* Act */
                 var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-                var error = Assert.IsType<ModelValidationException>(ex);
 
                 /* Assert */
+                var error = Assert.IsType<ModelValidationException>(ex);
                 Assert.Collection(error,
                     e => Assert.Equal("foo", e.MemberName),
                     e => Assert.Equal("bar", e.MemberName)

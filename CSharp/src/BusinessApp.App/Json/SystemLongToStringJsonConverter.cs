@@ -1,4 +1,4 @@
-namespace BusinessApp.WebApi.Json
+namespace BusinessApp.App.Json
 {
     using System;
     using System.Buffers;

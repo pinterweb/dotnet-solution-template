@@ -32,7 +32,10 @@ namespace BusinessApp.Data
             CancellationToken cancelToken)
         {
             var eventId = idFactory.Create();
-            var metadata = new Metadata<TRequest>(eventId, user.Identity.Name, MetadataType.Request, request);
+            var metadata = new Metadata<TRequest>(eventId,
+                user.Identity?.Name ?? AnonymousUser.Name,
+                MetadataType.Request,
+                request);
 
             db.Add(metadata);
 

@@ -19,7 +19,7 @@ namespace BusinessApp.WebApi
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public async Task HandleAsync<T, R>(HttpContext context)
+        public async Task HandleAsync<T, R>(HttpContext context) where T : notnull
         {
             try
             {
@@ -27,7 +27,7 @@ namespace BusinessApp.WebApi
             }
             catch (Exception exception)
             {
-                logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
+                logger.Log(LogEntry.FromException(exception));
 
                 throw;
             }

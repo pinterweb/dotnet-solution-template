@@ -8,6 +8,6 @@ namespace BusinessApp.Domain
         /// <summary>
         /// Adds an event to the store
         /// </summary>
-        EventTrackingId Add<T>(T @event) where T : IDomainEvent;
+        EventTrackingId Add<T>(T @event) where T : notnull, IDomainEvent;
     }
 }

@@ -24,10 +24,10 @@ namespace BusinessApp.WebApi
         }
 
         public Task<EventResult> PublishAsync<T>(T @event, CancellationToken cancelToken)
-            where T : IDomainEvent
+            where T : notnull, IDomainEvent
         {
             var handler = (EventHandler)Activator.CreateInstance(
-                typeof(GenericEventHandler<>).MakeGenericType(typeof(T)));
+                typeof(GenericEventHandler<>).MakeGenericType(typeof(T)))!;
 
             return handler.HandleAsync(@event, cancelToken, container);
         }

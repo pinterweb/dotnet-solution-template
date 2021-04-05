@@ -27,7 +27,7 @@ namespace BusinessApp.App.UnitTest
             public void WithEntry_CallsEntryToString()
             {
                 var entry = A.Fake<LogEntry>(opt =>
-                    opt.WithArgumentsForConstructor(new object[] { LogSeverity.Debug, "", null, null }));
+                    opt.WithArgumentsForConstructor(new object[] { LogSeverity.Debug, "msg" }));
 
                 var formatted = sut.Format(entry);
 

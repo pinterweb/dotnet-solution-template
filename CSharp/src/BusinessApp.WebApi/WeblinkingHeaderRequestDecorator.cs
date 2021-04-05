@@ -12,6 +12,7 @@
     /// Decorator to add the web link headers for the particular response
     /// </summary>
     public class WeblinkingHeaderRequestDecorator<T, R> : IHttpRequestHandler<T, R>
+       where T : notnull
     {
         private readonly IHttpRequestHandler<T, R> handler;
         private readonly IEnumerable<HateoasLink<T, R>> links;

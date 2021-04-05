@@ -16,10 +16,23 @@ namespace BusinessApp.Domain.UnitTest
                 var severity = LogSeverity.Debug;
 
                 /* Act */
-                var sut = new LogEntry(severity, "foo", A.Dummy<Exception>(), A.Dummy<object>());
+                var sut = new LogEntry(severity, "foo");
 
                 /* Assert */
                 Assert.Equal(LogSeverity.Debug, sut.Severity);
+            }
+
+            [Theory]
+            [InlineData(null)]
+            [InlineData("")]
+            [InlineData(" ")]
+            public void MsgPropMissing_Throws(string msg)
+            {
+                /* Act */
+                var ex = Record.Exception(() => new LogEntry(A.Dummy<LogSeverity>(), msg));
+
+                /* Assert */
+                Assert.NotNull(ex);
             }
 
             [Fact]
@@ -29,43 +42,31 @@ namespace BusinessApp.Domain.UnitTest
                 var msg = "foo";
 
                 /* Act */
-                var sut = new LogEntry(A.Dummy<LogSeverity>(), msg, A.Dummy<Exception>(),
-                    A.Dummy<object>());
+                var sut = new LogEntry(A.Dummy<LogSeverity>(), msg);
 
                 /* Assert */
                 Assert.Equal("foo", sut.Message);
             }
-
-            [Fact]
-            public void SetsExceptionProp()
-            {
-                /* Arrange */
-                var ex = new Exception();
-
-                /* Act */
-                var sut = new LogEntry(A.Dummy<LogSeverity>(), "foo", ex, A.Dummy<object>());
-
-                /* Assert */
-                Assert.Same(ex, sut.Exception);
-            }
-
-            [Fact]
-            public void SetsDataProp()
-            {
-                /* Arrange */
-                var data = new {};
-
-                /* Act */
-                var sut = new LogEntry(A.Dummy<LogSeverity>(), "f", A.Dummy<Exception>(), data);
-
-                /* Assert */
-                Assert.Same(data, sut.Data);
-            }
-
         }
 
         public class FromException : LogEntryTests
         {
+            [Fact]
+            public void ExceptionMissing_Throws()
+            {
+                /* Arrange */
+                Exception e = null;
+
+                /* Act */
+                var ex = Record.Exception(() => LogEntry.FromException(e));
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal(
+                    "Logging from an exception cannot be null: Value cannot be null",
+                    ex.Message);
+            }
+
             [Fact]
             public void SetsErrorSeverity()
             {
@@ -138,7 +139,10 @@ namespace BusinessApp.Domain.UnitTest
             public void WithException_FormattedForDisplay()
             {
                 /* Arrange */
-                var sut = new LogEntry(LogSeverity.Debug, "foo", new ExceptionStub("bar", "lorem"));
+                var sut = new LogEntry(LogSeverity.Debug, "foo")
+                {
+                    Exception = new ExceptionStub("bar", "lorem")
+                };
                 var line = Environment.NewLine;
 
                 /* Act */
@@ -152,7 +156,10 @@ namespace BusinessApp.Domain.UnitTest
             public void WithInnerExceptions_FormattedForDisplay()
             {
                 /* Arrange */
-                var sut = new LogEntry(LogSeverity.Debug, "foo", new ExceptionStub("bar", "lorem", new ExceptionStub("lorem", "ipsum")));
+                var sut = new LogEntry(LogSeverity.Debug, "foo")
+                {
+                    Exception = new ExceptionStub("bar", "lorem", new ExceptionStub("lorem", "ipsum"))
+                };
                 var line = Environment.NewLine;
 
                 /* Act */
@@ -170,18 +177,15 @@ namespace BusinessApp.Domain.UnitTest
         {
             private string oldStackTrace;
 
-            public ExceptionStub(string message, string stackTrace, Exception inner = null) : base(message, inner)
+            public ExceptionStub(string message, string stackTrace, Exception inner = null)
+                : base(message, inner)
             {
                 this.oldStackTrace = stackTrace;
             }
 
-
             public override string StackTrace
             {
-                get
-                {
-                    return this.oldStackTrace;
-                }
+                get => this.oldStackTrace;
             }
         }
     }

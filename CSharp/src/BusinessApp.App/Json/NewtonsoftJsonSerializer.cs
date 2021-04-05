@@ -24,28 +24,29 @@ namespace BusinessApp.App.Json
             this.logger = logger.NotNull().Expect(nameof(logger));
             this.settings = settings.NotNull().Expect(nameof(logger));
             serializer = JsonSerializer.Create(settings);
+            errors = new List<MemberValidationException>();
         }
 
-        public T Deserialize<T>(byte[] data)
+        public T? Deserialize<T>(byte[] data)
         {
-            using var serializationStream = new MemoryStream(data);
             errors = new List<MemberValidationException>();
             serializer.Error += OnError;
-            using (var sr = new StreamReader(serializationStream))
-            using (var jr = new JsonTextReader(sr))
+
+            using var serializationStream = new MemoryStream(data);
+            using var sr = new StreamReader(serializationStream);
+            using var jr = new JsonTextReader(sr);
+
+            try
             {
-                try
-                {
-                    var model =  serializer.Deserialize<T>(jr);
+                var model =  serializer.Deserialize<T>(jr);
 
-                    if (!errors.Any()) return model;
+                if (!errors.Any()) return model;
 
-                    throw new ModelValidationException("There is bad data", errors);
-                }
-                finally
-                {
-                    serializer.Error -= OnError;
-                }
+                throw new ModelValidationException("There is bad data", errors);
+            }
+            finally
+            {
+                serializer.Error -= OnError;
             }
         }
 
@@ -56,26 +57,26 @@ namespace BusinessApp.App.Json
             return Encoding.UTF8.GetBytes(str);
         }
 
-        private void OnError(object sender, ErrorEventArgs e)
+        private void OnError(object? sender, ErrorEventArgs e)
         {
-            if (e.ErrorContext.Member != null)
+            ErrorEventArgs args = e;
+            var memberName = args.ErrorContext.Member?.ToString();
+
+            if (!string.IsNullOrWhiteSpace(memberName))
             {
-                var error = new MemberValidationException(
-                    e.ErrorContext.Member?.ToString(),
-                    new[] { e.ErrorContext.Error.Message });
+                var error = new MemberValidationException(memberName,
+                    new[] { args.ErrorContext.Error.Message });
 
                 errors.Add(error);
 
-                e.ErrorContext.Handled = true;
+                args.ErrorContext.Handled = true;
             }
 
-            logger.Log(
-                new LogEntry(
-                    LogSeverity.Error,
-                    "Deserialization failed",
-                    e.ErrorContext.Error,
-                    e.ErrorContext.OriginalObject)
-            );
+            logger.Log(new LogEntry(LogSeverity.Error, "Deserialization failed")
+            {
+                Exception = args.ErrorContext.Error,
+                Data = args.ErrorContext.OriginalObject
+            });
         }
     }
 }

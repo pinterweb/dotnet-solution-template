@@ -11,6 +11,7 @@ namespace BusinessApp.Data
 
     public class QueryOperatorSpecificationBuilder<TQuery, TContract> :
         ILinqSpecificationBuilder<TQuery, TContract>
+        where TQuery : notnull
     {
         private static ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>> DescriptorCache
             = new ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>>();
@@ -29,10 +30,11 @@ namespace BusinessApp.Data
 
         public LinqSpecification<TContract> Build(TQuery query)
         {
-            if (DescriptorCache.TryGetValue(query.GetType(), out ICollection<SpecificationDescriptor> e))
+            if (DescriptorCache.TryGetValue(query.GetType(), out ICollection<SpecificationDescriptor>? e))
             {
-                var spec = e.Select(p => CreateSpec(query, p))
-                    .Where(s => s != null);
+                IEnumerable<LinqSpecification<TContract>> spec = e
+                    .Select(p => CreateSpec(query, p))
+                    .Where(s => s != null)!;
 
                 return spec.Any() ? spec.Aggregate((a, b) => a & b) : new NullSpecification<TContract>(true);
             }
@@ -43,7 +45,7 @@ namespace BusinessApp.Data
             return Build(query);
         }
 
-        private static LinqSpecification<TContract> CreateSpec(TQuery query,
+        private static LinqSpecification<TContract>? CreateSpec(TQuery query,
             SpecificationDescriptor e)
         {
             var propertyValue = e.PropertyGetter(query);
@@ -66,10 +68,10 @@ namespace BusinessApp.Data
 
             void FillCache(PropertyInfo property, Expression queryExp, Expression contractExp)
             {
-                var attribute = property.GetCustomAttribute<QueryOperatorAttribute>();
+                var attribute = property.GetCustomAttribute<QueryOperatorAttribute>()!;
 
                 var queryProp = Expression.Property(
-                    Expression.Convert(queryExp, property.DeclaringType), property);
+                    Expression.Convert(queryExp, property.DeclaringType!), property);
 
                 if (attribute.OperatorToUse == null && !seenTypes.Contains(property.PropertyType))
                 {
@@ -95,9 +97,7 @@ namespace BusinessApp.Data
                 {
                     var contractProp = Expression.Property(contractExp, opAttr.TargetProp);
 
-                    DescriptorCache[queryType].Add(new SpecificationDescriptor
-                    {
-                        PropertyGetter =
+                    DescriptorCache[queryType].Add(new SpecificationDescriptor(
                            Expression.Lambda<Func<TQuery, object>>(
                                Expression.Condition(
                                    Expression.ReferenceEqual(queryExp, Expression.Constant(null)),
@@ -105,15 +105,15 @@ namespace BusinessApp.Data
                                    Expression.Convert(queryProp, typeof(object))
                                ), QueryParam
                            ).Compile(),
-                        ContractProp = contractProp,
-                        Attribute = opAttr
-                    });
+                        contractProp,
+                        opAttr
+                    ));
                 }
             };
 
             var props = queryType
                 .GetProperties()
-                .Where(p => p.IsDefined(typeof(QueryOperatorAttribute)));
+                .Where(p => p.DeclaringType != null && p.IsDefined(typeof(QueryOperatorAttribute)));
 
             foreach (var p in props) FillCache(p, QueryParam, ContractParam);
         }
@@ -123,20 +123,19 @@ namespace BusinessApp.Data
             Expression queryMemberExpr,
             MemberExpression contractMemberExpr)
         {
-            var contractP = contractMemberExpr.Member as PropertyInfo;
+            var contractProp = contractMemberExpr.Member as PropertyInfo;
             var needToConvert =
-                (Nullable.GetUnderlyingType(contractP.PropertyType) != null
+                (Nullable.GetUnderlyingType(contractProp!.PropertyType) != null
                 && attribute.OperatorToUse != QueryOperators.Contains);
             var queryExp = needToConvert switch
             {
                 false => (Expression)queryMemberExpr,
-                true => (Expression)Expression.Convert(queryMemberExpr, contractP.PropertyType),
+                true => (Expression)Expression.Convert(queryMemberExpr, contractProp.PropertyType),
             };
 
             switch (attribute.OperatorToUse)
             {
                 case QueryOperators.Contains:
-                    var contractProp = contractMemberExpr.Member as PropertyInfo;
                     var method = typeof(Enumerable)
                         .GetMethods(BindingFlags.Static | BindingFlags.Public)
                         .Where(x => x.Name == "Contains")
@@ -172,9 +171,18 @@ namespace BusinessApp.Data
 
         private sealed class SpecificationDescriptor
         {
-            public Func<TQuery, object> PropertyGetter { get; set; }
-            public MemberExpression ContractProp { get; set; }
-            public QueryOperatorAttribute Attribute { get; set; }
+            public SpecificationDescriptor(Func<TQuery, object> propertyGetter,
+                MemberExpression contractProp,
+                QueryOperatorAttribute attribute)
+            {
+                PropertyGetter = propertyGetter;
+                ContractProp = contractProp;
+                Attribute = attribute;
+            }
+
+            public Func<TQuery, object> PropertyGetter { get; }
+            public MemberExpression ContractProp { get; }
+            public QueryOperatorAttribute Attribute { get; }
         }
     }
 }

@@ -8,6 +8,7 @@
     /// Builds one factory from many query visitor factories
     /// </summary>
     public sealed class CompositeQueryVisitorBuilder<TQuery, TResult> : IQueryVisitorFactory<TQuery, TResult>
+        where TQuery : notnull
     {
         private readonly IEnumerable<IQueryVisitorFactory<TQuery, TResult>> factories;
 

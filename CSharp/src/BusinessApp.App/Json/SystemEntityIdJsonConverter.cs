@@ -20,7 +20,7 @@ namespace BusinessApp.App.Json
             var converterType = typeof(SystemEntityIdJsonConverter<>)
                 .MakeGenericType(typeToConvert);
 
-            return (JsonConverter)Activator.CreateInstance(converterType);
+            return (JsonConverter)Activator.CreateInstance(converterType)!;
         }
 
         private class SystemEntityIdJsonConverter<TEntityId> : JsonConverter<TEntityId>
@@ -28,10 +28,10 @@ namespace BusinessApp.App.Json
         {
             private static string TypeDisplayName = typeof(TEntityId).Name;
 
-            public override TEntityId Read(ref Utf8JsonReader reader, Type typeToConvert,
+            public override TEntityId? Read(ref Utf8JsonReader reader, Type typeToConvert,
                 JsonSerializerOptions options)
             {
-                if (reader.TokenType == JsonTokenType.Null) return default(TEntityId);
+                if (reader.TokenType == JsonTokenType.Null) return default;
 
                 var converter = TypeDescriptor.GetConverter(typeToConvert);
 
@@ -40,7 +40,7 @@ namespace BusinessApp.App.Json
                 {
                     return (TEntityId)converter.ConvertFrom(reader.GetString());
                 }
-                else if (CanTryToConvertNumber(reader, converter, out Type typeToConvertTo))
+                else if (CanTryToConvertNumber(reader, converter, out Type? typeToConvertTo))
                 {
                     var longConverter = TypeDescriptor.GetConverter(typeof(long));
 
@@ -67,8 +67,9 @@ namespace BusinessApp.App.Json
                 }
             }
 
-        // all json values are long, so we need to convert to actual type
-        private static bool CanTryToConvertNumber(Utf8JsonReader reader, TypeConverter converter, out Type typeToConvertTo)
+            // all json values are long, so we need to convert to actual type
+            private static bool CanTryToConvertNumber(Utf8JsonReader reader, TypeConverter converter,
+                out Type? typeToConvertTo)
             {
                 typeToConvertTo = null;
 

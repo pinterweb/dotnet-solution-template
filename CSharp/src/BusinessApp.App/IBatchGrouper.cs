@@ -8,6 +8,7 @@ namespace BusinessApp.App
     /// Consolidate batch requests into units of work
     /// </summary>
     public interface IBatchGrouper<TCommand>
+        where TCommand : notnull
     {
         /// <summary>
         /// Groups the <paramref name="commands"/>

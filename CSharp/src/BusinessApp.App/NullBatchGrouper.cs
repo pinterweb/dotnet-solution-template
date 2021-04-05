@@ -5,6 +5,7 @@ namespace BusinessApp.App
     using System.Threading.Tasks;
 
     public class NullBatchGrouper<TCommand> : IBatchGrouper<TCommand>
+        where TCommand : notnull
     {
         public Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(IEnumerable<TCommand> commands,
             CancellationToken cancelToken)

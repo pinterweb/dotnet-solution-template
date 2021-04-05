@@ -8,9 +8,10 @@ namespace BusinessApp.WebApi.Json
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Logs certains aspects of a request
+    /// Logs JSON exception and convert the response to a <see cref="Result"/> type
     /// </summary>
     public class NewtonsoftJsonExceptionDecorator<T, R> : IHttpRequestHandler<T, R>
+       where T : notnull
     {
         private readonly IHttpRequestHandler<T, R> inner;
         private readonly ILogger logger;
@@ -41,7 +42,7 @@ namespace BusinessApp.WebApi.Json
 
         private void Log(Exception exception)
         {
-            logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
+            logger.Log(LogEntry.FromException(exception));
         }
     }
 }

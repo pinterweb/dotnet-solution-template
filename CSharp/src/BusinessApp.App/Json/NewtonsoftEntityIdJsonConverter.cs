@@ -16,7 +16,7 @@
             typeof(IEntityId).IsAssignableFrom(objectType) ||
             typeof(IEntityId).IsAssignableFrom(Nullable.GetUnderlyingType(objectType));
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue,
             JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null || reader.Value == null) return null;
@@ -25,13 +25,15 @@
 
             try
             {
-                if (CanTryToConvertNumber(reader, converter, out Type typeToConvertTo))
+                if (CanTryToConvertNumber(reader, converter, out Type? typeToConvertTo))
                 {
                     var longConverter = TypeDescriptor.GetConverter(typeof(long));
 
-                    return converter.ConvertFrom(longConverter.ConvertTo(reader.Value, typeToConvertTo));
+                    return converter.ConvertFrom(
+                        longConverter.ConvertTo(reader.Value, typeToConvertTo));
                 }
-                if (converter.CanConvertTo(reader.ValueType) || CanTryToConvertNumber(reader, converter, out Type _))
+                if (converter.CanConvertTo(reader.ValueType)
+                    || CanTryToConvertNumber(reader, converter, out Type _))
                 {
                         return converter.ConvertFrom(reader.Value);
                 }
@@ -44,7 +46,7 @@
             throw new BusinessAppAppException(string.Format(ErrTemplate, reader.Path));
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value is IEntityId id)
             {
@@ -60,7 +62,7 @@
         }
 
         // all json values are long, so we need to convert to actual type
-        private static bool CanTryToConvertNumber(JsonReader reader, TypeConverter converter, out Type typeToConvertTo)
+        private static bool CanTryToConvertNumber(JsonReader reader, TypeConverter converter, out Type? typeToConvertTo)
         {
             typeToConvertTo = null;
 

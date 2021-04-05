@@ -15,10 +15,10 @@
     public class ProblemDetail : IDictionary<string, object>
     {
         private readonly IDictionary<string, object> props = new Dictionary<string, object>();
-        private string detail;
-        private Uri instance;
+        private string? detail;
+        private Uri? instance;
 
-        public ProblemDetail(int status, Uri type = null)
+        public ProblemDetail(int status, Uri? type = null)
         {
             Type = type ?? new Uri("about:blank");
 
@@ -45,7 +45,7 @@
 
         public int StatusCode { get; }
         public string Title { get; }
-        public string Detail
+        public string? Detail
         {
             set
             {
@@ -63,7 +63,7 @@
             get => detail;
         }
         public Uri Type { get; }
-        public Uri Instance
+        public Uri? Instance
         {
             set
             {

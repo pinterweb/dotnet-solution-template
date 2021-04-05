@@ -9,6 +9,7 @@
 
     public class BatchRequestAdapter<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
+        where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
@@ -21,8 +22,6 @@
             IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
-            request.NotNull().Expect(nameof(request));
-
             var results = new List<Result<TResponse, Exception>>();
 
             foreach(var msg in request)

@@ -102,7 +102,7 @@ namespace BusinessApp.WebApi
         {
             public BusinessAppDbContext CreateDbContext(string[] args)
             {
-                var config = (IConfiguration)WebHost.CreateDefaultBuilder(args)
+                var config = (IConfiguration?)WebHost.CreateDefaultBuilder(args)
                     .ConfigureServices(sc => sc.AddSingleton(new Container()))
                     .ConfigureAppConfiguration(builder =>
                     {

@@ -75,7 +75,7 @@
 
         public int Id { get; set; }
 
-        public int ToInt32(IFormatProvider provider) => Id;
+        public int ToInt32(IFormatProvider? provider) => Id;
         public TypeCode GetTypeCode() => Id.GetTypeCode();
         public static implicit operator int (EntityId id) => id.Id;
     }
@@ -85,11 +85,16 @@
         public class Request : App.Query
         {
             public int Id { get; set; }
-            public override IEnumerable<string> Sort { get; set; }
+            public override IEnumerable<string> Sort { get; set; } = new List<string>();
         }
 
         public class Response
         {
+            public Response(EntityId? id = null)
+            {
+                Id = id ?? new EntityId(0);
+            }
+
             public EntityId Id { get; set; }
         }
 
@@ -101,8 +106,8 @@
             {
                 var response =  new []
                 {
-                    new Response() { Id = new EntityId(1) },
-                    new Response() { Id = new EntityId(2) },
+                    new Response(new EntityId(1)),
+                    new Response(new EntityId(2)),
                 }
                 .Where(r => r.Id.Id == request.Id);
 
@@ -113,14 +118,12 @@
             Task<Result<App.EnvelopeContract<Response>, Exception>> App.IRequestHandler<Request, App.EnvelopeContract<Response>>.HandleAsync(
                 Request request, CancellationToken cancelToken)
             {
-                var e =  Result.Ok(new App.EnvelopeContract<Response>
-                {
-                    Data = new [] { new Response() },
-                    Pagination = new App.Pagination
+                var e =  Result.Ok(new App.EnvelopeContract<Response>(
+                    new[] { new Response() },
+                    new App.Pagination
                     {
                         ItemCount = 1
-                    }
-                });
+                    }));
 
                 return Task.FromResult(e);
             }
@@ -132,7 +135,7 @@
         public class Body
         {
             public long LongerId { get; set; }
-            public EntityId Id { get; set; }
+            public EntityId? Id { get; set; }
         }
     }
 
@@ -140,18 +143,18 @@
     {
         public class Query
         {
-            public EntityId Id { get; set; }
+            public EntityId? Id { get; set; }
         }
 
         public class Response : IEventStream
         {
-            public IEnumerable<IDomainEvent> Events { get; set; }
+            public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
 
         }
 
         public class Event : IDomainEvent
         {
-            public EntityId Id { get; set; }
+            public EntityId? Id { get; set; }
 
             public DateTimeOffset OccurredUtc { get; }
         }

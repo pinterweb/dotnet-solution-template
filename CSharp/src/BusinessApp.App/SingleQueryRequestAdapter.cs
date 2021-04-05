@@ -17,7 +17,7 @@ namespace BusinessApp.App
     /// </remarks>
     public class SingleQueryRequestAdapter<TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
-        where TRequest : IQuery
+        where TRequest : notnull, IQuery
     {
         private static Exception MoreThanOneResultErr =
             new BusinessAppAppException("Your query expected to return one result, but " +

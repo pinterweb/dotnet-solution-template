@@ -16,7 +16,7 @@ namespace BusinessApp.App.Json
             this.options = options.NotNull().Expect(nameof(options));
         }
 
-        public T Deserialize<T>(byte[] data)
+        public T? Deserialize<T>(byte[] data)
         {
             return data.Length > 0 ?
                 JsonSerializer.Deserialize<T>(data.AsSpan(), options) :

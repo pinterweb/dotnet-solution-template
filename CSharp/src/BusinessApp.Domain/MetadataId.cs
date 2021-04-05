@@ -17,7 +17,7 @@ namespace BusinessApp.Domain
 
         TypeCode IConvertible.GetTypeCode() => Id.GetTypeCode();
 
-        long IConvertible.ToInt64(IFormatProvider provider) => Id;
+        long IConvertible.ToInt64(IFormatProvider? provider) => Id;
 
         public static explicit operator long (MetadataId id) => id.Id;
 

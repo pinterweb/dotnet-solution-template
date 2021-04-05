@@ -50,7 +50,26 @@ namespace BusinessApp.Data.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BadStateException>(ex);
+            }
+
+            [Fact]
+            public void DataToString_WhenNull_ExceptionThrown()
+            {
+                /* Arrange */
+                var e = A.Fake<DomainEventStub>();
+                A.CallTo(() => e.ToString()).Returns(null);
+                void shouldThrow() => new Metadata<DomainEventStub>(A.Dummy<MetadataId>(),
+                    "foo", A.Dummy<MetadataType>(), e);
+
+                /* Act */
+                var ex = Record.Exception(shouldThrow);
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal(
+                    "data ToString() must return a value for the DataSetName: object cannot be null",
+                    ex.Message);
             }
 
             [Fact]

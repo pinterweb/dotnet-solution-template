@@ -11,8 +11,9 @@
     /// Implementation to authorizes a user in the context of {T} based on the <see cref="AuthorizeAttribute" />
     /// </summary>
     public class AuthorizeAttributeHandler<T> : IAuthorizer<T>
+        where T : notnull
     {
-        private AuthorizeAttribute Attribute = GetAttribute(typeof(T));
+        private AuthorizeAttribute? Attribute = GetAttribute(typeof(T));
 
         private readonly IPrincipal currentUser;
         private readonly ILogger logger;
@@ -43,15 +44,14 @@
                     if (i == 0)
                     {
                         var msgTemplate = $"{{0}} not authorized to execute {instance.GetType().Name}";
-                        var ex = new SecurityException(string.Format(msgTemplate, "You are"));
+                        var publicMsg = string.Format(msgTemplate, "You are");
+                        var loggedMsg = string.Format(msgTemplate, $"User '{currentUser.Identity?.Name ?? AnonymousUser.Name}' is");
+                        var ex = new SecurityException(publicMsg);
 
-                        logger.Log(
-                            new LogEntry(
-                                LogSeverity.Info,
-                                string.Format(msgTemplate, $"User '{currentUser.Identity.Name}' is"),
-                                ex
-                            )
-                        );
+                        logger.Log(new LogEntry(LogSeverity.Info, loggedMsg)
+                        {
+                            Exception = ex
+                        });
 
                         throw ex;
                     }
@@ -59,7 +59,7 @@
             }
         }
 
-        private static AuthorizeAttribute GetAttribute(Type commandType)
+        private static AuthorizeAttribute? GetAttribute(Type commandType)
         {
             return commandType.GetTypeInfo().GetCustomAttribute<AuthorizeAttribute>();
         }

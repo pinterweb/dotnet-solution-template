@@ -105,17 +105,17 @@ namespace BusinessApp.App.UnitTest
 
             public class NotAuthorized : AuthorizeObject
             {
-                Action runAuthorization;
+                private readonly Action runAuthorization;
+                private readonly IIdentity identity;
 
                 public NotAuthorized()
                 {
                     /* Arrange */
                     var authCommand = new AuthRolesCommandStub();
-                    var fakeIdentity = A.Fake<IIdentity>();
                     runAuthorization = () => sut.AuthorizeObject(authCommand);
+                    identity = A.Fake<IIdentity>();
 
-                    A.CallTo(() => fakeIdentity.Name).Returns("foouser");
-                    A.CallTo(() => user.Identity).Returns(fakeIdentity);
+                    A.CallTo(() => user.Identity).Returns(identity);
                     A.CallTo(() => user.IsInRole(A<string>._)).Returns(false);
                 }
 
@@ -145,13 +145,16 @@ namespace BusinessApp.App.UnitTest
                     );
                 }
 
-                [Fact]
-                public void LogsException()
+                [Theory]
+                [InlineData(null, "Anonymous")]
+                [InlineData("foouser", "foouser")]
+                public void LogsException(string identityName, string usedName)
                 {
                     /* Arrange */
                     LogEntry logEntry = null;
                     A.CallTo(() => logger.Log(A<LogEntry>._))
                         .Invokes(ctx => logEntry = ctx.GetArgument<LogEntry>(0));
+                    A.CallTo(() => identity.Name).Returns(identityName);
 
                     /* Act */
                     var exception = Record.Exception(runAuthorization);
@@ -160,7 +163,28 @@ namespace BusinessApp.App.UnitTest
                     A.CallTo(() => logger.Log(A<LogEntry>._)).MustHaveHappenedOnceExactly();
                     Assert.Equal(LogSeverity.Info, logEntry.Severity);
                     Assert.Equal(
-                        "User 'foouser' is not authorized to execute AuthRolesCommandStub",
+                        $"User '{usedName}' is not authorized to execute AuthRolesCommandStub",
+                        logEntry.Message
+                    );
+                }
+
+                [Fact]
+                public void NullIdentity_LogsAnonymous()
+                {
+                    /* Arrange */
+                    LogEntry logEntry = null;
+                    A.CallTo(() => logger.Log(A<LogEntry>._))
+                        .Invokes(ctx => logEntry = ctx.GetArgument<LogEntry>(0));
+                    A.CallTo(() => user.Identity).Returns(null);
+
+                    /* Act */
+                    var exception = Record.Exception(runAuthorization);
+
+                    /* Assert */
+                    A.CallTo(() => logger.Log(A<LogEntry>._)).MustHaveHappenedOnceExactly();
+                    Assert.Equal(LogSeverity.Info, logEntry.Severity);
+                    Assert.Equal(
+                        $"User '{AnonymousUser.Name}' is not authorized to execute AuthRolesCommandStub",
                         logEntry.Message
                     );
                 }

@@ -113,6 +113,19 @@ namespace BusinessApp.Domain.UnitTest
         public class ErrorFactory : ResultOfTETests
         {
             [Fact]
+            public void NullError_Throws()
+            {
+                /* Arrange */
+                string error = null;
+
+                /* Act */
+                var ex = Record.Exception(() => Result<_, string>.Error(error));
+
+                /* Assert */
+                Assert.NotNull(ex);
+            }
+
+            [Fact]
             public void KindProperty_IsError()
             {
                 /* Arrange */

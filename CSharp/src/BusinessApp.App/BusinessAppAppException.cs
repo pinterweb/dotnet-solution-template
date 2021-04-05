@@ -9,7 +9,7 @@ namespace BusinessApp.App
     [Serializable]
     public class BusinessAppAppException : BusinessAppException
     {
-        public BusinessAppAppException(string message, Exception inner = null)
+        public BusinessAppAppException(string message, Exception? inner = null)
             :base(message, inner)
         { }
     }

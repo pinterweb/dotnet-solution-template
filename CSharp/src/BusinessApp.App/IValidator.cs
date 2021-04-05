@@ -9,6 +9,7 @@
     /// Interface to validate the data from an instance <typeparam name="T">T</typeparam>
     /// </summary>
     public interface IValidator<T>
+        where T : notnull
     {
         /// <summary>
         /// Validates the instance, returning a result indicating success or failure

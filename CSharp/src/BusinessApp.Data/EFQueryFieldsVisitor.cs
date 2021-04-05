@@ -52,7 +52,7 @@
 
         private static IQueryable<TResult> QueryFields(IQueryable<TResult> query, IEnumerable<string> fields)
         {
-            if (ExpressionCache.TryGetValue(fields, out Expression<Func<TResult, TResult>> selector))
+            if (ExpressionCache.TryGetValue(fields, out Expression<Func<TResult, TResult>>? selector))
             {
                 return query.Select(selector);
             }

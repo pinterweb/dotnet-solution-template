@@ -26,10 +26,10 @@
             }
             catch (Exception ex)
             {
-                logger.Log(
-                    new LogEntry(LogSeverity.Critical,
-                        $"BusinessApp terminated unexpectedly",
-                        ex));
+                logger.Log(new LogEntry(LogSeverity.Critical, "BusinessApp terminated unexpectedly")
+                {
+                    Exception = ex
+                });
             }
         }
 

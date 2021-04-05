@@ -14,7 +14,7 @@
             Data.Add("", message);
         }
 
-        public EntityNotFoundException(string entityName, string message = null)
+        public EntityNotFoundException(string entityName, string? message = null)
             :base(message ?? $"{entityName} not found")
         {
             Data.Add(entityName, message);

@@ -27,7 +27,24 @@ namespace BusinessApp.Data.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BadStateException>(ex);
+            }
+
+            [Fact]
+            public void EventToStringNull_ExceptionThrown()
+            {
+                /* Arrange */
+                var i = A.Dummy<EventTrackingId>();
+                var e = A.Fake<DomainEventStub>();
+                A.CallTo(() => e.ToString()).Returns(null);
+                void shouldThrow() => new EventMetadata<DomainEventStub>(i, e);
+
+                /* Act */
+                var ex = Record.Exception(shouldThrow);
+
+                /* Assert */
+                Assert.IsType<BadStateException>(ex);
+                Assert.Equal("Event ToString must return a value: object cannot be null", ex.Message);
             }
 
             [Fact]

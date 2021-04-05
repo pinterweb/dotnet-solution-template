@@ -120,20 +120,38 @@ namespace BusinessApp.Data.IntegrationTest
                 Assert.Same(id, metadata.Id);
             }
 
-            [Fact]
-            public void SetsMetadataUsernameProperty()
+            [Theory]
+            [InlineData("foouser", "foouser")]
+            [InlineData(null, "Anonymous")]
+            public void SetsMetadataUsernameProperty(string identityName, string setName)
             {
                 /* Arrange */
                 Metadata<RequestStub> metadata = null;
                 A.CallTo(() => db.Add(A<Metadata<RequestStub>>._))
                     .Invokes(ctx => metadata = ctx.GetArgument<Metadata<RequestStub>>(0));
-                A.CallTo(() => user.Identity.Name).Returns("foo");
+                A.CallTo(() => user.Identity.Name).Returns(identityName);
 
                 /* Act */
                 var _ = sut.HandleAsync(A.Dummy<RequestStub>(), cancelToken);
 
                 /* Assert */
-                Assert.Equal("foo", metadata.Username);
+                Assert.Equal(setName, metadata.Username);
+            }
+
+            [Fact]
+            public void NullIdentity_SetsAnonymousUsername()
+            {
+                /* Arrange */
+                Metadata<RequestStub> metadata = null;
+                A.CallTo(() => db.Add(A<Metadata<RequestStub>>._))
+                    .Invokes(ctx => metadata = ctx.GetArgument<Metadata<RequestStub>>(0));
+                A.CallTo(() => user.Identity).Returns(null);
+
+                /* Act */
+                var _ = sut.HandleAsync(A.Dummy<RequestStub>(), cancelToken);
+
+                /* Assert */
+                Assert.Equal(AnonymousUser.Name, metadata.Username);
             }
 
             [Fact]

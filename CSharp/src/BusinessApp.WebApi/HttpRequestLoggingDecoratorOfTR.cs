@@ -7,9 +7,10 @@ namespace BusinessApp.WebApi
     using System.Threading;
 
     /// <summary>
-    /// Logs request errors and returns an error
+    /// Logs request errors and converts it to a <see cref="Result"/> type
     /// </summary>
     public class HttpRequestLoggingDecorator<T, R> : IHttpRequestHandler<T, R>
+        where T : notnull
     {
         private readonly IHttpRequestHandler<T, R> inner;
         private readonly ILogger logger;
@@ -49,7 +50,7 @@ namespace BusinessApp.WebApi
 
         private void Log(Exception exception)
         {
-            logger.Log(new LogEntry(LogSeverity.Error, exception.Message, exception));
+            logger.Log(LogEntry.FromException(exception));
         }
     }
 }

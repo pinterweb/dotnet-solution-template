@@ -36,7 +36,8 @@
 
         public static Result<T, string> NotDefault<T>(this T value)
         {
-            T defaultVal = default;
+            T? defaultVal = default;
+
             if (EqualityComparer<T>.Default.Equals(value, defaultVal))
             {
                 // null ToString = "";

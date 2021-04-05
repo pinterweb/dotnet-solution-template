@@ -8,7 +8,7 @@ namespace BusinessApp.WebApi.ProblemDetails
 
     public class CompositeProblemDetail : ProblemDetail, IEnumerable<ProblemDetail>
     {
-        public CompositeProblemDetail(IEnumerable<ProblemDetail> problems, Uri type = null)
+        public CompositeProblemDetail(IEnumerable<ProblemDetail> problems, Uri? type = null)
             : base(StatusCodes.Status207MultiStatus, type)
         {
             Responses = problems.NotEmpty().Expect(nameof(problems));

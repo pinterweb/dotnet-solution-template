@@ -8,7 +8,7 @@ namespace BusinessApp.App
     /// </summary>
     public class ValidateObjectAttribute : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value == null) return ValidationResult.Success;
 
@@ -23,8 +23,8 @@ namespace BusinessApp.App
             }
 
             return new CompositeValidationResult(
-                validationContext?.DisplayName,
-                string.Format("Validation for {0} failed!", validationContext?.DisplayName),
+                validationContext.DisplayName,
+                string.Format("Validation for {0} failed!", validationContext.DisplayName),
                 results);
         }
     }

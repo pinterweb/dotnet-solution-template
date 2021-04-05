@@ -1,6 +1,7 @@
 namespace BusinessApp.Data
 {
     using System.Security.Principal;
+    using BusinessApp.App;
     using BusinessApp.Domain;
 
     public class EFEventStoreFactory : IEventStoreFactory
@@ -20,7 +21,9 @@ namespace BusinessApp.Data
         public IEventStore Create<T>(T trigger) where T : class
         {
             var id = idFactory.Create();
-            var metadata = new Metadata<T>(id, user.Identity.Name, MetadataType.EventTrigger,
+            var metadata = new Metadata<T>(id,
+                user.Identity?.Name ?? AnonymousUser.Name,
+                MetadataType.EventTrigger,
                 trigger);
 
             db.Add(metadata);
@@ -42,13 +45,10 @@ namespace BusinessApp.Data
                 this.correlationId = correlationId;
             }
 
-            public EventTrackingId Add<T>(T @event) where T : IDomainEvent
+            public EventTrackingId Add<T>(T @event) where T : notnull, IDomainEvent
             {
                 var eventId =  idFactory.Create();
-                var id = new EventTrackingId(eventId, correlationId)
-                {
-                    CausationId = correlationId
-                };
+                var id = new EventTrackingId(eventId, correlationId);
 
                 var metadata =  new EventMetadata<T>(id, @event);
 

@@ -17,18 +17,19 @@ namespace BusinessApp.WebApi.ProblemDetails
             this.options = options.NotNull().Expect(nameof(options));
         }
 
-        public ProblemDetail Create(Exception error = null)
+        public ProblemDetail Create(Exception error)
         {
-            var option = new ProblemDetailOptions()
+            error.NotNull().Expect(nameof(error));
+
+            var option = new ProblemDetailOptions((error.GetType()),
+                StatusCodes.Status500InternalServerError)
             {
                 MessageOverride = error?.Message ??
                     "An unknown error has occurred. Please try again or " +
-                    "contact support",
-                StatusCode = StatusCodes.Status500InternalServerError,
-                ProblemType = error?.GetType()
+                    "contact support"
             };
 
-            if (options.TryGetValue(option, out ProblemDetailOptions actualValue))
+            if (options.TryGetValue(option, out ProblemDetailOptions? actualValue))
             {
                 option = actualValue;
             }
@@ -41,7 +42,7 @@ namespace BusinessApp.WebApi.ProblemDetails
             return CreateSingleProblem(error, option);
         }
 
-        private static ProblemDetail CreateSingleProblem(Exception error,
+        private static ProblemDetail CreateSingleProblem(Exception? error,
             ProblemDetailOptions option)
         {
             var type = option.AbsoluteType == null ? null : new Uri(option.AbsoluteType);
@@ -52,18 +53,10 @@ namespace BusinessApp.WebApi.ProblemDetails
 
             if (error != null)
             {
-                foreach (DictionaryEntry entry in error?.Data)
+                foreach (DictionaryEntry entry in error.Data)
                 {
-                    string keyVal = entry.Key switch
-                    {
-                        string k => k,
-                        _ => null
-                    };
-
-                    if (!string.IsNullOrWhiteSpace(keyVal))
-                    {
-                        problem.Add(keyVal, entry.Value);
-                    }
+                    var key = entry.Key.ToString() ?? "";
+                    problem.TryAdd(key, entry.Value ?? "");
                 }
             }
 

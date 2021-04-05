@@ -9,7 +9,7 @@ namespace BusinessApp.Data
     using System;
 
     public class EFEnvelopedQueryHandler<TQuery, TResult> : IRequestHandler<TQuery, EnvelopeContract<TResult>>
-        where TQuery : IQuery
+        where TQuery : notnull, IQuery
         where TResult : class
     {
         private readonly BusinessAppDbContext db;
@@ -41,15 +41,16 @@ namespace BusinessApp.Data
             var finalQuery = queryVisitor.Visit(queryable);
             var totalCount = await finalQuery.CountAsync(cancelToken);
 
-            return Result.Ok<EnvelopeContract<TResult>>(new EnvelopeContract<TResult>
+            var data = await finalQuery
+                .Skip(skip)
+                .Take(take ?? (totalCount == 0 ? 1 : totalCount))
+                .ToListAsync();
+            var page = new Pagination
             {
-                // take must be greater than 0
-                Data = await finalQuery.Skip(skip).Take(take ?? (totalCount == 0 ? 1 : totalCount)).ToListAsync(),
-                Pagination = new Pagination
-                {
-                    ItemCount = totalCount
-                }
-            });
+                ItemCount = totalCount
+            };
+
+            return Result.Ok<EnvelopeContract<TResult>>(new EnvelopeContract<TResult>(data, page));
         }
     }
 }

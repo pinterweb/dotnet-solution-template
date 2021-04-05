@@ -32,10 +32,72 @@ namespace BusinessApp.App.IntegrationTest.Json
             }
         }
 
+        public class ReadJson : NewtonsoftLongToStringJsonConverterTests
+        {
+            [Fact]
+            public void NullToken_NullReturned()
+            {
+                /* Arrange */
+                var reader = A.Fake<JsonReader>();
+                var serializer = A.Dummy<JsonSerializer>();
+                A.CallTo(() => reader.TokenType).Returns(JsonToken.Null);
+
+                /* Act */
+                var readObj = sut.ReadJson(reader,
+                    A.Dummy<Type>(),
+                    A.Dummy<object>(),
+                    serializer);
+
+                /* Assert */
+                Assert.Null(readObj);
+            }
+
+            [Fact]
+            public void LongAsStringValue_LongReturned()
+            {
+                /* Arrange */
+                var reader = A.Fake<JsonReader>();
+                var serializer = A.Dummy<JsonSerializer>();
+                A.CallTo(() => reader.Value).Returns("123");
+
+                /* Act */
+                var readObj = sut.ReadJson(reader,
+                    A.Dummy<Type>(),
+                    A.Dummy<object>(),
+                    serializer);
+
+                /* Assert */
+                var longVal = Assert.IsType<long>(readObj);
+                Assert.Equal(123, longVal);
+            }
+        }
+
         public class WriteJson : NewtonsoftLongToStringJsonConverterTests
         {
             [Fact]
-            public void LongTypeIsString()
+            public void NullType_WritesAsNull()
+            {
+                /* Arrange */
+                StringBuilder sb = new StringBuilder();
+                var sw = new StringWriter(sb);
+                using (var writer = new JsonTextWriter(sw))
+                {
+
+                    var serializer = A.Fake<JsonSerializer>();
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("id");
+
+                    /* Act */
+                    sut.WriteJson(writer, null, serializer);
+                    writer.WriteEnd();
+                }
+
+                /* Assert */
+                Assert.Equal("{\"id\":null}", sb.ToString());
+            }
+
+            [Fact]
+            public void LongType_WritesAsString()
             {
                 /* Arrange */
                 StringBuilder sb = new StringBuilder();

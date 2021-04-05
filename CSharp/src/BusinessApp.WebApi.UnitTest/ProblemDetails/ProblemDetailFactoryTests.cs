@@ -18,13 +18,12 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         {
             options = new HashSet<ProblemDetailOptions>
             {
-                new ProblemDetailOptions
+                new ProblemDetailOptions(typeof(ProblemTypeExceptionStub), 400)
                 {
-                    ProblemType = typeof(ProblemTypeExceptionStub),
-                    StatusCode = 400,
                     AbsoluteType = "http://bar/foo.html"
                 }
             };
+
             sut = new ProblemDetailFactory(options);
         }
 
@@ -52,45 +51,16 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         public class Create : ProblemDetailFactoryTests
         {
             [Fact]
-            public void NullArgument_DefaultInternalErrorStatusReturned()
+            public void NullArgument_ExceptionThrown()
             {
                 /* Arrange */
                 Exception unknown = null;
 
                 /* Act */
-                var problem = sut.Create(unknown);
+                var ex = Record.Exception(() => sut.Create(unknown));
 
                 /* Assert */
-                Assert.Equal(500, problem.StatusCode);
-            }
-
-            [Fact]
-            public void NullArgument_InternalErrorDetailReturnedWhenToStringIsNull()
-            {
-                /* Arrange */
-                Exception unknown = null;
-
-                /* Act */
-                var problem = sut.Create(unknown);
-
-                /* Assert */
-                Assert.Equal(
-                    "An unknown error has occurred. Please try again or contact support",
-                    problem.Detail
-                );
-            }
-
-            [Fact]
-            public void NullArgument_AboutBlankTypeReturned()
-            {
-                /* Arrange */
-                Exception unknown = null;
-
-                /* Act */
-                var problem = sut.Create(unknown);
-
-                /* Assert */
-                Assert.Equal("about:blank", problem.Type.ToString());
+                Assert.IsType<BadStateException>(ex);
             }
 
             [Fact]
@@ -200,19 +170,47 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 Assert.Equal("bar", problem["foo"]);
             }
 
-            [Theory]
-            [InlineData("")]
-            public void ExceptionWithoutDataKeyString_ExtensionsNotAdded(object key)
+            [Fact]
+            public void Exception_WhenDataKeyToStringReturnsNull_EmptyStringUsedAsKey()
             {
                 /* Arrange */
                 var error = new ProblemTypeExceptionStub();
-                error.Data.Add(key, "bar");
+                error.Data.Add(new DictionaryKey(), "bar");
 
                 /* Act */
                 var problem = sut.Create(error);
 
                 /* Assert */
-                Assert.False(problem.TryGetValue(key.ToString(), out object _));
+                Assert.Equal("bar", problem[""]);
+            }
+
+            [Fact]
+            public void Exception_WhenDataKeyExists_FirstTaken()
+            {
+                /* Arrange */
+                var error = new ProblemTypeExceptionStub();
+                error.Data.Add(new DictionaryKey(), "bar");
+                error.Data.Add(new AnotherDictionaryKey(), "lomre");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem[""]);
+            }
+
+            [Fact]
+            public void ExceptionWithoutDataValueString_BlankValueAdded()
+            {
+                /* Arrange */
+                var error = new ProblemTypeExceptionStub();
+                error.Data.Add("bar", null);
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("", problem["bar"]);
             }
 
             [Fact]
@@ -371,6 +369,16 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         {
             public ProblemTypeExceptionStub(string msg = null) : base(msg)
             {}
+        }
+
+        private sealed class DictionaryKey
+        {
+            public override string ToString() => null;
+        }
+
+        private sealed class AnotherDictionaryKey
+        {
+            public override string ToString() => null;
         }
     }
 }

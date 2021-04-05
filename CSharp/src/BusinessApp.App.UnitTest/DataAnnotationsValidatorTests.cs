@@ -12,11 +12,32 @@ namespace BusinessApp.App.UnitTest
         [NoMember]
         public string NoMember { get; set; }
 
+        [NoErrMsg]
+        public string NoErrMsg { get; set; }
+
         [StringLength(10)]
         public string Foo { get; set; }
 
         [Required]
         public string Bar { get; set; } = "lorem";
+
+        private class NoErrMsgAttribute : ValidationAttribute
+        {
+            public override bool IsValid(object value) => value == null;
+
+            public override string FormatErrorMessage(string name) => null;
+
+            protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+            {
+                if (value == null) return base.IsValid(value, validationContext);
+
+                var result = base.IsValid(value, validationContext);
+
+                result.ErrorMessage = null;
+
+                return result;
+            }
+        }
 
         private class NoMemberAttribute : ValidationAttribute
         {
@@ -138,6 +159,20 @@ namespace BusinessApp.App.UnitTest
                     "If the attribute does not support this, please create or extend the attribute",
                     ex.Message
                 );
+            }
+
+            [Fact]
+            public async Task NoErrorMessage_ExceptionThrown()
+            {
+                /* Arrange */
+                var instance = new DataAnnotatedCommandStub { NoErrMsg = "foo" };
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, cancelToken));
+
+                /* Assert */
+                var modelError = Assert.IsType<BusinessAppAppException>(ex);
+                Assert.Equal("All errors must have an error message.", ex.Message);
             }
         }
     }
