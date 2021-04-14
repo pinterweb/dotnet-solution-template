@@ -20,7 +20,7 @@ namespace BusinessApp.App
         where TRequest : notnull, IQuery
     {
         private static Exception MoreThanOneResultErr =
-            new BusinessAppAppException("Your query expected to return one result, but " +
+            new BadStateException("Your query expected to return one result, but " +
                 "for some reason more than one result was returned. Please try the " +
                 "request again or contact support");
 

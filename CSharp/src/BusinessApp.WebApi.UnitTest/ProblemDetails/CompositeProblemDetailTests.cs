@@ -6,6 +6,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using BusinessApp.Domain;
 
     public class CompositeProblemDetailTests
     {
@@ -22,7 +23,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                     new CompositeProblemDetail(A.CollectionOfDummy<ProblemDetail>(0)));
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]

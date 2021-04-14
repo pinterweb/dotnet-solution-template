@@ -3,7 +3,6 @@ namespace BusinessApp.App.UnitTest
     using System;
     using Xunit;
     using BusinessApp.App;
-    using System.Collections;
 
     public class CommunicationExceptionTests
     {
@@ -28,18 +27,6 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Same(inner, ex.InnerException);
-            }
-
-            [Fact]
-            public void Data_AddsMessage()
-            {
-                /* Act */
-                var ex = new CommunicationException("foo");
-
-                /* Assert */
-                var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
-                Assert.Equal("", data.Key);
-                Assert.Equal("foo", data.Value);
             }
         }
     }

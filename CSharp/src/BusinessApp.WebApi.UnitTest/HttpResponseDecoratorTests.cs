@@ -11,6 +11,7 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading;
 
     using HandlerResult = Domain.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
+    using BusinessApp.Domain;
 
     public class HttpResponseDecoratorTests
     {
@@ -67,7 +68,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 

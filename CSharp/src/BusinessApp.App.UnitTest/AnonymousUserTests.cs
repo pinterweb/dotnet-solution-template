@@ -39,7 +39,7 @@ namespace BusinessApp.App.UnitTest
                 var exception = Record.Exception(create);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(exception);
+                Assert.IsType<BusinessAppException>(exception);
             }
         }
 

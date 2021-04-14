@@ -40,7 +40,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 
@@ -87,7 +87,7 @@ namespace BusinessApp.App.UnitTest
                 var expectedErrMsg = "Your query expected to return one result, but " +
                     "for some reason more than one result was returned. Please try the " +
                     "request again or contact support";
-                var expectedErr = new BusinessAppAppException(expectedErrMsg);
+                var expectedErr = new BadStateException(expectedErrMsg);
                 var responses = new[] { new ResponseStub(), new ResponseStub() };
                 var innerResult = Result.Ok<IEnumerable<ResponseStub>>(responses);
                 var request = A.Dummy<QueryStub>();
@@ -97,7 +97,7 @@ namespace BusinessApp.App.UnitTest
                 var result = await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
-                var ex = Assert.IsType<BusinessAppAppException>(result.UnwrapError());
+                var ex = Assert.IsType<BadStateException>(result.UnwrapError());
                 Assert.Equal(expectedErrMsg, ex.Message);
             }
         }

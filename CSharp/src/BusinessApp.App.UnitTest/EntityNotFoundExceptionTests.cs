@@ -1,7 +1,6 @@
 namespace BusinessApp.App.UnitTest
 {
     using Xunit;
-    using System.Collections;
 
     public class EntityNotFoundExceptionTests
     {
@@ -35,30 +34,6 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Equal("foo not found", ex.Message);
-            }
-
-            [Fact]
-            public void WithMessage_AddsToData()
-            {
-                /* Act */
-                var ex = new EntityNotFoundException("foo");
-
-                /* Assert */
-                var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
-                Assert.Equal("", data.Key);
-                Assert.Equal("foo", data.Value);
-            }
-
-            [Fact]
-            public void WithMessageAndEntityName_AddsData()
-            {
-                /* Act */
-                var ex = new EntityNotFoundException("foo", "bar");
-
-                /* Assert */
-                var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
-                Assert.Equal("foo", data.Key);
-                Assert.Equal("bar", data.Value);
             }
         }
     }

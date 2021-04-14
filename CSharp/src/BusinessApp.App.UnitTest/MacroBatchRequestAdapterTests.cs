@@ -53,7 +53,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 
@@ -70,7 +70,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, cancelToken));
 
                 /* Assert */
-                Assert.IsType<BusinessAppAppException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "The macro you ran expected to find records to change, but none were " +
                     "found",

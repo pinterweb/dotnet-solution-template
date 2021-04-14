@@ -19,7 +19,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(create);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -33,7 +33,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(create);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -52,6 +52,20 @@ namespace BusinessApp.App.UnitTest
                     s => Assert.Equal(Result.Error<object>(innerException), s),
                     s => Assert.Equal(Result.Ok<object>("lorem"), s)
                 );
+            }
+
+            [Fact]
+            public void HasMultipleErrorMessage()
+            {
+                /* Arrange */
+                var innerException = new Exception("foobar");
+                var innerError = Result.Error<string>(innerException);
+
+                /* Act */
+                var sut = BatchException.FromResults(new[] { innerError });
+
+                /* Assert */
+                Assert.Equal("Multiple errors occurred. See messages for errors.", sut.Message);
             }
 
             [Fact]

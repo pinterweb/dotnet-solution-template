@@ -47,7 +47,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 

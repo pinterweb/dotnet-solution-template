@@ -49,7 +49,7 @@ namespace BusinessApp.App.Json
 
                 }
 
-                throw new BusinessAppAppException($"Cannot convert {TypeDisplayName}");
+                throw new FormatException($"Cannot convert {TypeDisplayName}");
             }
 
             public override void Write(Utf8JsonWriter writer, TEntityId value, JsonSerializerOptions options)

@@ -61,7 +61,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => sut.ConvertFrom(null, null, source));
 
                 /* Assert */
-                Assert.IsType<BusinessAppException>(ex);
+                Assert.IsType<FormatException>(ex);
                 Assert.Equal(
                     "To convert from 'System.Int32' to 'BadEntityIdStub', the IEntityId " +
                     "needs a constructor that has an 'System.Int32' argument only",
@@ -141,7 +141,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => sut.ConvertTo(null, null, source, typeof(int)));
 
                 /* Assert */
-                Assert.IsType<BusinessAppException>(ex);
+                Assert.IsType<FormatException>(ex);
                 Assert.Equal("Source value must be 'EntityIdStub'", ex.Message);
             }
 

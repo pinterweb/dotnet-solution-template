@@ -153,7 +153,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, cancelToken));
 
                 /* Assert */
-                var modelError = Assert.IsType<BusinessAppAppException>(ex);
+                var modelError = Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "All errors must have a member name. " +
                     "If the attribute does not support this, please create or extend the attribute",
@@ -171,7 +171,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(async () => await sut.ValidateAsync(instance, cancelToken));
 
                 /* Assert */
-                var modelError = Assert.IsType<BusinessAppAppException>(ex);
+                var modelError = Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal("All errors must have an error message.", ex.Message);
             }
         }

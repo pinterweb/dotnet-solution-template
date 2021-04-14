@@ -29,7 +29,7 @@ namespace BusinessApp.App
 
             if (!payloads.Any())
             {
-                throw new BusinessAppAppException(
+                throw new BusinessAppException(
                     "The macro you ran expected to find records to change, but none were " +
                     "found"
                 );

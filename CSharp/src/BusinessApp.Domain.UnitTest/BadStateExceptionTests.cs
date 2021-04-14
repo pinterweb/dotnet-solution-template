@@ -29,18 +29,6 @@ namespace BusinessApp.Domain.UnitTest
                 /* Assert */
                 Assert.Same(inner, ex.InnerException);
             }
-
-            [Fact]
-            public void Data_AddsMessage()
-            {
-                /* Act */
-                var ex = new BadStateException("foo");
-
-                /* Assert */
-                var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
-                Assert.Equal("", data.Key);
-                Assert.Equal("foo", data.Value);
-            }
         }
     }
 }

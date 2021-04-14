@@ -6,6 +6,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
     using Microsoft.Extensions.Localization;
     using System.Collections.Generic;
     using System;
+    using BusinessApp.Domain;
 
     public class LocalizedProblemDetailFactoryTests
     {
@@ -40,7 +41,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 

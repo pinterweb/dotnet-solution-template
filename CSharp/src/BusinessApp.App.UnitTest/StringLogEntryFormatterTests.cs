@@ -20,7 +20,7 @@ namespace BusinessApp.App.UnitTest
             {
                 var ex = Record.Exception(() => sut.Format(null));
 
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]

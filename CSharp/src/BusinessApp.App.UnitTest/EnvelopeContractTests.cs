@@ -3,6 +3,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using FakeItEasy;
     using System.Collections.Generic;
+    using BusinessApp.Domain;
 
     public class EnvelopeContractTests
     {
@@ -24,7 +25,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]

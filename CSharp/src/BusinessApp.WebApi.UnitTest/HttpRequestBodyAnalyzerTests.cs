@@ -5,6 +5,7 @@ namespace BusinessApp.WebApi.UnitTest
     using Xunit;
     using System.Threading.Tasks;
     using System.Collections.Generic;
+    using BusinessApp.Domain;
 
     public class HttpRequestBodyAnalyzerTests
     {
@@ -46,7 +47,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 

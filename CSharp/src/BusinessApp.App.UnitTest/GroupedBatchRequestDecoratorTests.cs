@@ -54,7 +54,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 
@@ -106,7 +106,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(commands, cancelToken));
 
                 /* Assert */
-                Assert.IsType<BusinessAppAppException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "Could not find the original command(s) after " +
                     "it was grouped. Consider overriding Equals if the batch grouper " +

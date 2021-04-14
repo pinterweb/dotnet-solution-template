@@ -24,7 +24,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -76,7 +76,7 @@ namespace BusinessApp.Domain.UnitTest
                  var ex = Record.Exception(() => sut.CausationId = null);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal("CausationId: Value cannot be null", ex.Message);
             }
         }

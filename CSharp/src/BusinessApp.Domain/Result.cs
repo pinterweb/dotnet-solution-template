@@ -63,7 +63,7 @@
         public static Result<T, E> Error(E error)
         {
             return error == null
-                ? throw new BadStateException("A error result must have an error value")
+                ? throw new BusinessAppException("A error result must have an error value")
                 : new Result<T, E>(default, error, ValueKind.Error);
         }
 
@@ -74,7 +74,7 @@
             return Kind switch
             {
                 ValueKind.Ok => value!,
-                ValueKind.Error => throw new BadStateException($"{message}: {error}"),
+                ValueKind.Error => throw new BusinessAppException($"{message}: {error}"),
                     _ => throw new NotImplementedException(),
             };
         }
@@ -83,7 +83,7 @@
         {
             return Kind switch
             {
-                ValueKind.Ok => throw new BadStateException($"{message}: {value}"),
+                ValueKind.Ok => throw new BusinessAppException($"{message}: {value}"),
                 ValueKind.Error => error!,
                 _ => throw new NotImplementedException(),
             };
@@ -93,7 +93,7 @@
         {
             return Kind switch
             {
-                ValueKind.Ok => throw new BadStateException($"{value}"),
+                ValueKind.Ok => throw new BusinessAppException($"{value}"),
                 ValueKind.Error => error!,
                 _ => throw new NotImplementedException(),
             };
@@ -104,7 +104,7 @@
             return Kind switch
             {
                 ValueKind.Ok => value!,
-                ValueKind.Error => throw new BadStateException($"{error}"),
+                ValueKind.Error => throw new BusinessAppException($"{error}"),
                 _ => throw new NotImplementedException(),
             };
         }
