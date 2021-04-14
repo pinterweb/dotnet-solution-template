@@ -122,7 +122,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => Result<_, string>.Error(error));
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -165,7 +165,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => (_)sut);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "Cannot get the value because it is an error: foo",
                     ex.Message);
@@ -185,7 +185,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => sut.Expect("Some message"));
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "Some message: foo",
                     ex.Message);
@@ -219,7 +219,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => sut.ExpectError("Some message"));
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "Some message: foo",
                     ex.Message);
@@ -253,7 +253,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => sut.UnwrapError());
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "foo",
                     ex.Message);
@@ -287,7 +287,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => sut.Unwrap());
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal("foo", ex.Message);
             }
 
@@ -423,7 +423,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => (_)sut);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "Cannot get the error because it is a valid value: foo",
                     ex.Message);

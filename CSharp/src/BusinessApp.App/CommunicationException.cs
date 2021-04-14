@@ -7,8 +7,6 @@ namespace BusinessApp.App
     {
         public CommunicationException(string message, Exception? inner = null)
             :base(message, inner)
-        {
-            Data.Add("", message);
-        }
+        { }
     }
 }

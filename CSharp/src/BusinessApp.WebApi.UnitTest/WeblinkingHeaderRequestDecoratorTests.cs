@@ -53,7 +53,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 

@@ -40,10 +40,10 @@
             }
             catch(Exception e)
             {
-                throw new BusinessAppAppException(string.Format(ErrTemplate, reader.Path), e);
+                throw new FormatException(string.Format(ErrTemplate, reader.Path), e);
             }
 
-            throw new BusinessAppAppException(string.Format(ErrTemplate, reader.Path));
+            throw new FormatException(string.Format(ErrTemplate, reader.Path));
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)

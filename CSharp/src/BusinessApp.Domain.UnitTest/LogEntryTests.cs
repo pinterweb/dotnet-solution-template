@@ -32,7 +32,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => new LogEntry(A.Dummy<LogSeverity>(), msg));
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -61,7 +61,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => LogEntry.FromException(e));
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "Logging from an exception cannot be null: Value cannot be null",
                     ex.Message);

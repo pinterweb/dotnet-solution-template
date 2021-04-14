@@ -10,12 +10,15 @@ namespace BusinessApp.Domain
         /// </summary>
         public static T Unwrap<T>(this T? obj)
         {
-            return obj ?? throw new BadStateException("Object cannot be access because it is null");
+            return obj ?? throw new BusinessAppException("Object cannot be access because it is null");
         }
 
+        /// <summary>
+        /// Returns the underlying object or throws an exception with the messge
+        /// </summary>
         public static T Expect<T>(this T? obj, string message)
         {
-            return obj ?? throw new BadStateException($"{message}: object cannot be null");
+            return obj ?? throw new BusinessAppException($"{message}: object cannot be null");
         }
     }
 }

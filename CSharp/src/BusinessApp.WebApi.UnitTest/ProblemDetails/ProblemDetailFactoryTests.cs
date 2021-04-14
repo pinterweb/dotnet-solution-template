@@ -44,7 +44,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 
@@ -60,7 +60,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var ex = Record.Exception(() => sut.Create(unknown));
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]

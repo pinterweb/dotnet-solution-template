@@ -62,7 +62,7 @@ namespace BusinessApp.App
         {
             if (request.Except(groupedRequest).Any())
             {
-                throw new BusinessAppAppException("Could not find the original " +
+                throw new BusinessAppException("Could not find the original " +
                     "command(s) after it was grouped. Consider overriding Equals " +
                     "if the batch grouper creates new classes.");
             }

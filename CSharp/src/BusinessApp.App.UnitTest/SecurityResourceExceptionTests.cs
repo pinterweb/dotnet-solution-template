@@ -1,8 +1,8 @@
 namespace BusinessApp.App.UnitTest
 {
     using System;
+    using BusinessApp.Domain;
     using Xunit;
-    using System.Collections;
 
     public class SecurityResourceExceptionTests
     {
@@ -18,7 +18,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -29,18 +29,6 @@ namespace BusinessApp.App.UnitTest
 
                 /* Assert */
                 Assert.Equal("foo", ex.ResourceName);
-            }
-
-            [Fact]
-            public void WithResourceName_SetsData()
-            {
-                /* Act */
-                var ex = new SecurityResourceException("foo", "bar");
-
-                /* Assert */
-                var data = Assert.IsType<DictionaryEntry>(Assert.Single(ex.Data));
-                Assert.Equal("foo", data.Key);
-                Assert.Equal("bar", data.Value);
             }
 
             [Fact]

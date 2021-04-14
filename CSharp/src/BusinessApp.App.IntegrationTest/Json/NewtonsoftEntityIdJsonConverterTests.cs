@@ -98,7 +98,7 @@ namespace BusinessApp.App.IntegrationTest.Json
                 }
 
                 /* Assert */
-                Assert.IsType<BusinessAppAppException>(ex);
+                Assert.IsType<FormatException>(ex);
                 Assert.Equal(
                     "Cannot read value for 'id' because the type is incorrect",
                     ex.Message

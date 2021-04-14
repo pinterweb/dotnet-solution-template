@@ -27,7 +27,7 @@ namespace BusinessApp.Data.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -43,7 +43,7 @@ namespace BusinessApp.Data.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal("Event ToString must return a value: object cannot be null", ex.Message);
             }
 

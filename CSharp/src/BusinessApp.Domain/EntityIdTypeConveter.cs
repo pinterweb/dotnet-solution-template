@@ -35,7 +35,8 @@
             if (ConvertFromCtor == null)
             {
                 var sourceTypeName = value.GetType();
-                throw new BusinessAppException($"To convert from '{sourceTypeName}' to " +
+
+                throw new FormatException($"To convert from '{sourceTypeName}' to " +
                     $"'{typeof(TId).Name}', the IEntityId needs a constructor that has an '{sourceTypeName}' " +
                     "argument only");
             }
@@ -58,7 +59,7 @@
         {
             if (!(value is TId))
             {
-                throw new BusinessAppException($"Source value must be '{IdType.Name}'");
+                throw new FormatException($"Source value must be '{IdType.Name}'");
             }
 
             var innerValue = Convert.ChangeType(value, InnerType);

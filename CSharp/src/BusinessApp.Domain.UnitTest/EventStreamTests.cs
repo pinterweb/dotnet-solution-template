@@ -26,7 +26,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => new EventStream(null));
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 
@@ -77,7 +77,7 @@ namespace BusinessApp.Domain.UnitTest
                 var ex = Record.Exception(() => enumerator.Current);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal("Object cannot be access because it is null", ex.Message);
             }
         }

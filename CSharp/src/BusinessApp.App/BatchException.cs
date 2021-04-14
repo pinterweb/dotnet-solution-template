@@ -9,11 +9,12 @@ namespace BusinessApp.App
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>
     [Serializable]
-    public class BatchException : Exception, IEnumerable<Result<object, Exception>>
+    public class BatchException : BusinessAppException, IEnumerable<Result<object, Exception>>
     {
         private readonly IEnumerable<Result<object, Exception>> results;
 
         private BatchException(IEnumerable<Result<object, Exception>> results)
+            : base("Multiple errors occurred. See messages for errors.")
         {
             this.results = results;
         }

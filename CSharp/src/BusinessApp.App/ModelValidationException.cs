@@ -3,11 +3,10 @@ namespace BusinessApp.App
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using BusinessApp.Domain;
 
     [Serializable]
-    public class ModelValidationException : Exception, IEnumerable<MemberValidationException>
+    public class ModelValidationException : BusinessAppException, IEnumerable<MemberValidationException>
     {
         private readonly IEnumerable<MemberValidationException> memberErrors;
 
@@ -21,8 +20,6 @@ namespace BusinessApp.App
             :base(message)
         {
             this.memberErrors = memberErrors.NotEmpty().Expect(nameof(memberErrors));
-
-            Data.Add("ValidationErrors", memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
         }
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();

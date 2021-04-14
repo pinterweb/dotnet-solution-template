@@ -1,10 +1,10 @@
 namespace BusinessApp.App.UnitTest
 {
     using Xunit;
-    using System.Collections;
     using System.Collections.Generic;
     using FakeItEasy;
     using BusinessApp.App;
+    using BusinessApp.Domain;
 
     public class MemberValidationExceptionTests
     {
@@ -29,7 +29,7 @@ namespace BusinessApp.App.UnitTest
                 var ex = Record.Exception(shouldThrow);
 
                 /* Assert */
-                Assert.NotNull(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
 
             [Fact]
@@ -63,19 +63,6 @@ namespace BusinessApp.App.UnitTest
                     e => Assert.Equal("bar", e),
                     e => Assert.Equal("lorem", e)
                 );
-            }
-
-            [Fact]
-            public void DataProperty_MemberNameAndErrorsAdded()
-            {
-                /* Act */
-                var ex = new MemberValidationException("foo", new[] { "bar", "lorem" });
-
-                /* Assert */
-                var entry = Assert.Single(ex.Data);
-                var dictEntry = Assert.IsType<DictionaryEntry>(entry);
-                Assert.Equal("foo", dictEntry.Key);
-                Assert.Equal(new[] { "bar", "lorem" }, dictEntry.Value);
             }
         }
     }

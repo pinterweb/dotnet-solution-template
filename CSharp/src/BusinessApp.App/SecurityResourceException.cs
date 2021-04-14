@@ -10,8 +10,6 @@ namespace BusinessApp.App
             :base(message, inner)
         {
             ResourceName = resourceName.NotEmpty().Expect(nameof(resourceName));
-
-            Data.Add(ResourceName, Message);
         }
 
         public string ResourceName { get; }

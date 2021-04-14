@@ -90,7 +90,7 @@ namespace BusinessApp.Data.IntegrationTest
                 var ex = Record.Exception((Action)shouldThrow);
 
                 /* Assert */
-                Assert.IsType<BadStateException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
             }
         }
 

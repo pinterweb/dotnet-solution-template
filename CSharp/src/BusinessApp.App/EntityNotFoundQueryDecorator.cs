@@ -30,7 +30,7 @@
                     return Result.Error<TResult>(new EntityNotFoundException(
                         "The data you tried to search for was not " +
                         "found based on your search critiera. Try to change your criteria " +
-                        "and search again. If the data is still found, it may have been deleted.")
+                        "and search again. If the data is still not found, it may have been deleted.")
                     );
                 }
 

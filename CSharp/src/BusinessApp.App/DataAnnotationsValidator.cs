@@ -26,13 +26,13 @@
 
                 if (errors.Any(e => !e.MemberNames.Any()))
                 {
-                    throw new BusinessAppAppException("All errors must have a member name. " +
+                    throw new BusinessAppException("All errors must have a member name. " +
                         "If the attribute does not support this, please create or extend the attribute");
                 }
 
                 if (errors.Any(e => e.ErrorMessage == null))
                 {
-                    throw new BusinessAppAppException("All errors must have an error message.");
+                    throw new BusinessAppException("All errors must have an error message.");
                 }
 
                 var memberMsgs = (members.Any() ? members : new[] { "" })
