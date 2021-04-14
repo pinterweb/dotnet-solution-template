@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using System.Reflection;
-    using System.Security;
     using System.Security.Principal;
     using BusinessApp.Domain;
 
@@ -16,47 +15,31 @@
         private AuthorizeAttribute? Attribute = GetAttribute(typeof(T));
 
         private readonly IPrincipal currentUser;
-        private readonly ILogger logger;
 
-        public AuthorizeAttributeHandler(IPrincipal currentUser, ILogger logger)
+        public AuthorizeAttributeHandler(IPrincipal currentUser)
         {
-            this.currentUser = currentUser.NotNull().Expect(nameof(logger));
-            this.logger = logger.NotNull().Expect(nameof(logger));
+            this.currentUser = currentUser.NotNull().Expect(nameof(currentUser));
         }
 
-        public void AuthorizeObject(T instance)
+        public bool AuthorizeObject(T instance)
         {
             if (Attribute == null)
             {
                 // for child classes of {T}
                 Attribute = GetAttribute(instance.GetType());
 
-                if (Attribute != null) AuthorizeObject(instance);
+                if (Attribute != null) return AuthorizeObject(instance);
             }
             else
             {
                 var allowedRoleCount = Attribute.Roles.Count();
 
-                for (int i = allowedRoleCount - 1; i >= 0; i--)
-                {
-                    if (currentUser.IsInRole(Attribute.Roles.ElementAt(i))) break;
-
-                    if (i == 0)
-                    {
-                        var msgTemplate = $"{{0}} not authorized to execute {instance.GetType().Name}";
-                        var publicMsg = string.Format(msgTemplate, "You are");
-                        var loggedMsg = string.Format(msgTemplate, $"User '{currentUser.Identity?.Name ?? AnonymousUser.Name}' is");
-                        var ex = new SecurityException(publicMsg);
-
-                        logger.Log(new LogEntry(LogSeverity.Info, loggedMsg)
-                        {
-                            Exception = ex
-                        });
-
-                        throw ex;
-                    }
-                }
+                return allowedRoleCount == 0
+                    ? true
+                    : Attribute.Roles.Any(a => currentUser.IsInRole(a));
             }
+
+            return true;
         }
 
         private static AuthorizeAttribute? GetAttribute(Type commandType)

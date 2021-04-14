@@ -381,8 +381,7 @@ namespace BusinessApp.WebApi
         private sealed class NullAuthorizer<T> : IAuthorizer<T>
             where T : notnull
         {
-            public void AuthorizeObject(T instance)
-            {}
+            public bool AuthorizeObject(T instance) => true;
         }
     }
 }

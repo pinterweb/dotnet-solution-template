@@ -6,6 +6,6 @@ namespace BusinessApp.App
     public interface IAuthorizer<T>
         where T : notnull
     {
-        void AuthorizeObject(T instance);
+        bool AuthorizeObject(T instance);
     }
 }

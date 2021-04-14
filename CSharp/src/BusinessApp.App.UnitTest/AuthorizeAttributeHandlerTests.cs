@@ -2,7 +2,6 @@ namespace BusinessApp.App.UnitTest
 {
     using System;
     using System.Collections.Generic;
-    using System.Security;
     using System.Security.Principal;
     using BusinessApp.Domain;
     using FakeItEasy;
@@ -12,14 +11,12 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly AuthorizeAttributeHandler<CommandStub> sut;
         private readonly IPrincipal user;
-        private readonly ILogger logger;
 
         public AuthorizeAttributeHandlerTests()
         {
             user = A.Fake<IPrincipal>();
-            logger = A.Fake<ILogger>();
 
-            sut = new AuthorizeAttributeHandler<CommandStub>(user, logger);
+            sut = new AuthorizeAttributeHandler<CommandStub>(user);
         }
 
         public class Constructor : AuthorizeAttributeHandlerTests
@@ -30,18 +27,16 @@ namespace BusinessApp.App.UnitTest
                 {
                     return new []
                     {
-                        new object[] { null, A.Dummy<ILogger>() },
-                        new object[] { A.Dummy<IPrincipal>(), null }
+                        new object[] { null },
                     };
                 }
             }
 
-
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IPrincipal p, ILogger l)
+            public void InvalidCtorArgs_ExceptionThrown(IPrincipal p)
             {
                 /* Arrange */
-                Action create = () => new AuthorizeAttributeHandler<CommandStub>(p , l);
+                Action create = () => new AuthorizeAttributeHandler<CommandStub>(p);
 
                 /* Act */
                 var exception = Record.Exception(create);
@@ -54,140 +49,102 @@ namespace BusinessApp.App.UnitTest
         public class AuthorizeObject : AuthorizeAttributeHandlerTests
         {
             [Fact]
-            public void NoAuthorizeAttribute_ExceptionNotThrown()
+            public void NoAuthorizeAttribute_TrueReturned()
             {
                 /* Arrange */
                 var nonAuthCommand = new CommandStub();
-                Action validate = () => sut.AuthorizeObject(nonAuthCommand);
 
                 /* Act */
-                var exception = Record.Exception(validate);
+                var authorized = sut.AuthorizeObject(nonAuthCommand);
 
                 /* Assert */
-                Assert.Null(exception);
-                A.CallTo(() => user.IsInRole(A<string>._)).MustNotHaveHappened();
-                A.CallTo(() => logger.Log(A<LogEntry>._)).MustNotHaveHappened();
+                Assert.True(authorized);
             }
 
             [Fact]
-            public void HasAuthorizeAttributeWithoutRoles_DoesNothing()
+            public void NoAuthorizeAttribute_UserRoleNotChecked()
+            {
+                /* Arrange */
+                var nonAuthCommand = new CommandStub();
+
+                /* Act */
+                var authorized = sut.AuthorizeObject(nonAuthCommand);
+
+                /* Assert */
+                A.CallTo(() => user.IsInRole(A<string>._)).MustNotHaveHappened();
+            }
+
+            [Fact]
+            public void HasAuthorizeAttribute_WithoutRoles_TrueReturned()
             {
                 /* Arrange */
                 var authCommand = new AuthCommandStub();
-                Action validate = () => sut.AuthorizeObject(authCommand);
 
                 /* Act */
-                var exception = Record.Exception(validate);
+                var authorized = sut.AuthorizeObject(authCommand);
 
                 /* Assert */
-                Assert.Null(exception);
-                A.CallTo(() => user.IsInRole(A<string>._)).MustNotHaveHappened();
-                A.CallTo(() => logger.Log(A<LogEntry>._)).MustNotHaveHappened();
+                Assert.True(authorized);
             }
 
             [Fact]
-            public void HasAuthorizeAttributeWithRoles_DoesNothingWhenInAnyRole()
+            public void HasAuthorizeAttribute_WithoutRoles_UserRolesNotChecked()
+            {
+                /* Arrange */
+                var authCommand = new AuthCommandStub();
+
+                /* Act */
+                var authorized = sut.AuthorizeObject(authCommand);
+
+                /* Assert */
+                A.CallTo(() => user.IsInRole(A<string>._)).MustNotHaveHappened();
+            }
+
+            [Fact]
+            public void HasAuthorizeAttributeWithRoles_WhenInRole_TrueReturned()
             {
                 /* Arrange */
                 var authCommand = new AuthRolesCommandStub();
-                Action validate = () => sut.AuthorizeObject(authCommand);
                 A.CallTo(() => user.IsInRole(A<string>._)).Returns(true);
 
                 /* Act */
-                var exception = Record.Exception(validate);
+                var authorized = sut.AuthorizeObject(authCommand);
 
                 /* Assert */
-                Assert.Null(exception);
-                A.CallTo(() => user.IsInRole(A<string>._)).MustHaveHappenedOnceExactly();
-                A.CallTo(() => user.IsInRole("Bar")).MustHaveHappenedOnceExactly();
-                A.CallTo(() => logger.Log(A<LogEntry>._)).MustNotHaveHappened();
+                Assert.True(authorized);
             }
 
-            public class NotAuthorized : AuthorizeObject
+            [Fact]
+            public void HasAuthorizeAttributeWithRoles_WhenNotInRole_FalseReturned()
             {
-                private readonly Action runAuthorization;
-                private readonly IIdentity identity;
+                /* Arrage */
+                var authCommand = new AuthRolesCommandStub();
+                var roles = new List<string>();
+                A.CallTo(() => user.IsInRole(A<string>._))
+                    .Invokes(c => roles.Add(c.GetArgument<string>(0)))
+                    .Returns(false);
 
-                public NotAuthorized()
-                {
-                    /* Arrange */
-                    var authCommand = new AuthRolesCommandStub();
-                    runAuthorization = () => sut.AuthorizeObject(authCommand);
-                    identity = A.Fake<IIdentity>();
+                /* Act */
+                var _ = sut.AuthorizeObject(authCommand);
 
-                    A.CallTo(() => user.Identity).Returns(identity);
-                    A.CallTo(() => user.IsInRole(A<string>._)).Returns(false);
-                }
+                /* Assert */
+                Assert.Collection(roles,
+                    r => Assert.Equal("Foo", r),
+                    r => Assert.Equal("Bar", r));
+            }
 
-                [Fact]
-                public void ChecksAllRoles()
-                {
-                    /* Act */
-                    var exception = Record.Exception(runAuthorization);
+            [Fact]
+            public void NotAuthorized_ReturnsFalse()
+            {
+                /* Arrage */
+                var authCommand = new AuthRolesCommandStub();
+                A.CallTo(() => user.IsInRole(A<string>._)).Returns(false);
 
-                    /* Assert */
-                    A.CallTo(() => user.IsInRole(A<string>._)).MustHaveHappenedTwiceExactly();
-                    A.CallTo(() => user.IsInRole("Foo")).MustHaveHappenedOnceExactly();
-                    A.CallTo(() => user.IsInRole("Bar")).MustHaveHappenedOnceExactly();
-                }
+                /* Act */
+                var authorized = sut.AuthorizeObject(authCommand);
 
-                [Fact]
-                public void ThrowSecurityException()
-                {
-                    /* Act */
-                    var exception = Record.Exception(runAuthorization);
-
-                    /* Assert */
-                    var securityEx = Assert.IsType<SecurityException>(exception);
-                    Assert.Equal(
-                        "You are not authorized to execute AuthRolesCommandStub",
-                        securityEx.Message
-                    );
-                }
-
-                [Theory]
-                [InlineData(null, "Anonymous")]
-                [InlineData("foouser", "foouser")]
-                public void LogsException(string identityName, string usedName)
-                {
-                    /* Arrange */
-                    LogEntry logEntry = null;
-                    A.CallTo(() => logger.Log(A<LogEntry>._))
-                        .Invokes(ctx => logEntry = ctx.GetArgument<LogEntry>(0));
-                    A.CallTo(() => identity.Name).Returns(identityName);
-
-                    /* Act */
-                    var exception = Record.Exception(runAuthorization);
-
-                    /* Assert */
-                    A.CallTo(() => logger.Log(A<LogEntry>._)).MustHaveHappenedOnceExactly();
-                    Assert.Equal(LogSeverity.Info, logEntry.Severity);
-                    Assert.Equal(
-                        $"User '{usedName}' is not authorized to execute AuthRolesCommandStub",
-                        logEntry.Message
-                    );
-                }
-
-                [Fact]
-                public void NullIdentity_LogsAnonymous()
-                {
-                    /* Arrange */
-                    LogEntry logEntry = null;
-                    A.CallTo(() => logger.Log(A<LogEntry>._))
-                        .Invokes(ctx => logEntry = ctx.GetArgument<LogEntry>(0));
-                    A.CallTo(() => user.Identity).Returns(null);
-
-                    /* Act */
-                    var exception = Record.Exception(runAuthorization);
-
-                    /* Assert */
-                    A.CallTo(() => logger.Log(A<LogEntry>._)).MustHaveHappenedOnceExactly();
-                    Assert.Equal(LogSeverity.Info, logEntry.Severity);
-                    Assert.Equal(
-                        $"User '{AnonymousUser.Name}' is not authorized to execute AuthRolesCommandStub",
-                        logEntry.Message
-                    );
-                }
+                /* Assert */
+                Assert.False(authorized);
             }
         }
     }
