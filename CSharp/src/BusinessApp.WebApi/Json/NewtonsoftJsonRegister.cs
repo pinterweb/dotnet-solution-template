@@ -40,7 +40,6 @@ namespace BusinessApp.WebApi.Json
                     {
                         new NewtonsoftEntityIdJsonConverter(),
                         new NewtonsoftLongToStringJsonConverter(),
-                        new NewtonsoftIDictionaryJsonConverter(),
                         new Newtonsoft.Json.Converters.StringEnumConverter(),
                     }
                 }
