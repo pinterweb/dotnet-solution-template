@@ -64,6 +64,20 @@
         {
             public class CommandRequests : ServiceRegistrationsTests
             {
+                IEnumerable<(Type, bool)> expectedServicesAndBatchOnlyFlag;
+
+                public CommandRequests()
+                {
+                    expectedServicesAndBatchOnlyFlag = new[]
+                    {
+                        (typeof(RequestExceptionDecorator<,>), false),
+                        (typeof(GroupedBatchRequestDecorator<,>), true),
+                        (typeof(ScopedBatchRequestProxy<,>), true),
+                        (typeof(AuthorizationRequestDecorator<,>), false),
+                        (typeof(ValidationRequestDecorator<,>), false),
+                    };
+                }
+
                 public static IEnumerable<object[]> HandlerTypes => new[]
                 {
                     new object[] { typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>) },
@@ -83,6 +97,8 @@
                     /* Arrange */
                     CreateRegistrations(container);
                     container.Verify();
+                    var isBatchService = serviceType.GetGenericArguments()[0].IsGenericIEnumerable();
+                    var take = isBatchService ? 5 : 3;
 
                     /* Act */
                     var _ = container.GetInstance(serviceType);
@@ -90,17 +106,12 @@
                     /* Assert */
                     var handlers = GetServiceGraph(serviceType);
 
-                    Assert.Collection(handlers.Take(3),
-                          implType => Assert.Equal(
-                              typeof(RequestExceptionDecorator<,>),
-                              implType.GetGenericTypeDefinition()),
-                          implType => Assert.Equal(
-                              typeof(AuthorizationRequestDecorator<,>),
-                              implType.GetGenericTypeDefinition()),
-                          implType => Assert.Equal(
-                              typeof(ValidationRequestDecorator<,>),
-                              implType.GetGenericTypeDefinition())
-                      );
+                    Assert.Equal(
+                        expectedServicesAndBatchOnlyFlag
+                            .Where(t => t.Item2 == isBatchService || !t.Item2)
+                            .Select(i => i.Item1).ToList(),
+                        handlers.Take(take).Select(i => i.GetGenericTypeDefinition()).ToList()
+                    );
                 }
 
                 [Theory, MemberData(nameof(HandlerTypes))]
@@ -124,6 +135,8 @@
                     container.Verify();
                     container.GetInstance(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
                     container.GetInstance(serviceType);
+                    var isBatchService = serviceType.GetGenericArguments()[0].IsGenericIEnumerable();
+                    var take = isBatchService ? 5 : 3;
 
                     /* Act */
                     var firstType = container.GetRegistration(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
@@ -133,17 +146,12 @@
                         .GetDependencies()
                         .Where(t => t.ServiceType == serviceType)
                         .Select(ip => ip.Registration.ImplementationType);
-                    Assert.Collection(graph.Take(3),
-                          implType => Assert.Equal(
-                              typeof(RequestExceptionDecorator<,>),
-                              implType.GetGenericTypeDefinition()),
-                          implType => Assert.Equal(
-                              typeof(AuthorizationRequestDecorator<,>),
-                              implType.GetGenericTypeDefinition()),
-                          implType => Assert.Equal(
-                              typeof(ValidationRequestDecorator<,>),
-                              implType.GetGenericTypeDefinition())
-                      );
+                    Assert.Equal(
+                        expectedServicesAndBatchOnlyFlag
+                            .Where(t => t.Item2 == isBatchService || !t.Item2)
+                            .Select(i => i.Item1).ToList(),
+                        graph.Take(take).Select(i => i.GetGenericTypeDefinition()).ToList()
+                    );
                 }
             }
 
@@ -290,16 +298,16 @@
                             typeof(RequestExceptionDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(AuthorizationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(GroupedBatchRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
@@ -343,16 +351,16 @@
                             typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
@@ -396,16 +404,16 @@
                             typeof(RequestExceptionDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
@@ -465,13 +473,13 @@
                             typeof(MacroBatchRequestAdapter<NoHandlerMacroStub, NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(GroupedBatchRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
@@ -528,13 +536,13 @@
                             typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<EventStreamStub>>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(GroupedBatchRequestDecorator<CommandStub, EventStreamStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<EventStreamStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<EventStreamStub>>),
@@ -591,13 +599,13 @@
                             typeof(MacroBatchRequestAdapter<MacroStub, CommandStub, IEnumerable<CommandStub>>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
@@ -967,10 +975,11 @@
                 .GetDependencies()
                 .Where(i => serviceTypes.Any(st => st.IsAssignableFrom(i.ServiceType)))
                 .Prepend(firstType)
-                .Select(ip => ip.Registration.ImplementationType);
+                .Select(ip => ip.Registration.ImplementationType)
+                .Where(t => t.IsVisible);
         }
 
-        private sealed class CommandHandlerStreamStub : IRequestHandler<CommandStub, EventStreamStub>
+        public sealed class CommandHandlerStreamStub : IRequestHandler<CommandStub, EventStreamStub>
         {
             public Task<Result<EventStreamStub, Exception>> HandleAsync(CommandStub request,
                 CancellationToken cancelToken)
@@ -979,7 +988,7 @@
             }
         }
 
-        private sealed class CommandHandlerStub : IRequestHandler<CommandStub, CommandStub>
+        public sealed class CommandHandlerStub : IRequestHandler<CommandStub, CommandStub>
         {
             public Task<Result<CommandStub, Exception>> HandleAsync(CommandStub request,
                 CancellationToken cancelToken)
@@ -988,7 +997,7 @@
             }
         }
 
-        private sealed class QueryHandlerStub : IQueryHandler<QueryStub, ResponseStub>
+        public sealed class QueryHandlerStub : IQueryHandler<QueryStub, ResponseStub>
         {
             public Task<Result<ResponseStub, Exception>> HandleAsync(QueryStub request, CancellationToken cancelToken)
             {
