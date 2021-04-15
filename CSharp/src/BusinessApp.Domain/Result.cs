@@ -43,7 +43,7 @@
     /// Wraps a value with the outcome, normally from enforcing invariants
     /// and provides access to it or can throw an exception
     /// </summary>
-    public struct Result<T, E> : IEquatable<Result<T, E>>, IComparable<Result<T, E>>
+    public readonly struct Result<T, E> : IEquatable<Result<T, E>>, IComparable<Result<T, E>>
     {
         private readonly T? value;
         private readonly E? error;
