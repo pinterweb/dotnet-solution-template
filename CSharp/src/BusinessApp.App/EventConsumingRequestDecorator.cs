@@ -34,12 +34,13 @@ namespace BusinessApp.App
         {
             var publisher = publisherFactory.Create(request);
 
+            return await inner.HandleAsync(request, cancelToken);
             var streamResult = await inner.HandleAsync(request, cancelToken);
 
-            return (await streamResult
+            return await streamResult
                 .Map(s => s.Events)
-                .AndThenAsync((events, ct) => ConsumeAsync(publisher, events, ct), cancelToken))
-                .MapOrElse(
+                .AndThenAsync(events => ConsumeAsync(publisher, events, cancelToken))
+                .MapOrElseAsync(
                     err => Result.Error<TResponse>(err),
                     ok =>
                     {
@@ -56,17 +57,11 @@ namespace BusinessApp.App
 
             if (!consumedEvents.Any()) return Result.Ok<IEnumerable<IDomainEvent>>(consumedEvents);
 
-            return
-            (
-                await
-                (
-                    await Task.WhenAll(consumedEvents.Select(e => PublishAsync(publisher, e, cancelToken)))
-                )
-                .Collect()
-                .Map(v => v.SelectMany(s => s))
-                .AndThenAsync((events, ct) => ConsumeAsync(publisher, events, ct), cancelToken)
-            )
-                .Map(e => consumedEvents.Concat(e));
+            return await Task.WhenAll(consumedEvents.Select(e => PublishAsync(publisher, e, cancelToken)))
+                .CollectAsync()
+                .MapAsync(v => v.SelectMany(s => s))
+                .AndThenAsync(events => ConsumeAsync(publisher, events, cancelToken))
+                .MapAsync(e => consumedEvents.Concat(e));
         }
 
         public Task<EventResult> PublishAsync(IEventPublisher publisher, IDomainEvent @event,
