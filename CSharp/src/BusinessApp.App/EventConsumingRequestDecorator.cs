@@ -34,7 +34,6 @@ namespace BusinessApp.App
         {
             var publisher = publisherFactory.Create(request);
 
-            return await inner.HandleAsync(request, cancelToken);
             var streamResult = await inner.HandleAsync(request, cancelToken);
 
             return await streamResult
