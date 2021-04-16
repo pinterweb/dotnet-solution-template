@@ -87,6 +87,7 @@ namespace BusinessApp.WebApi
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
             container.Register<BusinessAppDbContext>();
+            container.Register<IRequestStore>(() => container.GetInstance<BusinessAppDbContext>());
             container.RegisterInstance(
               new DbContextOptionsBuilder<BusinessAppDbContext>()
 //#if DEBUG

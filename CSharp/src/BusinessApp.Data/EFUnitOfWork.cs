@@ -84,13 +84,18 @@ namespace BusinessApp.Data
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
-        public IUnitOfWork Begin()
+        public Result<IUnitOfWork, Exception> Begin()
         {
-            db.Database.BeginTransaction();
-
-            transactionFromFactory = true;
-
-            return this;
+            try
+            {
+                db.Database.BeginTransaction();
+                transactionFromFactory = true;
+                return Result.Ok<IUnitOfWork>(this);
+            }
+            catch(Exception e)
+            {
+                return Result.Error<IUnitOfWork>(e);
+            }
         }
 
         public T? Find<T>(Func<T, bool> filter) where T : AggregateRoot

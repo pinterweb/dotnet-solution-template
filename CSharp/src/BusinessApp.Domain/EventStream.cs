@@ -12,19 +12,22 @@ namespace BusinessApp.Domain
     public class EventStream : IEnumerable<IDomainEvent>
     {
         private readonly EventEnumerator enumerator;
+        private readonly IEnumerable<IDomainEvent> events;
 
         public EventStream()
         {
+            events = new List<IDomainEvent>();
             enumerator = new EventEnumerator(new Queue<IDomainEvent>());
         }
 
         public EventStream(IEnumerable<IDomainEvent> events)
         {
-            events.NotNull().Expect(nameof(events));
+            this.events = events.NotNull().Expect(nameof(events));
             enumerator = new EventEnumerator(new Queue<IDomainEvent>(events));
         }
 
-        public IEnumerator<IDomainEvent> GetEnumerator() => enumerator;
+        // public IEnumerator<IDomainEvent> GetEnumerator() => enumerator;
+        public IEnumerator<IDomainEvent> GetEnumerator() => events.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private class EventEnumerator : IEnumerator<IDomainEvent>

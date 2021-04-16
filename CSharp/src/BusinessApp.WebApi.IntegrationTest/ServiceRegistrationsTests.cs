@@ -91,6 +91,13 @@
                     new object[] { typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>) },
                 };
 
+                [Fact]
+                public void IsDummy()
+                {
+                    /* Assert */
+                    Assert.Null(typeof(PostOrPut.Body).Assembly.FullName);
+                }
+
                 [Theory, MemberData(nameof(HandlerTypes))]
                 public void NoConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
                 {
@@ -225,6 +232,9 @@
                             implType),
                         implType => Assert.Equal(
                             typeof(TransactionRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AutomationRequestDecorator<CommandStub, EventStreamStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
@@ -375,6 +385,9 @@
                             typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
                             implType),
                         implType => Assert.Equal(
+                            typeof(AutomationRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
                             typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),
                             implType),
                         implType => Assert.Equal(
@@ -503,7 +516,7 @@
                 }
 
                 [Fact]
-                public void WithStreamResponse_BatchMacroDecoratorsInHandlers()
+                public void WithEventStreamResponse_BatchMacroDecoratorsInHandlers()
                 {
                     /* Arrange */
                     CreateRegistrations(container);
@@ -555,6 +568,9 @@
                             implType),
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, EventStreamStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AutomationRequestDecorator<CommandStub, EventStreamStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(EventConsumingRequestDecorator<CommandStub, EventStreamStub>),

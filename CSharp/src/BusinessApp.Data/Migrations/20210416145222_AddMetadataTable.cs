@@ -25,12 +25,32 @@ namespace BusinessApp.Data.Migrations
                 {
                     table.PrimaryKey("PK_Metadata", x => x.MetadataId);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "RequestMetadata",
+                schema: "dbo",
+                columns: table => new
+                {
+                    RequestMetadataId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RequestType = table.Column<string>(type: "varchar(100)", nullable: false),
+                    ResponseType = table.Column<string>(type: "varchar(100)", nullable: false),
+                    EventTriggers = table.Column<string>(type: "varchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RequestMetadata", x => x.RequestMetadataId);
+                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Metadata",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "RequestMetadata",
                 schema: "dbo");
         }
     }
