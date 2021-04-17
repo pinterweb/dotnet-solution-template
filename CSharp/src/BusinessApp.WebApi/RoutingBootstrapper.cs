@@ -146,7 +146,7 @@
             public EntityId? Id { get; set; }
         }
 
-        public class Response : IEventStream
+        public class Response : ICompositeEvent
         {
             public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
 
@@ -168,12 +168,12 @@
 
             public Task<Result<Response, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
             {
-                var stream = new Response
+                var events = new Response
                 {
-                    Events = new EventStream(new[] { new Event() })
+                    Events = new CompositeEvent(new[] { new Event() })
                 };
 
-                return Task.FromResult(Result.Ok(stream));
+                return Task.FromResult(Result.Ok(events));
             }
 
             public Task<Result<IEnumerable<IDomainEvent>, Exception>> HandleAsync(

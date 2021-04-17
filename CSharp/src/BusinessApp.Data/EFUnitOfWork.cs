@@ -84,13 +84,18 @@ namespace BusinessApp.Data
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
-        public IUnitOfWork Begin()
+        public Result<IUnitOfWork, Exception> Begin()
         {
-            db.Database.BeginTransaction();
-
-            transactionFromFactory = true;
-
-            return this;
+            try
+            {
+                db.Database.BeginTransaction();
+                transactionFromFactory = true;
+                return Result.Ok<IUnitOfWork>(this);
+            }
+            catch (InvalidOperationException e) when (AlreadyInTransaction(e.Message))
+            {
+                return Result.Error<IUnitOfWork>(e);
+            }
         }
 
         public T? Find<T>(Func<T, bool> filter) where T : AggregateRoot
@@ -99,5 +104,9 @@ namespace BusinessApp.Data
                 .Select(e => e.Entity)
                 .SingleOrDefault(filter);
         }
+
+        private static bool AlreadyInTransaction(string msg)
+            => msg == "The connection is already in a transaction and cannot participate in "
+                + "another transaction.";
     }
 }

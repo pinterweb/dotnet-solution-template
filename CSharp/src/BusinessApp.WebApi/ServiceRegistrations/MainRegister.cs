@@ -35,6 +35,7 @@ namespace BusinessApp.WebApi
 
             container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
             container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
+            container.Register(typeof(IRequestMapper<,>), options.RegistrationAssemblies);
 
             container.Register<IEventPublisherFactory, EventMetadataPublisherFactory>();
             container.Register<PostCommitRegister>();
@@ -56,6 +57,7 @@ namespace BusinessApp.WebApi
             context.Container.RegisterSingleton<IPrincipal, HttpUserContext>();
             context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
+            context.Container.Register<IProcessManager, SimpleInjectorProcessManager>();
             context.Container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
             context.Container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
@@ -337,7 +339,7 @@ namespace BusinessApp.WebApi
                     && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
                     && IsTypeDefinition(c.Consumer.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>)));
 
-            #region Event Stream Pipeline Additions
+            #region Event Pipeline Additions
 
             // decorate the inner most handler that is not a decorator running as a service
             // most of the time this would be the actual command handler
@@ -349,6 +351,13 @@ namespace BusinessApp.WebApi
                     && !IsTypeDefinition(c.ImplementationType, typeof(TransactionRequestDecorator<,>))
                     && !IsTypeDefinition(c.ImplementationType, typeof(ValidationRequestDecorator<,>))
             );
+
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(AutomationRequestDecorator<,>),
+                c => c.AppliedDecorators
+                    .Where(a => a.IsGenericType)
+                    .Any(a => a.GetGenericTypeDefinition() == typeof(EventConsumingRequestDecorator<,>)));
 
             #endregion
 

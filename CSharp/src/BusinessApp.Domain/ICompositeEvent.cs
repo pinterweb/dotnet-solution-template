@@ -2,7 +2,7 @@ namespace BusinessApp.Domain
 {
     using System.Collections.Generic;
 
-    public interface IEventStream
+    public interface ICompositeEvent
     {
         IEnumerable<IDomainEvent> Events { get; set; }
     }

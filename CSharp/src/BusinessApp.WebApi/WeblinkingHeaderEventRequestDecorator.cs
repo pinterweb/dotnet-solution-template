@@ -14,7 +14,7 @@
     /// </summary>
     public class WeblinkingHeaderEventRequestDecorator<T, R> : IHttpRequestHandler<T, R>
        where T : notnull
-       where R : IEventStream
+       where R : ICompositeEvent
     {
         private readonly IHttpRequestHandler<T, R> handler;
         private readonly IDictionary<Type, HateoasLink<T, IDomainEvent>> lookup;

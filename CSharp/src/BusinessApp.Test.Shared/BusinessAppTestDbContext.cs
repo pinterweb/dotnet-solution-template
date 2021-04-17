@@ -87,11 +87,11 @@ namespace BusinessApp.Test.Shared
 
             base.OnModelCreating(modelBuilder);
 
-#region Event Streaming
+#region Event Modeling
             modelBuilder.ApplyConfiguration(new DeleteEventConfiguration());
 #endregion
 
-#region Command Streaming
+#region Command Modeling
             modelBuilder.ApplyConfiguration(new DeleteQueryConfiguration());
             modelBuilder.ApplyConfiguration(new PostOrPutBodyConfiguration());
 #endregion

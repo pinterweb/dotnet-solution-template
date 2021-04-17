@@ -11,26 +11,26 @@ namespace BusinessApp.App.UnitTest
     using BusinessApp.Domain;
     using BusinessApp.Test.Shared;
 
-    public class EventConsumerCommandDecoratorTests
+    public class EventConsumingRequestDecoratorTests
     {
         private readonly CancellationToken cancelToken;
-        private readonly EventConsumingRequestDecorator<CommandStub, EventStreamStub> sut;
-        private readonly IRequestHandler<CommandStub, EventStreamStub> inner;
+        private readonly EventConsumingRequestDecorator<CommandStub, CompositeEventStub> sut;
+        private readonly IRequestHandler<CommandStub, CompositeEventStub> inner;
         private readonly IEventPublisher publisher;
         private readonly IEventPublisherFactory publisherFactory;
 
-        public EventConsumerCommandDecoratorTests()
+        public EventConsumingRequestDecoratorTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<IRequestHandler<CommandStub, EventStreamStub>>();
+            inner = A.Fake<IRequestHandler<CommandStub, CompositeEventStub>>();
             publisher = A.Fake<IEventPublisher>();
             publisherFactory = A.Fake<IEventPublisherFactory>();
 
-            sut = new EventConsumingRequestDecorator<CommandStub, EventStreamStub>(inner,
+            sut = new EventConsumingRequestDecorator<CommandStub, CompositeEventStub>(inner,
                 publisherFactory);
         }
 
-        public class Constructor : EventConsumerCommandDecoratorTests
+        public class Constructor : EventConsumingRequestDecoratorTests
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -41,17 +41,17 @@ namespace BusinessApp.App.UnitTest
                 },
                 new object[]
                 {
-                    A.Dummy<IRequestHandler<CommandStub, EventStreamStub>>(),
+                    A.Dummy<IRequestHandler<CommandStub, CompositeEventStub>>(),
                     null
                 }
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IRequestHandler<CommandStub, EventStreamStub> i,
+            public void InvalidCtorArgs_ExceptionThrown(IRequestHandler<CommandStub, CompositeEventStub> i,
                 IEventPublisherFactory p)
             {
                 /* Arrange */
-                void shouldThrow() => new EventConsumingRequestDecorator<CommandStub, EventStreamStub>(i, p);
+                void shouldThrow() => new EventConsumingRequestDecorator<CommandStub, CompositeEventStub>(i, p);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -61,7 +61,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : EventConsumerCommandDecoratorTests
+        public class HandleAsync : EventConsumingRequestDecoratorTests
         {
             private readonly CommandStub request;
 
@@ -76,7 +76,7 @@ namespace BusinessApp.App.UnitTest
             public async Task Factory_CalledBeforeInnerHandle()
             {
                 /* Arrange */
-                var result = Result.Ok(new EventStreamStub());
+                var result = Result.Ok(new CompositeEventStub());
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
                     .Returns(result);
 
@@ -92,7 +92,7 @@ namespace BusinessApp.App.UnitTest
             public async Task InnerHandlerHasError_EventsNotPublished()
             {
                 /* Arrange */
-                var result = Result.Error<EventStreamStub>(A.Dummy<Exception>());
+                var result = Result.Error<CompositeEventStub>(A.Dummy<Exception>());
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
                     .Returns(result);
 
@@ -107,7 +107,7 @@ namespace BusinessApp.App.UnitTest
             public async Task InnerHandlerHasError_ThatErrorReturned()
             {
                 /* Arrange */
-                var result = Result.Error<EventStreamStub>(A.Dummy<Exception>());
+                var result = Result.Error<CompositeEventStub>(A.Dummy<Exception>());
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
                     .Returns(result);
 
@@ -125,12 +125,12 @@ namespace BusinessApp.App.UnitTest
                 var twoEvents = new[] { new DomainEventStub(), new DomainEventStub() };
                 IEnumerable<IDomainEvent> noEvents = A.CollectionOfDummy<IDomainEvent>(0);
                 var firstEventEvents = new[] { new DomainEventStub(), new DomainEventStub() };
-                var eventStream = new EventStreamStub
+                var @event = new CompositeEventStub
                 {
                     Events = twoEvents.ToList()
                 };
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
-                    .Returns(Result.Ok(eventStream));
+                    .Returns(Result.Ok(@event));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.First(), cancelToken))
                     .Returns(Result.Ok<IEnumerable<IDomainEvent>>(firstEventEvents));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.Last(), cancelToken))
@@ -157,12 +157,12 @@ namespace BusinessApp.App.UnitTest
                 var exception = new Exception();
                 var noEvents = A.CollectionOfDummy<DomainEventStub>(0);
                 var twoEvents = new[] { new DomainEventStub(), new DomainEventStub() };
-                var eventStream = new EventStreamStub
+                var @event = new CompositeEventStub
                 {
                     Events = twoEvents
                 };
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
-                    .Returns(Result.Ok(eventStream));
+                    .Returns(Result.Ok(@event));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.First(), cancelToken))
                     .Returns(Result.Ok<IEnumerable<IDomainEvent>>(noEvents));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.Last(), cancelToken))

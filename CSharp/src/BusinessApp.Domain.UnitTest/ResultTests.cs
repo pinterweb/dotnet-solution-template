@@ -314,8 +314,8 @@ namespace BusinessApp.Domain.UnitTest
                 /* Arrange */
                 var value = "foo";
                 var sut = Result<string, _>.Ok(value);
-                var expectResult = Result<string, _>.Ok("bar");
-                Func<string, Result<string, _>> next = (result) => expectResult;
+                var expectResult = Result<bool, _>.Ok(true);
+                Func<string, Result<bool, _>> next = (result) => expectResult;
 
                 /* Act */
                 var nextResult = sut.AndThen(next);
