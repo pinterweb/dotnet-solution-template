@@ -6,7 +6,7 @@ namespace BusinessApp.App.UnitTest
     public class CommandStub
     {}
 
-    public class EventStreamStub : IEventStream
+    public class CompositeEventStub : ICompositeEvent
     {
         public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
     }

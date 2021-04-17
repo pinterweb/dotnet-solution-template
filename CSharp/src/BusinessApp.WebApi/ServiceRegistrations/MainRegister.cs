@@ -339,7 +339,7 @@ namespace BusinessApp.WebApi
                     && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
                     && IsTypeDefinition(c.Consumer.ImplementationType, typeof(DeadlockRetryRequestDecorator<,>)));
 
-            #region Event Stream Pipeline Additions
+            #region Event Pipeline Additions
 
             // decorate the inner most handler that is not a decorator running as a service
             // most of the time this would be the actual command handler

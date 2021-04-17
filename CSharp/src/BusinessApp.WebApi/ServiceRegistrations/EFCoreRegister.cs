@@ -57,7 +57,7 @@ namespace BusinessApp.WebApi
                 c => !c.ServiceType.GetGenericArguments()[0].IsGenericIEnumerable()
                     && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
                     && !c.ImplementationType.Name.Contains("Decorator")
-                    && !typeof(IEventStream).IsAssignableFrom(c.ServiceType.GetGenericArguments()[1]));
+                    && !typeof(ICompositeEvent).IsAssignableFrom(c.ServiceType.GetGenericArguments()[1]));
 
             inner.Register(context);
 

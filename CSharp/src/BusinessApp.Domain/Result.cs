@@ -149,6 +149,16 @@
             };
         }
 
+        public Result<T, R> MapError<R>(Func<E, R> onErr)
+        {
+            return Kind switch
+            {
+                ValueKind.Error => Result<T, R>.Error(onErr(error!)),
+                ValueKind.Ok => Result<T, R>.Ok(value!),
+                _ => throw new NotImplementedException(),
+            };
+        }
+
         public R MapOrElse<R>(Func<E, R> onError, Func<T, R> onOk)
         {
             return Kind switch

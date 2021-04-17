@@ -23,7 +23,7 @@ namespace BusinessApp.WebApi
             this.store = store.NotNull().Expect(nameof(store));
         }
 
-        public async Task<Result<Unit, Exception>> HandleNextAsync(IEventStream stream,
+        public async Task<Result<Unit, Exception>> HandleNextAsync(IEnumerable<IDomainEvent> events,
             CancellationToken cancelToken)
         {
             var commands = await store.GetAllAsync();
@@ -32,7 +32,7 @@ namespace BusinessApp.WebApi
 
             var tasks = new List<Task<Result<Unit, Exception>>>();
 
-            var eventTypes = stream.Events.Select(e => e.GetType());
+            var eventTypes = events.Select(e => e.GetType());
 
             foreach (var command in commands)
             {
@@ -42,18 +42,14 @@ namespace BusinessApp.WebApi
 
                 var request = Activator.CreateInstance(command.RequestType)!;
 
-                foreach (var e in stream.Events.Where(e => command.EventTriggers.Contains(e.GetType())))
+                foreach (var e in events.Where(e => command.EventTriggers.Contains(e.GetType())))
                 {
                     var mapper = (CommandMapper)Activator.CreateInstance(
                         typeof(CommandMapper<,>)
                             .MakeGenericType(command.RequestType, e.GetType()))!;
 
-                    //if (!command.EventTriggers.Except(eventTypes).Any())
-                    //{
-                    //    var targetEvents = stream.Events.Where(e => command.EventTriggers.Contains(e.GetType()));
-                        mapper.Map(request, e, container);
-                        tasks.Add(handler.HandleAsync(request, cancelToken, container));
-                    //}
+                    mapper.Map(request, e, container);
+                    tasks.Add(handler.HandleAsync(request, cancelToken, container));
                 }
             }
 

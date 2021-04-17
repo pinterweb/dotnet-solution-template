@@ -6,17 +6,18 @@ namespace BusinessApp.App
     using BusinessApp.Domain;
 
     /// <summary>
-    /// Validates the command prior to handling
+    /// Automates workflows using the <see cref="IProcessManager" /> based on
+    /// events
     /// </summary>
     public class AutomationRequestDecorator<TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>
         where TRequest : notnull
-        where TResponse : IEventStream
+        where TResponse : ICompositeEvent
     {
         private readonly IProcessManager manager;
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
-        public AutomationRequestDecorator(IProcessManager manager, IRequestHandler<TRequest, TResponse> inner)
+        public AutomationRequestDecorator(IRequestHandler<TRequest, TResponse> inner, IProcessManager manager)
         {
             this.manager = manager.NotNull().Expect(nameof(manager));
             this.inner = inner.NotNull().Expect(nameof(inner));
@@ -25,22 +26,17 @@ namespace BusinessApp.App
         public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
-            var result = await inner.HandleAsync(request, cancelToken);
-
-            return await result.AndThenAsync(r => TriggerAutomation(r, cancelToken));
+            return await inner.HandleAsync(request, cancelToken)
+                .AndThenAsync(r => TriggerAutomation(r, cancelToken));
         }
 
         private async Task<Result<TResponse, Exception>> TriggerAutomation(TResponse response,
             CancellationToken cancelToken)
         {
-            var result = await manager.HandleNextAsync(response, cancelToken);
-
-            return result.Kind switch
-            {
-                ValueKind.Error => Result.Error<TResponse>(result.UnwrapError()),
-                ValueKind.Ok => Result.Ok<TResponse>(response),
-                _ => throw new NotImplementedException(),
-            };
+            return await manager.HandleNextAsync(response.Events, cancelToken)
+                .MapOrElseAsync(
+                    e => Result.Error<TResponse>(e),
+                    v => Result.Ok(response));
         }
     }
 }

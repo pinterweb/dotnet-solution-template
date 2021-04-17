@@ -8,7 +8,7 @@ namespace BusinessApp.App.UnitTest
     using Xunit;
     using System.Threading;
 
-    public class TransactionDecoratorTests
+    public class TransactionRequestDecorator
     {
         private readonly TransactionRequestDecorator<CommandStub, CommandStub> sut;
         private readonly IRequestHandler<CommandStub, CommandStub> inner;
@@ -16,17 +16,18 @@ namespace BusinessApp.App.UnitTest
         private readonly ILogger logger;
         private readonly PostCommitRegister register;
 
-        public TransactionDecoratorTests()
+        public TransactionRequestDecorator()
         {
             inner = A.Fake<IRequestHandler<CommandStub, CommandStub>>();
             factory = A.Fake<ITransactionFactory>();
             register = new PostCommitRegister();
             logger = A.Fake<ILogger>();
 
-            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, register, logger);
+            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, register,
+                logger);
         }
 
-        public class Constructor : TransactionDecoratorTests
+        public class Constructor : TransactionRequestDecorator
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -68,7 +69,7 @@ namespace BusinessApp.App.UnitTest
             }
         }
 
-        public class HandleAsync : TransactionDecoratorTests
+        public class HandleAsync : TransactionRequestDecorator
         {
             [Fact]
             public async Task BeforeRegister_TransFactoryAndHandlerCalledInOrder()
@@ -78,7 +79,7 @@ namespace BusinessApp.App.UnitTest
                 var handler = A.Fake<Func<Task>>();
                 var command = A.Dummy<CommandStub>();
                 var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
                 register.FinishHandlers.Add(handler);
 
                 /* Act */
@@ -101,7 +102,7 @@ namespace BusinessApp.App.UnitTest
                 var uow = A.Fake<IUnitOfWork>();
                 register.FinishHandlers.Add(handler1);
                 register.FinishHandlers.Add(handler2);
-                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
 
                 /* Act */
                 await sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken);
@@ -121,7 +122,7 @@ namespace BusinessApp.App.UnitTest
                 var handler2 = A.Fake<Func<Task>>();
                 var uow = A.Fake<IUnitOfWork>();
                 A.CallTo(() => handler1.Invoke()).Throws<Exception>();
-                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
                 register.FinishHandlers.Add(handler1);
                 register.FinishHandlers.Add(handler2);
 
@@ -142,7 +143,7 @@ namespace BusinessApp.App.UnitTest
                 var cancelToken = A.Dummy<CancellationToken>();
                 var handler = A.Fake<Func<Task>>();
                 var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
                 A.CallTo(() => uow.CommitAsync(cancelToken))
                     .DoesNothing().Once().Then.Throws<Exception>();
                 register.FinishHandlers.Add(handler);
@@ -165,7 +166,7 @@ namespace BusinessApp.App.UnitTest
                 var handler1 = A.Fake<Func<Task>>();
                 var handler2 = A.Fake<Func<Task>>();
                 var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(uow);
+                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
                 A.CallTo(() => uow.CommitAsync(cancelToken)).Throws<Exception>();
                 A.CallTo(() => handler1.Invoke())
                     .Invokes(ctx => register.FinishHandlers.Add(handler2));
@@ -178,7 +179,7 @@ namespace BusinessApp.App.UnitTest
                 A.CallTo(() => handler2.Invoke()).MustNotHaveHappened();
             }
 
-            public class RevertThrows : TransactionDecoratorTests
+            public class RevertThrows : TransactionRequestDecorator
             {
                 private CancellationToken cancelToken;
                 private LogEntry logEntry;
@@ -190,7 +191,7 @@ namespace BusinessApp.App.UnitTest
                     var handler1 = A.Fake<Func<Task>>();
                     cancelToken = A.Dummy<CancellationToken>();
                     logEntry = null;
-                    A.CallTo(() => factory.Begin()).Returns(uow);
+                    A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
                     A.CallTo(() => handler1.Invoke()).Throws<Exception>();
                     register.FinishHandlers.Add(handler1);
                     A.CallTo(() => logger.Log(A<LogEntry>._))

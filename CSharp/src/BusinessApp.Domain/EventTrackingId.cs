@@ -1,7 +1,7 @@
 namespace BusinessApp.Domain
 {
     /// <summary>
-    /// Represents IDs to a track events in an <see cref="IEventStream" />
+    /// Represents IDs to a track events in an <see cref="ICompositeEvent" />
     /// </summary>
     public class EventTrackingId
     {

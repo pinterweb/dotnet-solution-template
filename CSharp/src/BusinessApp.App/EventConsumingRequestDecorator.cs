@@ -16,7 +16,7 @@ namespace BusinessApp.App
     /// </summary>
     public class EventConsumingRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
         where TRequest : class
-        where TResponse : IEventStream
+        where TResponse : ICompositeEvent
     {
         private static MethodInfo PublishMethod = typeof(IEventPublisher).GetMethod(nameof(IEventPublisher.PublishAsync))!;
         private readonly IEventPublisherFactory publisherFactory;
@@ -34,18 +34,17 @@ namespace BusinessApp.App
         {
             var publisher = publisherFactory.Create(request);
 
-            return await inner.HandleAsync(request, cancelToken);
-            var streamResult = await inner.HandleAsync(request, cancelToken);
+            var handlerResult = await inner.HandleAsync(request, cancelToken);
 
-            return await streamResult
+            return await handlerResult
                 .Map(s => s.Events)
                 .AndThenAsync(events => ConsumeAsync(publisher, events, cancelToken))
                 .MapOrElseAsync(
                     err => Result.Error<TResponse>(err),
                     ok =>
                     {
-                        streamResult.Unwrap().Events = ok;
-                        return streamResult;
+                        handlerResult.Unwrap().Events = ok;
+                        return handlerResult;
                     }
                 );
         }

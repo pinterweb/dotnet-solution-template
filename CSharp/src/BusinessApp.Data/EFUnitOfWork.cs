@@ -92,7 +92,7 @@ namespace BusinessApp.Data
                 transactionFromFactory = true;
                 return Result.Ok<IUnitOfWork>(this);
             }
-            catch(Exception e)
+            catch (InvalidOperationException e) when (AlreadyInTransaction(e.Message))
             {
                 return Result.Error<IUnitOfWork>(e);
             }
@@ -104,5 +104,9 @@ namespace BusinessApp.Data
                 .Select(e => e.Entity)
                 .SingleOrDefault(filter);
         }
+
+        private static bool AlreadyInTransaction(string msg)
+            => msg == "The connection is already in a transaction and cannot participate in "
+                + "another transaction.";
     }
 }

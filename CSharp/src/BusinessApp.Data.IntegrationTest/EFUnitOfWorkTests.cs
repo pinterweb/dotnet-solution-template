@@ -236,7 +236,7 @@ namespace BusinessApp.Data.IntegrationTest
         {
             public Begin(DatabaseFixture fixture)
                 :base(fixture)
-            {}
+            { }
 
             public override void Dispose()
             {
@@ -244,6 +244,7 @@ namespace BusinessApp.Data.IntegrationTest
                 {
                     db.Database.CurrentTransaction.Rollback();
                 }
+
                 base.Dispose();
             }
 
@@ -258,26 +259,69 @@ namespace BusinessApp.Data.IntegrationTest
             }
 
             [Fact]
-            public void AsIUnitOfWork_ReturnsSelf()
+            public void NoError_WrapsSelf()
             {
                 /* Act */
                 var uow = sut.Begin();
 
                 /* Assert */
-                Assert.Same(uow, sut);
+                Assert.Equal(uow, Result.Ok<IUnitOfWork>(sut));
             }
 
             [Fact]
             public async Task OnCommit_CommitTransaction()
             {
                 /* Arrange */
-                var uow = sut.Begin();
+                var uow = sut.Begin().Unwrap();
 
                 /* Act */
                 await uow.CommitAsync(A.Dummy<CancellationToken>());
 
                 /* Assert */
                 Assert.Null(db.Database.CurrentTransaction);
+            }
+
+            [Fact]
+            public void AlreadyInTransaction_ErrorKindReturned()
+            {
+                /* Arrange */
+                db.Database.BeginTransaction();
+
+                /* Act */
+                var uow = sut.Begin();
+
+                /* Assert */
+                Assert.Equal(ValueKind.Error, uow.Kind);
+            }
+
+            [Fact]
+            public void AlreadyInTransaction_InvalidOperationExceptionReturn()
+            {
+                /* Arrange */
+                db.Database.BeginTransaction();
+
+                /* Act */
+                var uow = sut.Begin();
+
+                /* Assert */
+                Assert.IsType<InvalidOperationException>(uow.UnwrapError());
+            }
+
+            [Fact]
+            public void AnyOtherError_Throws()
+            {
+                /* Arrange */
+                var options = new DbContextOptionsBuilder<BusinessAppDbContext>()
+                    .Options;
+                var sutDb = new BusinessAppTestDbContext(db, options);
+                var anotherSut = new EFUnitOfWork(sutDb);
+                sutDb.Dispose();
+
+                /* Act */
+                var ex = Record.Exception(() => anotherSut.Begin());
+
+                /* Assert */
+                Assert.NotNull(ex);
             }
         }
 

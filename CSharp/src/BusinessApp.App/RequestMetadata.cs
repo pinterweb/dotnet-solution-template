@@ -6,10 +6,22 @@ namespace BusinessApp.App
 
     public class RequestMetadata
     {
+        private const string ErrTemplate =
+            "Cannot be missing or the type '{0}' cannot be created from a string";
+
         public RequestMetadata(string requestType, string responseType)
         {
-            RequestType = Type.GetType(requestType).Expect($"{requestType} cannot be found");
-            ResponseType = Type.GetType(responseType).Expect($"{responseType} cannot be found");
+            RequestType = requestType.NotEmpty()
+                .Map(r => Type.GetType(r))
+                .AndThen(t => t.NotNull())
+                .MapError(_ => string.Format(ErrTemplate, requestType))
+                .Expect(nameof(requestType))!;
+
+            ResponseType = responseType.NotEmpty()
+                .Map(r => Type.GetType(r))
+                .AndThen(t => t.NotNull())
+                .MapError(_ => string.Format(ErrTemplate, responseType))
+                .Expect(nameof(responseType))!;
         }
 
         public RequestMetadata(Type requestType, Type responseType)

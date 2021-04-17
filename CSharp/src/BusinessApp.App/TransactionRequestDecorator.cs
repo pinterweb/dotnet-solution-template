@@ -27,65 +27,62 @@
         }
 
         public async Task<Result<TResponse, Exception>> HandleAsync(
-            TRequest command, CancellationToken cancelToken)
+            TRequest request, CancellationToken cancelToken)
         {
             var uow = transactionFactory.Begin();
 
-            return await inner.HandleAsync(command, cancelToken)
-                .AndThenAsync(r => SaveAsync(uow, r, cancelToken))
-                .AndThenAsync(r => RunPostCommitHandlersAsync(uow, r, cancelToken));
+            return await inner.HandleAsync(request, cancelToken)
+                .AndThenAsync(r => uow.AndThenAsync(u => SaveAsync(u, r, cancelToken)))
+                .AndThenAsync(r => RunPostCommitHandlersAsync(uow, request, r, cancelToken));
         }
 
-        public async Task<Result<TResponse, Exception>> SaveAsync(
-            Result<IUnitOfWork, Exception> uowResult, TResponse command, CancellationToken cancelToken)
+        private static async Task<Result<TResponse, Exception>> SaveAsync(
+            IUnitOfWork uow, TResponse response, CancellationToken cancelToken)
         {
-            if (uowResult.Kind == ValueKind.Ok)
-            {
-                await uowResult.Unwrap().CommitAsync(cancelToken);
-            }
+            await uow.CommitAsync(cancelToken);
 
-            return Result.Ok(command);
+            return Result.Ok(response);
         }
 
-        public async Task<Result<TResponse, Exception>> RevertAsync(
-            Result<IUnitOfWork, Exception> uowResult, TResponse command, CancellationToken cancelToken)
-        {
-            if (uowResult.Kind == ValueKind.Ok)
-            {
-                await uowResult.Unwrap().RevertAsync(cancelToken);
-            }
-
-            return Result.Ok(command);
-        }
-
-        public async Task<Result<TResponse, Exception>> RunPostCommitHandlersAsync(
-            Result<IUnitOfWork, Exception> uowResult, TResponse command, CancellationToken cancelToken)
+        private async Task<Result<TResponse, Exception>> RunPostCommitHandlersAsync(
+            Result<IUnitOfWork, Exception> uowResult, TRequest request, TResponse response, CancellationToken cancelToken)
         {
             while (register.FinishHandlers.Count > 0)
             {
                 try
                 {
                     await register.OnFinishedAsync();
-                    await SaveAsync(uowResult, command, cancelToken);
+                    await uowResult.AndThenAsync(u => SaveAsync(u, response, cancelToken));
                 }
                 catch
                 {
 
                     try
                     {
-                        await RevertAsync(uowResult, command, cancelToken);
+                        await RevertAsync(uowResult, response, cancelToken);
                     }
                     catch (Exception revertError)
                     {
                         logger.Log(new LogEntry(LogSeverity.Critical, revertError.Message)
                         {
                             Exception = revertError,
-                            Data = command
+                            Data = request
                         });
                     }
 
                     throw;
                 }
+            }
+
+            return Result.Ok(response);
+        }
+
+        private static async Task<Result<TResponse, Exception>> RevertAsync(
+            Result<IUnitOfWork, Exception> uowResult, TResponse command, CancellationToken cancelToken)
+        {
+            if (uowResult.Kind == ValueKind.Ok)
+            {
+                await uowResult.Unwrap().RevertAsync(cancelToken);
             }
 
             return Result.Ok(command);

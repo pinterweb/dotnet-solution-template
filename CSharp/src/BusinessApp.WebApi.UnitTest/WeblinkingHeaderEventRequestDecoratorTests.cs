@@ -10,23 +10,23 @@ namespace BusinessApp.WebApi.UnitTest
     using System.Threading;
     using Microsoft.Extensions.Primitives;
 
-    using HandlerResponse = HandlerContext<RequestStub, EventStreamStub>;
+    using HandlerResponse = HandlerContext<RequestStub, CompoisteEventStub>;
 
     public class WeblinkingHeaderEventRequestDecoratorTests
     {
-        private readonly IHttpRequestHandler<RequestStub, EventStreamStub> inner;
+        private readonly IHttpRequestHandler<RequestStub, CompoisteEventStub> inner;
         private IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> links;
-        private WeblinkingHeaderEventRequestDecorator<RequestStub, EventStreamStub> sut;
+        private WeblinkingHeaderEventRequestDecorator<RequestStub, CompoisteEventStub> sut;
 
         public WeblinkingHeaderEventRequestDecoratorTests()
         {
-            inner = A.Fake<IHttpRequestHandler<RequestStub, EventStreamStub>>();
+            inner = A.Fake<IHttpRequestHandler<RequestStub, CompoisteEventStub>>();
         }
 
         public void Setup(IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> links = null)
         {
             this.links = links ?? new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>();
-            sut = new WeblinkingHeaderEventRequestDecorator<RequestStub, EventStreamStub>(inner, this.links);
+            sut = new WeblinkingHeaderEventRequestDecorator<RequestStub, CompoisteEventStub>(inner, this.links);
         }
 
         public class Constructor : WeblinkingHeaderEventRequestDecoratorTests
@@ -35,19 +35,19 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 new object[]
                 {
-                    A.Dummy<IHttpRequestHandler<RequestStub, EventStreamStub>>(),
+                    A.Dummy<IHttpRequestHandler<RequestStub, CompoisteEventStub>>(),
                     null,
                 },
                 new object[] { null, new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>() },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IHttpRequestHandler<RequestStub, EventStreamStub> i,
+            public void InvalidCtorArgs_ExceptionThrown(IHttpRequestHandler<RequestStub, CompoisteEventStub> i,
                 IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> d)
             {
                 /* Arrange */
                 void shouldThrow() =>
-                    new WeblinkingHeaderEventRequestDecorator<RequestStub, EventStreamStub>(i, d);
+                    new WeblinkingHeaderEventRequestDecorator<RequestStub, CompoisteEventStub>(i, d);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -89,11 +89,11 @@ namespace BusinessApp.WebApi.UnitTest
             {
                 /* Arrange */
                 Setup();
-                var stream = new EventStreamStub
+                var events = new CompoisteEventStub
                 {
                     Events = A.CollectionOfDummy<IDomainEvent>(2)
                 };
-                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), stream));
+                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), events));
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
                     .Returns(innerResult);
 
@@ -113,11 +113,11 @@ namespace BusinessApp.WebApi.UnitTest
                 {
                     { typeof(EventStub) ,new EventStubEventHateoasLink() { Title = "bar" } }
                 });
-                var stream = new EventStreamStub
+                var events = new CompoisteEventStub
                 {
                     Events = new[] { new EventStub(), new EventStub() { Id = 2 } }
                 };
-                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), stream));
+                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), events));
                 StringValues _;
                 StringValues headerValue = default;
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerResult);
@@ -149,11 +149,11 @@ namespace BusinessApp.WebApi.UnitTest
                 });
                 StringValues initialHeader = new StringValues("lorem");
                 StringValues headerValue = default;
-                var stream = new EventStreamStub
+                var events = new CompoisteEventStub
                 {
                     Events = new[] { new EventStub() }
                 };
-                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), stream));
+                var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), events));
                 A.CallTo(() => inner.HandleAsync(context, cancelToken)).Returns(innerResult);
                 A.CallTo(() => context.Response.Headers.TryGetValue("Link", out initialHeader))
                     .Returns(true);

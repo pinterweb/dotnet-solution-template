@@ -12,7 +12,7 @@ namespace BusinessApp.WebApi.UnitTest
         public DateTimeOffset OccurredUtc { get; }
     }
 
-    public class EventStreamStub : IEventStream
+    public class CompoisteEventStub : ICompositeEvent
     {
         public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
     }
