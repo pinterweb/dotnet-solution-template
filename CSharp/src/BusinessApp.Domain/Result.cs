@@ -119,12 +119,12 @@
             };
         }
 
-        public Result<T, E> AndThen(Func<T, Result<T, E>> next)
+        public Result<U, E> AndThen<U>(Func<T, Result<U, E>> next)
         {
             return Kind switch
             {
                 ValueKind.Ok => next(value!),
-                ValueKind.Error => this,
+                ValueKind.Error => Result<U, E>.Error(error!),
                 _ => throw new NotImplementedException(),
             };
         }
