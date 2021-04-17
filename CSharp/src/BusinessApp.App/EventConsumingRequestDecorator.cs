@@ -36,6 +36,7 @@ namespace BusinessApp.App
 
             var handlerResult = await inner.HandleAsync(request, cancelToken);
 
+
             return await handlerResult
                 .Map(s => s.Events)
                 .AndThenAsync(events => ConsumeAsync(publisher, events, cancelToken))
