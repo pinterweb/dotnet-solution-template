@@ -8,8 +8,6 @@ namespace BusinessApp.App.UnitTest
 
     public class RequestMetadataTests
     {
-        private RequestMetadata sut;
-
         public class Constructor : RequestMetadataTests
         {
             public static IEnumerable<object[]> InvalidStringCtorArgs => new[]

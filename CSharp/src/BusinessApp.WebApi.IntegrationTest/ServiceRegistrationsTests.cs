@@ -91,6 +91,7 @@
                     new object[] { typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>) },
                 };
 
+                [Theory, MemberData(nameof(HandlerTypes))]
                 public void NoConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
                 {
                     /* Arrange */
