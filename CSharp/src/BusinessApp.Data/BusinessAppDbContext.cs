@@ -1,10 +1,10 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BusinessApp.App;
+using Microsoft.EntityFrameworkCore;
+
 namespace BusinessApp.Data
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-    using Microsoft.EntityFrameworkCore;
-
     public class BusinessAppDbContext : DbContext, IRequestStore
     {
         public BusinessAppDbContext(DbContextOptions<BusinessAppDbContext> opts)

@@ -1,10 +1,10 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Handles uncaught errors during handling so it can transform the response into
     /// a <see cref="Result"/> type

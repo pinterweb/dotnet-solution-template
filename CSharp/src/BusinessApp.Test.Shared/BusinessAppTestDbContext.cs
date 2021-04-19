@@ -1,19 +1,19 @@
+using BusinessApp.Data;
+using BusinessApp.Domain;
+using BusinessApp.WebApi;
+using FakeItEasy;
+using FakeItEasy.Creation;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SimpleInjector;
+
 namespace BusinessApp.Test.Shared
 {
-    using BusinessApp.Data;
-    using BusinessApp.Domain;
-    using BusinessApp.WebApi;
-    using FakeItEasy;
-    using FakeItEasy.Creation;
-    using Microsoft.AspNetCore;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Design;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using SimpleInjector;
-
     public class BusinessAppDbContextFakeBuilder : FakeOptionsBuilder<BusinessAppDbContext>
     {
         protected override void BuildOptions(IFakeOptions<BusinessAppDbContext> options)

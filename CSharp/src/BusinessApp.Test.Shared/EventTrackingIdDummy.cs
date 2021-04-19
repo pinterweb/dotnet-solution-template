@@ -1,8 +1,8 @@
+using BusinessApp.Domain;
+using FakeItEasy;
+
 namespace BusinessApp.Test.Shared
 {
-    using BusinessApp.Domain;
-    using FakeItEasy;
-
     public class EventTrackingIdDummy : DummyFactory<EventTrackingId>
     {
         protected override EventTrackingId Create()

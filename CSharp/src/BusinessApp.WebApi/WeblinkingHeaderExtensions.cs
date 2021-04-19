@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.WebApi
-{
-    using System;
-    using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 
+namespace BusinessApp.WebApi
+{
     /// <summary>
     /// Extensions for the HATEOAS weblinking
     /// </summary>

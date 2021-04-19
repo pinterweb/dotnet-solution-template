@@ -1,10 +1,10 @@
+using Xunit;
+using BusinessApp.WebApi.ProblemDetails;
+using FakeItEasy;
+using System;
+
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {
-    using Xunit;
-    using BusinessApp.WebApi.ProblemDetails;
-    using FakeItEasy;
-    using System;
-
     public class ProblemDetailTests
     {
         public readonly ProblemDetail sut;

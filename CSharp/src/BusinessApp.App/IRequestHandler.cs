@@ -1,10 +1,10 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-
     public interface IRequestHandler<in TRequest, TResponse>
         where TRequest : notnull
     {

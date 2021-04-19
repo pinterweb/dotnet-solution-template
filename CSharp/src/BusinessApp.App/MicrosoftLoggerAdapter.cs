@@ -1,8 +1,8 @@
+using BusinessApp.Domain;
+using MS = Microsoft.Extensions.Logging;
+
 namespace BusinessApp.App
 {
-    using BusinessApp.Domain;
-    using MS = Microsoft.Extensions.Logging;
-
     public sealed class MicrosoftLoggerAdapter : ILogger
     {
         private readonly MS.ILogger logger;

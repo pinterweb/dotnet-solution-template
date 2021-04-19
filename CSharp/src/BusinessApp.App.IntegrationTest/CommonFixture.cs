@@ -1,7 +1,7 @@
+using Xunit;
+
 namespace BusinessApp.App.IntegrationTest
 {
-    using Xunit;
-
     public class CommonFixture
     {
         public const string Name = "Common Fixture";

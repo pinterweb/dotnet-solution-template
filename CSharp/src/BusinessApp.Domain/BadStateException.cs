@@ -1,7 +1,7 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
+﻿using System;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// An exception to facilitate messaging when an object invariants are broken
     /// </summary>

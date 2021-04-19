@@ -1,7 +1,7 @@
+using System;
+
 namespace BusinessApp.App
 {
-    using System;
-
     [Serializable]
     public class CommunicationException : Exception
     {

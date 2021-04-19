@@ -1,11 +1,11 @@
-﻿namespace BusinessApp.WebApi.Json
-{
-    using Microsoft.AspNetCore.Http;
-    using System;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using System.Threading;
+﻿using Microsoft.AspNetCore.Http;
+using System;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using System.Threading;
 
+namespace BusinessApp.WebApi.Json
+{
     /// <summary>
     /// Runs logic on the request/response for json requests
     /// </summary>

@@ -1,11 +1,11 @@
+using BusinessApp.Domain;
+using System;
+using System.ComponentModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace BusinessApp.App.Json
 {
-    using BusinessApp.Domain;
-    using System;
-    using System.ComponentModel;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-
     public class SystemEntityIdJsonConverterFactory : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)

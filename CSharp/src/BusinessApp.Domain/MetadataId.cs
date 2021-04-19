@@ -1,8 +1,8 @@
+using System;
+using System.ComponentModel;
+
 namespace BusinessApp.Domain
 {
-    using System;
-    using System.ComponentModel;
-
     /// <summary>
     /// Unique id of an event
     /// </summary>

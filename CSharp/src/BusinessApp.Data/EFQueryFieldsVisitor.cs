@@ -1,15 +1,15 @@
-﻿namespace BusinessApp.Data
-{
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Runtime.Serialization;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.Serialization;
+using BusinessApp.App;
+using BusinessApp.Domain;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Dynamically creates the select statement for the query provider
     /// based on the query

@@ -1,8 +1,8 @@
+using System;
+using Xunit;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System;
-    using Xunit;
-
     public class BusinessAppExceptionTests
     {
         public class Constructor : BusinessAppExceptionTests

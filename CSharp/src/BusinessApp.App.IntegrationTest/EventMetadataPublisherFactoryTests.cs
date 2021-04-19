@@ -1,15 +1,14 @@
+using FakeItEasy;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
+using Xunit;
+using BusinessApp.Domain;
+using System;
+using System.Linq;
+
 namespace BusinessApp.App.IntegrationTest
 {
-    using FakeItEasy;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using System.Threading;
-    using Xunit;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using System;
-    using System.Linq;
-
     public class EventMetadataPublisherFactoryTests
     {
         private readonly CancellationToken cancelToken;

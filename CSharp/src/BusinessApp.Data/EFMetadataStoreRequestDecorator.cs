@@ -1,12 +1,12 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using BusinessApp.App;
+using System.Security.Principal;
+
 namespace BusinessApp.Data
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using BusinessApp.App;
-    using System.Security.Principal;
-
     /// <summary>
     /// Persist the requests
     /// </summary>

@@ -1,10 +1,10 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
-    using System.ComponentModel;
-    using System.Globalization;
-    using System.Reflection;
+﻿using System;
+using System.ComponentModel;
+using System.Globalization;
+using System.Reflection;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// Converts an <see cref="IEntityId"/> to its primitive type
     /// </summary>

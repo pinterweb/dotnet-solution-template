@@ -1,15 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Security;
+using System.Threading.Tasks;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.AspNetCore.Http;
+using SimpleInjector;
+
 namespace BusinessApp.WebApi.ProblemDetails
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Security;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.AspNetCore.Http;
-    using SimpleInjector;
-
     public static partial class ProblemDetailOptionBootstrap
     {
         public static HashSet<ProblemDetailOptions> KnownProblems = new HashSet<ProblemDetailOptions>

@@ -1,12 +1,12 @@
-﻿namespace BusinessApp.Data
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Runs Entity Framework specific logic based on the <see cref="IQuery"/> data
     /// </summary>

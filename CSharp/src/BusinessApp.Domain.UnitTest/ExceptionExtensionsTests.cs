@@ -1,10 +1,10 @@
+using System;
+using Xunit;
+using BusinessApp.Domain;
+using System.Linq;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System;
-    using Xunit;
-    using BusinessApp.Domain;
-    using System.Linq;
-
     public class ExceptionExtensionsTests
     {
         [Fact]

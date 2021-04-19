@@ -1,10 +1,10 @@
-﻿namespace BusinessApp.App.Json
-{
-    using Newtonsoft.Json;
-    using System;
-    using System.ComponentModel;
-    using BusinessApp.Domain;
+﻿using Newtonsoft.Json;
+using System;
+using System.ComponentModel;
+using BusinessApp.Domain;
 
+namespace BusinessApp.App.Json
+{
     /// <summary>
     /// Converts to and from the complex <see cref="EntityId{T}"/> and primitive {T} Id type
     /// </summary>

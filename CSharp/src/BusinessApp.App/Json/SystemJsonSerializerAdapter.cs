@@ -1,9 +1,9 @@
+using System;
+using System.Text.Json;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App.Json
 {
-    using System;
-    using System.Text.Json;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// System implementation for json serializer
     /// </summary>

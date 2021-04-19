@@ -1,10 +1,10 @@
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using SimpleInjector;
+
 namespace BusinessApp.WebApi
 {
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using SimpleInjector;
-
     public class SimpleInjectorHttpRequestHandler : IHttpRequestHandler
     {
         private readonly Container container;

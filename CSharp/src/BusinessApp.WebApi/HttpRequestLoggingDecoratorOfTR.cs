@@ -1,11 +1,11 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using System.Threading;
+
 namespace BusinessApp.WebApi
 {
-    using System;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using System.Threading;
-
     /// <summary>
     /// Logs request errors and converts it to a <see cref="Result"/> type
     /// </summary>

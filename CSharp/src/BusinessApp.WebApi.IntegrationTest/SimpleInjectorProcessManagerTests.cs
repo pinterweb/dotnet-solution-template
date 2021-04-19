@@ -1,16 +1,16 @@
+using Xunit;
+using SimpleInjector;
+using FakeItEasy;
+using BusinessApp.App;
+using BusinessApp.Test.Shared;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Generic;
+using System;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi.IntegrationTest
 {
-    using Xunit;
-    using SimpleInjector;
-    using FakeItEasy;
-    using BusinessApp.App;
-    using BusinessApp.Test.Shared;
-    using System.Threading.Tasks;
-    using System.Threading;
-    using System.Collections.Generic;
-    using System;
-    using BusinessApp.Domain;
-
     public class SimpleInjectorProcessManagerTests : IDisposable
     {
         private readonly Container container;

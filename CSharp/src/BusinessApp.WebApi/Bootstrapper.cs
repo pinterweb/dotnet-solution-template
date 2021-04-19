@@ -1,10 +1,10 @@
+using System.Linq;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
+using SimpleInjector;
+
 namespace BusinessApp.WebApi
 {
-    using System.Linq;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.Logging;
-    using SimpleInjector;
-
     public static partial class Bootstrapper
     {
         public static void RegisterServices(Container container,

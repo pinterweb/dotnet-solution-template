@@ -1,7 +1,7 @@
-﻿namespace BusinessApp.Data
-{
-    using System.Linq;
+﻿using System.Linq;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Visits an IQueryable, returning a new queryable
     /// </summary>

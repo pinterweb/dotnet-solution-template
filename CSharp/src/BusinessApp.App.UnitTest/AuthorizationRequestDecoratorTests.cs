@@ -1,15 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Security;
+using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security;
-    using System.Security.Principal;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using Xunit;
-
     public class AuthorizationRequestDecoratorTests
     {
         private readonly AuthorizationRequestDecorator<QueryStub, ResponseStub> sut;

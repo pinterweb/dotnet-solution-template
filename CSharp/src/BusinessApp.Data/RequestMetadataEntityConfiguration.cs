@@ -1,11 +1,11 @@
-﻿namespace BusinessApp.Data
-{
-    using System;
-    using System.Linq;
-    using BusinessApp.App;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using System;
+using System.Linq;
+using BusinessApp.App;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+namespace BusinessApp.Data
+{
     public class RequestMetadataEntityConfiguration : IEntityTypeConfiguration<RequestMetadata>
     {
         public void Configure(EntityTypeBuilder<RequestMetadata> builder)

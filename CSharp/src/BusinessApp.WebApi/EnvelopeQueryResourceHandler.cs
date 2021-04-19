@@ -1,14 +1,14 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using System;
+
 namespace BusinessApp.WebApi
 {
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.Primitives;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using System;
-
     public class EnvelopeQueryResourceHandler<T, R> : IHttpRequestHandler<T, IEnumerable<R>>
         where T : notnull, IQuery
     {

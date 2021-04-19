@@ -1,17 +1,17 @@
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using Xunit;
+using System.Threading.Tasks;
+using BusinessApp.WebApi.ProblemDetails;
+using BusinessApp.App;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Http;
-    using Xunit;
-    using System.Threading.Tasks;
-    using BusinessApp.WebApi.ProblemDetails;
-    using BusinessApp.App;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-
     using HandlerResult = Domain.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
-    using BusinessApp.Domain;
 
     public class HttpResponseDecoratorTests
     {

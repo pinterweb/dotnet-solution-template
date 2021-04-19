@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Http;
+
 namespace BusinessApp.WebApi
 {
-    using Microsoft.AspNetCore.Http;
-
     public static class HttpResponseExtensions
     {
         public static bool IsSuccess(this HttpResponse response)

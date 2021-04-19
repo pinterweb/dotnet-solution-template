@@ -1,13 +1,13 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.AspNetCore.Http;
+
 namespace BusinessApp.WebApi.ProblemDetails
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.AspNetCore.Http;
-
     public class ProblemDetailFactory : IProblemDetailFactory
     {
         private readonly HashSet<ProblemDetailOptions> options;

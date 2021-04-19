@@ -1,20 +1,20 @@
-﻿namespace BusinessApp.WebApi
-{
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
 #if winauth
-    using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 #endif
-    using Microsoft.AspNetCore.Builder;
-    using SimpleInjector;
+using Microsoft.AspNetCore.Builder;
+using SimpleInjector;
 
 //#if DEBUG
-    using System.Collections.Generic;
-    using System.Linq;
+using System.Collections.Generic;
+using System.Linq;
 //#endif
 
+namespace BusinessApp.WebApi
+{
     /// <summary>
     /// Creates your routes
     /// </summary>

@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace BusinessApp.App
 {
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     public class NullBatchGrouper<TCommand> : IBatchGrouper<TCommand>
         where TCommand : notnull
     {

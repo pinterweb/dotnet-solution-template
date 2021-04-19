@@ -1,14 +1,14 @@
+using System;
+using System.Data;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
+
 namespace BusinessApp.Data
 {
-    using System;
-    using System.Data;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
-
     public class EFUnitOfWork : IUnitOfWork, ITransactionFactory
     {
         private bool transactionFromFactory = false;

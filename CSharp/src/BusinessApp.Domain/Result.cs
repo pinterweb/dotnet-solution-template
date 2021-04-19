@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// Factory methods using a general exception as the error
     /// </summary>

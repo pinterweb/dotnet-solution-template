@@ -1,7 +1,7 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
+﻿using System;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// Represents the Id of an entity
     /// </summary>

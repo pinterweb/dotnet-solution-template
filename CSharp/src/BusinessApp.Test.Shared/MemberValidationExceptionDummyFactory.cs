@@ -1,8 +1,8 @@
+using FakeItEasy;
+using BusinessApp.App;
+
 namespace BusinessApp.Test.Shared
 {
-    using FakeItEasy;
-    using BusinessApp.App;
-
     public class ModelValidationExceptionDummyFactory : DummyFactory<MemberValidationException>
     {
         protected override MemberValidationException Create()

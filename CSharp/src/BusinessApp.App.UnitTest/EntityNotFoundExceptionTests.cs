@@ -1,7 +1,7 @@
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using Xunit;
-
     public class EntityNotFoundExceptionTests
     {
         public class Constructor : EntityNotFoundExceptionTests

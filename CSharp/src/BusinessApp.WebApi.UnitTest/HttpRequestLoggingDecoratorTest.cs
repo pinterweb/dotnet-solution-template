@@ -1,13 +1,13 @@
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using Xunit;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using Xunit;
-    using System;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-
     public class HttpRequestLoggingDecoratorTest
     {
         private readonly IHttpRequestHandler inner;

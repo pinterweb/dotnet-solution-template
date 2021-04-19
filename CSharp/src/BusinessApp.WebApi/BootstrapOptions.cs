@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using System.Reflection;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi
 {
-    using System.Collections.Generic;
-    using System.Reflection;
-    using BusinessApp.Domain;
-
     public sealed class BootstrapOptions
     {
         public BootstrapOptions(string connStr)

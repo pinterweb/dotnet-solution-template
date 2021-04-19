@@ -1,10 +1,10 @@
-﻿namespace BusinessApp.App
-{
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
 
+namespace BusinessApp.App
+{
     /// <summary>
     /// Interface to validate the data from an instance <typeparam name="T">T</typeparam>
     /// </summary>

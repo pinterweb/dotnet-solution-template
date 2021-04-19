@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.Data
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace BusinessApp.Data
+{
     public static class TypeExtensions
     {
         public static bool IsGenericIEnumerable(this Type type)

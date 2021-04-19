@@ -1,7 +1,6 @@
 using Xunit;
 using FakeItEasy;
 using System;
-
 using _ = System.Int32;
 
 namespace BusinessApp.Domain.UnitTest

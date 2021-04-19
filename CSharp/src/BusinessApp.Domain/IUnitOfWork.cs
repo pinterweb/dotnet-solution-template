@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// Interface for the Unit of work pattern
     /// </summary>

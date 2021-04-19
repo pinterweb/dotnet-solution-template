@@ -1,12 +1,12 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+using System.Collections.Concurrent;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-    using System.Collections.Concurrent;
-
     public class EventMetadataPublisherFactory : IEventPublisherFactory
     {
         private readonly IEventPublisher inner;

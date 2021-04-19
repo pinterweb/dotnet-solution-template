@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using BusinessApp.Test.Shared;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using BusinessApp.Test.Shared;
-    using Microsoft.EntityFrameworkCore;
-    using Xunit;
-
     [Collection(nameof(DatabaseCollection))]
     public class EFQueryVisitorTests : IDisposable
     {

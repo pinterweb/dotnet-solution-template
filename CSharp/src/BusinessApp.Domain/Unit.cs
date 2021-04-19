@@ -1,7 +1,7 @@
+using System;
+
 namespace BusinessApp.Domain
 {
-    using System;
-
     /// <summary>
     /// Represents nothing, useful when a return type is necessary with <see cref="Result{T, E}"/>
     /// </summary>

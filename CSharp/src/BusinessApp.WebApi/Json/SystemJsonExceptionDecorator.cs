@@ -1,12 +1,12 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using System.Threading;
+using System.Text.Json;
+
 namespace BusinessApp.WebApi.Json
 {
-    using System;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using System.Threading;
-    using System.Text.Json;
-
     /// <summary>
     /// Logs JSON exception and convert the response to a <see cref="Result"/> type
     /// </summary>

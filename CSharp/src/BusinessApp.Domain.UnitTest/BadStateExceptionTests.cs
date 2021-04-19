@@ -1,10 +1,8 @@
+using System;
+using Xunit;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System;
-    using Xunit;
-    using BusinessApp.Domain;
-    using System.Collections;
-
     public class BadStateExceptionTests
     {
         public class Constructor : BadStateExceptionTests

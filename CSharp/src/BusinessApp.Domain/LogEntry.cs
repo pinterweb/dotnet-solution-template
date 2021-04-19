@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
-    using System.Linq;
-    using System.Text;
+﻿using System;
+using System.Linq;
+using System.Text;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// Holds the data to log
     /// </summary>

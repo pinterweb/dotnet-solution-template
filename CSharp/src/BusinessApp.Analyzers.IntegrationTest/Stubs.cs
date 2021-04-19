@@ -1,7 +1,7 @@
-namespace BusinessApp.Domain.UnitTest
-{
-    using BusinessApp.Domain;
+using BusinessApp.Domain;
 
+namespace BusinessApp.Analyzers.IntegrationTest
+{
     public partial class EntityStub
     {
 #nullable enable

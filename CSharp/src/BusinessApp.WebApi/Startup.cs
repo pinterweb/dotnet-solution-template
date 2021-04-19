@@ -1,22 +1,22 @@
-﻿namespace BusinessApp.WebApi
-{
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 #if efcore
-    using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 #endif
-    using BusinessApp.Domain;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using SimpleInjector;
-    using SimpleInjector.Lifestyles;
-    using System;
-    using BusinessApp.Data;
-    using Microsoft.Extensions.Logging;
+using BusinessApp.Domain;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SimpleInjector;
+using SimpleInjector.Lifestyles;
+using System;
+using BusinessApp.Data;
+using Microsoft.Extensions.Logging;
 #if winauth
-    using Microsoft.AspNetCore.Authentication.Negotiate;
+using Microsoft.AspNetCore.Authentication.Negotiate;
 #endif
 
+namespace BusinessApp.WebApi
+{
     public class Startup
     {
         private readonly Container container;

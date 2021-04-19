@@ -1,10 +1,10 @@
+using System;
+using System.Threading.Tasks;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.App.IntegrationTest
 {
-    using System;
-    using System.Threading.Tasks;
-    using FakeItEasy;
-    using Xunit;
-
     public class BackgroundWorkerTests : IDisposable
     {
         private readonly TestWorker sut;

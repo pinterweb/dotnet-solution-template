@@ -1,8 +1,8 @@
+using SimpleInjector;
+using System.Collections.Generic;
+
 namespace BusinessApp.WebApi.IntegrationTest
 {
-    using SimpleInjector;
-    using System.Collections.Generic;
-
     public static class SimpleInjectorTestExtensions
     {
         public static IEnumerable<InstanceProducer> GetDependencies(this InstanceProducer p)

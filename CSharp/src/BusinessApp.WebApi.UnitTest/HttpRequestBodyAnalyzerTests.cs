@@ -1,12 +1,12 @@
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using Xunit;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Http;
-    using Xunit;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     public class HttpRequestBodyAnalyzerTests
     {
         private readonly IHttpRequestHandler inner;

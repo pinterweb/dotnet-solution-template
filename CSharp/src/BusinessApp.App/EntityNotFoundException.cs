@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.App
-{
-    using System;
-    using BusinessApp.Domain;
+﻿using System;
+using BusinessApp.Domain;
 
+namespace BusinessApp.App
+{
     /// <summary>
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>

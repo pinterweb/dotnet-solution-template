@@ -1,14 +1,14 @@
+using BusinessApp.App;
+using BusinessApp.Domain;
+using SimpleInjector;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+
 namespace BusinessApp.WebApi
 {
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using SimpleInjector;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Threading;
-    using System;
-
     /// <summary>
     /// SimpleInjector implementation of the <see cref="IProcessManager"/>
     /// </summary>

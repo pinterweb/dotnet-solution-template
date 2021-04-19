@@ -1,8 +1,8 @@
+using System;
+using BusinessApp.Domain;
+
 namespace BusinessApp.Test.Shared
 {
-    using System;
-    using BusinessApp.Domain;
-
     [System.ComponentModel.TypeConverter(typeof(EntityIdTypeConverter<EntityIdStub, int>))]
     public class EntityIdStub : IEntityId
     {

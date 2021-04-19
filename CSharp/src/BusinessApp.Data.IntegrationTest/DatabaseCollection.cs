@@ -1,8 +1,8 @@
+using Xunit;
+using BusinessApp.Test.Shared;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using Xunit;
-    using BusinessApp.Test.Shared;
-
     [CollectionDefinition(nameof(DatabaseCollection))]
     public class DatabaseCollection : ICollectionFixture<DatabaseFixture>
     {

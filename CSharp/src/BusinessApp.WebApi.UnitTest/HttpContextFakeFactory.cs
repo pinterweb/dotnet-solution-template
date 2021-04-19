@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Http;
+using FakeItEasy;
+using FakeItEasy.Creation;
+using System.Security.Claims;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using Microsoft.AspNetCore.Http;
-    using FakeItEasy;
-    using FakeItEasy.Creation;
-    using System.Security.Claims;
-
     public class HttpContextFakeFactory : FakeOptionsBuilder<HttpContext>
     {
         protected override void BuildOptions(IFakeOptions<HttpContext> options)

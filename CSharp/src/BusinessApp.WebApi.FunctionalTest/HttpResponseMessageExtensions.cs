@@ -1,11 +1,11 @@
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Xunit;
+using Xunit.Abstractions;
+
 namespace BusinessApp.WebApi.FunctionalTest
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using Newtonsoft.Json;
-    using Xunit;
-    using Xunit.Abstractions;
-
     public static class HttpResponseMessageExtensions
     {
         public static async Task Success(this HttpResponseMessage response,

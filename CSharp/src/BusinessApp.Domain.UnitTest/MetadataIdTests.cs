@@ -1,9 +1,9 @@
+using System;
+using System.ComponentModel;
+using Xunit;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System;
-    using System.ComponentModel;
-    using Xunit;
-
     public class MetadataIdTests
     {
         public class Constructor : MetadataIdTests

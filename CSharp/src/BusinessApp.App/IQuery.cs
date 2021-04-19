@@ -1,7 +1,7 @@
+using System.Collections.Generic;
+
 namespace BusinessApp.App
 {
-    using System.Collections.Generic;
-
     /// <summary>
     /// Defines a query message
     /// </summary>

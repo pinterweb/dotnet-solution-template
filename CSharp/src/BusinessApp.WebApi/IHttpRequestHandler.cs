@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using System;
+
 namespace BusinessApp.WebApi
 {
-    using Microsoft.AspNetCore.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using System;
-
     /// <summary>
     /// Interface to handle an HTTP request
     /// </summary>

@@ -1,10 +1,10 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi
 {
-    using System;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Logs request errors
     /// </summary>

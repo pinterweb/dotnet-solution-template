@@ -1,11 +1,11 @@
+using BusinessApp.App;
+using BusinessApp.App.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using SimpleInjector;
+
 namespace BusinessApp.WebApi.Json
 {
-    using BusinessApp.App;
-    using BusinessApp.App.Json;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
-    using SimpleInjector;
-
     public class NewtonsoftJsonRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

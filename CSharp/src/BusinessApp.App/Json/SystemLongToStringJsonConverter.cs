@@ -1,11 +1,11 @@
+using System;
+using System.Buffers;
+using System.Buffers.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace BusinessApp.App.Json
 {
-    using System;
-    using System.Buffers;
-    using System.Buffers.Text;
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-
     public class SystemLongToStringJsonConverter : JsonConverter<long>
     {
         public override long Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

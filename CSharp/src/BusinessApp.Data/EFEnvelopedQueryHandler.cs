@@ -1,13 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using System.Linq;
+using System.Threading;
+using System;
+
 namespace BusinessApp.Data
 {
-    using Microsoft.EntityFrameworkCore;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using System.Linq;
-    using System.Threading;
-    using System;
-
     public class EFEnvelopedQueryHandler<TQuery, TResult> : IRequestHandler<TQuery, EnvelopeContract<TResult>>
         where TQuery : notnull, IQuery
         where TResult : class

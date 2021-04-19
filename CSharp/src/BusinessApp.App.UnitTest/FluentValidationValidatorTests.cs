@@ -1,13 +1,13 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using FakeItEasy;
+using FluentValidation.Results;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using FluentValidation.Results;
-    using Xunit;
-
     public class FluentValidationValidatorTests
     {
         private readonly CancellationToken cancelToken;

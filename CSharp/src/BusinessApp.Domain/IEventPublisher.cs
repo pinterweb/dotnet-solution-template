@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BusinessApp.Domain
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-
     using EventsResult = Result<IEnumerable<IDomainEvent>, System.Exception>;
 
     /// <summary>

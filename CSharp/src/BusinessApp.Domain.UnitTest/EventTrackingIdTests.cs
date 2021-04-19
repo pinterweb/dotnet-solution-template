@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System.Collections.Generic;
-    using FakeItEasy;
-    using Xunit;
-
     public class EventTrackingIdTests
     {
         public class Constructor : EventTrackingIdTests

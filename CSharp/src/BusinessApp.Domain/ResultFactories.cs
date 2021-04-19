@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Domain
-{
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
+namespace BusinessApp.Domain
+{
     [DebuggerStepThrough]
     public static partial class ResultFactories
     {

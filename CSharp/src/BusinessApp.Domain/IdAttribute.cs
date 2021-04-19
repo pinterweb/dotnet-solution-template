@@ -1,7 +1,7 @@
+using System;
+
 namespace BusinessApp.Domain
 {
-    using System;
-
     /// <summary>
     /// Attribute class to identifier properties that make up the identity of the entity or
     /// value object

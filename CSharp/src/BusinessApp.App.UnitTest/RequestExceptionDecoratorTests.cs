@@ -1,13 +1,13 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FakeItEasy;
+using Xunit;
+using System.Threading;
+using BusinessApp.Domain;
+using System;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using FakeItEasy;
-    using Xunit;
-    using System.Threading;
-    using BusinessApp.Domain;
-    using System;
-
     public class RequestExceptionDecoratorTests
     {
         private readonly CancellationToken cancelToken;

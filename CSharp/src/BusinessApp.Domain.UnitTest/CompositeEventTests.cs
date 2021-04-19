@@ -1,10 +1,9 @@
+using Xunit;
+using FakeItEasy;
+using System.Linq;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using Xunit;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using System.Linq;
-
     public class CompositeEventTests
     {
         public class Constructor : CompositeEventTests

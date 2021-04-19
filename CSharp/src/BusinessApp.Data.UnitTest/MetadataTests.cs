@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using FakeItEasy;
+using BusinessApp.Domain;
+using Xunit;
+using BusinessApp.Test.Shared;
+
 namespace BusinessApp.Data.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using FakeItEasy;
-    using BusinessApp.Domain;
-    using Xunit;
-    using BusinessApp.Test.Shared;
-
     public class MetadataTests
     {
         public class Constructor : MetadataTests

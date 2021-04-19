@@ -1,9 +1,9 @@
+using System.Security.Principal;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi
 {
-    using System.Security.Principal;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Http user implementation of the IPrincipal
     /// </summary>

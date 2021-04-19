@@ -1,12 +1,12 @@
-﻿namespace BusinessApp.WebApi.ProblemDetails
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Net;
-    using System.Runtime.Serialization;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Runtime.Serialization;
 
+namespace BusinessApp.WebApi.ProblemDetails
+{
     /// <summary>
     /// Data structure for returning an exception to the client
     /// ref: https://tools.ietf.org/html/rfc7807#section-4.1

@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Domain
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace BusinessApp.Domain
+{
     /// <summary>
     /// Interface to register handlers that should be run after <see cref="IUnitOfWork.CommitAsync"/>
     /// </summary>

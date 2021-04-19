@@ -1,13 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 namespace BusinessApp.Analyzers
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System;
-    using Microsoft.CodeAnalysis;
-    using Microsoft.CodeAnalysis.CSharp;
-    using Microsoft.CodeAnalysis.CSharp.Syntax;
-
     [Generator]
     public class EqualsGenerator : ISourceGenerator
     {

@@ -1,9 +1,9 @@
+using FakeItEasy;
+using BusinessApp.Domain;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using FakeItEasy;
-    using BusinessApp.Domain;
-    using Xunit;
-
     public class StringLogEntryFormatterTests
     {
         private readonly StringLogEntryFormatter sut;

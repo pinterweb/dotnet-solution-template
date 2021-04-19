@@ -1,16 +1,16 @@
+using System;
+using FakeItEasy;
+using Xunit;
+using BusinessApp.App.Json;
+using Newtonsoft.Json;
+using BusinessApp.Domain;
+using System.IO;
+using System.ComponentModel;
+using System.Text;
+using BusinessApp.Test.Shared;
+
 namespace BusinessApp.App.IntegrationTest.Json
 {
-    using System;
-    using FakeItEasy;
-    using Xunit;
-    using BusinessApp.App.Json;
-    using Newtonsoft.Json;
-    using BusinessApp.Domain;
-    using System.IO;
-    using System.ComponentModel;
-    using System.Text;
-    using BusinessApp.Test.Shared;
-
     public class NewtonsoftEntityIdJsonConverterTests
     {
         private readonly NewtonsoftEntityIdJsonConverter sut;

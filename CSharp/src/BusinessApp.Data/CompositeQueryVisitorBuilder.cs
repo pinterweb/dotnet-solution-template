@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Data
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.Domain;
+﻿using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.Domain;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Builds one factory from many query visitor factories
     /// </summary>

@@ -1,12 +1,11 @@
+using Xunit;
+using System.Collections.Generic;
+using FakeItEasy;
+using System.Linq;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App.UnitTest
 {
-    using Xunit;
-    using System.Collections.Generic;
-    using FakeItEasy;
-    using BusinessApp.App;
-    using System.Linq;
-    using BusinessApp.Domain;
-
     public class ModelValidationExceptionTests
     {
         public class Constructor : ModelValidationExceptionTests

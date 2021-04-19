@@ -1,14 +1,14 @@
+using Xunit;
+using System.Collections.Generic;
+using FakeItEasy;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Threading;
+using BusinessApp.Domain;
+using System;
+
 namespace BusinessApp.App.UnitTest
 {
-    using Xunit;
-    using System.Collections.Generic;
-    using FakeItEasy;
-    using System.Threading.Tasks;
-    using System.Linq;
-    using System.Threading;
-    using BusinessApp.Domain;
-    using System;
-
     public class ValidationStub {  }
 
     public class CompositeValidatorTests

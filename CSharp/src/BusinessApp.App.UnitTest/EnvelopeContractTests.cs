@@ -1,10 +1,10 @@
+using Xunit;
+using FakeItEasy;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App.UnitTest
 {
-    using Xunit;
-    using FakeItEasy;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     public class EnvelopeContractTests
     {
         public class Constructor : EnvelopeContractTests

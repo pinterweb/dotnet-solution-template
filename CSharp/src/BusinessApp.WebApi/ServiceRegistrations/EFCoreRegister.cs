@@ -1,19 +1,19 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+//#if DEBUG
+using Microsoft.Extensions.Logging;
+//#endif
+using BusinessApp.Data;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using SimpleInjector;
+using Microsoft.AspNetCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Hosting;
+
 namespace BusinessApp.WebApi
 {
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Design;
-    using Microsoft.Extensions.Configuration;
-    //#if DEBUG
-    using Microsoft.Extensions.Logging;
-    //#endif
-    using BusinessApp.Data;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using SimpleInjector;
-    using Microsoft.AspNetCore;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.AspNetCore.Hosting;
-
     public class EFCoreRegister : IBootstrapRegister
     {
 //#if DEBUG

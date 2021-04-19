@@ -1,19 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Web;
+using BusinessApp.App;
+using BusinessApp.Data;
+using BusinessApp.Domain;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+
 namespace BusinessApp.WebApi
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Web;
-    using BusinessApp.App;
-    using BusinessApp.Data;
-    using BusinessApp.Domain;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Routing;
-
     public static class HttpRequestSerializationHelpers<T>
     {
         private static readonly IDictionary<string, Type> propertyCache;

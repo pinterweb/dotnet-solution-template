@@ -1,12 +1,12 @@
-﻿namespace BusinessApp.App
-{
-    using System;
-    using System.Security;
-    using System.Security.Principal;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
+﻿using System;
+using System.Security;
+using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
 
+namespace BusinessApp.App
+{
     public class AuthorizationRequestDecorator<TRequest, TResult> : IRequestHandler<TRequest, TResult>
         where TRequest : notnull
     {

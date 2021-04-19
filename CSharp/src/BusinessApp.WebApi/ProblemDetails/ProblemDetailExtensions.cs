@@ -1,10 +1,9 @@
-﻿namespace BusinessApp.WebApi.ProblemDetails
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace BusinessApp.WebApi.ProblemDetails
+{
     public static class ProblemDetailExtensions
     {
         private static string[] KnownKeys = typeof(ProblemDetail).GetProperties().Select(p => p.Name).ToArray();

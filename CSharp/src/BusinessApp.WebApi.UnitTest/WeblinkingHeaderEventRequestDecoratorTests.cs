@@ -1,15 +1,15 @@
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using Xunit;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Threading;
+using Microsoft.Extensions.Primitives;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using Xunit;
-    using System;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Threading;
-    using Microsoft.Extensions.Primitives;
-
     using HandlerResponse = HandlerContext<RequestStub, CompoisteEventStub>;
 
     public class WeblinkingHeaderEventRequestDecoratorTests

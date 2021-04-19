@@ -1,13 +1,13 @@
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using BusinessApp.WebApi.ProblemDetails;
+using BusinessApp.App;
+using System.Threading;
+
 namespace BusinessApp.WebApi
 {
-    using Microsoft.AspNetCore.Http;
-    using System;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using BusinessApp.WebApi.ProblemDetails;
-    using BusinessApp.App;
-    using System.Threading;
-
     public class HttpResponseDecorator<T, R> : IHttpRequestHandler<T, R>
         where T : notnull
     {

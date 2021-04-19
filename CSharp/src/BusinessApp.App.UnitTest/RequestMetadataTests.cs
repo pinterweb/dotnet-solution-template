@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using Xunit;
-
     public class RequestMetadataTests
     {
         public class Constructor : RequestMetadataTests

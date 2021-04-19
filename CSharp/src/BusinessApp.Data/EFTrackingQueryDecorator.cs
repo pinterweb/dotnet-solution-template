@@ -1,12 +1,12 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
+
 namespace BusinessApp.Data
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
-
     /// <summary>
     /// Entity Framework query decorator to set the query tracking behavior to
     /// none for query the inner handler. This will results in faster queries since

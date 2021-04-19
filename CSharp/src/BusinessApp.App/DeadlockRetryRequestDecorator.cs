@@ -1,11 +1,11 @@
+using System;
+using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Data.Common;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Retries handling logic if a deadlock raised an exception
     /// </summary>

@@ -1,8 +1,8 @@
+using System;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using BusinessApp.Domain;
-
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class QueryOperatorAttribute : Attribute
     {

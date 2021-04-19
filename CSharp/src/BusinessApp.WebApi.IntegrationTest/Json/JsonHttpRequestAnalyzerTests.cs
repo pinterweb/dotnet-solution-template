@@ -1,14 +1,14 @@
+using System.Buffers;
+using System.IO.Pipelines;
+using System.Text;
+using System.Threading.Tasks;
+using BusinessApp.WebApi.Json;
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using Xunit;
+
 namespace BusinessApp.WebApi.IntegrationTest.Json
 {
-    using System.Buffers;
-    using System.IO.Pipelines;
-    using System.Text;
-    using System.Threading.Tasks;
-    using BusinessApp.WebApi.Json;
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Http;
-    using Xunit;
-
     public class JsonHttpRequestAnalyzerTests
     {
         private readonly JsonHttpRequestAnalyzer sut;

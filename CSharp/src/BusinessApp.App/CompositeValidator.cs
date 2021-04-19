@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Runs multiple validators for one instance of <typeparam name="T">T</typeparam>
     /// </summary>

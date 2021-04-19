@@ -1,8 +1,8 @@
+using System;
+using System.Linq.Expressions;
+
 namespace BusinessApp.Domain
 {
-    using System;
-    using System.Linq.Expressions;
-
     /// <summary>
     /// Linq implementation of the specification pattern
     /// </summary>

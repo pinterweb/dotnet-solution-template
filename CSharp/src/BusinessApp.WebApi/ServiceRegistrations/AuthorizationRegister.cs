@@ -1,10 +1,10 @@
+using System;
+using System.Reflection;
+using BusinessApp.App;
+using SimpleInjector;
+
 namespace BusinessApp.WebApi
 {
-    using System;
-    using System.Reflection;
-    using BusinessApp.App;
-    using SimpleInjector;
-
     /// <summary>
     /// Registers authorization based on the <see cref="AuthorizeAttribute" />
     /// </summary>

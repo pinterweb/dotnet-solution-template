@@ -1,17 +1,17 @@
+using System;
+using System.Collections.Generic;
+using FakeItEasy;
+using Microsoft.EntityFrameworkCore;
+using BusinessApp.Domain;
+using Xunit;
+using BusinessApp.Test.Shared;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Data;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using System;
-    using System.Collections.Generic;
-    using FakeItEasy;
-    using Microsoft.EntityFrameworkCore;
-    using BusinessApp.Domain;
-    using Xunit;
-    using BusinessApp.Test.Shared;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Linq;
-    using System.Data;
-
     [Collection(nameof(DatabaseCollection))]
     public class EFUnitOfWorkTests : IDisposable
     {

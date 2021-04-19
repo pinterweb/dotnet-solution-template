@@ -1,15 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Threading.Tasks;
+using FakeItEasy;
+using Xunit;
+using System.Threading;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data.Common;
-    using System.Threading.Tasks;
-    using FakeItEasy;
-    using BusinessApp.App;
-    using Xunit;
-    using System.Threading;
-    using BusinessApp.Domain;
-
     public class DeadlockRetryRequestDecoratorTests
     {
         private readonly CancellationToken cancelToken;

@@ -5,5 +5,6 @@
     /// for state changes
     /// </summary>
     public abstract class AggregateRoot
-    {}
+    {
+    }
 }

@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System.Text;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.Domain;
+using System.IO;
+
 
 namespace BusinessApp.App.Json
 {
-    using System.Text;
-    using Newtonsoft.Json;
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.Domain;
     using Newtonsoft.Json.Serialization;
 
     /// <summary>

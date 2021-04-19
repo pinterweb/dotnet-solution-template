@@ -1,15 +1,15 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
+
 namespace BusinessApp.Data
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
-
     /// <summary>
     /// Runs Entity Framework specific logic based on the <see cref="IQuery"/> data
     /// </summary>

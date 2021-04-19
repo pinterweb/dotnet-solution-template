@@ -1,8 +1,8 @@
+using System;
+using System.IO;
+
 namespace BusinessApp.App.IntegrationTest
 {
-    using System;
-    using System.IO;
-
     public class LogFileFixture : IDisposable
     {
         public string FilePath { get; set; } = "./log-file-test.log";

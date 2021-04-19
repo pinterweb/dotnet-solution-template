@@ -1,14 +1,14 @@
+using Xunit;
+using BusinessApp.WebApi.ProblemDetails;
+using System.Collections.Generic;
+using FakeItEasy;
+using System;
+using System.Linq;
+using BusinessApp.Domain;
+using BusinessApp.App;
+
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {
-    using Xunit;
-    using BusinessApp.WebApi.ProblemDetails;
-    using System.Collections.Generic;
-    using FakeItEasy;
-    using System;
-    using System.Linq;
-    using BusinessApp.Domain;
-    using BusinessApp.App;
-
     public class ProblemDetailFactoryTests
     {
         private readonly HashSet<ProblemDetailOptions> options;

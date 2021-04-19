@@ -1,13 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FakeItEasy;
+using BusinessApp.Domain;
+using Xunit;
+using System.Threading;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using FakeItEasy;
-    using BusinessApp.Domain;
-    using Xunit;
-    using System.Threading;
-
     public class TransactionRequestDecorator
     {
         private readonly TransactionRequestDecorator<CommandStub, CommandStub> sut;

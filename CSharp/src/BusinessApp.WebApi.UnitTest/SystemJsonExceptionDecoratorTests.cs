@@ -1,16 +1,16 @@
+using FakeItEasy;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using Xunit;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Threading;
+using System.Text.Json;
+using BusinessApp.WebApi.Json;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using Xunit;
-    using System;
-    using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Text.Json;
-    using BusinessApp.WebApi.Json;
-
     // TODO wrong name
     public class SystemJsonExceptionHandlerTests
     {

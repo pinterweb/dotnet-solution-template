@@ -1,16 +1,15 @@
+using FakeItEasy;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+using Xunit;
+using BusinessApp.Domain;
+using BusinessApp.Test.Shared;
+
 namespace BusinessApp.App.UnitTest
 {
-    using FakeItEasy;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Threading;
-    using System;
-    using Xunit;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using BusinessApp.Test.Shared;
-
     public class EventConsumingRequestDecoratorTests
     {
         private readonly CancellationToken cancelToken;

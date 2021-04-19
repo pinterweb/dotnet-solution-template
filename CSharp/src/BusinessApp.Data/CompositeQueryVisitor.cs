@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.Domain;
+
 namespace BusinessApp.Data
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Builds one visitor to run many query visitors
     /// </summary>

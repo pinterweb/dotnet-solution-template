@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using BusinessApp.Domain;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BusinessApp.App
 {
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
 
     /// <summary>

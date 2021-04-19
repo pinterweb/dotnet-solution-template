@@ -1,11 +1,11 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using BusinessApp.App;
+using BusinessApp.App.Json;
+using SimpleInjector;
+
 namespace BusinessApp.WebApi.Json
 {
-    using System.Text.Json;
-    using System.Text.Json.Serialization;
-    using BusinessApp.App;
-    using BusinessApp.App.Json;
-    using SimpleInjector;
-
     public class SystemJsonRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

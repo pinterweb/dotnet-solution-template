@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 namespace BusinessApp.App
 {
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
     /// <summary>
     /// Validates an enitire object, used with Data Annotations
     /// </summary>

@@ -1,12 +1,12 @@
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using System;
+
 namespace BusinessApp.WebApi
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using System;
-
     public class HttpRequestHandler<T, R> : IHttpRequestHandler<T, R>
         where T : notnull
     {

@@ -1,11 +1,10 @@
+using System;
+using System.Collections.Generic;
+using BusinessApp.App;
+using Xunit;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using System;
-    using System.Collections.Generic;
-    using BusinessApp.App;
-    using BusinessApp.Data;
-    using Xunit;
-
     public class QueryOperatorSpecificationQueryTests
     {
         private static readonly DateTime DateForTests = DateTime.Now;

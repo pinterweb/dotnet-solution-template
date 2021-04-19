@@ -1,10 +1,10 @@
+using System;
+using System.ComponentModel;
+using BusinessApp.Domain;
+using Xunit;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using System;
-    using System.ComponentModel;
-    using BusinessApp.Domain;
-    using Xunit;
-
     public class LongEntityIdFactoryTests
     {
         [Fact]

@@ -1,9 +1,9 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+
 namespace BusinessApp.App.Json
 {
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using System;
-
     /// <summary>
     /// Converts any long type to string since Javascript cannot handle longs
     /// </summary>

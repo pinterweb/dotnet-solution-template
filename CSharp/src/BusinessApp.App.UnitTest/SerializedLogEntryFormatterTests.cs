@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Collections;
+using FakeItEasy;
+using BusinessApp.Domain;
+using BusinessApp.Test.Shared;
+using Xunit;
+using System.Linq;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections;
-    using FakeItEasy;
-    using BusinessApp.Domain;
-    using BusinessApp.Test.Shared;
-    using Xunit;
-    using System.Linq;
-
     public class SerializedLogEntryFormatterTests
     {
         private readonly SerializedLogEntryFormatter sut;

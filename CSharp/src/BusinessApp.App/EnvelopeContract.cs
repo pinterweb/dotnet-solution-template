@@ -1,9 +1,9 @@
+using System.Collections;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System.Collections;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     public class EnvelopeContract<TData> : IEnumerable<TData>
     {
         public EnvelopeContract(IEnumerable<TData> data, Pagination pagination)

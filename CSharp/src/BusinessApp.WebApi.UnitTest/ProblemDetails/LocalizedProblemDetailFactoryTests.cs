@@ -1,13 +1,13 @@
+using Xunit;
+using BusinessApp.WebApi.ProblemDetails;
+using FakeItEasy;
+using Microsoft.Extensions.Localization;
+using System.Collections.Generic;
+using System;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {
-    using Xunit;
-    using BusinessApp.WebApi.ProblemDetails;
-    using FakeItEasy;
-    using Microsoft.Extensions.Localization;
-    using System.Collections.Generic;
-    using System;
-    using BusinessApp.Domain;
-
     public class LocalizedProblemDetailFactoryTests
     {
         private readonly LocalizedProblemDetailFactory sut;

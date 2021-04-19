@@ -1,8 +1,8 @@
+using System.Security.Principal;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System.Security.Principal;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// <see cref="IPrincipal" /> implementation for an anonymous user
     /// </summary>

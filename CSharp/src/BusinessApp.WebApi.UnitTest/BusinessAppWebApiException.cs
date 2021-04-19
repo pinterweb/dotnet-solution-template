@@ -1,7 +1,7 @@
+using Xunit;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using Xunit;
-
     public class BusinessAppWebApiExceptionTests
     {
         public class Constructor : BusinessAppWebApiExceptionTests

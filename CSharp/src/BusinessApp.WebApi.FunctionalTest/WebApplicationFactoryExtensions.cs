@@ -1,24 +1,24 @@
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using System.Threading.Tasks;
+using BusinessApp.Data;
+using BusinessApp.Test.Shared;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SimpleInjector;
+using SimpleInjector.Lifestyles;
+
 namespace BusinessApp.WebApi.FunctionalTest
 {
-    using System;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Security.Claims;
-    using System.Text.Encodings.Web;
-    using System.Threading.Tasks;
-    using BusinessApp.Data;
-    using BusinessApp.Test.Shared;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Mvc.Testing;
-    using Microsoft.AspNetCore.TestHost;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
-    using SimpleInjector;
-    using SimpleInjector.Lifestyles;
-
     public static class WebApplicationFactoryExtensions
     {
         private const string AuthenticationScheme = "FakeAuthenticationScheme";

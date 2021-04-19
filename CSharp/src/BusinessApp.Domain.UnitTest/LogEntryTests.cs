@@ -1,10 +1,9 @@
+using System;
+using Xunit;
+using FakeItEasy;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System;
-    using Xunit;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-
     public class LogEntryTests
     {
         public class Constructor : LogEntryTests

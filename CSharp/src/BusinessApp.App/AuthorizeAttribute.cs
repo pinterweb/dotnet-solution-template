@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Specifies that the class or method that this attribute is applied to requires the specified authorization.
     /// </summary>

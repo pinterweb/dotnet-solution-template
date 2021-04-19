@@ -1,7 +1,7 @@
+using System.Linq;
+
 namespace BusinessApp.Data
 {
-    using System.Linq;
-
     public sealed class NullQueryVisitor<TResult> : IQueryVisitor<TResult>
         where TResult : class
     {

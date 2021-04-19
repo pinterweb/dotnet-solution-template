@@ -1,12 +1,12 @@
+using System;
+using System.IO;
+using FakeItEasy;
+using BusinessApp.Domain;
+using Xunit;
+using System.Diagnostics;
+
 namespace BusinessApp.App.IntegrationTest
 {
-    using System;
-    using System.IO;
-    using FakeItEasy;
-    using BusinessApp.Domain;
-    using Xunit;
-    using System.Diagnostics;
-
     [Collection(CommonFixture.Name)]
     public class ConsoleLoggerTests
     {

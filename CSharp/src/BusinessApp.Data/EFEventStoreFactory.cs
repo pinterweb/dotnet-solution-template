@@ -1,9 +1,9 @@
+using System.Security.Principal;
+using BusinessApp.App;
+using BusinessApp.Domain;
+
 namespace BusinessApp.Data
 {
-    using System.Security.Principal;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-
     public class EFEventStoreFactory : IEventStoreFactory
     {
         private readonly IEntityIdFactory<MetadataId> idFactory;

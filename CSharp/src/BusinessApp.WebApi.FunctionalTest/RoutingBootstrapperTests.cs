@@ -1,21 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using FakeItEasy;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Newtonsoft.Json;
+using SimpleInjector;
+using Xunit;
+using Xunit.Abstractions;
+
 namespace BusinessApp.WebApi.FunctionalTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using Microsoft.AspNetCore.Mvc.Testing;
-    using Newtonsoft.Json;
-    using SimpleInjector;
-    using Xunit;
-    using Xunit.Abstractions;
-
     public class RoutingBootstrapperTests : IClassFixture<WebApplicationFactory<Startup>>
     {
         private readonly WebApplicationFactory<Startup> factory;

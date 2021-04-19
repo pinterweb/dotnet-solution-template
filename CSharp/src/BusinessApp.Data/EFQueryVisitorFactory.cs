@@ -1,7 +1,7 @@
+using BusinessApp.App;
+
 namespace BusinessApp.Data
 {
-    using BusinessApp.App;
-
     /// <summary>
     /// Factory to create an Entity Framework query visitor
     /// </summary>

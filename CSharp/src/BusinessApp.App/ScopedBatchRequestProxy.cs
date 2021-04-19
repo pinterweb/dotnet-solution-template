@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-
     public class ScopedBatchRequestProxy<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, TResponse>
         where TRequest : notnull

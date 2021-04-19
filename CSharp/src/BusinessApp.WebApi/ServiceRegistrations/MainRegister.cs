@@ -1,20 +1,20 @@
+using BusinessApp.Domain;
+using BusinessApp.Data;
+using BusinessApp.App;
+using SimpleInjector;
+using BusinessApp.WebApi.ProblemDetails;
+using Microsoft.AspNetCore.Hosting;
+using System;
+using System.Security.Principal;
+using System.Collections.Generic;
+using System.Linq;
+using MSLogging = Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Localization;
+using System.Threading.Tasks;
+using System.Threading;
+
 namespace BusinessApp.WebApi
 {
-    using BusinessApp.Domain;
-    using BusinessApp.Data;
-    using BusinessApp.App;
-    using SimpleInjector;
-    using BusinessApp.WebApi.ProblemDetails;
-    using Microsoft.AspNetCore.Hosting;
-    using System;
-    using System.Security.Principal;
-    using System.Collections.Generic;
-    using System.Linq;
-    using MSLogging = Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Localization;
-    using System.Threading.Tasks;
-    using System.Threading;
-
     public class MainRegister : IBootstrapRegister
     {
         private readonly BootstrapOptions options;

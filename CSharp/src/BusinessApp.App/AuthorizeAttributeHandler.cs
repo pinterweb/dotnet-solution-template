@@ -1,11 +1,11 @@
-﻿namespace BusinessApp.App
-{
-    using System;
-    using System.Linq;
-    using System.Reflection;
-    using System.Security.Principal;
-    using BusinessApp.Domain;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
+using BusinessApp.Domain;
 
+namespace BusinessApp.App
+{
     /// <summary>
     /// Implementation to authorizes a user in the context of {T} based on the <see cref="AuthorizeAttribute" />
     /// </summary>

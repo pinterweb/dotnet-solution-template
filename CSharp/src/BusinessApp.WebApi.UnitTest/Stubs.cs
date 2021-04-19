@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     public enum EnumQueryStub { Foobar }
 
     public class EventStub : IDomainEvent

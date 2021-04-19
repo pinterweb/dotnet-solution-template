@@ -1,13 +1,13 @@
+using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Buffers;
+using System.IO.Pipelines;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.App;
+
 namespace BusinessApp.WebApi
 {
-    using Microsoft.AspNetCore.Http;
-    using System.Linq;
-    using System.Buffers;
-    using System.IO.Pipelines;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-
     public static class HttpRequestExtensions
     {
         private static readonly string[] BodyMethods = new[]

@@ -1,10 +1,10 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>

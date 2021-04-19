@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     public class CommandStub
     {}
 

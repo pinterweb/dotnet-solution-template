@@ -1,8 +1,8 @@
+using FakeItEasy;
+using Microsoft.EntityFrameworkCore;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using FakeItEasy;
-    using Microsoft.EntityFrameworkCore;
-
     public class BusinessAppDbContextDummyFactory : DummyFactory<BusinessAppDbContext>
     {
         public static BusinessAppDbContext Real()

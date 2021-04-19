@@ -1,10 +1,10 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-
     [Serializable]
     public class ModelValidationException : BusinessAppException, IEnumerable<MemberValidationException>
     {

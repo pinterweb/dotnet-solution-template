@@ -1,13 +1,13 @@
+using Xunit;
+using BusinessApp.WebApi.ProblemDetails;
+using FakeItEasy;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {
-    using Xunit;
-    using BusinessApp.WebApi.ProblemDetails;
-    using FakeItEasy;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.Domain;
-
     public class CompositeProblemDetailTests
     {
         public readonly CompositeProblemDetail sut;

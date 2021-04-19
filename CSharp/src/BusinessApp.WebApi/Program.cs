@@ -1,15 +1,15 @@
-﻿namespace BusinessApp.WebApi
-{
-    using System;
-    using Microsoft.AspNetCore;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using SimpleInjector;
+﻿using System;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using SimpleInjector;
 
+namespace BusinessApp.WebApi
+{
     public class Program
     {
         public static void Main(string[] args)

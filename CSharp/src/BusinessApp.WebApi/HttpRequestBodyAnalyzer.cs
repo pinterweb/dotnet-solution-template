@@ -1,10 +1,10 @@
-﻿namespace BusinessApp.WebApi
-{
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using BusinessApp.Domain;
 
+namespace BusinessApp.WebApi
+{
     public class HttpRequestBodyAnalyzer : IHttpRequestHandler
     {
         private readonly IHttpRequestHandler inner;

@@ -1,25 +1,25 @@
-﻿namespace BusinessApp.WebApi.IntegrationTest
-{
-    using Xunit;
-    using SimpleInjector;
-    using Microsoft.AspNetCore.Hosting;
-    using FakeItEasy;
-    using System.Linq;
-    using BusinessApp.App;
-    using BusinessApp.Test.Shared;
-    using System.Threading.Tasks;
-    using System.Threading;
-    using Microsoft.AspNetCore.Http;
-    using System.Collections.Generic;
-    using System;
-    using SimpleInjector.Lifestyles;
-    using BusinessApp.Domain;
-    using Microsoft.Extensions.Configuration;
-    using BusinessApp.Data;
-    using Microsoft.Extensions.Logging;
-    using BusinessApp.WebApi.Json;
-    using Microsoft.Extensions.Localization;
+﻿using Xunit;
+using SimpleInjector;
+using Microsoft.AspNetCore.Hosting;
+using FakeItEasy;
+using System.Linq;
+using BusinessApp.App;
+using BusinessApp.Test.Shared;
+using System.Threading.Tasks;
+using System.Threading;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System;
+using SimpleInjector.Lifestyles;
+using BusinessApp.Domain;
+using Microsoft.Extensions.Configuration;
+using BusinessApp.Data;
+using Microsoft.Extensions.Logging;
+using BusinessApp.WebApi.Json;
+using Microsoft.Extensions.Localization;
 
+namespace BusinessApp.WebApi.IntegrationTest
+{
     public class ServiceRegistrationsTests : IDisposable
     {
         private readonly Container container;

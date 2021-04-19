@@ -1,7 +1,7 @@
-﻿namespace BusinessApp.App
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace BusinessApp.App
+{
     /// <summary>
     /// Add metadata to a query to support filtering, paging etc.
     /// </summary>

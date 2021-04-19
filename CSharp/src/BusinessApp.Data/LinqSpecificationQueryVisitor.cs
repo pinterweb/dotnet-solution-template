@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.Data
-{
-    using System.Linq;
-    using BusinessApp.Domain;
+﻿using System.Linq;
+using BusinessApp.Domain;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Filters the query
     /// </summary>

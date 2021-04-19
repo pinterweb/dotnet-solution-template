@@ -1,14 +1,14 @@
-﻿namespace BusinessApp.WebApi
-{
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using BusinessApp.Domain;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Microsoft.Extensions.Primitives;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using BusinessApp.Domain;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Primitives;
 
+namespace BusinessApp.WebApi
+{
     /// <summary>
     /// Decorator to add the web link headers for generate events
     /// </summary>

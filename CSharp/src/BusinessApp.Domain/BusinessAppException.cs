@@ -1,7 +1,7 @@
+using System;
+
 namespace BusinessApp.Domain
 {
-    using System;
-
     /// <summary>
     /// Custom exception to throw when a exception occurrs in the core logic
     /// , wrapping the actual unhandled exception

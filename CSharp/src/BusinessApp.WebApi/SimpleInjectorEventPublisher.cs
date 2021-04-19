@@ -1,14 +1,13 @@
 ﻿using BusinessApp.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using SimpleInjector;
 
 namespace BusinessApp.WebApi
 {
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using SimpleInjector;
-
     using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
 
     /// <summary>

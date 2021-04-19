@@ -1,10 +1,10 @@
+using System;
+using Xunit;
+using BusinessApp.Domain;
+using FakeItEasy;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using Xunit;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-
     public class BatchExceptionTests
     {
         public class FromResults : BatchExceptionTests

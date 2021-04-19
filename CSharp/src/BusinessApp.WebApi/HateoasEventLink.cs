@@ -1,8 +1,8 @@
+using System;
+using BusinessApp.Domain;
+
 namespace BusinessApp.WebApi
 {
-    using System;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Hateoas links for <see cre="IDomainEvent" />
     /// </summary>

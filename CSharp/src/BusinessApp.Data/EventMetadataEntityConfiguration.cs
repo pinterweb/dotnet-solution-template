@@ -1,9 +1,9 @@
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace BusinessApp.Data
 {
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
     public abstract class EventMetadataEntityConfiguration<T> :
         IEntityTypeConfiguration<EventMetadata<T>>
         where T : class, IDomainEvent

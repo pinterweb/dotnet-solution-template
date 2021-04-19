@@ -1,9 +1,9 @@
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Buffers;
+
 namespace BusinessApp.WebApi.Json
 {
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
-    using System.Buffers;
-
     public class JsonHttpRequestAnalyzer : IHttpRequestAnalyzer
     {
         public async Task<HttpRequestPayloadType> GetBodyTypeAsync(HttpRequest request)

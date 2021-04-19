@@ -1,8 +1,8 @@
+using System;
+using BusinessApp.Domain;
+
 namespace BusinessApp.Data
 {
-    using System;
-    using BusinessApp.Domain;
-
     public abstract class EventMetadata
     {
 #nullable disable

@@ -1,9 +1,9 @@
+using System;
+using System.Security;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Security;
-    using BusinessApp.Domain;
-
     public class SecurityResourceException : SecurityException
     {
         public SecurityResourceException(string resourceName, string message, Exception? inner = null)

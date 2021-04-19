@@ -1,9 +1,9 @@
+using System;
+using BusinessApp.Domain;
+using Xunit;
+
 namespace BusinessApp.Domain.UnitTest
 {
-    using System;
-    using BusinessApp.Domain;
-    using Xunit;
-
     public class EntityIdTypeConverterTests
     {
         public class CanConvertFrom : EntityIdTypeConverterTests

@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.App
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
+namespace BusinessApp.App
+{
     public interface IRequestStore
     {
         Task<IEnumerable<RequestMetadata>> GetAllAsync();

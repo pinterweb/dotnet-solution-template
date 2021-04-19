@@ -1,16 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using BusinessApp.Test.Shared;
+using FakeItEasy;
+using Microsoft.EntityFrameworkCore;
+using Xunit;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using BusinessApp.Test.Shared;
-    using FakeItEasy;
-    using Microsoft.EntityFrameworkCore;
-    using Xunit;
-
     [Collection(nameof(DatabaseCollection))]
     public class EFEnvelopedQueryHandlerTests : IDisposable
     {

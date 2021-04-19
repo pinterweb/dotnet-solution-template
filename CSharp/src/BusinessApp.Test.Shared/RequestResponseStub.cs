@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using BusinessApp.App;
+
 namespace BusinessApp.Test.Shared
 {
-    using System.Collections.Generic;
-    using BusinessApp.App;
-
     public class EnvelopeRequestStub : IQuery
     {
         public int? Limit { get; set; }

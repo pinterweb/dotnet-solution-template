@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Collections.Concurrent;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// Implements the Producer/Consume queue, using a background thread to process
     /// work

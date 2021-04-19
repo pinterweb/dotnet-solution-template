@@ -1,9 +1,9 @@
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace BusinessApp.Data
 {
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
     public class MetadataEntityConfiguration : IEntityTypeConfiguration<Metadata>
     {
         public void Configure(EntityTypeBuilder<Metadata> builder)

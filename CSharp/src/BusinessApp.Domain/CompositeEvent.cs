@@ -1,8 +1,8 @@
+using System.Collections;
+using System.Collections.Generic;
+
 namespace BusinessApp.Domain
 {
-    using System.Collections;
-    using System.Collections.Generic;
-
     public class CompositeEvent : IEnumerable<IDomainEvent>
     {
         private readonly IEnumerable<IDomainEvent> events;

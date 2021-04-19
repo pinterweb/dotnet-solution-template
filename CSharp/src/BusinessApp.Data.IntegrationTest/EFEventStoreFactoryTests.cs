@@ -1,13 +1,13 @@
+using FakeItEasy;
+using System.Collections.Generic;
+using Xunit;
+using BusinessApp.Domain;
+using BusinessApp.Test.Shared;
+using System.Security.Principal;
+using BusinessApp.App;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using FakeItEasy;
-    using System.Collections.Generic;
-    using Xunit;
-    using BusinessApp.Domain;
-    using BusinessApp.Test.Shared;
-    using System.Security.Principal;
-    using BusinessApp.App;
-
     [Collection(nameof(DatabaseCollection))]
     public class EFEventStoreFactoryTests
     {

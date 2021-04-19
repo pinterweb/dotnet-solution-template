@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Data
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using BusinessApp.Domain;
+﻿using System.Collections.Generic;
+using System.Linq;
+using BusinessApp.Domain;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Combines all specifications with the & operator
     /// </summary>

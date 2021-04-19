@@ -1,10 +1,10 @@
+using System.Threading;
+using System.Threading.Tasks;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-    using FakeItEasy;
-    using Xunit;
-
     public class NullBatchGrouperTests
     {
         private readonly CancellationToken cancelToken;

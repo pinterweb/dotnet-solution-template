@@ -1,9 +1,9 @@
+using System;
+using System.Diagnostics;
+using BusinessApp.Domain;
+
 namespace BusinessApp.App
 {
-    using System;
-    using System.Diagnostics;
-    using BusinessApp.Domain;
-
     /// <summary>
     /// ILogger implementation that writes to stdout or stderr
     /// </summary>

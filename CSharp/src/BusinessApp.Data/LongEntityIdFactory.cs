@@ -1,9 +1,9 @@
+using System.ComponentModel;
+using BusinessApp.Domain;
+using IdGen;
+
 namespace BusinessApp.Data
 {
-    using System.ComponentModel;
-    using BusinessApp.Domain;
-    using IdGen;
-
     /// <summary>
     /// Factory to generate unique ids
     /// </summary>

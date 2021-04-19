@@ -1,7 +1,7 @@
-﻿namespace BusinessApp.Data
-{
-    using System.Linq;
+﻿using System.Linq;
 
+namespace BusinessApp.Data
+{
     public static class StringExtensions
     {
         public static string ConvertToPascalCase(this string str)

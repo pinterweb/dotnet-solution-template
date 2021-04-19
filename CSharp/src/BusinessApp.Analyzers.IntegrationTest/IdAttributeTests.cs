@@ -1,7 +1,7 @@
-namespace BusinessApp.Domain.UnitTest
-{
-    using Xunit;
+using Xunit;
 
+namespace BusinessApp.Analyzers.IntegrationTest
+{
     public class IdAttributeTests
     {
         public class EqualsOverride : IdAttributeTests

@@ -1,7 +1,7 @@
+using Microsoft.CodeAnalysis;
+
 namespace BusinessApp.Analyzers
 {
-    using Microsoft.CodeAnalysis;
-
     public static class ISymbolExtensions
     {
         public static bool IsString(this ITypeSymbol symbol)

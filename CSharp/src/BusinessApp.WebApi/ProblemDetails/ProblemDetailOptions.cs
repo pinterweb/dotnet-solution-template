@@ -1,7 +1,7 @@
+using System;
+
 namespace BusinessApp.WebApi.ProblemDetails
 {
-    using System;
-
     public class ProblemDetailOptions
     {
         public ProblemDetailOptions(Type problemType, int statusCode)

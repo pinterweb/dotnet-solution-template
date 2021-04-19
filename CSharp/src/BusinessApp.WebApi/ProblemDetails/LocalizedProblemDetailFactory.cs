@@ -1,11 +1,11 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+using Microsoft.Extensions.Localization;
+
 namespace BusinessApp.WebApi.ProblemDetails
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-    using Microsoft.Extensions.Localization;
-
     public class LocalizedProblemDetailFactory : IProblemDetailFactory
     {
         private readonly IProblemDetailFactory inner;

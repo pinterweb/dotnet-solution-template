@@ -1,14 +1,14 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using Xunit;
-
     public class BatchRequestAdapterTests
     {
         private readonly CancellationToken cancelToken;

@@ -1,7 +1,7 @@
+using BusinessApp.App;
+
 namespace BusinessApp.WebApi
 {
-    using BusinessApp.App;
-
     public class DataAnnotationRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

@@ -1,16 +1,16 @@
+using Xunit;
+using System;
+using System.Collections.Generic;
+using BusinessApp.Domain;
+using FakeItEasy;
+using System.Security.Principal;
+using BusinessApp.Test.Shared;
+using BusinessApp.App;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace BusinessApp.Data.IntegrationTest
 {
-    using Xunit;
-    using System;
-    using System.Collections.Generic;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using System.Security.Principal;
-    using BusinessApp.Test.Shared;
-    using BusinessApp.App;
-    using System.Threading;
-    using System.Threading.Tasks;
-
     [Collection(nameof(DatabaseCollection))]
     public class EFMetadataStoreRequestDecoratorTests
     {

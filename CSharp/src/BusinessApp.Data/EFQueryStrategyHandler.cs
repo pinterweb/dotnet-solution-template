@@ -1,13 +1,13 @@
-﻿namespace BusinessApp.Data
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using Microsoft.EntityFrameworkCore;
 
+namespace BusinessApp.Data
+{
     /// <summary>
     /// Entity Framework query handler for many record sets
     /// </summary>

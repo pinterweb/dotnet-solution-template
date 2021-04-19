@@ -1,9 +1,9 @@
+using BusinessApp.WebApi.ProblemDetails;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+
 namespace BusinessApp.WebApi.Json
 {
-    using BusinessApp.WebApi.ProblemDetails;
-    using Microsoft.AspNetCore.Http;
-    using Newtonsoft.Json;
-
     public class JsonRegister : IBootstrapRegister
     {
         private static ProblemDetailOptions JsonProblemDetailOption =

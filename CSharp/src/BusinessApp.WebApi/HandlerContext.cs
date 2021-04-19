@@ -1,7 +1,7 @@
-﻿namespace BusinessApp.WebApi
-{
-    using System.Diagnostics;
+﻿using System.Diagnostics;
 
+namespace BusinessApp.WebApi
+{
     public class HandlerContext<T, R>
     {
         public HandlerContext(T request, R response)

@@ -1,7 +1,7 @@
+using BusinessApp.App;
+
 namespace BusinessApp.WebApi
 {
-    using BusinessApp.App;
-
     public class FluentValidationRegister : IBootstrapRegister
     {
         private readonly BootstrapOptions options;

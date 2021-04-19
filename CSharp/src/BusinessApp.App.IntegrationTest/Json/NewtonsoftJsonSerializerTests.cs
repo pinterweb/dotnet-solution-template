@@ -1,13 +1,13 @@
+using FakeItEasy;
+using Xunit;
+using BusinessApp.App.Json;
+using Newtonsoft.Json;
+using BusinessApp.Domain;
+using System.IO;
+using Newtonsoft.Json.Serialization;
+
 namespace BusinessApp.App.IntegrationTest.Json
 {
-    using FakeItEasy;
-    using Xunit;
-    using BusinessApp.App.Json;
-    using Newtonsoft.Json;
-    using BusinessApp.Domain;
-    using System.IO;
-    using Newtonsoft.Json.Serialization;
-
     public class NewtonsoftJsonSerializerTests
     {
         private readonly ILogger logger;

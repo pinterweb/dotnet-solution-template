@@ -1,10 +1,10 @@
-﻿namespace BusinessApp.App
-{
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BusinessApp.Domain;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
 
+namespace BusinessApp.App
+{
     /// <summary>
     /// Throws a business exception if no entity is found from the query
     /// </summary>

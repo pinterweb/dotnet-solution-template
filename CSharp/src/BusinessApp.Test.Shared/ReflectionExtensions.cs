@@ -1,8 +1,8 @@
-﻿namespace BusinessApp.Test.Shared
-{
-    using System;
-    using System.Reflection;
+﻿using System;
+using System.Reflection;
 
+namespace BusinessApp.Test.Shared
+{
     public static class ReflectionExtensions
     {
         public static T GetProp<T>(this T obj, string propName)

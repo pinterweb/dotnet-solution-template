@@ -1,9 +1,9 @@
+using System;
+using BusinessApp.Domain;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using BusinessApp.Domain;
-    using Xunit;
-
     public class SecurityResourceExceptionTests
     {
         public class Constructor : SecurityResourceExceptionTests

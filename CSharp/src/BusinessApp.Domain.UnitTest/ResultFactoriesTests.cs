@@ -1,9 +1,9 @@
-﻿namespace BusinessApp.Domain.UnitTest
-{
-    using System;
-    using System.Collections.Generic;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using Xunit;
 
+namespace BusinessApp.Domain.UnitTest
+{
     public class ResultFactoriesTests
     {
         public class NotNull : ResultFactoriesTests

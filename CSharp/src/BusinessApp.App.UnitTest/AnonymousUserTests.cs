@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Security.Principal;
+using BusinessApp.Domain;
+using FakeItEasy;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Security.Principal;
-    using BusinessApp.Domain;
-    using FakeItEasy;
-    using Xunit;
-
     public class AnonymousUserTests
     {
         private readonly IPrincipal inner;

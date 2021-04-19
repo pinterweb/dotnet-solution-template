@@ -1,13 +1,13 @@
+using System;
+using FakeItEasy;
+using Xunit;
+using BusinessApp.App.Json;
+using Newtonsoft.Json;
+using System.IO;
+using System.Text;
+
 namespace BusinessApp.App.IntegrationTest.Json
 {
-    using System;
-    using FakeItEasy;
-    using Xunit;
-    using BusinessApp.App.Json;
-    using Newtonsoft.Json;
-    using System.IO;
-    using System.Text;
-
     public class NewtonsoftLongToStringJsonConverterTests
     {
         private readonly NewtonsoftLongToStringJsonConverter sut;

@@ -1,9 +1,8 @@
+using System;
+using Xunit;
+
 namespace BusinessApp.App.UnitTest
 {
-    using System;
-    using Xunit;
-    using BusinessApp.App;
-
     public class CommunicationExceptionTests
     {
         public class Constructor : CommunicationExceptionTests

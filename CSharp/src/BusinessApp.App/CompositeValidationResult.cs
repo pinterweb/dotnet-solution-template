@@ -1,10 +1,10 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
 namespace BusinessApp.App
 {
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-
     public class CompositeValidationResult : ValidationResult, IEnumerable<ValidationResult>
     {
         public CompositeValidationResult(string instanceName, string errorMessage, IEnumerable<ValidationResult> results)

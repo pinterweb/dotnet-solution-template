@@ -1,14 +1,14 @@
+using System;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using BusinessApp.App;
+using BusinessApp.Domain;
+using System.Collections.Concurrent;
+
 namespace BusinessApp.Data
 {
-    using System;
-    using System.Reflection;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using BusinessApp.App;
-    using BusinessApp.Domain;
-    using System.Collections.Concurrent;
-
     public class QueryOperatorSpecificationBuilder<TQuery, TContract> :
         ILinqSpecificationBuilder<TQuery, TContract>
         where TQuery : notnull

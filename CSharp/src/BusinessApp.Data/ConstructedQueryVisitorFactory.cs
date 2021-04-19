@@ -1,7 +1,7 @@
+using BusinessApp.Domain;
+
 namespace BusinessApp.Data
 {
-    using BusinessApp.Domain;
-
     /// <summary>
     /// Implementation to support visitors that do not need to be constructed
     /// from the runtime <typeparam name="TQuery"/>
