@@ -23,7 +23,7 @@ namespace BusinessApp.Analyzers
 
         public void Execute(GeneratorExecutionContext context)
         {
-            if (!(context.SyntaxReceiver is EqualsSyntaxReceiver s)) return;
+            if (context.SyntaxReceiver is not EqualsSyntaxReceiver s) return;
 
             var targetSymbol = context.Compilation.GetTypeByMetadataName(TargetAttributeName);
 
