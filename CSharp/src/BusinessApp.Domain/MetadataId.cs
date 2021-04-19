@@ -12,7 +12,7 @@ namespace BusinessApp.Domain
     {
         public MetadataId(long id) => Id = id;
 
-        [KeyId]
+        [Id]
         public long Id { get; set; }
 
         TypeCode IConvertible.GetTypeCode() => Id.GetTypeCode();
