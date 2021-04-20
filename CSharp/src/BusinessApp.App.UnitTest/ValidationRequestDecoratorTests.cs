@@ -12,13 +12,13 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly CancellationToken cancelToken;
         private readonly ValidationRequestDecorator<QueryStub, ResponseStub> sut;
-        private readonly IQueryHandler<QueryStub, ResponseStub> inner;
+        private readonly IRequestHandler<QueryStub, ResponseStub> inner;
         private readonly IValidator<QueryStub> validator;
 
         public ValidationRequestDecoratorTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
+            inner = A.Fake<IRequestHandler<QueryStub, ResponseStub>>();
             validator = A.Fake<IValidator<QueryStub>>();
 
             sut = new ValidationRequestDecorator<QueryStub, ResponseStub>(validator, inner);
@@ -28,14 +28,14 @@ namespace BusinessApp.App.UnitTest
         {
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
-                new object[] { null, A.Dummy<IQueryHandler<QueryStub, ResponseStub>>() },
+                new object[] { null, A.Dummy<IRequestHandler<QueryStub, ResponseStub>>() },
                 new object[] { A.Fake<IValidator<QueryStub>>(), null },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(
                 IValidator<QueryStub> v,
-                IQueryHandler<QueryStub, ResponseStub> c)
+                IRequestHandler<QueryStub, ResponseStub> c)
             {
                 /* Arrange */
                 void shouldThrow() => new ValidationRequestDecorator<QueryStub, ResponseStub>(v, c);

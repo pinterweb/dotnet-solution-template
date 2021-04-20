@@ -72,7 +72,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     {
                         (typeof(RequestExceptionDecorator<,>), false),
                         (typeof(GroupedBatchRequestDecorator<,>), true),
-                        (typeof(ScopedBatchRequestProxy<,>), true),
+                        (typeof(SimpleInjectorScopedBatchRequestProxy<,>), true),
                         (typeof(AuthorizationRequestDecorator<,>), false),
                         (typeof(ValidationRequestDecorator<,>), false),
                     };
@@ -304,7 +304,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(GroupedBatchRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            typeof(SimpleInjectorScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
@@ -357,7 +357,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(GroupedBatchRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CompositeEventStub>>),
+                            typeof(SimpleInjectorScopedBatchRequestProxy<CommandStub, IEnumerable<CompositeEventStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
@@ -413,7 +413,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                            typeof(SimpleInjectorScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
@@ -482,7 +482,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(GroupedBatchRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
+                            typeof(SimpleInjectorScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
@@ -545,7 +545,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(GroupedBatchRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CompositeEventStub>>),
+                            typeof(SimpleInjectorScopedBatchRequestProxy<CommandStub, IEnumerable<CompositeEventStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
@@ -611,7 +611,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(GroupedBatchRequestDecorator<CommandStub, CommandStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(ScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
+                            typeof(SimpleInjectorScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
                             implType),
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
@@ -1006,7 +1006,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
         }
 
-        public sealed class QueryHandlerStub : IQueryHandler<QueryStub, ResponseStub>
+        public sealed class QueryHandlerStub : IRequestHandler<QueryStub, ResponseStub>
         {
             public Task<Result<ResponseStub, Exception>> HandleAsync(QueryStub request, CancellationToken cancelToken)
             {

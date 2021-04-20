@@ -12,12 +12,12 @@ namespace BusinessApp.App.UnitTest
     {
         private readonly CancellationToken cancelToken;
         private readonly InstanceCacheQueryDecorator<QueryStub, ResponseStub> sut;
-        private readonly IQueryHandler<QueryStub, ResponseStub> inner;
+        private readonly IRequestHandler<QueryStub, ResponseStub> inner;
 
         public InstanceCacheQueryDecoratorTests()
         {
             cancelToken = A.Dummy<CancellationToken>();
-            inner = A.Fake<IQueryHandler<QueryStub, ResponseStub>>();
+            inner = A.Fake<IRequestHandler<QueryStub, ResponseStub>>();
 
             sut = new InstanceCacheQueryDecorator<QueryStub, ResponseStub>(inner);
         }
@@ -33,7 +33,7 @@ namespace BusinessApp.App.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
-            public void InvalidCtorArgs_ExceptionThrown(IQueryHandler<QueryStub, ResponseStub> q)
+            public void InvalidCtorArgs_ExceptionThrown(IRequestHandler<QueryStub, ResponseStub> q)
             {
                 /* Arrange */
                 void shouldThrow() => new InstanceCacheQueryDecorator<QueryStub, ResponseStub>(q);

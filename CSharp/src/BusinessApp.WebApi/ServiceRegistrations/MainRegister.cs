@@ -58,7 +58,6 @@ namespace BusinessApp.WebApi
             context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             context.Container.Register<IProcessManager, SimpleInjectorProcessManager>();
-            context.Container.RegisterSingleton<IAppScope, SimpleInjectorWebApiAppScope>();
 
             context.Container.Register(typeof(IHttpRequestHandler<,>), options.RegistrationAssemblies);
 
@@ -370,7 +369,7 @@ namespace BusinessApp.WebApi
 
             context.Container.RegisterDecorator(
                 serviceType,
-                typeof(ScopedBatchRequestProxy<,>),
+                typeof(SimpleInjectorScopedBatchRequestProxy<,>),
                 c => IsTypeDefinition(c.ImplementationType, typeof(AuthorizationRequestDecorator<,>))
                     || IsTypeDefinition(c.ImplementationType, typeof(DummyScopedBatchRequestDelegator<,>)));
 
