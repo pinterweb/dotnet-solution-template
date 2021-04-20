@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 //#if DEBUG
 using Microsoft.Extensions.Logging;
 //#endif
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using SimpleInjector;

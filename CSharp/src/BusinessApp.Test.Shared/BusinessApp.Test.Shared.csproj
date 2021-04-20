@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.Data\BusinessApp.Data.csproj" />
+    <ProjectReference Include="..\BusinessApp.Infrastructure.EntityFramework\BusinessApp.Infrastructure.EntityFramework.csproj" />
     <ProjectReference Include="..\BusinessApp.WebApi\BusinessApp.WebApi.csproj" />
   </ItemGroup>
 

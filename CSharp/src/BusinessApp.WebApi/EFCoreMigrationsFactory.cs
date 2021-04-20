@@ -1,4 +1,4 @@
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using Microsoft.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -32,7 +32,7 @@ namespace BusinessApp.WebApi
 #endif
             var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
 
-            optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
+            optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Infrastructure.EntityFramework"));
 
             return new BusinessAppDbContext(optionsBuilder.Options);
         }

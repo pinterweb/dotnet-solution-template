@@ -1,4 +1,4 @@
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using BusinessApp.Domain;
 using BusinessApp.Infrastructure;
 using BusinessApp.WebApi;

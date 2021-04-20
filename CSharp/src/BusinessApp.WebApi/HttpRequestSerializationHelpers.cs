@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
 using BusinessApp.Infrastructure;
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using BusinessApp.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

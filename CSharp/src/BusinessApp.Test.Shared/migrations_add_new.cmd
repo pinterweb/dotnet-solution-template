@@ -7,4 +7,4 @@ IF [%1] == [] (
     exit /b %errorlevel%
 )
 
-dotnet ef migrations add %1 -v -s ..\BusinessApp.Data.IntegrationTest\ --context BusinessAppTestDbContext
+dotnet ef migrations add %1 -v -s ..\BusinessApp.Infrastructure.EntityFramework.IntegrationTest\ --context BusinessAppTestDbContext

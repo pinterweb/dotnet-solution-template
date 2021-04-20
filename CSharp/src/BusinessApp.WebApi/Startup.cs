@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using Microsoft.Extensions.Logging;
 using BusinessApp.CompositionRoot;
 #if winauth

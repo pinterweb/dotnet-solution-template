@@ -13,7 +13,7 @@ using System;
 using SimpleInjector.Lifestyles;
 using BusinessApp.Domain;
 using Microsoft.Extensions.Configuration;
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using Microsoft.Extensions.Logging;
 using BusinessApp.WebApi.Json;
 using Microsoft.Extensions.Localization;

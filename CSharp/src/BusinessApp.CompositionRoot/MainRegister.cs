@@ -1,5 +1,5 @@
 using BusinessApp.Domain;
-using BusinessApp.Data;
+using BusinessApp.Infrastructure.EntityFramework;
 using BusinessApp.Infrastructure;
 using SimpleInjector;
 using System;
