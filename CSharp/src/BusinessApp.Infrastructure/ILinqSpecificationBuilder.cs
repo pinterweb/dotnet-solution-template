@@ -1,6 +1,6 @@
 using BusinessApp.Domain;
 
-namespace BusinessApp.Data
+namespace BusinessApp.Infrastructure
 {
     /// <summary>
     /// Interface to build a <see cref="LinqSpecification{}"/> from the query

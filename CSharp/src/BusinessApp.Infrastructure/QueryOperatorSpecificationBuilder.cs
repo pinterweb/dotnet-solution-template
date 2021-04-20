@@ -3,11 +3,10 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using System.Collections.Concurrent;
 
-namespace BusinessApp.Data
+namespace BusinessApp.Infrastructure
 {
     public class QueryOperatorSpecificationBuilder<TQuery, TContract> :
         ILinqSpecificationBuilder<TQuery, TContract>
@@ -165,7 +164,7 @@ namespace BusinessApp.Data
 
                     return Expression.Call(contractMemberExpr, startsWith, queryExp);
                 default:
-                    throw new BusinessAppDataException($"{attribute.OperatorToUse} is not supported.");
+                    throw new BusinessAppException($"{attribute.OperatorToUse} is not supported.");
             }
         }
 

@@ -1,5 +1,6 @@
 using BusinessApp.Data;
 using BusinessApp.Domain;
+using BusinessApp.Infrastructure;
 using BusinessApp.WebApi;
 using FakeItEasy;
 using FakeItEasy.Creation;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BusinessApp.Data
+namespace BusinessApp.Infrastructure
 {
     public static class TypeExtensions
     {

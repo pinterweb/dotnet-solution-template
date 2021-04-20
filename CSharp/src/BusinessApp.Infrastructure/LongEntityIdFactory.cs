@@ -2,7 +2,7 @@ using System.ComponentModel;
 using BusinessApp.Domain;
 using IdGen;
 
-namespace BusinessApp.Data
+namespace BusinessApp.Infrastructure
 {
     /// <summary>
     /// Factory to generate unique ids
@@ -20,7 +20,7 @@ namespace BusinessApp.Data
                 return (T)Converter.ConvertFrom(generator.CreateId());
             }
 
-            throw new BusinessAppDataException(ErrorMsg);
+            throw new BusinessAppException(ErrorMsg);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace BusinessApp.Data
+namespace BusinessApp.Infrastructure
 {
     public enum MetadataType
     {

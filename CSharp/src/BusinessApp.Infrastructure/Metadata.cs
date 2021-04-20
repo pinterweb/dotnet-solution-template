@@ -1,7 +1,7 @@
 using System;
 using BusinessApp.Domain;
 
-namespace BusinessApp.Data
+namespace BusinessApp.Infrastructure
 {
     public class Metadata
     {

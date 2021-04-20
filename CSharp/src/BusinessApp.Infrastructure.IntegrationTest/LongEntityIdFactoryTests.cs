@@ -3,7 +3,7 @@ using System.ComponentModel;
 using BusinessApp.Domain;
 using Xunit;
 
-namespace BusinessApp.Data.IntegrationTest
+namespace BusinessApp.Infrastructure.IntegrationTest
 {
     public class LongEntityIdFactoryTests
     {
@@ -30,7 +30,7 @@ namespace BusinessApp.Data.IntegrationTest
             var ex = Record.Exception(sut.Create);
 
             /* Assert */
-            Assert.IsType<BusinessAppDataException>(ex);
+            Assert.IsType<BusinessAppException>(ex);
             Assert.Equal("NoTypeConverter must be able to convert from an Int64", ex.Message);
         }
 
@@ -44,7 +44,7 @@ namespace BusinessApp.Data.IntegrationTest
             var ex = Record.Exception(sut.Create);
 
             /* Assert */
-            Assert.IsType<BusinessAppDataException>(ex);
+            Assert.IsType<BusinessAppException>(ex);
             Assert.Equal("WrongTypeConverter must be able to convert from an Int64", ex.Message);
         }
 

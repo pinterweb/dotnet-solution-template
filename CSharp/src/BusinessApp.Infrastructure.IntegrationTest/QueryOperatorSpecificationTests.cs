@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using BusinessApp.Infrastructure;
 using Xunit;
 
-namespace BusinessApp.Data.IntegrationTest
+namespace BusinessApp.Infrastructure.IntegrationTest
 {
     public class QueryOperatorSpecificationQueryTests
     {

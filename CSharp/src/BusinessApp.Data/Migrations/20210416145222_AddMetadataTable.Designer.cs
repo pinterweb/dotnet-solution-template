@@ -46,7 +46,7 @@ namespace BusinessApp.Data.Migrations
                     b.ToTable("RequestMetadata", "dbo");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.Metadata", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint")

@@ -5,7 +5,7 @@ using BusinessApp.Domain;
 using Xunit;
 using BusinessApp.Test.Shared;
 
-namespace BusinessApp.Data.UnitTest
+namespace BusinessApp.Infrastructure.UnitTest
 {
     public class MetadataTests
     {

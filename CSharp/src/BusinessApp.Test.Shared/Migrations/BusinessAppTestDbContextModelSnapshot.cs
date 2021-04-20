@@ -19,7 +19,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("BusinessApp.Data.EventMetadata<BusinessApp.WebApi.Delete+Event>", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+Event>", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint")
@@ -48,7 +48,7 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("DeleteEvent", "evt");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.Metadata", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint")
@@ -204,25 +204,25 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("PostOrPutBody");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
                 {
-                    b.HasBaseType("BusinessApp.Data.Metadata");
+                    b.HasBaseType("BusinessApp.Infrastructure.Metadata");
 
                     b.HasDiscriminator().HasValue("Metadata<Query>");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
                 {
-                    b.HasBaseType("BusinessApp.Data.Metadata");
+                    b.HasBaseType("BusinessApp.Infrastructure.Metadata");
 
                     b.HasDiscriminator().HasValue("Metadata<Body>");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.EventMetadata<BusinessApp.WebApi.Delete+Event>", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+Event>", b =>
                 {
-                    b.HasOne("BusinessApp.Data.Metadata", null)
+                    b.HasOne("BusinessApp.Infrastructure.Metadata", null)
                         .WithOne()
-                        .HasForeignKey("BusinessApp.Data.EventMetadata<BusinessApp.WebApi.Delete+Event>", "CorrelationId")
+                        .HasForeignKey("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+Event>", "CorrelationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -265,14 +265,14 @@ namespace BusinessApp.Test.Shared.Migrations
 
             modelBuilder.Entity("BusinessApp.WebApi.Delete+Query", b =>
                 {
-                    b.HasOne("BusinessApp.Data.Metadata<BusinessApp.WebApi.Delete+Query>", null)
+                    b.HasOne("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+Query>", null)
                         .WithOne("Data")
                         .HasForeignKey("BusinessApp.WebApi.Delete+Query", "MetadataId");
                 });
 
             modelBuilder.Entity("BusinessApp.WebApi.PostOrPut+Body", b =>
                 {
-                    b.HasOne("BusinessApp.Data.Metadata<BusinessApp.WebApi.PostOrPut+Body>", null)
+                    b.HasOne("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", null)
                         .WithOne("Data")
                         .HasForeignKey("BusinessApp.WebApi.PostOrPut+Body", "MetadataId");
                 });
@@ -282,12 +282,12 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.Navigation("ChildResponseStubs");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
                 {
                     b.Navigation("Data");
                 });
 
-            modelBuilder.Entity("BusinessApp.Data.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
                 {
                     b.Navigation("Data");
                 });
