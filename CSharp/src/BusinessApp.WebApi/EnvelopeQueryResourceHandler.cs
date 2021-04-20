@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using System;
 

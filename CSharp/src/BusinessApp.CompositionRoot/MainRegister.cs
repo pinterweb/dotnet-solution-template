@@ -1,6 +1,6 @@
 using BusinessApp.Domain;
 using BusinessApp.Data;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using SimpleInjector;
 using System;
 using System.Collections.Generic;

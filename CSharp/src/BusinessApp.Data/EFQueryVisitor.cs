@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using Microsoft.EntityFrameworkCore;
 

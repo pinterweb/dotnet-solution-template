@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using Microsoft.AspNetCore.Http;
 

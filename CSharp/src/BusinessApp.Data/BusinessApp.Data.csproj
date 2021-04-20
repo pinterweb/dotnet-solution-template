@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
+    <ProjectReference Include="..\BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj" />
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
   </ItemGroup>
 <!--#if (efcore)-->

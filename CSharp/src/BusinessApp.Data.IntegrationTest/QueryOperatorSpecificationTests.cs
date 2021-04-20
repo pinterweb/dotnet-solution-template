@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using Xunit;
 
 namespace BusinessApp.Data.IntegrationTest

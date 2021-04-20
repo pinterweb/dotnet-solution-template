@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security;
 using System.Threading.Tasks;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using Microsoft.AspNetCore.Http;
 using SimpleInjector;

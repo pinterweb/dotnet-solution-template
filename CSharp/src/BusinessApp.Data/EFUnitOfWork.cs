@@ -3,7 +3,7 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BusinessApp.App;
-using BusinessApp.App.Json;
+using BusinessApp.Infrastructure;
+using BusinessApp.Infrastructure.Json;
 using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot

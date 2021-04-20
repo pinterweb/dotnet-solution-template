@@ -1,5 +1,5 @@
-using BusinessApp.App;
-using BusinessApp.App.Json;
+using BusinessApp.Infrastructure;
+using BusinessApp.Infrastructure.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SimpleInjector;

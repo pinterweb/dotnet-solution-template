@@ -1,0 +1,41 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using BusinessApp.Domain;
+
+namespace BusinessApp.Infrastructure
+{
+    public class MacroBatchRequestAdapter<TMacro, TRequest, TResponse>
+        : IRequestHandler<TMacro, TResponse>
+        where TMacro : IMacro<TRequest>
+    {
+        private readonly IBatchMacro<TMacro, TRequest> expander;
+        private readonly IRequestHandler<IEnumerable<TRequest>, TResponse> handler;
+
+        public MacroBatchRequestAdapter(
+            IBatchMacro<TMacro, TRequest> expander,
+            IRequestHandler<IEnumerable<TRequest>, TResponse> handler)
+        {
+            this.expander = expander.NotNull().Expect(nameof(expander));
+            this.handler = handler.NotNull().Expect(nameof(handler));
+        }
+
+        public async Task<Result<TResponse, Exception>> HandleAsync(TMacro macro,
+            CancellationToken cancelToken)
+        {
+            var payloads = await expander.ExpandAsync(macro, cancelToken);
+
+            if (!payloads.Any())
+            {
+                throw new BusinessAppException(
+                    "The macro you ran expected to find records to change, but none were " +
+                    "found"
+                );
+            }
+
+            return await handler.HandleAsync(payloads, cancelToken);
+        }
+    }
+}

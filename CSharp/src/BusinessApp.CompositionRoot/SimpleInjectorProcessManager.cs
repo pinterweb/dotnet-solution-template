@@ -1,4 +1,4 @@
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using SimpleInjector;
 using System.Collections.Generic;

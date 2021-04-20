@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
+    <ProjectReference Include="..\BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj" />
     <ProjectReference Include="..\BusinessApp.Data\BusinessApp.Data.csproj" />
     <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
   </ItemGroup>

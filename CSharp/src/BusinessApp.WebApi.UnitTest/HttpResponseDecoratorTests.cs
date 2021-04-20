@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 using System.Threading.Tasks;
 using BusinessApp.WebApi.ProblemDetails;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Threading;

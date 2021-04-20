@@ -5,7 +5,7 @@ using BusinessApp.Domain;
 using FakeItEasy;
 using System.Security.Principal;
 using BusinessApp.Test.Shared;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -3,7 +3,7 @@ using SimpleInjector;
 using Microsoft.AspNetCore.Hosting;
 using FakeItEasy;
 using System.Linq;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Test.Shared;
 using System.Threading.Tasks;
 using System.Threading;
@@ -48,7 +48,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 RegistrationAssemblies = new[]
                 {
                     typeof(ServiceRegistrationsTests).Assembly,
-                    typeof(App.IQuery).Assembly,
+                    typeof(Infrastructure.IQuery).Assembly,
                     typeof(IQueryVisitor<>).Assembly,
                     typeof(IEventHandler<>).Assembly,
                     typeof(Startup).Assembly

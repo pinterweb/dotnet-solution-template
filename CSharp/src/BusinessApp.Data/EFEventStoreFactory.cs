@@ -1,5 +1,5 @@
 using System.Security.Principal;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 
 namespace BusinessApp.Data

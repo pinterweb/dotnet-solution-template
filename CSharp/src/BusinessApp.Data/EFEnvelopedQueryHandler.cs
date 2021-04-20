@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Domain;
 using System.Linq;
 using System.Threading;

@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 using System.Security.Principal;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot

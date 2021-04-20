@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Domain", "BusinessApp.Domain\BusinessApp.Domain.csproj", "{96D6C0D2-7A18-4BB8-9028-0EC563833B25}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.App", "BusinessApp.App\BusinessApp.App.csproj", "{A4FDE4C6-14D5-41A4-A039-A2BCFB85484A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure", "BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj", "{A4FDE4C6-14D5-41A4-A039-A2BCFB85484A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi", "BusinessApp.WebApi\BusinessApp.WebApi.csproj", "{F7F115CB-5E71-4A5D-87B4-A5F2784A3134}"
 EndProject
@@ -13,21 +13,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Data", "Busines
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CF291F25-E98A-40DF-BBF8-3A2B5B26BBD7}"
 	ProjectSection(SolutionItems) = preProject
-		<!--#if (docker)-->
 		.dockerignore = .dockerignore
-		docker_run.cmd = docker_run.cmd
-		docker-compose.yml = docker-compose.yml
-		Dockerfile = Dockerfile
-		<!--#endif-->
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
+		docker_run.cmd = docker_run.cmd
+		Dockerfile = Dockerfile
 		NuGet.Config = NuGet.Config
 		omnisharp.json = omnisharp.json
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.App.IntegrationTest", "BusinessApp.App.IntegrationTest\BusinessApp.App.IntegrationTest.csproj", "{DA3589C3-2C62-4DD9-87F2-63E39A83B51A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.IntegrationTest", "BusinessApp.Infrastructure.IntegrationTest\BusinessApp.Infrastructure.IntegrationTest.csproj", "{DA3589C3-2C62-4DD9-87F2-63E39A83B51A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.App.UnitTest", "BusinessApp.App.UnitTest\BusinessApp.App.UnitTest.csproj", "{D8691C3B-371B-4909-85CD-2B3A50C2D151}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.UnitTest", "BusinessApp.Infrastructure.UnitTest\BusinessApp.Infrastructure.UnitTest.csproj", "{D8691C3B-371B-4909-85CD-2B3A50C2D151}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Domain.UnitTest", "BusinessApp.Domain.UnitTest\BusinessApp.Domain.UnitTest.csproj", "{9E654470-59E3-4997-B853-A14F646D0ED7}"
 EndProject
@@ -43,13 +41,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.Function
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Data.UnitTest", "BusinessApp.Data.UnitTest\BusinessApp.Data.UnitTest.csproj", "{C3676695-4D31-4B10-8659-20917335F5A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessApp.Analyzers", "BusinessApp.Analyzers\BusinessApp.Analyzers.csproj", "{0D5D8149-C8DC-45AF-A55A-46E161775A52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Analyzers", "BusinessApp.Analyzers\BusinessApp.Analyzers.csproj", "{0D5D8149-C8DC-45AF-A55A-46E161775A52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessApp.Analyzers.IntegrationTest", "BusinessApp.Analyzers.IntegrationTest\BusinessApp.Analyzers.IntegrationTest.csproj", "{F1920B2C-67C0-4534-BD3D-EBFB93E50E16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Analyzers.IntegrationTest", "BusinessApp.Analyzers.IntegrationTest\BusinessApp.Analyzers.IntegrationTest.csproj", "{F1920B2C-67C0-4534-BD3D-EBFB93E50E16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessApp.CompositionRoot", "BusinessApp.CompositionRoot\BusinessApp.CompositionRoot.csproj", "{53012FD5-9570-42F2-A31F-800C3CFBF324}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.CompositionRoot", "BusinessApp.CompositionRoot\BusinessApp.CompositionRoot.csproj", "{53012FD5-9570-42F2-A31F-800C3CFBF324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessApp.CompositionRoot.IntegrationTest", "BusinessApp.CompositionRoot.IntegrationTest\BusinessApp.CompositionRoot.IntegrationTest.csproj", "{1FCACC22-9194-4419-8C2B-8886B4109369}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.CompositionRoot.IntegrationTest", "BusinessApp.CompositionRoot.IntegrationTest\BusinessApp.CompositionRoot.IntegrationTest.csproj", "{1FCACC22-9194-4419-8C2B-8886B4109369}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessApp.Api", "BusinessApp.Api\BusinessApp.Api.csproj", "{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -265,6 +265,18 @@ Global
 		{1FCACC22-9194-4419-8C2B-8886B4109369}.Release|x64.Build.0 = Release|Any CPU
 		{1FCACC22-9194-4419-8C2B-8886B4109369}.Release|x86.ActiveCfg = Release|Any CPU
 		{1FCACC22-9194-4419-8C2B-8886B4109369}.Release|x86.Build.0 = Release|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Debug|x64.Build.0 = Debug|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Debug|x86.Build.0 = Debug|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Release|x64.ActiveCfg = Release|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Release|x64.Build.0 = Release|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Release|x86.ActiveCfg = Release|Any CPU
+		{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

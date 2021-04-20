@@ -19,7 +19,7 @@ namespace BusinessApp.Data.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("BusinessApp.App.RequestMetadata", b =>
+            modelBuilder.Entity("BusinessApp.Infrastructure.RequestMetadata", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using BusinessApp.Domain;
 using BusinessApp.WebApi.ProblemDetails;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using System.Threading;
 
 namespace BusinessApp.WebApi

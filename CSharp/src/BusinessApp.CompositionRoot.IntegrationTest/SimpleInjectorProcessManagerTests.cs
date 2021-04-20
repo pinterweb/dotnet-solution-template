@@ -1,7 +1,7 @@
 using Xunit;
 using SimpleInjector;
 using FakeItEasy;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Test.Shared;
 using System.Threading.Tasks;
 using System.Threading;

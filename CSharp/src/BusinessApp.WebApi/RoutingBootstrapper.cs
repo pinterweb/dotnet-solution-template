@@ -82,7 +82,7 @@ namespace BusinessApp.WebApi
 
     public class Get
     {
-        public class Request : App.Query
+        public class Request : Infrastructure.Query
         {
             public int Id { get; set; }
             public override IEnumerable<string> Sort { get; set; } = new List<string>();
@@ -99,8 +99,8 @@ namespace BusinessApp.WebApi
         }
 
         public class Handler :
-            App.IRequestHandler<Request, IEnumerable<Response>>,
-            App.IRequestHandler<Request, App.EnvelopeContract<Response>>
+            Infrastructure.IRequestHandler<Request, IEnumerable<Response>>,
+            Infrastructure.IRequestHandler<Request, Infrastructure.EnvelopeContract<Response>>
         {
             public Task<Result<IEnumerable<Response>, Exception>> HandleAsync(Request request, CancellationToken cancelToken)
             {
@@ -115,12 +115,12 @@ namespace BusinessApp.WebApi
                 return Task.FromResult(Result.Ok(response));
             }
 
-            Task<Result<App.EnvelopeContract<Response>, Exception>> App.IRequestHandler<Request, App.EnvelopeContract<Response>>.HandleAsync(
+            Task<Result<Infrastructure.EnvelopeContract<Response>, Exception>> Infrastructure.IRequestHandler<Request, Infrastructure.EnvelopeContract<Response>>.HandleAsync(
                 Request request, CancellationToken cancelToken)
             {
-                var e =  Result.Ok(new App.EnvelopeContract<Response>(
+                var e =  Result.Ok(new Infrastructure.EnvelopeContract<Response>(
                     new[] { new Response() },
-                    new App.Pagination
+                    new Infrastructure.Pagination
                     {
                         ItemCount = 1
                     }));
@@ -160,7 +160,7 @@ namespace BusinessApp.WebApi
         }
 
 
-        public class Handler : App.IRequestHandler<Query, Response>,
+        public class Handler : Infrastructure.IRequestHandler<Query, Response>,
             IEventHandler<Event>
         {
             // to prevent infinite loops

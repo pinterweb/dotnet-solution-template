@@ -5,7 +5,7 @@ using FakeItEasy;
 using System;
 using System.Linq;
 using BusinessApp.Domain;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {

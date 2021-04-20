@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

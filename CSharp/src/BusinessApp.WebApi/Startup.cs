@@ -41,7 +41,7 @@ namespace BusinessApp.WebApi
             {
                 RegistrationAssemblies = new[]
                 {
-                    typeof(App.IQuery).Assembly,
+                    typeof(Infrastructure.IQuery).Assembly,
                     typeof(IQueryVisitor<>).Assembly,
                     typeof(IEventHandler<>).Assembly,
                     typeof(Startup).Assembly

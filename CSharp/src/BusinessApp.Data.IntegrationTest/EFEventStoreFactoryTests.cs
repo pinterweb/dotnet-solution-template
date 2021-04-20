@@ -4,7 +4,7 @@ using Xunit;
 using BusinessApp.Domain;
 using BusinessApp.Test.Shared;
 using System.Security.Principal;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Data.IntegrationTest
 {

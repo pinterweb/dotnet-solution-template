@@ -1,4 +1,4 @@
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Data
 {

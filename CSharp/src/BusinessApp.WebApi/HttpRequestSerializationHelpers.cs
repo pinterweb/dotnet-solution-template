@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using BusinessApp.Data;
 using BusinessApp.Domain;
 using Microsoft.AspNetCore.Http;

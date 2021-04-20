@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApp.Data

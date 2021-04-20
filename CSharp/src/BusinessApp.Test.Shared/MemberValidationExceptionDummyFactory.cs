@@ -1,5 +1,5 @@
 using FakeItEasy;
-using BusinessApp.App;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Test.Shared
 {
