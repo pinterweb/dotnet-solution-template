@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
 

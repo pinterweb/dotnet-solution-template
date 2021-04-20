@@ -1,4 +1,6 @@
-﻿namespace BusinessApp.WebApi
+﻿using BusinessApp.CompositionRoot;
+
+namespace BusinessApp.WebApi
 {
     /// <summary>
     /// Registers services to support HATEOAS as defined in RFC8288

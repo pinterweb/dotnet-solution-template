@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 //#if DEBUG
 using Microsoft.Extensions.Logging;
 //#endif
@@ -8,11 +6,8 @@ using BusinessApp.Data;
 using BusinessApp.App;
 using BusinessApp.Domain;
 using SimpleInjector;
-using Microsoft.AspNetCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     public class EFCoreRegister : IBootstrapRegister
     {
@@ -29,11 +24,10 @@ namespace BusinessApp.WebApi
             });
 //#endif
 
-        private readonly BootstrapOptions options;
+        private readonly RegistrationOptions options;
         private readonly IBootstrapRegister inner;
 
-        public EFCoreRegister(BootstrapOptions options,
-            IBootstrapRegister inner)
+        public EFCoreRegister(RegistrationOptions options, IBootstrapRegister inner)
         {
             this.options = options;
             this.inner = inner;
@@ -97,35 +91,6 @@ namespace BusinessApp.WebApi
                     .UseSqlServer(options.DbConnectionString)
                     .Options
             );
-        }
-
-        public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
-        {
-            public BusinessAppDbContext CreateDbContext(string[] args)
-            {
-                var config = (IConfiguration?)WebHost.CreateDefaultBuilder(args)
-                    .ConfigureServices(sc => sc.AddSingleton(new Container()))
-                    .ConfigureAppConfiguration(builder =>
-                    {
-                        builder.AddCommandLine(args);
-                        builder.AddEnvironmentVariables();
-                    })
-                    .UseStartup<Startup>()
-                    .Build()
-                    .Services
-                    .GetService(typeof(IConfiguration));
-
-#if docker
-                var connection = config.GetConnectionString("docker");
-#else
-                var connection = config.GetConnectionString("local");
-#endif
-                var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
-
-                optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Data"));
-
-                return new BusinessAppDbContext(optionsBuilder.Options);
-            }
         }
     }
 }

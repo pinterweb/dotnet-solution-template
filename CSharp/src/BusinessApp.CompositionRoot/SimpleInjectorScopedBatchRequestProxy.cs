@@ -7,7 +7,7 @@ using BusinessApp.Domain;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     public class SimpleInjectorScopedBatchRequestProxy<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, TResponse>

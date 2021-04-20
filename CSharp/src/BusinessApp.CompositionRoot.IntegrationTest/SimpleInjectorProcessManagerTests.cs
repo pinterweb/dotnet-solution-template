@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System;
 using BusinessApp.Domain;
 
-namespace BusinessApp.WebApi.IntegrationTest
+namespace BusinessApp.CompositionRoot.IntegrationTest
 {
     public class SimpleInjectorProcessManagerTests : IDisposable
     {

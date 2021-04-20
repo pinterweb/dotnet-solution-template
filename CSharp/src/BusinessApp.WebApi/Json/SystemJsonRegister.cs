@@ -1,8 +1,4 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using BusinessApp.App;
-using BusinessApp.App.Json;
-using SimpleInjector;
+using BusinessApp.CompositionRoot;
 
 namespace BusinessApp.WebApi.Json
 {
@@ -19,29 +15,8 @@ namespace BusinessApp.WebApi.Json
         {
             var container = context.Container;
 
-            container.RegisterConditional<ISerializer, SystemJsonSerializerAdapter>(
-                Lifestyle.Singleton,
-                c => !c.Handled);
-
             container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
                 typeof(SystemJsonExceptionDecorator<,>));
-
-            container.RegisterInstance(
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-//#if DEBUG
-                    WriteIndented = true,
-//#endif
-                    Converters =
-                    {
-                        new SystemEntityIdJsonConverterFactory(),
-                        new SystemLongToStringJsonConverter(),
-                        new JsonStringEnumConverter()
-                    }
-                }
-            );
 
             inner.Register(context);
         }

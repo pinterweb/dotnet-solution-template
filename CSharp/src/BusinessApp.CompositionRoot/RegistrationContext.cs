@@ -1,7 +1,7 @@
 using BusinessApp.Domain;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     public class RegistrationContext
     {

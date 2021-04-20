@@ -1,6 +1,6 @@
 using BusinessApp.App;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     public class DataAnnotationRegister : IBootstrapRegister
     {

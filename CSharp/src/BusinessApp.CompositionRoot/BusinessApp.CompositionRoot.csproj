@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SimpleInjector" Version="5.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
+    <ProjectReference Include="..\BusinessApp.Data\BusinessApp.Data.csproj" />
+    <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

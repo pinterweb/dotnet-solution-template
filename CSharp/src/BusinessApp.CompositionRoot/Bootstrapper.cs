@@ -1,20 +1,17 @@
 using System.Linq;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
-    public static partial class Bootstrapper
+    public static class Bootstrapper
     {
         public static void RegisterServices(Container container,
-            BootstrapOptions options,
-            IWebHostEnvironment env,
-            ILoggerFactory loggerFactory)
+            RegistrationOptions options, ILoggerFactory loggerFactory)
         {
-            var bootstrapContainer = SetupBootstrapContainer(options, env, loggerFactory);
+            var bootstrapContainer = SetupBootstrapContainer(options, loggerFactory);
 
-            RegisterBootstrapDecorators(bootstrapContainer);
+            RegisterBootstrapDecorators(bootstrapContainer, options);
 
             bootstrapContainer.Verify();
 
@@ -24,24 +21,24 @@ namespace BusinessApp.WebApi
             bootstrap.Register(regContext);
         }
 
-        private static Container SetupBootstrapContainer(BootstrapOptions options,
-            IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        private static Container SetupBootstrapContainer(RegistrationOptions options,
+            ILoggerFactory loggerFactory)
         {
             var bootstrapContainer = new Container();
 
             bootstrapContainer.Register<IBootstrapRegister, MainRegister>();
             bootstrapContainer.RegisterInstance(options);
-            bootstrapContainer.RegisterInstance(env);
             bootstrapContainer.RegisterInstance(loggerFactory);
 
             return bootstrapContainer;
         }
 
-        private static void RegisterBootstrapDecorators(Container container)
+        private static void RegisterBootstrapDecorators(Container container,
+            RegistrationOptions options)
         {
             var bootstrapDecorators = container
                 .GetTypesToRegister(typeof(IBootstrapRegister),
-                    new[] { typeof(Startup).Assembly },
+                    options.RegistrationAssemblies.Concat(new[] { typeof(Bootstrapper).Assembly }),
                     new TypesToRegisterOptions
                     {
                         IncludeDecorators = true

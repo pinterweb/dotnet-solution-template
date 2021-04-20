@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     /// <summary>
     /// SimpleInjector implementation of the <see cref="IProcessManager"/>

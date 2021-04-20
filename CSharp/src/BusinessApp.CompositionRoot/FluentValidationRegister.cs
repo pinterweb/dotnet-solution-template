@@ -1,15 +1,13 @@
 using BusinessApp.App;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     public class FluentValidationRegister : IBootstrapRegister
     {
-        private readonly BootstrapOptions options;
+        private readonly RegistrationOptions options;
         private readonly IBootstrapRegister inner;
 
-        public FluentValidationRegister(BootstrapOptions options,
-            IBootstrapRegister inner
-        )
+        public FluentValidationRegister(RegistrationOptions options, IBootstrapRegister inner)
         {
             this.options = options;
             this.inner = inner;

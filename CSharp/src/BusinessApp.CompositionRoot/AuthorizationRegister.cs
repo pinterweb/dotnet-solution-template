@@ -1,9 +1,10 @@
 using System;
 using System.Reflection;
+using System.Security.Principal;
 using BusinessApp.App;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     /// <summary>
     /// Registers authorization based on the <see cref="AuthorizeAttribute" />
@@ -20,6 +21,8 @@ namespace BusinessApp.WebApi
         public void Register(RegistrationContext context)
         {
             var container = context.Container;
+
+            context.Container.RegisterDecorator<IPrincipal, AnonymousUser>();
 
             container.RegisterConditional(
                 typeof(IAuthorizer<>),

@@ -17,6 +17,7 @@ using BusinessApp.Data;
 using Microsoft.Extensions.Logging;
 using BusinessApp.WebApi.Json;
 using Microsoft.Extensions.Localization;
+using BusinessApp.CompositionRoot;
 
 namespace BusinessApp.WebApi.IntegrationTest
 {
@@ -32,33 +33,35 @@ namespace BusinessApp.WebApi.IntegrationTest
             var configSection = A.Fake<IConfigurationSection>();
             A.CallTo(() => config.GetSection("ConnectionStrings")).Returns(configSection);
             A.CallTo(() => configSection["local"]).Returns("foo");
-            new Startup(config, container);
+            _ = new Startup(config, container, A.Dummy<IWebHostEnvironment>());
             scope = AsyncScopedLifestyle.BeginScope(container);
         }
 
         public void Dispose() => scope.Dispose();
 
-        public void CreateRegistrations(Container container, IWebHostEnvironment env = null)
+        public void CreateRegistrations(Container container, string envName = "Development")
         {
-            var bootstrapOptions = new BootstrapOptions("Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar")
+            var bootstrapOptions = new RegistrationOptions(
+                "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
+                envName)
             {
                 RegistrationAssemblies = new[]
                 {
                     typeof(ServiceRegistrationsTests).Assembly,
-                    typeof(IQuery).Assembly,
-                    typeof(IQueryVisitor<>).Assembly
+                    typeof(App.IQuery).Assembly,
+                    typeof(IQueryVisitor<>).Assembly,
+                    typeof(IEventHandler<>).Assembly,
+                    typeof(Startup).Assembly
                 }
             };
             container.RegisterInstance(A.Fake<IHttpContextAccessor>());
             container.RegisterInstance(A.Fake<IStringLocalizerFactory>());
             container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
             container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
-            Bootstrapper.RegisterServices(container,
+            CompositionRoot.Bootstrapper.RegisterServices(container,
                 bootstrapOptions,
-                (env ?? A.Dummy<IWebHostEnvironment>()),
                 A.Dummy<ILoggerFactory>());
         }
-
 
         public class RequestHandlers : ServiceRegistrationsTests
         {
@@ -890,9 +893,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void UsesStringLogEntryFormatterInDevMode()
             {
                 /* Arrange */
-                var env = A.Fake<IWebHostEnvironment>();
-                A.CallTo(() => env.EnvironmentName).Returns("Development");
-                CreateRegistrations(container, env);
+                CreateRegistrations(container, "Development");
                 container.Verify();
                 var serviceType = typeof(ILogEntryFormatter);
 
@@ -907,9 +908,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void UsesSerializedLogEntryFormatterNotInDevMode()
             {
                 /* Arrange */
-                var env = A.Fake<IWebHostEnvironment>();
-                A.CallTo(() => env.EnvironmentName).Returns("Production");
-                CreateRegistrations(container, env);
+                CreateRegistrations(container, "Production");
                 container.Verify();
                 var serviceType = typeof(ILogEntryFormatter);
 
@@ -927,9 +926,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             public void HasConsumer_UsesConsumerAsGeneric()
             {
                 /* Arrange */
-                var env = A.Fake<IWebHostEnvironment>();
-                A.CallTo(() => env.EnvironmentName).Returns("Development");
-                CreateRegistrations(container, env);
+                CreateRegistrations(container, "Development");
                 container.Verify();
                 var serviceType = typeof(IRequestHandler<LocalizedCommand, LocalizedCommand>);
 

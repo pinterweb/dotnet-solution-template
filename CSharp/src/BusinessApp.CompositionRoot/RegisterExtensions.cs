@@ -2,7 +2,7 @@ using BusinessApp.App;
 using System;
 using System.Linq;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.CompositionRoot
 {
     public static class RegisterExtensions
     {

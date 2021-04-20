@@ -11,6 +11,7 @@ using SimpleInjector.Lifestyles;
 using System;
 using BusinessApp.Data;
 using Microsoft.Extensions.Logging;
+using BusinessApp.CompositionRoot;
 #if winauth
 using Microsoft.AspNetCore.Authentication.Negotiate;
 #endif
@@ -20,9 +21,9 @@ namespace BusinessApp.WebApi
     public class Startup
     {
         private readonly Container container;
-        private readonly BootstrapOptions options;
+        private readonly RegistrationOptions options;
 
-        public Startup(IConfiguration configuration, Container container)
+        public Startup(IConfiguration configuration, Container container, IWebHostEnvironment env)
         {
             this.container = container.NotNull().Expect(nameof(container));
             container.Options.ResolveUnregisteredConcreteTypes = false;
@@ -36,9 +37,8 @@ namespace BusinessApp.WebApi
 #else
             var connStr = configuration.GetConnectionString("local");
 #endif
-            options = new BootstrapOptions(connStr)
+            options = new RegistrationOptions(connStr, env.EnvironmentName)
             {
-                LogFilePath = loggingPath,
                 RegistrationAssemblies = new[]
                 {
                     typeof(App.IQuery).Assembly,
@@ -112,7 +112,7 @@ namespace BusinessApp.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 #endif
-            Bootstrapper.RegisterServices(container, options, env, loggerFactory);
+            CompositionRoot.Bootstrapper.RegisterServices(container, options, loggerFactory);
 
             container.Verify();
 

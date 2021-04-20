@@ -28,9 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.App\BusinessApp.App.csproj" />
-    <ProjectReference Include="..\BusinessApp.Data\BusinessApp.Data.csproj" />
-    <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
+    <ProjectReference Include="..\BusinessApp.CompositionRoot\BusinessApp.CompositionRoot.csproj" />
   </ItemGroup>
 
   <Target Name="CodeCheck" AfterTargets="Restore">
