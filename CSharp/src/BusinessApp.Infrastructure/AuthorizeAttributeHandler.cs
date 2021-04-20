@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {

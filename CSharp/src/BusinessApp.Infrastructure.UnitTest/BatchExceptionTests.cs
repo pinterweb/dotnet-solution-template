@@ -1,6 +1,6 @@
 using System;
 using Xunit;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using FakeItEasy;
 
 namespace BusinessApp.Infrastructure.UnitTest

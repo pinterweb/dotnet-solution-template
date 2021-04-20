@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FakeItEasy;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Xunit;
 using System.Threading;
 

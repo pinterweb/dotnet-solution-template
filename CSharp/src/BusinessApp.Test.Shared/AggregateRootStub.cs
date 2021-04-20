@@ -1,4 +1,4 @@
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Test.Shared
 {

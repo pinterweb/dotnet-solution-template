@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using System;
 
 namespace BusinessApp.WebApi

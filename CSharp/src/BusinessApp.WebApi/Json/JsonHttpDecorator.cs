@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using System.Threading;
 
 namespace BusinessApp.WebApi.Json

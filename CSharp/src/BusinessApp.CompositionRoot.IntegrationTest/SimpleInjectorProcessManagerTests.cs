@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
 using System;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.CompositionRoot.IntegrationTest
 {

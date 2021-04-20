@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {

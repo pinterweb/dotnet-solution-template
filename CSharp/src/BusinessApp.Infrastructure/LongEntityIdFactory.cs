@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using IdGen;
 
 namespace BusinessApp.Infrastructure

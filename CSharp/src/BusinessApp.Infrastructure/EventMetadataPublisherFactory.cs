@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using System.Collections.Concurrent;
 
 namespace BusinessApp.Infrastructure

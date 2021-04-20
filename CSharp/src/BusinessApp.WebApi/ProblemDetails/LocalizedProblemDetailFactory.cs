@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.Extensions.Localization;
 
 namespace BusinessApp.WebApi.ProblemDetails

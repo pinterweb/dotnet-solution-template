@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using Xunit;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using BusinessApp.Test.Shared;
 
 namespace BusinessApp.Infrastructure.UnitTest

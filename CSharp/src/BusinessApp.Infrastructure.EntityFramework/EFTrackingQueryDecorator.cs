@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApp.Infrastructure.EntityFramework

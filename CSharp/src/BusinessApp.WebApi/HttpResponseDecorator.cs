@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using BusinessApp.WebApi.ProblemDetails;
 using BusinessApp.Infrastructure;
 using System.Threading;

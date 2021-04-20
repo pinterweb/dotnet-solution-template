@@ -16,7 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj" />
     <ProjectReference Include="..\BusinessApp.Infrastructure.EntityFramework\BusinessApp.Infrastructure.EntityFramework.csproj" />
-    <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
+    <ProjectReference Include="..\BusinessApp.Kernel\BusinessApp.Kernel.csproj" />
   </ItemGroup>
 
 </Project>

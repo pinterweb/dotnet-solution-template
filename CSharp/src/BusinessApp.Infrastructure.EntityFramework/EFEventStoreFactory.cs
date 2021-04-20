@@ -1,6 +1,6 @@
 using System.Security.Principal;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {

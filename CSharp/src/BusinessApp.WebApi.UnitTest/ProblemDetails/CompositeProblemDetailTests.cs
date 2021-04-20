@@ -4,7 +4,7 @@ using FakeItEasy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {

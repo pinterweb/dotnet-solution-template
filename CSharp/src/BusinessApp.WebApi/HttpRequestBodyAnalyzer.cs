@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.WebApi
 {

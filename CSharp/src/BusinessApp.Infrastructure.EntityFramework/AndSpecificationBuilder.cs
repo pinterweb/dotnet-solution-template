@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Infrastructure.EntityFramework

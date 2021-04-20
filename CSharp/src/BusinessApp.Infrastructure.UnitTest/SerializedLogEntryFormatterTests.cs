@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using FakeItEasy;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using BusinessApp.Test.Shared;
 using Xunit;
 using System.Linq;

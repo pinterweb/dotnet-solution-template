@@ -3,7 +3,7 @@ using FakeItEasy;
 using Xunit;
 using BusinessApp.Infrastructure.Json;
 using Newtonsoft.Json;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using System.IO;
 using System.ComponentModel;
 using System.Text;

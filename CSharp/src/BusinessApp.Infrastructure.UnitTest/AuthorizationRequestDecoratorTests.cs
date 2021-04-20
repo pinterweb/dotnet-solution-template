@@ -4,7 +4,7 @@ using System.Security;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using FakeItEasy;
 using Xunit;
 

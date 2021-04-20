@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using SimpleInjector;
 
 namespace BusinessApp.WebApi

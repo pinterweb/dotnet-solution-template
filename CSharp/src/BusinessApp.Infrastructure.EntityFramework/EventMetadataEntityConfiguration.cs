@@ -1,4 +1,4 @@
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

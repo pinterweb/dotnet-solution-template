@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FakeItEasy;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Xunit;
 using BusinessApp.Test.Shared;
 

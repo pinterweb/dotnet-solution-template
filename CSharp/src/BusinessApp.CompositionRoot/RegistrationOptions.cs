@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.CompositionRoot
 {

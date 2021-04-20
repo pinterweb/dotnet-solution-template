@@ -1,5 +1,5 @@
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using SimpleInjector;
 using System.Collections.Generic;
 using System.Linq;

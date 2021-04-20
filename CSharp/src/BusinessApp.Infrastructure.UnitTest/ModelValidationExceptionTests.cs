@@ -2,7 +2,7 @@ using Xunit;
 using System.Collections.Generic;
 using FakeItEasy;
 using System.Linq;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.UnitTest
 {

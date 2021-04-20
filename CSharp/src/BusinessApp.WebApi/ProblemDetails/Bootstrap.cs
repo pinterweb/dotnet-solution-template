@@ -4,7 +4,7 @@ using System.Data;
 using System.Security;
 using System.Threading.Tasks;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 using SimpleInjector;
 

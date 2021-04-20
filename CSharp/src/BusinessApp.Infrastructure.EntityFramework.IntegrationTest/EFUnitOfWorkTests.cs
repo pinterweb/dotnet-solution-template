@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using FakeItEasy;
 using Microsoft.EntityFrameworkCore;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Xunit;
 using BusinessApp.Test.Shared;
 using System.Threading;

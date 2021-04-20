@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using BusinessApp.WebApi.Json;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +10,7 @@ using Xunit;
 
 namespace BusinessApp.WebApi.UnitTest.Json
 {
-    using Result = Domain.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
+    using Result = Kernel.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
     using HandlerResponse = HandlerContext<RequestStub, ResponseStub>;
 
     public class JsonHttpDecoratorTests

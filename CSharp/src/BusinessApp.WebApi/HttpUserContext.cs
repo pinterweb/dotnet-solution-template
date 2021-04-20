@@ -1,6 +1,6 @@
 using System.Security.Principal;
 using Microsoft.AspNetCore.Http;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.WebApi
 {

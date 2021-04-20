@@ -1,6 +1,6 @@
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Xunit;
 using System;
 using System.Threading.Tasks;

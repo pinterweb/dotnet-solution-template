@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using FakeItEasy;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Xunit;
 using System.Diagnostics;
 

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System;
 using SimpleInjector.Lifestyles;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.Extensions.Configuration;
 using BusinessApp.Infrastructure.EntityFramework;
 using Microsoft.Extensions.Logging;

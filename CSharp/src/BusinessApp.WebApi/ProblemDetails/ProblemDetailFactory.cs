@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 
 namespace BusinessApp.WebApi.ProblemDetails

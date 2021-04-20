@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Xunit;
 using System.Threading;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.UnitTest
 {

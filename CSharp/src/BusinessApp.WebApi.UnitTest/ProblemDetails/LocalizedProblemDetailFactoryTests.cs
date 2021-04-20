@@ -4,7 +4,7 @@ using FakeItEasy;
 using Microsoft.Extensions.Localization;
 using System.Collections.Generic;
 using System;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 {

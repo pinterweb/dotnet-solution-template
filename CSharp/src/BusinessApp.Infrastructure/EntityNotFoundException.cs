@@ -1,5 +1,5 @@
 ﻿using System;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {

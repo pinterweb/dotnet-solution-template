@@ -1,5 +1,7 @@
 # Dotnet WebApi Template
 
+TODO need to update
+
 Inspired by [solidservices](https://github.com/dotnetjunkie/solidservices)
 
 - [Installation](#installation)
@@ -37,19 +39,19 @@ dotnet new webapi-bizapp --help
 
 
 ## Layout
-The layout of the solution is driven by a Command/Query separation while isolating
-the Domain layer
+The layout of the solution is driven by a Command/Query request processing in
+the infrastructure layer, having a core shared kernel.
 
-### Domain Layer
+### Kernel Layer
 Classes/Services to serve the Aggregate(s)
 * _No dependencies_
 
-### App Layer
+### Infrastructure Layer
 Classes/Services to serve the domain in a command/query fashion
 * _dependencies: System.ComponentModel.Annotations_
 * _optional dependencies: Fluent Validation_
 
-### Data Layer
+### Infrastructure EntityFramework Layer
 Classes/Services to persist the domain Aggregate(s)
 * _optional dependencies: Entity Framework Core_
 

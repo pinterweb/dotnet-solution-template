@@ -1,4 +1,4 @@
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using MS = Microsoft.Extensions.Logging;
 
 namespace BusinessApp.Infrastructure

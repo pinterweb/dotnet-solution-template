@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 #if efcore
 using Microsoft.EntityFrameworkCore;
 #endif
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;

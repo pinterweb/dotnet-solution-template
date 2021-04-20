@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Web;
 using BusinessApp.Infrastructure;
 using BusinessApp.Infrastructure.EntityFramework;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 

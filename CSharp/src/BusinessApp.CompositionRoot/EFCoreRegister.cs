@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 //#endif
 using BusinessApp.Infrastructure.EntityFramework;
 using BusinessApp.Infrastructure;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot

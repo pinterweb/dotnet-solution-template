@@ -1,6 +1,6 @@
 using System;
 using System.Diagnostics;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {

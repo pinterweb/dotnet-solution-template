@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29020.237
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Domain", "BusinessApp.Domain\BusinessApp.Domain.csproj", "{96D6C0D2-7A18-4BB8-9028-0EC563833B25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Kernel", "BusinessApp.Kernel\BusinessApp.Kernel.csproj", "{96D6C0D2-7A18-4BB8-9028-0EC563833B25}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure", "BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj", "{A4FDE4C6-14D5-41A4-A039-A2BCFB85484A}"
 EndProject
@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.UnitTest", "BusinessApp.Infrastructure.UnitTest\BusinessApp.Infrastructure.UnitTest.csproj", "{D8691C3B-371B-4909-85CD-2B3A50C2D151}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Domain.UnitTest", "BusinessApp.Domain.UnitTest\BusinessApp.Domain.UnitTest.csproj", "{9E654470-59E3-4997-B853-A14F646D0ED7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Kernel.UnitTest", "BusinessApp.Kernel.UnitTest\BusinessApp.Kernel.UnitTest.csproj", "{9E654470-59E3-4997-B853-A14F646D0ED7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Test.Shared", "BusinessApp.Test.Shared\BusinessApp.Test.Shared.csproj", "{DCBD287A-9BC4-4EE5-BB10-1D766E11D38F}"
 EndProject
@@ -49,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.CompositionRoot
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.CompositionRoot.IntegrationTest", "BusinessApp.CompositionRoot.IntegrationTest\BusinessApp.CompositionRoot.IntegrationTest.csproj", "{1FCACC22-9194-4419-8C2B-8886B4109369}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessApp.Api", "BusinessApp.Api\BusinessApp.Api.csproj", "{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Api", "BusinessApp.Api\BusinessApp.Api.csproj", "{277F9C2E-0360-4DA4-B8A0-03EA470DD95F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

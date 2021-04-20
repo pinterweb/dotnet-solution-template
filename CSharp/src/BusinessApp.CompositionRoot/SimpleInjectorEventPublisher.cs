@@ -1,4 +1,4 @@
-﻿using BusinessApp.Domain;
+﻿using BusinessApp.Kernel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

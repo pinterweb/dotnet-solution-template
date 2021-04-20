@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using Xunit;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using System;
 using System.Linq;
 

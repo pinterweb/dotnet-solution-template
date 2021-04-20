@@ -14,7 +14,7 @@ namespace BusinessApp.WebApi.UnitTest
 {
     using System.Collections.Generic;
     using System;
-    using BusinessApp.Domain;
+    using BusinessApp.Kernel;
     using System.ComponentModel;
 
     public enum DummyEnum { Foobar }

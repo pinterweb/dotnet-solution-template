@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 using Xunit;
 
 namespace BusinessApp.Infrastructure.IntegrationTest

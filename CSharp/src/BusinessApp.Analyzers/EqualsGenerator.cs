@@ -11,7 +11,7 @@ namespace BusinessApp.Analyzers
     [Generator]
     public class EqualsGenerator : ISourceGenerator
     {
-        private const string TargetAttributeName = "BusinessApp.Domain.IdAttribute";
+        private const string TargetAttributeName = "BusinessApp.Kernel.IdAttribute";
 
         public void Initialize(GeneratorInitializationContext context)
         {

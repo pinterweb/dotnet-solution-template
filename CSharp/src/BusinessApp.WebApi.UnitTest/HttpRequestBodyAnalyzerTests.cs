@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Xunit;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.WebApi.UnitTest
 {

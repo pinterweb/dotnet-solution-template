@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj" />
-    <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
+    <ProjectReference Include="..\BusinessApp.Kernel\BusinessApp.Kernel.csproj" />
   </ItemGroup>
 <!--#if (efcore)-->
   <ItemGroup>

@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.Domain\BusinessApp.Domain.csproj" />
+    <ProjectReference Include="..\BusinessApp.Kernel\BusinessApp.Kernel.csproj" />
     <ProjectReference Include="..\BusinessApp.Analyzers\BusinessApp.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 

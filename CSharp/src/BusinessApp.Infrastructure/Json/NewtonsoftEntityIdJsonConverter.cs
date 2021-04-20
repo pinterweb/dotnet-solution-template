@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.Json
 {

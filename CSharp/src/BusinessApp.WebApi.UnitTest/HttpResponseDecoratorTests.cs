@@ -7,11 +7,11 @@ using BusinessApp.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using BusinessApp.Domain;
+using BusinessApp.Kernel;
 
 namespace BusinessApp.WebApi.UnitTest
 {
-    using HandlerResult = Domain.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
+    using HandlerResult = Kernel.Result<HandlerContext<RequestStub, ResponseStub>, System.Exception>;
 
     public class HttpResponseDecoratorTests
     {
