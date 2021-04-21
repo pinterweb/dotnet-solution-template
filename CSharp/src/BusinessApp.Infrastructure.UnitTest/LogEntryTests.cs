@@ -1,8 +1,9 @@
 using System;
 using Xunit;
 using FakeItEasy;
+using BusinessApp.Kernel;
 
-namespace BusinessApp.Kernel.UnitTest
+namespace BusinessApp.Infrastructure.UnitTest
 {
     public class LogEntryTests
     {

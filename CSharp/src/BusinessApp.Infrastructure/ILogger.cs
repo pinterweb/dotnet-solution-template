@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.Kernel
+﻿namespace BusinessApp.Infrastructure
 {
     /// <summary>
     /// General logger

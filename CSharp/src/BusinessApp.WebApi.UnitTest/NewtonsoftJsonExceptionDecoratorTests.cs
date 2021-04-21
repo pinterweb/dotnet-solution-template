@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using BusinessApp.WebApi.Json;
 using Newtonsoft.Json;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.WebApi.UnitTest
 {

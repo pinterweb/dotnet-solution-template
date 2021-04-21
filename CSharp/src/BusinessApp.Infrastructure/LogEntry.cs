@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using BusinessApp.Kernel;
 
-namespace BusinessApp.Kernel
+namespace BusinessApp.Infrastructure
 {
     /// <summary>
     /// Holds the data to log

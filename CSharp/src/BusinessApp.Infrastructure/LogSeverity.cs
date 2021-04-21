@@ -1,4 +1,4 @@
-﻿namespace BusinessApp.Kernel
+﻿namespace BusinessApp.Infrastructure
 {
     /// <summary>
     /// The severity of the log message

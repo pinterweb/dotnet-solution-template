@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using BusinessApp.Kernel;
 using System.Threading;
 using System.Text.Json;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.WebApi.Json
 {

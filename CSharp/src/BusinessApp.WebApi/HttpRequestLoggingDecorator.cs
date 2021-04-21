@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using BusinessApp.Kernel;
+using BusinessApp.Infrastructure;
 
 namespace BusinessApp.WebApi
 {

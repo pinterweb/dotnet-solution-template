@@ -1,6 +1,6 @@
 using FakeItEasy;
 
-namespace BusinessApp.Kernel.UnitTest
+namespace BusinessApp.Infrastructure.UnitTest
 {
     public class LogEntryDummyFactory : DummyFactory<LogEntry>
     {
