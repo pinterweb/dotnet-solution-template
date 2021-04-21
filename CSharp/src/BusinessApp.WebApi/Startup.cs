@@ -8,8 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
-using System;
+#if efcore
 using BusinessApp.Infrastructure.EntityFramework;
+#endif
 using Microsoft.Extensions.Logging;
 using BusinessApp.CompositionRoot;
 #if winauth
@@ -42,7 +43,9 @@ namespace BusinessApp.WebApi
                 RegistrationAssemblies = new[]
                 {
                     typeof(Infrastructure.IQuery).Assembly,
+#if efcore
                     typeof(IQueryVisitor<>).Assembly,
+#endif
                     typeof(IEventHandler<>).Assembly,
                     typeof(Startup).Assembly
                 }
@@ -114,20 +117,17 @@ namespace BusinessApp.WebApi
 #endif
             CompositionRoot.Bootstrapper.RegisterServices(container, options, loggerFactory);
 
+            container.Collection.Register<IStartupConfiguration>(
+                new[] { typeof(Startup).Assembly },
+                Lifestyle.Singleton);
+
             container.Verify();
 
             app.SetupEndpoints(container);
 
-            if (env.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
+            foreach (var startup in container.GetAllInstances<IStartupConfiguration>())
             {
-                app.UseDeveloperExceptionPage();
-#if efcore
-                using (AsyncScopedLifestyle.BeginScope(container))
-                {
-                    var db = container.GetInstance<BusinessAppDbContext>();
-                    db.Database.Migrate();
-                }
-#endif
+                startup.Configure();
             }
         }
     }

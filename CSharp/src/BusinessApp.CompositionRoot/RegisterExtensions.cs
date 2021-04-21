@@ -18,5 +18,11 @@ namespace BusinessApp.CompositionRoot
                 .Any(i => i.IsGenericType
                     && i.GetGenericTypeDefinition() == typeof(IMacro<>));
         }
+
+        public static bool IsTypeDefinition(this Type actual, Type test)
+        {
+            return actual.IsGenericType
+                && actual.GetGenericTypeDefinition() == test;
+        }
     }
 }

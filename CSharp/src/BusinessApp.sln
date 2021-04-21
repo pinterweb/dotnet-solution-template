@@ -9,16 +9,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi", "BusinessApp.WebApi\BusinessApp.WebApi.csproj", "{F7F115CB-5E71-4A5D-87B4-A5F2784A3134}"
 EndProject
+<!--#if (efcore)-->
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.EntityFramework", "BusinessApp.Infrastructure.EntityFramework\BusinessApp.Infrastructure.EntityFramework.csproj", "{99D62C24-93B8-4039-8E45-B2345EDABE80}"
 EndProject
+<!--#endif-->
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CF291F25-E98A-40DF-BBF8-3A2B5B26BBD7}"
 	ProjectSection(SolutionItems) = preProject
+<!--#if (docker)-->
 		.dockerignore = .dockerignore
+		docker_run.cmd = docker_run.cmd
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
+<!--#endif-->
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		docker-compose.yml = docker-compose.yml
-		docker_run.cmd = docker_run.cmd
-		Dockerfile = Dockerfile
 		NuGet.Config = NuGet.Config
 		omnisharp.json = omnisharp.json
 	EndProjectSection
@@ -33,14 +37,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Test.Shared", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.UnitTest", "BusinessApp.WebApi.UnitTest\BusinessApp.WebApi.UnitTest.csproj", "{CF076CD2-214C-4FB7-ACEA-940A93002D43}"
 EndProject
+<!--#if (efcore)-->
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.EntityFramework.IntegrationTest", "BusinessApp.Infrastructure.EntityFramework.IntegrationTest\BusinessApp.Infrastructure.EntityFramework.IntegrationTest.csproj", "{C5A88DC9-8172-45AC-AEB1-7CAC219239E9}"
 EndProject
+<!--#endif-->
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.IntegrationTest", "BusinessApp.WebApi.IntegrationTest\BusinessApp.WebApi.IntegrationTest.csproj", "{1FC656DF-7B9A-4B9D-BB12-518B5C5BFCF0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.FunctionalTest", "BusinessApp.WebApi.FunctionalTest\BusinessApp.WebApi.FunctionalTest.csproj", "{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}"
 EndProject
+<!--#if (efcore)-->
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Infrastructure.EntityFramework.UnitTest", "BusinessApp.Infrastructure.EntityFramework.UnitTest\BusinessApp.Infrastructure.EntityFramework.UnitTest.csproj", "{C3676695-4D31-4B10-8659-20917335F5A0}"
 EndProject
+<!--#endif-->
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Analyzers", "BusinessApp.Analyzers\BusinessApp.Analyzers.csproj", "{0D5D8149-C8DC-45AF-A55A-46E161775A52}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Analyzers.IntegrationTest", "BusinessApp.Analyzers.IntegrationTest\BusinessApp.Analyzers.IntegrationTest.csproj", "{F1920B2C-67C0-4534-BD3D-EBFB93E50E16}"

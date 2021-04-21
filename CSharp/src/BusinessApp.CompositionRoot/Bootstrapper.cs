@@ -1,4 +1,5 @@
 using System.Linq;
+using BusinessApp.Infrastructure;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
 
@@ -19,6 +20,12 @@ namespace BusinessApp.CompositionRoot
             var regContext = new RegistrationContext(container);
 
             bootstrap.Register(regContext);
+
+            // run this once on the outer most context
+            container.RegisterDecorator(
+                typeof(IRequestHandler<,>),
+                typeof(RequestExceptionDecorator<,>),
+                c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
         }
 
         private static Container SetupBootstrapContainer(RegistrationOptions options,

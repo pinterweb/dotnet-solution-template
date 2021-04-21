@@ -4,18 +4,14 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using BusinessApp.Infrastructure.EntityFramework;
-using BusinessApp.Test.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SimpleInjector;
-using SimpleInjector.Lifestyles;
 
 namespace BusinessApp.WebApi.FunctionalTest
 {
@@ -28,6 +24,11 @@ namespace BusinessApp.WebApi.FunctionalTest
             where T : class
         {
             var container = new Container();
+            var startupContainer = new Container();
+            startupContainer.Collection.Register<IServiceConfiguration>(new[]
+            {
+                typeof(WebApplicationFactoryExtensions).Assembly
+            });
             var client = factory
                 .WithWebHostBuilder(builder =>
                 {
@@ -46,9 +47,10 @@ namespace BusinessApp.WebApi.FunctionalTest
                                 .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>
                                 (AuthenticationScheme, options => { });
 
-                        container.RegisterDecorator(
-                            typeof(BusinessAppDbContext),
-                            typeof(BusinessAppTestDbContext));
+                        foreach (var configSvc in startupContainer.GetAllInstances<IServiceConfiguration>())
+                        {
+                            configSvc.Configure(container);
+                        }
                     });
                 })
                 .CreateClient(new WebApplicationFactoryClientOptions());
@@ -57,12 +59,6 @@ namespace BusinessApp.WebApi.FunctionalTest
                 AuthenticationScheme);
 
             container.Verify();
-
-            using (AsyncScopedLifestyle.BeginScope(container))
-            {
-                var db = container.GetInstance<BusinessAppDbContext>();
-                db.Database.Migrate();
-            }
 
             return client;
         }

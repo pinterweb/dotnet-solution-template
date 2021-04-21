@@ -131,12 +131,12 @@
             "replaces": "$(Your Copyright Name)"
         },
         "compilerDirectives": {
-             "type": "generated",
-             "generator": "constant",
-             "parameters": {
-                 "value":"#"
-              },
-              "replaces":"//#"
+            "type": "generated",
+            "generator": "constant",
+            "parameters": {
+               "value":"#"
+            },
+            "replaces":"//#"
         }
     },
     "sources": [
@@ -146,11 +146,7 @@
                     "exclude": [
                         "**/Json/**.cs",
                         "src/**/Hateoas*.cs",
-                        "src/**/Weblinking*.cs"
-                    ]
-                },
-                {
-                    "exclude": [
+                        "src/**/Weblinking*.cs",
                         "src/.vs/**"
                     ]
                 },
@@ -158,28 +154,10 @@
                     "condition": "(!efcore)",
                     "exclude": [
                         "src/.config/dotnet-tools.json",
-                        "src/BusinessApp.Data/BusinessAppDbContext.cs",
-                        "src/BusinessApp.Data/database_restore.cmd",
-                        "src/BusinessApp.Data/database_restore.sh",
-                        "src/BusinessApp.Data/database_up.cmd",
-                        "src/BusinessApp.Data/database_up.sh",
-                        "src/BusinessApp.Data/EF*.cs",
-                        "src/BusinessApp.Data/IDbSetVisitor.cs",
-                        "src/BusinessApp.Data/IDbSetVisitorFactory.cs",
-                        "src/BusinessApp.Data/NullDbSetVisitor.cs",
-                        "src/BusinessApp.Data/NullDbSetVisitorFactory.cs",
-                        "src/BusinessApp.Data/EventRepository.cs",
-                        "src/BusinessApp.Data/migrations_add.cmd",
-                        "src/BusinessApp.Data/migrations_add.sh",
-                        "src/BusinessApp.Data/migrations_restore.cmd",
-                        "src/BusinessApp.Data/migrations_restore.sh",
-                        "src/BusinessApp.Data/Migrations/**",
-                        "src/BusinessApp.Data.IntegrationTest/EF*.cs",
-                        "src/BusinessApp.Data.IntegrationTest/BusinessAppDbContextDummyFactory.cs",
-                        "src/BusinessApp.Data.IntegrationTest/EventRepositoryTests.cs",
-                        "src/BusinessApp.Test.Common/BusinessAppTestDbContext.cs",
-                        "src/BusinessApp.Test.Common/DatabaseFixture.cs",
-                        "src/BusinessApp.Test.Common/migrations*.cmd",
+                        "src/BusinessApp.Infrastructure.EntityFrmework*",
+                        "src/BusinessApp.Test.Shared/BusinessAppTestDbContext.cs",
+                        "src/BusinessApp.Test.Shared/DatabaseFixture.cs",
+                        "src/BusinessApp.Test.Shared/migrations*.cmd",
                         "src/**/EFCore*.cs"
                     ]
                 },
@@ -203,7 +181,7 @@
                         "**/Json/**.cs"
                     ],
                     "exclude": [
-                        "**/Json/SystemJson*.cs"
+                        "src/**/SystemJson*.cs"
                     ]
                 },
                 {
@@ -212,7 +190,7 @@
                         "**/Json/**.cs"
                     ],
                     "exclude": [
-                        "**/Json/Newtonsoft*.cs"
+                        "src/**/Newtonsoft*.cs"
                     ]
                 },
                 {

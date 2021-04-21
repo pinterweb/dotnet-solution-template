@@ -45,6 +45,8 @@ namespace BusinessApp.CompositionRoot
                     && context.Consumer.ImplementationType != context.ImplementationType;
             }
 
+            RegisterHandlers(container);
+
             container.RegisterDecorator(
                 typeof(IRequestHandler<,>),
                 typeof(EFMetadataStoreRequestDecorator<,>),
@@ -54,6 +56,11 @@ namespace BusinessApp.CompositionRoot
                     && !typeof(ICompositeEvent).IsAssignableFrom(c.ServiceType.GetGenericArguments()[1]));
 
             inner.Register(context);
+
+            context.Container.RegisterDecorator(
+                typeof(IRequestHandler<,>),
+                typeof(EFTrackingQueryDecorator<,>),
+                c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
 
             container.Collection.Append(
                 typeof(IQueryVisitorFactory<,>),
@@ -91,6 +98,32 @@ namespace BusinessApp.CompositionRoot
                     .UseSqlServer(options.DbConnectionString)
                     .Options
             );
+        }
+
+        private void RegisterHandlers(Container container)
+        {
+            container.Register(typeof(IQueryVisitorFactory<,>),
+                typeof(CompositeQueryVisitorBuilder<,>));
+
+            container.Register(typeof(ILinqSpecificationBuilder<,>),
+                typeof(AndSpecificationBuilder<,>));
+
+            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>),
+                options.RegistrationAssemblies);
+
+            container.Collection.Register(typeof(IQueryVisitor<>), options.RegistrationAssemblies);
+
+            container.RegisterConditional(
+                typeof(IQueryVisitor<>),
+                typeof(NullQueryVisitor<>), ctx => !ctx.Handled);
+
+            container.Collection.Append(typeof(ILinqSpecificationBuilder<,>), typeof(QueryOperatorSpecificationBuilder<,>));
+
+            container.Collection.Register(typeof(IQueryVisitorFactory<,>), new[]
+            {
+                typeof(AndSpecificationBuilder<,>),
+                typeof(ConstructedQueryVisitorFactory<,>),
+            });
         }
     }
 }
