@@ -18,9 +18,9 @@ namespace BusinessApp.WebApi.ProblemDetails
             this.localizer = localizer.NotNull().Expect(nameof(localizer));
         }
 
-        public ProblemDetail Create(Exception error)
+        public ProblemDetail Create(Exception exception)
         {
-            var problem = inner.Create(error);
+            var problem = inner.Create(exception);
             var detail = problem.Detail == null ? null : localizer[problem.Detail];
 
             var localizedProblem = new ProblemDetail(problem.StatusCode, problem.Type)
@@ -37,17 +37,14 @@ namespace BusinessApp.WebApi.ProblemDetails
             return localizedProblem;
         }
 
-        private object? TranslateExtension(object? value)
+        private object? TranslateExtension(object? value) => value switch
         {
-            return value switch
-            {
-                IDictionary d => TranslateExtension(d),
-                IEnumerable e when e is not string => TranslateExtension(e),
-                null => null,
-                object o when o.ToString() is null => null,
-                _ => localizer[value.ToString()!].Value,
-            };
-        }
+            IDictionary d => TranslateExtension(d),
+            IEnumerable e when e is not string => TranslateExtension(e),
+            null => null,
+            object o when o.ToString() is null => null,
+            _ => localizer[value.ToString()!].Value,
+        };
 
 
         private object TranslateExtension(IDictionary dic)

@@ -49,7 +49,7 @@ namespace BusinessApp.WebApi.IntegrationTest.Json
             var type = await sut.GetBodyTypeAsync(context.Request);
 
             /* Assert */
-            Assert.Equal(HttpRequestPayloadType.Object, type);
+            Assert.Equal(HttpRequestPayloadType.SingleObject, type);
         }
     }
 }

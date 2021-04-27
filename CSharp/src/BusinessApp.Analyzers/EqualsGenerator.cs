@@ -84,7 +84,7 @@ namespace BusinessApp.Analyzers
                                 propertyHashes.Add($"{hash} StringComparer."
                                     + $"OrdinalIgnoreCase.GetHashCode({propertyName}));");
                             }
-                                else
+                            else
                             {
                                 propertyHashes.Add($"{hash} {propertyName}!.GetHashCode();");
                             }
@@ -92,7 +92,7 @@ namespace BusinessApp.Analyzers
                     }
                 }
 
-                sb.Append($@"#nullable enable
+                _ = sb.Append($@"#nullable enable
 namespace {fullNamespace}
 {{
     public partial class {type.Name}
@@ -127,11 +127,11 @@ namespace {fullNamespace}
         }
 
         private static string EscapeFileName(string fileName) =>
-            new [] {'<', '>', ','}.Aggregate(new StringBuilder(fileName), (s, c) => s.Replace(c, '_')).ToString();
+            new[] { '<', '>', ',' }.Aggregate(new StringBuilder(fileName), (s, c) => s.Replace(c, '_')).ToString();
 
         internal sealed class EqualsSyntaxReceiver : ISyntaxReceiver
         {
-            private readonly List<SyntaxNode> targetSyntaxNodes = new List<SyntaxNode>();
+            private readonly List<SyntaxNode> targetSyntaxNodes = new();
 
             public IReadOnlyList<SyntaxNode> TargetSyntaxNodes => targetSyntaxNodes;
 

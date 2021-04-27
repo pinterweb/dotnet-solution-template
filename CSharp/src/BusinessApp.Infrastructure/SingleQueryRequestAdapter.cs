@@ -19,7 +19,7 @@ namespace BusinessApp.Infrastructure
         IRequestHandler<TRequest, TResponse>
         where TRequest : notnull, IQuery
     {
-        private static Exception MoreThanOneResultErr =
+        private static readonly Exception moreThanOneResultErr =
             new BadStateException("Your query expected to return one result, but " +
                 "for some reason more than one result was returned. Please try the " +
                 "request again or contact support");
@@ -27,18 +27,14 @@ namespace BusinessApp.Infrastructure
         private readonly IRequestHandler<TRequest, IEnumerable<TResponse>> handler;
 
         public SingleQueryRequestAdapter(IRequestHandler<TRequest, IEnumerable<TResponse>> handler)
-        {
-            this.handler = handler.NotNull().Expect(nameof(handler));
-        }
+            => this.handler = handler.NotNull().Expect(nameof(handler));
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
+        public Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
-        {
-            return await handler.HandleAsync(request, cancelToken)
+            => handler.HandleAsync(request, cancelToken)
                 .AndThenAsync(r => r.Count() == 1
                     ? Result.Ok(r)
-                    : Result.Error<IEnumerable<TResponse>>(MoreThanOneResultErr))
+                    : Result.Error<IEnumerable<TResponse>>(moreThanOneResultErr))
                 .MapAsync(r => r.Single());
-        }
     }
 }

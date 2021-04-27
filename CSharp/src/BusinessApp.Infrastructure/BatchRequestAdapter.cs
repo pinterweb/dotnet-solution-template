@@ -14,27 +14,21 @@ namespace BusinessApp.Infrastructure
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
         public BatchRequestAdapter(IRequestHandler<TRequest, TResponse> inner)
-        {
-            this.inner = inner.NotNull().Expect(nameof(inner));
-        }
+            => this.inner = inner.NotNull().Expect(nameof(inner));
 
         public async Task<Result<IEnumerable<TResponse>, Exception>> HandleAsync(
-            IEnumerable<TRequest> request,
-            CancellationToken cancelToken)
+            IEnumerable<TRequest> request, CancellationToken cancelToken)
         {
             var results = new List<Result<TResponse, Exception>>();
 
-            foreach(var msg in request)
+            foreach (var msg in request)
             {
                 results.Add(await inner.HandleAsync(msg, cancelToken));
             }
 
-            if (results.Any(r => r.Kind == ValueKind.Error))
-            {
-                return Result.Error<IEnumerable<TResponse>>(BatchException.FromResults(results));
-            }
-
-            return Result.Ok(results.Select(o => o.Unwrap()));
+            return results.Any(r => r.Kind == ValueKind.Error)
+                ? Result.Error<IEnumerable<TResponse>>(BatchException.FromResults(results))
+                : Result.Ok(results.Select(o => o.Unwrap()));
         }
     }
 }

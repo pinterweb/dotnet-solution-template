@@ -7,11 +7,10 @@ namespace BusinessApp.Kernel
     /// , wrapping the actual unhandled exception
     /// </summary>
     /// <remarks>All custom exceptions should inherit from this</remarks>
-    [Serializable]
     public class BusinessAppException : Exception
     {
         public BusinessAppException(string message, Exception? inner = null)
-            :base(message, inner)
+            : base(message, inner)
         { }
     }
 }

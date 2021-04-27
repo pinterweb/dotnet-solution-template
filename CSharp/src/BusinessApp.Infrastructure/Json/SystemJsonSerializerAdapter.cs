@@ -12,20 +12,13 @@ namespace BusinessApp.Infrastructure.Json
         private readonly JsonSerializerOptions options;
 
         public SystemJsonSerializerAdapter(JsonSerializerOptions options)
-        {
-            this.options = options.NotNull().Expect(nameof(options));
-        }
+            => this.options = options.NotNull().Expect(nameof(options));
 
-        public T? Deserialize<T>(byte[] data)
-        {
-            return data.Length > 0 ?
-                JsonSerializer.Deserialize<T>(data.AsSpan(), options) :
-                default(T);
-        }
+        public T? Deserialize<T>(byte[] data) => data.Length > 0 ?
+            JsonSerializer.Deserialize<T>(data.AsSpan(), options) :
+            default;
 
         public byte[] Serialize<T>(T graph)
-        {
-            return JsonSerializer.SerializeToUtf8Bytes<T>(graph, options);
-        }
+            => JsonSerializer.SerializeToUtf8Bytes(graph, options);
     }
 }

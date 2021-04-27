@@ -13,33 +13,28 @@ namespace BusinessApp.WebApi.ProblemDetails
         private readonly HashSet<ProblemDetailOptions> options;
 
         public ProblemDetailFactory(HashSet<ProblemDetailOptions> options)
-        {
-            this.options = options.NotNull().Expect(nameof(options));
-        }
+            => this.options = options.NotNull().Expect(nameof(options));
 
-        public ProblemDetail Create(Exception error)
+        public ProblemDetail Create(Exception exception)
         {
-            error.NotNull().Expect(nameof(error));
+            _ = exception.NotNull().Expect(nameof(exception));
 
-            var option = new ProblemDetailOptions((error.GetType()),
+            var option = new ProblemDetailOptions(exception.GetType(),
                 StatusCodes.Status500InternalServerError)
             {
-                MessageOverride = error?.Message ??
+                MessageOverride = exception?.Message ??
                     "An unknown error has occurred. Please try again or " +
                     "contact support"
             };
 
-            if (options.TryGetValue(option, out ProblemDetailOptions? actualValue))
+            if (options.TryGetValue(option, out var actualValue))
             {
                 option = actualValue;
             }
 
-            if (error is BatchException f)
-            {
-                return CreateCompositeProblem(f);
-            }
-
-            return CreateSingleProblem(error, option);
+            return exception is BatchException f
+                ? CreateCompositeProblem(f)
+                : CreateSingleProblem(exception, option);
         }
 
         private static ProblemDetail CreateSingleProblem(Exception? error,
@@ -56,7 +51,7 @@ namespace BusinessApp.WebApi.ProblemDetails
                 foreach (DictionaryEntry entry in error.Data)
                 {
                     var key = entry.Key.ToString() ?? "";
-                    problem.TryAdd(key, entry.Value ?? "");
+                    _ = problem.TryAdd(key, entry.Value ?? "");
                 }
             }
 

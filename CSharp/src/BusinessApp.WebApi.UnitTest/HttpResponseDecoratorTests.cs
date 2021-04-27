@@ -93,7 +93,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var ex = await Record.ExceptionAsync(() => sut.HandleAsync(context, cancelToken));
 
                 /* Assert */
-                Assert.IsType<BusinessAppWebApiException>(ex);
+                Assert.IsType<BusinessAppException>(ex);
                 Assert.Equal(
                     "The response has already started outside the expected write decorator. " +
                     "You cannot write it more than once.",

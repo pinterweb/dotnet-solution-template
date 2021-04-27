@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BusinessApp.Infrastructure;
-using BusinessApp.Kernel;
 using SimpleInjector;
 
 namespace BusinessApp.WebApi
@@ -44,13 +43,11 @@ namespace BusinessApp.WebApi
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
-                    logging.ClearProviders();
-                    logging.AddConsole();
+                    _ = logging.ClearProviders().AddConsole();
                 })
                 .ConfigureAppConfiguration(builder =>
                 {
-                    builder.AddCommandLine(args);
-                    builder.AddEnvironmentVariables();
+                    _ = builder.AddCommandLine(args).AddEnvironmentVariables();
                 })
                 .UseStartup<Startup>();
     }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace BusinessApp.Infrastructure
 {
@@ -15,17 +16,14 @@ namespace BusinessApp.Infrastructure
             var context = new ValidationContext(value, null, null);
             var results = new List<ValidationResult>();
 
-            Validator.TryValidateObject(value, context, results, validateAllProperties: true);
+            var isValid = Validator.TryValidateObject(value, context, results, validateAllProperties: true);
 
-            if (results.Count == 0)
-            {
-                return ValidationResult.Success;
-            }
-
-            return new CompositeValidationResult(
-                validationContext.DisplayName,
-                string.Format("Validation for {0} failed!", validationContext.DisplayName),
-                results);
+            return isValid
+                ? ValidationResult.Success
+                : new CompositeValidationResult(
+                    validationContext.DisplayName,
+                    string.Format(CultureInfo.InvariantCulture, "Validation for {0} failed!", validationContext.DisplayName),
+                    results);
         }
     }
 }

@@ -18,9 +18,6 @@ namespace BusinessApp.Infrastructure
         where TRequest : notnull
     {
         public Task<Result<TRequest, Exception>> HandleAsync(TRequest request,
-            CancellationToken cancelToken)
-        {
-            return Task.FromResult(Result.Ok(request));
-        }
+            CancellationToken cancelToken) => Task.FromResult(Result.Ok(request));
     }
 }

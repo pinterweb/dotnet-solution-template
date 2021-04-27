@@ -52,14 +52,14 @@ namespace BusinessApp.Infrastructure
                 try
                 {
                     await register.OnFinishedAsync();
-                    await uowResult.AndThenAsync(u => SaveAsync(u, response, cancelToken));
+                    _ = await uowResult.AndThenAsync(u => SaveAsync(u, response, cancelToken));
                 }
                 catch
                 {
 
                     try
                     {
-                        await RevertAsync(uowResult, response, cancelToken);
+                        _ = await RevertAsync(uowResult, response, cancelToken);
                     }
                     catch (Exception revertError)
                     {

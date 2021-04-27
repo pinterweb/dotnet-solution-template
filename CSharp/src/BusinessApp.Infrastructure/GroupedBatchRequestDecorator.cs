@@ -48,13 +48,9 @@ namespace BusinessApp.Infrastructure
                 orderedResults.Add(target.Item2.Result);
             }
 
-            if (orderedResults.Any(r => r.Kind == ValueKind.Error))
-            {
-                return Result.Error<IEnumerable<TResponse>>(
-                    BatchException.FromResults(orderedResults));
-            }
-
-            return Result.Ok(orderedResults.SelectMany(o => o.Unwrap()));
+            return orderedResults.Any(r => r.Kind == ValueKind.Error)
+                ? Result.Error<IEnumerable<TResponse>>(BatchException.FromResults(orderedResults))
+                : Result.Ok(orderedResults.SelectMany(o => o.Unwrap()));
         }
 
         private static void ThrowIfInvalid(IEnumerable<TRequest> request,

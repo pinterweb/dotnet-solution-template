@@ -8,24 +8,19 @@ namespace BusinessApp.Infrastructure
     /// <summary>
     /// Exception to throw when an entity is not found, but was expected
     /// </summary>
-    [Serializable]
     public class BatchException : BusinessAppException, IEnumerable<Result<object, Exception>>
     {
         private readonly IEnumerable<Result<object, Exception>> results;
 
         private BatchException(IEnumerable<Result<object, Exception>> results)
             : base("Multiple errors occurred. See messages for errors.")
-        {
-            this.results = results;
-        }
+              => this.results = results;
 
         public static BatchException FromResults<T>(IEnumerable<Result<T, Exception>> results)
         {
-            results.NotEmpty().Expect(nameof(results));
-
             var allResults = new List<Result<object, Exception>>();
 
-            foreach (var result in results)
+            foreach (var result in results.NotEmpty().Expect(nameof(results)))
             {
                 switch (result.Kind)
                 {
@@ -46,7 +41,7 @@ namespace BusinessApp.Infrastructure
 
         public IEnumerator<Result<object, Exception>> GetEnumerator() => results.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private BatchException Flatten()
         {
@@ -62,7 +57,7 @@ namespace BusinessApp.Infrastructure
                     default:
                         flattenList.Add(result.MapOrElse(
                             e => Result.Error<object>(e),
-                            v => Result.Ok<object>(v)
+                            v => Result.Ok(v)
                         ));
                         break;
                 };

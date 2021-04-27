@@ -12,13 +12,8 @@ namespace BusinessApp.WebApi.ProblemDetails
         private readonly Lazy<IProblemDetailFactory> inner;
 
         public LazyProblemDetailFactoryProxy(Lazy<IProblemDetailFactory> inner)
-        {
-            this.inner = inner.NotNull().Expect(nameof(inner));
-        }
+            => this.inner = inner.NotNull().Expect(nameof(inner));
 
-        public ProblemDetail Create(Exception error)
-        {
-            return this.inner.Value.Create(error);
-        }
+        public ProblemDetail Create(Exception exception) => inner.Value.Create(exception);
     }
 }

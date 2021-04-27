@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,22 +13,19 @@ namespace BusinessApp.Infrastructure.EntityFramework
         where TResult : class
     {
         private readonly IQuery query;
-        private static IEnumerable<string> IncludablePropNames = typeof(TResult)
+        private static readonly IEnumerable<string> includablePropNames = typeof(TResult)
            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
            .Select(p => p.Name)
            .ToList();
 
-        public EFQueryVisitor(IQuery query)
-        {
-            this.query = query.NotNull().Expect(nameof(query));
-        }
+        public EFQueryVisitor(IQuery query) => this.query = query.NotNull().Expect(nameof(query));
 
         public IQueryable<TResult> Visit(IQueryable<TResult> queryable)
         {
             var includables = query.Embed
                 .Concat(query.Expand)
                 .Select(i => i.ConvertToPascalCase())
-                .Where(i => IncludablePropNames.Contains(i.Split('.')[0]));
+                .Where(i => includablePropNames.Contains(i.Split('.')[0]));
 
             foreach (var item in includables)
             {

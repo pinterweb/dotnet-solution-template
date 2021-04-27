@@ -18,15 +18,10 @@ namespace BusinessApp.Infrastructure
         private int retries = 5;
 
         public DeadlockRetryRequestDecorator(IRequestHandler<TRequest, TResponse> decoratee)
-        {
-            this.decoratee = decoratee.NotNull().Expect(nameof(decoratee));
-        }
+            => this.decoratee = decoratee.NotNull().Expect(nameof(decoratee));
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest command,
-            CancellationToken cancelToken)
-        {
-            return await HandleWithRetry(command, cancelToken);
-        }
+        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
+            CancellationToken cancelToken) => await HandleWithRetry(request, cancelToken);
 
         private async Task<Result<TResponse, Exception>> HandleWithRetry(
             TRequest command,
@@ -58,13 +53,7 @@ namespace BusinessApp.Infrastructure
         }
 
         private static bool IsDeadlockException(Exception ex)
-        {
-            return ex is DbException
-                && ex.Message.Contains("deadlock")
-                ? true
-                : ex.InnerException == null
-                    ? false
-                    : IsDeadlockException(ex.InnerException);
-        }
+            => (ex is DbException && ex.Message.Contains("deadlock"))
+                || (ex.InnerException != null && IsDeadlockException(ex.InnerException));
     }
 }

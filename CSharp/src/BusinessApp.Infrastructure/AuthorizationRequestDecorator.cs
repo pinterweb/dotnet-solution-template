@@ -7,15 +7,15 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
-    public class AuthorizationRequestDecorator<TRequest, TResult> : IRequestHandler<TRequest, TResult>
+    public class AuthorizationRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
         where TRequest : notnull
     {
-        private readonly IRequestHandler<TRequest, TResult> inner;
+        private readonly IRequestHandler<TRequest, TResponse> inner;
         private readonly IAuthorizer<TRequest> authorizer;
         private readonly IPrincipal user;
         private readonly ILogger logger;
 
-        public AuthorizationRequestDecorator(IRequestHandler<TRequest, TResult> inner,
+        public AuthorizationRequestDecorator(IRequestHandler<TRequest, TResponse> inner,
             IAuthorizer<TRequest> authorizer, IPrincipal user, ILogger logger)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
@@ -24,7 +24,7 @@ namespace BusinessApp.Infrastructure
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public Task<Result<TResult, Exception>> HandleAsync(TRequest request,
+        public Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
             if (!authorizer.AuthorizeObject(request))
@@ -32,7 +32,7 @@ namespace BusinessApp.Infrastructure
                 LogUnauthAcess(request);
                 var ex = BuildAuthException();
 
-                return Task.FromResult(Result.Error<TResult>(ex));
+                return Task.FromResult(Result.Error<TResponse>(ex));
             }
 
             return inner.HandleAsync(request, cancelToken);
@@ -49,7 +49,7 @@ namespace BusinessApp.Infrastructure
             });
         }
 
-        private Exception BuildAuthException()
+        private static Exception BuildAuthException()
         {
             var message = $"You are not authorized to execute this request";
 

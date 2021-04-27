@@ -58,7 +58,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var result = await sut.ValidateAsync(A.Dummy<ValidationStub>(), cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.OK, result);
+                Assert.Equal(Result.Ok(), result);
             }
 
             [Fact]
@@ -69,7 +69,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 A.CallTo(() => validators.First().ValidateAsync(instance, cancelToken))
                     .Returns(Result.Error(error));
                 A.CallTo(() => validators.Last().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.OK);
+                    .Returns(Result.Ok());
 
                 /* Act */
                 var result = await sut.ValidateAsync(instance, cancelToken);
@@ -83,15 +83,15 @@ namespace BusinessApp.Infrastructure.UnitTest
             {
                 /* Arrange */
                 A.CallTo(() => validators.First().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.OK);
+                    .Returns(Result.Ok());
                 A.CallTo(() => validators.Last().ValidateAsync(instance, cancelToken))
-                    .Returns(Result.OK);
+                    .Returns(Result.Ok());
 
                 /* Act */
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.OK, result);
+                Assert.Equal(Result.Ok(), result);
             }
         }
     }

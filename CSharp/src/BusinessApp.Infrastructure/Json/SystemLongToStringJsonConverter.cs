@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Buffers.Text;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,7 +16,7 @@ namespace BusinessApp.Infrastructure.Json
                 // try to parse number directly from bytes
                 var span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
 
-                if (Utf8Parser.TryParse(span, out long number, out int bytesConsumed) &&
+                if (Utf8Parser.TryParse(span, out long number, out var bytesConsumed) &&
                     span.Length == bytesConsumed)
                 {
                     return number;
@@ -33,8 +34,6 @@ namespace BusinessApp.Infrastructure.Json
         }
 
         public override void Write(Utf8JsonWriter writer, long value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString());
-        }
+            => writer.WriteStringValue(value.ToString(CultureInfo.CurrentCulture));
     }
 }

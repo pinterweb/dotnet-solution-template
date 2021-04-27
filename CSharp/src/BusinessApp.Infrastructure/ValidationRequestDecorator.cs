@@ -8,29 +8,29 @@ namespace BusinessApp.Infrastructure
     /// <summary>
     /// Validates the command prior to handling
     /// </summary>
-    public class ValidationRequestDecorator<TRequest, TResult> :
-        IRequestHandler<TRequest, TResult>
+    public class ValidationRequestDecorator<TRequest, TResponse> :
+        IRequestHandler<TRequest, TResponse>
         where TRequest : notnull
     {
         private readonly IValidator<TRequest> validator;
-        private readonly IRequestHandler<TRequest, TResult> inner;
+        private readonly IRequestHandler<TRequest, TResponse> inner;
 
-        public ValidationRequestDecorator(IValidator<TRequest> validator, IRequestHandler<TRequest, TResult> inner)
+        public ValidationRequestDecorator(IValidator<TRequest> validator, IRequestHandler<TRequest, TResponse> inner)
         {
             this.validator = validator.NotNull().Expect(nameof(validator));
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<TResult, Exception>> HandleAsync(TRequest request,
+        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
         {
-            request.NotNull().Expect(nameof(request));
+            _ = request.NotNull().Expect(nameof(request));
 
             var result = await validator.ValidateAsync(request, cancelToken);
 
             return result.Kind switch
             {
-                ValueKind.Error => Result.Error<TResult>(result.UnwrapError()),
+                ValueKind.Error => Result.Error<TResponse>(result.UnwrapError()),
                 ValueKind.Ok => await inner.HandleAsync(request, cancelToken),
                 _ => throw new NotImplementedException()
             };

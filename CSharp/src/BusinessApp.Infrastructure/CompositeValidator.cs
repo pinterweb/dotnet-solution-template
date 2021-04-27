@@ -15,9 +15,7 @@ namespace BusinessApp.Infrastructure
         private readonly IEnumerable<IValidator<T>> validators;
 
         public CompositeValidator(IEnumerable<IValidator<T>> validators)
-        {
-            this.validators = validators.NotNull().Expect(nameof(validators));
-        }
+            => this.validators = validators.NotNull().Expect(nameof(validators));
 
         public async Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken)
         {
@@ -31,7 +29,7 @@ namespace BusinessApp.Infrastructure
                 }
             }
 
-            return Result.OK;
+            return Result.Ok();
         }
     }
 }

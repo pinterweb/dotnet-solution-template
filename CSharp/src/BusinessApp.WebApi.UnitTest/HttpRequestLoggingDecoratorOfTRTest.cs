@@ -152,7 +152,7 @@ namespace BusinessApp.WebApi.UnitTest
                 var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
-                var error = Assert.IsType<BusinessAppWebApiException>(result.UnwrapError());
+                var error = Assert.IsType<BusinessAppException>(result.UnwrapError());
                 Assert.Equal(expectedMsg, error.Message);
             }
 

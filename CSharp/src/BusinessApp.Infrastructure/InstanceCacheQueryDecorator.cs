@@ -9,29 +9,29 @@ namespace BusinessApp.Infrastructure
     /// <summary>
     /// Caches the query results for the lifetime of the class
     /// </summary>
-    public class InstanceCacheQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : notnull, IQuery
+    public class InstanceCacheQueryDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : notnull, IQuery
     {
-        private readonly ConcurrentDictionary<TQuery, Result<TResult, Exception>> cache;
-        private readonly IRequestHandler<TQuery, TResult> inner;
+        private readonly ConcurrentDictionary<TRequest, Result<TResponse, Exception>> cache;
+        private readonly IRequestHandler<TRequest, TResponse> inner;
 
-        public InstanceCacheQueryDecorator(IRequestHandler<TQuery, TResult> inner)
+        public InstanceCacheQueryDecorator(IRequestHandler<TRequest, TResponse> inner)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
-            cache = new ConcurrentDictionary<TQuery, Result<TResult, Exception>>();
+            cache = new ConcurrentDictionary<TRequest, Result<TResponse, Exception>>();
         }
 
-        public async Task<Result<TResult, Exception>> HandleAsync(
-            TQuery query, CancellationToken cancelToken)
+        public async Task<Result<TResponse, Exception>> HandleAsync(
+            TRequest request, CancellationToken cancelToken)
         {
-            if (cache.TryGetValue(query, out Result<TResult, Exception> cachedResult))
+            if (cache.TryGetValue(request, out var cachedResult))
             {
                 return cachedResult;
             }
 
-            var result = await inner.HandleAsync(query, cancelToken);
+            var result = await inner.HandleAsync(request, cancelToken);
 
-            var _ = cache.TryAdd(query, result);
+            var _ = cache.TryAdd(request, result);
 
             return result;
         }

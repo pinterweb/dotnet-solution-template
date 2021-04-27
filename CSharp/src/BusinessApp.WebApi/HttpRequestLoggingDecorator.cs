@@ -20,11 +20,11 @@ namespace BusinessApp.WebApi
             this.logger = logger.NotNull().Expect(nameof(logger));
         }
 
-        public async Task HandleAsync<T, R>(HttpContext context) where T : notnull
+        public async Task HandleAsync<TRequest, TResponse>(HttpContext context) where TRequest : notnull
         {
             try
             {
-                await inner.HandleAsync<T, R>(context);
+                await inner.HandleAsync<TRequest, TResponse>(context);
             }
             catch (Exception exception)
             {

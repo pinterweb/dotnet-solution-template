@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,24 +11,21 @@ namespace BusinessApp.Infrastructure.EntityFramework
     /// none for query the inner handler. This will results in faster queries since
     /// we are not worried about saving any entities during this transaction
     /// </summary>
-    public class EFTrackingQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : notnull, IQuery
+    public class EFTrackingQueryDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : notnull, IQuery
     {
-        private readonly IRequestHandler<TQuery, TResult> inner;
+        private readonly IRequestHandler<TRequest, TResponse> inner;
 
         public EFTrackingQueryDecorator(BusinessAppDbContext db,
-            IRequestHandler<TQuery, TResult> inner)
+            IRequestHandler<TRequest, TResponse> inner)
         {
-            db.NotNull().Expect(nameof(db));
             this.inner = inner.NotNull().Expect(nameof(inner));
 
-            db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            db.NotNull().Expect(nameof(db))
+                .ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        public Task<Result<TResult, Exception>> HandleAsync(TQuery query,
-            CancellationToken cancelToken)
-        {
-            return inner.HandleAsync(query, cancelToken);
-        }
+        public Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
+            CancellationToken cancelToken) => inner.HandleAsync(request, cancelToken);
     }
 }

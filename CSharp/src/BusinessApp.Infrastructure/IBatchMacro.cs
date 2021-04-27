@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 namespace BusinessApp.Infrastructure
 {
     /// <summary>
-    /// Consolidate batch requests into units of work
+    /// Service to expand a request into a batch request
     /// </summary>
     public interface IBatchMacro<TMacro, TCommand>
         where TMacro : notnull, IMacro<TCommand>
     {
         /// <summary>
-        /// Groups the <paramref name="commands"/>
+        /// Expands the macro into an batch of new requests
         /// </summary>
-        /// <param name="commands">The commands to group</param>
-        /// <returns>The new grouped commands</returns>
+        /// <returns>The new commands to run</returns>
         Task<IEnumerable<TCommand>> ExpandAsync(TMacro macro,
             CancellationToken cancelToken);
     }

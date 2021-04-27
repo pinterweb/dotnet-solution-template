@@ -46,41 +46,13 @@ namespace BusinessApp.CompositionRoot
             RegisterAppHandlers(context.Container);
         }
 
-        private void RegisterValidators(Container container)
-        {
-            var validatorTypes = container.GetTypesToRegister(
-                typeof(IValidator<>),
-                options.RegistrationAssemblies
-            );
-
-            foreach (var type in validatorTypes)
-            {
-                container.Collection.Append(typeof(IValidator<>), type);
-            }
-
-            container.Register(typeof(IValidator<>),
-                typeof(CompositeValidator<>),
-                Lifestyle.Singleton);
-        }
-
-        private void RegisterAuthorization(Container container)
-        {
-            container.RegisterConditional(
+        private static void RegisterAuthorization(Container container)
+            => container.RegisterConditional(
                 typeof(IAuthorizer<>),
                 typeof(NullAuthorizer<>),
                 c => !c.Handled);
-        }
 
-        private void RegisterBatchSupport(Container container)
-        {
-            container.Register(typeof(IBatchMacro<,>), options.RegistrationAssemblies);
-            container.Register(typeof(IBatchGrouper<>), options.RegistrationAssemblies);
-            container.RegisterConditional(typeof(IBatchGrouper<>),
-                typeof(NullBatchGrouper<>),
-                ctx => !ctx.Handled);
-        }
-
-        private void RegisterLocalization(Container container)
+        private static void RegisterLocalization(Container container)
         {
             container.RegisterConditional(typeof(IStringLocalizer),
                 c => typeof(StringLocalizer<>).MakeGenericType(c.Consumer!.ImplementationType),
@@ -92,91 +64,7 @@ namespace BusinessApp.CompositionRoot
                 c => !c.HasConsumer);
         }
 
-        private void RegisterLogging(Container container)
-        {
-            if (options.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
-            {
-                container.RegisterSingleton<ILogEntryFormatter, StringLogEntryFormatter>();
-            }
-            else
-            {
-                container.RegisterSingleton<ILogEntryFormatter, SerializedLogEntryFormatter>();
-            }
-
-            container.RegisterSingleton<ILogger, MicrosoftLoggerAdapter>();
-            container.RegisterInstance<MSLogging.ILogger>(
-                loggerFactory.CreateLogger("BusinessApp"));
-        }
-
-        private void RegisterAppHandlers(Container container)
-        {
-            IEnumerable<Type> RegisterConcreteHandlers()
-            {
-                var handlers = container.GetTypesToRegister(typeof(IRequestHandler<,>),
-                    options.RegistrationAssemblies,
-                    new TypesToRegisterOptions
-                    {
-                        IncludeGenericTypeDefinitions = true,
-                        IncludeComposites = false,
-                    });
-
-                foreach (var handlerType in handlers)
-                {
-                    container.Register(handlerType);
-                }
-
-                return handlers;
-            }
-
-            var handlers = RegisterConcreteHandlers();
-
-            bool HasConcereteType(Type type )
-            {
-                return container.GetRootRegistrations()
-                    .Any(reg => reg.ServiceType.GetInterfaces().Any(i => i == type));
-            }
-
-            Type? CreateRequestHandler(TypeFactoryContext c)
-            {
-                var requestType = c.ServiceType.GetGenericArguments()[0];
-                var responseType = c.ServiceType.GetGenericArguments()[1];
-                var concreteType = container.GetRootRegistrations()
-                    .FirstOrDefault(reg =>
-                        reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
-                    .ServiceType;
-
-                return concreteType;
-            }
-
-            container.RegisterConditional(
-                typeof(IRequestHandler<,>),
-                typeof(BatchRequestAdapter<,>),
-                ctx => !ctx.Handled);
-
-            container.RegisterConditional(
-                typeof(IRequestHandler<,>),
-                typeof(MacroBatchRequestAdapter<,,>),
-                ctx => !ctx.Handled);
-
-            container.RegisterConditional(typeof(IRequestHandler<,>),
-                c => CreateRequestHandler(c)!,
-                Lifestyle.Scoped,
-                c => !c.Handled && HasConcereteType(c.ServiceType));
-
-            container.RegisterConditional(
-                typeof(IRequestHandler<,>),
-                typeof(SingleQueryRequestAdapter<,>),
-                c => CanHandle(c)
-                    && c.ServiceType.GetGenericArguments()[0].IsQueryType()
-                    && !c.ServiceType.GetGenericArguments()[1].IsGenericIEnumerable());
-
-            container.RegisterConditional(typeof(IRequestHandler<,>),
-                typeof(NoBusinessLogicRequestHandler<>),
-                Lifestyle.Scoped,
-                c => CanHandle(c) && !c.ServiceType.GetGenericArguments()[0].IsQueryType());
-        }
-
-        private void RegisterRequestDecoratePipeline(RegistrationContext context)
+        private static void RegisterRequestDecoratePipeline(RegistrationContext context)
         {
             var serviceType = typeof(IRequestHandler<,>);
             var container = context.Container;
@@ -306,10 +194,119 @@ namespace BusinessApp.CompositionRoot
         }
 
         private static bool CanHandle(PredicateContext context)
-        {
-            return !context.Handled
+            => !context.Handled
                 && context.HasConsumer
                 && context.Consumer.ImplementationType != context.ImplementationType;
+
+
+        private void RegisterValidators(Container container)
+        {
+            var validatorTypes = container.GetTypesToRegister(
+                typeof(IValidator<>),
+                options.RegistrationAssemblies
+            );
+
+            foreach (var type in validatorTypes)
+            {
+                container.Collection.Append(typeof(IValidator<>), type);
+            }
+
+            container.Register(typeof(IValidator<>),
+                typeof(CompositeValidator<>),
+                Lifestyle.Singleton);
+        }
+
+        private void RegisterBatchSupport(Container container)
+        {
+            container.Register(typeof(IBatchMacro<,>), options.RegistrationAssemblies);
+            container.Register(typeof(IBatchGrouper<>), options.RegistrationAssemblies);
+            container.RegisterConditional(typeof(IBatchGrouper<>),
+                typeof(NullBatchGrouper<>),
+                ctx => !ctx.Handled);
+        }
+
+        private void RegisterLogging(Container container)
+        {
+            if (options.EnvironmentName.Equals("Development", StringComparison.OrdinalIgnoreCase))
+            {
+                container.RegisterSingleton<ILogEntryFormatter, StringLogEntryFormatter>();
+            }
+            else
+            {
+                container.RegisterSingleton<ILogEntryFormatter, SerializedLogEntryFormatter>();
+            }
+
+            container.RegisterSingleton<ILogger, MicrosoftLoggerAdapter>();
+            container.RegisterInstance(
+                loggerFactory.CreateLogger("BusinessApp"));
+        }
+
+        private void RegisterAppHandlers(Container container)
+        {
+            IEnumerable<Type> RegisterConcreteHandlers()
+            {
+                var handlers = container.GetTypesToRegister(typeof(IRequestHandler<,>),
+                    options.RegistrationAssemblies,
+                    new TypesToRegisterOptions
+                    {
+                        IncludeGenericTypeDefinitions = true,
+                        IncludeComposites = false,
+                    });
+
+                foreach (var handlerType in handlers)
+                {
+                    container.Register(handlerType);
+                }
+
+                return handlers;
+            }
+
+            var handlers = RegisterConcreteHandlers();
+
+            bool HasConcereteType(Type type)
+            {
+                return container.GetRootRegistrations()
+                    .Any(reg => reg.ServiceType.GetInterfaces().Any(i => i == type));
+            }
+
+            Type? CreateRequestHandler(TypeFactoryContext c)
+            {
+                var requestType = c.ServiceType.GetGenericArguments()[0];
+                var responseType = c.ServiceType.GetGenericArguments()[1];
+                var concreteType = container.GetRootRegistrations()
+                    .FirstOrDefault(reg =>
+                        reg.ServiceType.GetInterfaces().Any(i => i == c.ServiceType))?
+                    .ServiceType;
+
+                return concreteType;
+            }
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(BatchRequestAdapter<,>),
+                ctx => !ctx.Handled);
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(MacroBatchRequestAdapter<,,>),
+                ctx => !ctx.Handled);
+
+            container.RegisterConditional(typeof(IRequestHandler<,>),
+                c => CreateRequestHandler(c)!,
+                Lifestyle.Scoped,
+                c => !c.Handled && HasConcereteType(c.ServiceType));
+
+            container.RegisterConditional(
+                typeof(IRequestHandler<,>),
+                typeof(SingleQueryRequestAdapter<,>),
+                c => CanHandle(c)
+                    && c.ServiceType.GetGenericArguments()[0].IsQueryType()
+                    && !c.ServiceType.GetGenericArguments()[1].IsGenericIEnumerable());
+
+            container.RegisterConditional(typeof(IRequestHandler<,>),
+                typeof(NoBusinessLogicRequestHandler<>),
+                Lifestyle.Scoped,
+                c => CanHandle(c) && !c.ServiceType.GetGenericArguments()[0].IsQueryType());
         }
 
         /// <summary>
@@ -329,14 +326,10 @@ namespace BusinessApp.CompositionRoot
             private readonly IRequestHandler<IEnumerable<T>, R> inner;
 
             public DummyScopedBatchRequestDelegator(IRequestHandler<IEnumerable<T>, R> inner)
-            {
-                this.inner = inner.NotNull().Expect(nameof(inner));
-            }
+                => this.inner = inner.NotNull().Expect(nameof(inner));
 
-            public Task<Result<R, Exception>> HandleAsync(IEnumerable<T> request, CancellationToken cancelToken)
-            {
-                return inner.HandleAsync(request, cancelToken);
-            }
+            public Task<Result<R, Exception>> HandleAsync(IEnumerable<T> request,
+                CancellationToken cancelToken) => inner.HandleAsync(request, cancelToken);
         }
     }
 }

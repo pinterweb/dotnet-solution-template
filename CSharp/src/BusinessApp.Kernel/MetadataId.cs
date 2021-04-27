@@ -19,8 +19,8 @@ namespace BusinessApp.Kernel
 
         long IConvertible.ToInt64(IFormatProvider? provider) => Id;
 
-        public static explicit operator long (MetadataId id) => id.Id;
+        public static explicit operator long(MetadataId id) => id.Id;
 
-        public static explicit operator MetadataId (long id) => new MetadataId(id);
+        public static explicit operator MetadataId(long id) => new(id);
     }
 }

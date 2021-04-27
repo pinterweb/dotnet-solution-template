@@ -12,9 +12,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
         private readonly IEnumerable<IQueryVisitor<T>> visitors;
 
         public CompositeQueryVisitor(IEnumerable<IQueryVisitor<T>> visitors)
-        {
-            this.visitors = visitors.NotNull().Expect(nameof(visitors));
-        }
+            => this.visitors = visitors.NotNull().Expect(nameof(visitors));
 
         public IQueryable<T> Visit(IQueryable<T> queryable)
         {

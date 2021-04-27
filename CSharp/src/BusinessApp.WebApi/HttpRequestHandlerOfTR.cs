@@ -7,30 +7,27 @@ using System;
 
 namespace BusinessApp.WebApi
 {
-    public class HttpRequestHandler<T, R> : IHttpRequestHandler<T, R>
-        where T : notnull
+    public class HttpRequestHandler<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+        where TRequest : notnull
     {
-        private readonly IRequestHandler<T, R> handler;
+        private readonly IRequestHandler<TRequest, TResponse> handler;
         private readonly ISerializer serializer;
 
-        public HttpRequestHandler(IRequestHandler<T, R> handler, ISerializer serializer)
+        public HttpRequestHandler(IRequestHandler<TRequest, TResponse> handler, ISerializer serializer)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
             this.serializer = serializer.NotNull().Expect(nameof(serializer));
         }
 
-        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+        public async Task<Result<HandlerContext<TRequest, TResponse>, Exception>> HandleAsync(
             HttpContext context, CancellationToken cancelToken)
         {
-            var request = await context.Request.DeserializeAsync<T>(serializer, cancelToken);
+            var request = await context.Request.DeserializeAsync<TRequest>(serializer, cancelToken);
 
-            if (request == null)
-            {
-                throw new BusinessAppWebApiException("Request cannot be null");
-            }
-
-            return await handler.HandleAsync(request, cancelToken)
-                .MapAsync(response => HandlerContext.Create(request, response));
+            return request == null
+                ? throw new BusinessAppException("Request cannot be null")
+                : await handler.HandleAsync(request, cancelToken)
+                    .MapAsync(response => HandlerContext.Create(request, response));
         }
     }
 }

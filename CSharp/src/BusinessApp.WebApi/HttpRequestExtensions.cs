@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Buffers;
-using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using BusinessApp.Infrastructure;
@@ -10,7 +9,7 @@ namespace BusinessApp.WebApi
 {
     public static class HttpRequestExtensions
     {
-        private static readonly string[] BodyMethods = new[]
+        private static readonly string[] bodyMethods = new[]
         {
             HttpMethods.Patch,
             HttpMethods.Post,
@@ -22,18 +21,14 @@ namespace BusinessApp.WebApi
         /// </summary>
         /// <remarks>Could give false positives</remarks>
         public static bool MayHaveContent(this HttpRequest request)
-        {
-            return request.IsCommand()
+            => request.IsCommand()
                 && (request.ContentLength == null || request.ContentLength > 0);
-        }
 
         /// <summary>
         /// Checks if the request is a command method
         /// </summary>
         public static bool IsCommand(this HttpRequest request)
-        {
-            return BodyMethods.Contains(request.Method);
-        }
+            => bodyMethods.Contains(request.Method);
 
         /// <summary>
         /// Deserializes the uri or body depending on the request method
@@ -45,7 +40,7 @@ namespace BusinessApp.WebApi
             if (request.MayHaveContent())
             {
                 var bodyReader = request.BodyReader;
-                ReadResult readResult = await bodyReader.ReadAsync();
+                var readResult = await bodyReader.ReadAsync(cancelToken);
                 T? model;
 
                 try
@@ -61,7 +56,7 @@ namespace BusinessApp.WebApi
                         // We need all of segments when we serialize, if we tell pipereader
                         // we consumed all, the buffer we need for serialization will be empty
                         bodyReader.AdvanceTo(readResult.Buffer.Start, readResult.Buffer.End);
-                        readResult = await bodyReader.ReadAsync();
+                        readResult = await bodyReader.ReadAsync(cancelToken);
                     }
 
                     // now all the body payload has been read into buffer

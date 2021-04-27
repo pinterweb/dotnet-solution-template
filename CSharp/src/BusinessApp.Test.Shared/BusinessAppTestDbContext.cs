@@ -98,12 +98,12 @@ namespace BusinessApp.Test.Shared
 #endregion
         }
 
-        private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.Event>
+        private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.WebDomainEvent>
         {
             protected override string TableName => "DeleteEvent";
 
             protected override void ConfigureEvent(
-                OwnedNavigationBuilder<EventMetadata<Delete.Event>, Delete.Event> builder)
+                OwnedNavigationBuilder<EventMetadata<Delete.WebDomainEvent>, Delete.WebDomainEvent> builder)
             {
                 builder.Property(p => p.Id)
                     .HasConversion(id => (int)id, val => new EntityId(val));

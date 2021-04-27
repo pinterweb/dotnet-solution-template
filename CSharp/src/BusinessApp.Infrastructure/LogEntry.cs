@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using BusinessApp.Kernel;
@@ -18,7 +19,7 @@ namespace BusinessApp.Infrastructure
 
         public static LogEntry FromException(Exception e)
         {
-            e.NotNull().Expect("Logging from an exception cannot be null");
+            _ = e.NotNull().Expect("Logging from an exception cannot be null");
 
             return new LogEntry(LogSeverity.Error, e.Message)
             {
@@ -37,25 +38,23 @@ namespace BusinessApp.Infrastructure
         {
             var exceptions = Exception?.Flatten();
             var nl = Environment.NewLine;
-            var sb = new StringBuilder();
-            var header = new StringBuilder($"{Logged.ToString("HH:mm")} [{Severity.ToString()}] {Message}");
-
-            sb.Append(header);
+            var sb = new StringBuilder(
+                $"{Logged.ToString("HH:mm", CultureInfo.CurrentCulture)} [{Severity}] {Message}");
 
             if (exceptions != null && exceptions.Any())
             {
                 foreach (var ex in exceptions)
                 {
-                    sb.Append(" ");
-                    sb.Append(ex.Message);
-                    sb.Append(nl);
-                    sb.Append(ex.StackTrace);
-                    sb.Append(nl);
+                    _ = sb.Append(' ')
+                        .Append(ex.Message)
+                        .Append(nl)
+                        .Append(ex.StackTrace)
+                        .Append(nl);
                 }
             }
             else
             {
-                sb.Append(nl);
+                _ = sb.Append(nl);
             }
 
             return sb.ToString();

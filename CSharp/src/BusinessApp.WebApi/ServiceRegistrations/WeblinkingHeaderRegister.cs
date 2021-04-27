@@ -9,10 +9,7 @@ namespace BusinessApp.WebApi
     {
         private readonly IBootstrapRegister inner;
 
-        public WeblinkingHeaderRegister(IBootstrapRegister inner)
-        {
-            this.inner = inner;
-        }
+        public WeblinkingHeaderRegister(IBootstrapRegister inner) => this.inner = inner;
 
         public void Register(RegistrationContext context)
         {

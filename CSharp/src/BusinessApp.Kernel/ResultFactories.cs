@@ -7,31 +7,18 @@ namespace BusinessApp.Kernel
     [DebuggerStepThrough]
     public static partial class ResultFactories
     {
-        public static Result<T, string> NotNull<T>(this T value)
-        {
-            if (value == null)
-            {
-                return Result<T, string>.Error("Value cannot be null");
-            }
-            else
-            {
-                return Result<T, string>.Ok(value);
-            }
-        }
+        public static Result<T, string> NotNull<T>(this T value) => value == null
+            ? Result<T, string>.Error("Value cannot be null")
+            : Result<T, string>.Ok(value);
 
         public static Result<string, string> NotEmpty(this string value)
         {
             var nullResult = value.NotNull();
 
-            return nullResult.AndThen(okVal =>
-            {
-                if (okVal.Trim().Length == 0)
-                {
-                    return Result<string, string>.Error("String value cannot be empty");
-                }
-
-                return nullResult;
-            });
+            return nullResult.AndThen(okVal => okVal.Trim().Length == 0
+                ? Result<string, string>.Error("String value cannot be empty")
+                : nullResult
+            );
         }
 
         public static Result<T, string> NotDefault<T>(this T value)
@@ -51,25 +38,14 @@ namespace BusinessApp.Kernel
         {
             var nullResult = value.NotNull();
 
-            return nullResult.AndThen(okVal =>
-            {
-                if (okVal.Count() == 0)
-                {
-                    return Result<IEnumerable<T>, string>.Error("Collection cannot be empty");
-                }
-
-                return nullResult;
-            });
+            return nullResult.AndThen(okVal => !okVal.Any()
+                ? Result<IEnumerable<T>, string>.Error("Collection cannot be empty")
+                : nullResult
+            );
         }
 
-        public static Result<T, string> Valid<T>(this T value, bool isValid)
-        {
-            if (isValid)
-            {
-                return Result<T, string>.Ok(value);
-            }
-
-            return Result<T, string>.Error("Test did not pass");
-        }
+        public static Result<T, string> Valid<T>(this T value, bool isValid) => isValid
+            ? Result<T, string>.Ok(value)
+            : Result<T, string>.Error("Test did not pass");
     }
 }

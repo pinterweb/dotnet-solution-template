@@ -9,13 +9,11 @@ namespace BusinessApp.Infrastructure
     /// </summary>
     public class ConsoleLogger : ILogger
     {
-        private static readonly object syncObject = new object();
+        private static readonly object syncObject = new();
         private readonly ILogEntryFormatter formatter;
 
         public ConsoleLogger(ILogEntryFormatter formatter)
-        {
-            this.formatter = formatter.NotNull().Expect(nameof(formatter));
-        }
+            => this.formatter = formatter.NotNull().Expect(nameof(formatter));
 
         public virtual void Log(LogEntry entry)
         {

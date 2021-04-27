@@ -67,7 +67,7 @@ namespace BusinessApp.WebApi.IntegrationTest
         {
             public class CommandRequests : ServiceRegistrationsTests
             {
-                IEnumerable<(Type, bool)> expectedServicesAndBatchOnlyFlag;
+                private readonly IEnumerable<(Type, bool)> expectedServicesAndBatchOnlyFlag;
 
                 public CommandRequests()
                 {
@@ -874,7 +874,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 public Task<Result<Unit, Exception>> ValidateAsync(CommandStub instance, CancellationToken cancelToken)
                 {
-                    return Task.FromResult(Result.OK);
+                    return Task.FromResult(Result.Ok());
                 }
             }
 
@@ -882,7 +882,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 public Task<Result<Unit, Exception>> ValidateAsync(CommandStub instance, CancellationToken cancelToken)
                 {
-                    return Task.FromResult(Result.OK);
+                    return Task.FromResult(Result.Ok());
                 }
             }
         }

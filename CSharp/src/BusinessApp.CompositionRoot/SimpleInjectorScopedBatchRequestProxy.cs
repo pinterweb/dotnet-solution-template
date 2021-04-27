@@ -26,11 +26,9 @@ namespace BusinessApp.CompositionRoot
         public Task<Result<TResponse, Exception>> HandleAsync(IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
-            using (var _ = AsyncScopedLifestyle.BeginScope(container))
-            {
-                var inner = factory();
-                return inner.HandleAsync(request, cancelToken);
-            }
+            using var _ = AsyncScopedLifestyle.BeginScope(container);
+            var inner = factory();
+            return inner.HandleAsync(request, cancelToken);
         }
     }
 }

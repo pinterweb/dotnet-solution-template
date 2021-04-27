@@ -8,7 +8,9 @@ using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot
 {
+#pragma warning disable IDE0065
     using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
+#pragma warning restore IDE0065
 
     /// <summary>
     /// SimpleInjector implementation of the <see cref="IEventPublisher"/>
@@ -18,32 +20,30 @@ namespace BusinessApp.CompositionRoot
         private readonly Container container;
 
         public SimpleInjectorEventPublisher(Container container)
-        {
-            this.container = container.NotNull().Expect(nameof(container));
-        }
+            => this.container = container.NotNull().Expect(nameof(container));
 
-        public Task<EventResult> PublishAsync<T>(T @event, CancellationToken cancelToken)
+        public Task<EventResult> PublishAsync<T>(T e, CancellationToken cancelToken)
             where T : notnull, IDomainEvent
         {
             var handler = (EventHandler)Activator.CreateInstance(
                 typeof(GenericEventHandler<>).MakeGenericType(typeof(T)))!;
 
-            return handler.HandleAsync(@event, cancelToken, container);
+            return handler.HandleAsync(e, container, cancelToken);
         }
 
         private abstract class EventHandler
         {
             public abstract Task<EventResult> HandleAsync(IDomainEvent request,
-                CancellationToken cancelToken, Container container);
+                Container container, CancellationToken cancelToken);
         }
 
         private class GenericEventHandler<TEvent> : EventHandler
               where TEvent : IDomainEvent
         {
-            public async override Task<EventResult> HandleAsync(IDomainEvent @event,
-                CancellationToken cancelToken, Container container)
+            public override async Task<EventResult> HandleAsync(IDomainEvent @event,
+                Container container, CancellationToken cancelToken)
             {
-                var handlers =  container.GetAllInstances<IEventHandler<TEvent>>();
+                var handlers = container.GetAllInstances<IEventHandler<TEvent>>();
 
                 return (
                     await Task.WhenAll(

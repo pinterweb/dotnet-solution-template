@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace BusinessApp.Infrastructure
 {
+#pragma warning disable IDE0065
     using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
+#pragma warning restore IDE0065
 
     /// <summary>
     /// Consume event data from the prior handlers
@@ -17,7 +19,9 @@ namespace BusinessApp.Infrastructure
         where TRequest : class
         where TResponse : ICompositeEvent
     {
-        private static MethodInfo PublishMethod = typeof(IEventPublisher).GetMethod(nameof(IEventPublisher.PublishAsync))!;
+        private static readonly MethodInfo publishMethod = typeof(IEventPublisher)
+            .GetMethod(nameof(IEventPublisher.PublishAsync))!;
+
         private readonly IEventPublisherFactory publisherFactory;
         private readonly IRequestHandler<TRequest, TResponse> inner;
 
@@ -34,7 +38,6 @@ namespace BusinessApp.Infrastructure
             var publisher = publisherFactory.Create(request);
 
             var handlerResult = await inner.HandleAsync(request, cancelToken);
-
 
             return await handlerResult
                 .Map(s => s.Events)
@@ -54,19 +57,19 @@ namespace BusinessApp.Infrastructure
         {
             var consumedEvents = events.Select(s => s).ToList();
 
-            if (!consumedEvents.Any()) return Result.Ok<IEnumerable<IDomainEvent>>(consumedEvents);
-
-            return await Task.WhenAll(consumedEvents.Select(e => PublishAsync(publisher, e, cancelToken)))
-                .CollectAsync()
-                .MapAsync(v => v.SelectMany(s => s))
-                .AndThenAsync(events => ConsumeAsync(publisher, events, cancelToken))
-                .MapAsync(e => consumedEvents.Concat(e));
+            return !consumedEvents.Any()
+                ? Result.Ok<IEnumerable<IDomainEvent>>(consumedEvents)
+                : await Task.WhenAll(consumedEvents.Select(e => PublishAsync(publisher, e, cancelToken)))
+                    .CollectAsync()
+                    .MapAsync(v => v.SelectMany(s => s))
+                    .AndThenAsync(events => ConsumeAsync(publisher, events, cancelToken))
+                    .MapAsync(e => consumedEvents.Concat(e));
         }
 
         public Task<EventResult> PublishAsync(IEventPublisher publisher, IDomainEvent @event,
             CancellationToken cancelToken)
         {
-            var generic = PublishMethod.MakeGenericMethod(@event.GetType());
+            var generic = publishMethod.MakeGenericMethod(@event.GetType());
 
             return (Task<EventResult>)generic.Invoke(publisher,
                 new object[] { @event, cancelToken })!;

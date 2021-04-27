@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
@@ -14,13 +15,13 @@ namespace BusinessApp.Infrastructure
             RequestType = requestType.NotEmpty()
                 .Map(r => Type.GetType(r))
                 .AndThen(t => t.NotNull())
-                .MapError(_ => string.Format(ErrTemplate, requestType))
+                .MapError(_ => string.Format(CultureInfo.InvariantCulture, ErrTemplate, requestType))
                 .Expect(nameof(requestType))!;
 
             ResponseType = responseType.NotEmpty()
                 .Map(r => Type.GetType(r))
                 .AndThen(t => t.NotNull())
-                .MapError(_ => string.Format(ErrTemplate, responseType))
+                .MapError(_ => string.Format(CultureInfo.InvariantCulture, ErrTemplate, responseType))
                 .Expect(nameof(responseType))!;
         }
 
@@ -34,26 +35,20 @@ namespace BusinessApp.Infrastructure
         public Type ResponseType { get; }
         public IEnumerable<Type> EventTriggers { get; private set; } = new List<Type>();
 
-        public override bool Equals(object? unknown)
-        {
-            if (unknown is RequestMetadata other)
-            {
-                return RequestType.Equals(other.RequestType)
-                    && ResponseType.Equals(other.ResponseType);
-            }
-
-            return base.Equals(unknown);
-        }
+        public override bool Equals(object? obj) => obj is RequestMetadata other
+            ? RequestType.Equals(other.RequestType) && ResponseType.Equals(other.ResponseType)
+            : base.Equals(obj);
 
         public override int GetHashCode()
         {
             unchecked
             {
-                const int HashingBase = (int)2166136261;
-                const int HashingMultiplier = 16777619;
-                var hash = (HashingBase * HashingMultiplier) ^ RequestType.GetHashCode();
+                var hash = 17;
+                const int multiplier = 23;
 
-                return (hash * HashingMultiplier) ^ ResponseType.GetHashCode();
+                hash = (hash * multiplier) + RequestType.GetHashCode();
+
+                return (hash * multiplier) + ResponseType.GetHashCode();
             }
         }
     }

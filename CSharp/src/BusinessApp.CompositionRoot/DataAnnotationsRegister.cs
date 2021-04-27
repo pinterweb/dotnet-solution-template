@@ -6,10 +6,7 @@ namespace BusinessApp.CompositionRoot
     {
         private readonly IBootstrapRegister inner;
 
-        public DataAnnotationRegister(IBootstrapRegister inner)
-        {
-            this.inner = inner;
-        }
+        public DataAnnotationRegister(IBootstrapRegister inner) => this.inner = inner;
 
         public void Register(RegistrationContext context)
         {

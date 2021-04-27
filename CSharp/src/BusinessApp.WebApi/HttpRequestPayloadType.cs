@@ -3,7 +3,7 @@ namespace BusinessApp.WebApi
     public enum HttpRequestPayloadType
     {
         Unknown,
-        Object,
+        SingleObject,
         Array
     }
 }

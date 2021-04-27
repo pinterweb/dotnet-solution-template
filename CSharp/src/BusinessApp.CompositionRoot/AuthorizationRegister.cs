@@ -9,14 +9,11 @@ namespace BusinessApp.CompositionRoot
     /// <summary>
     /// Registers authorization based on the <see cref="AuthorizeAttribute" />
     /// </summary>
-    public class AuthorizationRegister: IBootstrapRegister
+    public class AuthorizationRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;
 
-        public AuthorizationRegister(IBootstrapRegister inner)
-        {
-            this.inner = inner;
-        }
+        public AuthorizationRegister(IBootstrapRegister inner) => this.inner = inner;
 
         public void Register(RegistrationContext context)
         {
@@ -41,7 +38,7 @@ namespace BusinessApp.CompositionRoot
                 return targetType.GetCustomAttribute<AuthorizeAttribute>() != null;
             }
 
-            while(!HasAuthAttribute(requestType) && requestType.IsConstructedGenericType)
+            while (!HasAuthAttribute(requestType) && requestType.IsConstructedGenericType)
             {
                 requestType = requestType.GetGenericArguments()[0];
             }

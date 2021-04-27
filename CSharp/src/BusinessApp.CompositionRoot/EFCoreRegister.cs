@@ -14,14 +14,12 @@ namespace BusinessApp.CompositionRoot
 //#if DEBUG
         public static readonly ILoggerFactory DataLayerLoggerFactory
             = LoggerFactory.Create(builder =>
-            {
                 builder
                     .AddFilter((category, level) =>
                         category == DbLoggerCategory.Database.Command.Name
                         && level == LogLevel.Information)
                     .AddConsole()
-                    .AddDebug();
-            });
+                    .AddDebug());
 //#endif
 
         private readonly RegistrationOptions options;

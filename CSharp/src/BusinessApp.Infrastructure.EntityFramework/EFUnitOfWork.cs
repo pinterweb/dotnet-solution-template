@@ -3,7 +3,6 @@ using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,31 +10,19 @@ namespace BusinessApp.Infrastructure.EntityFramework
 {
     public class EFUnitOfWork : IUnitOfWork, ITransactionFactory
     {
-        private bool transactionFromFactory = false;
-        public readonly BusinessAppDbContext db;
+        private bool transactionFromFactory;
+        private readonly BusinessAppDbContext db;
 
-        public EFUnitOfWork(BusinessAppDbContext db)
-        {
-            this.db = db.NotNull().Expect(nameof(db));
-        }
+        public EFUnitOfWork(BusinessAppDbContext db) => this.db = db.NotNull().Expect(nameof(db));
 
-        public event EventHandler Committing = delegate {};
-        public event EventHandler Committed = delegate {};
+        public event EventHandler Committing = delegate { };
+        public event EventHandler Committed = delegate { };
 
-        public void Track<T>(T aggregate) where T : AggregateRoot
-        {
-            db.Attach(aggregate);
-        }
+        public void Track<T>(T aggregate) where T : AggregateRoot => db.Attach(aggregate);
 
-        public void Add<T>(T aggregate) where T : AggregateRoot
-        {
-            db.Add(aggregate);
-        }
+        public void Add<T>(T aggregate) where T : AggregateRoot => db.Add(aggregate);
 
-        public void Remove<T>(T aggregate) where T : AggregateRoot
-        {
-            db.Remove(aggregate);
-        }
+        public void Remove<T>(T aggregate) where T : AggregateRoot => db.Remove(aggregate);
 
         public async Task CommitAsync(CancellationToken cancelToken)
         {
@@ -43,7 +30,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
 
             try
             {
-                await db.SaveChangesAsync(false, cancelToken);
+                _ = await db.SaveChangesAsync(false, cancelToken);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -71,7 +58,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
         /// </summary>
         public async Task RevertAsync(CancellationToken cancelToken)
         {
-            await db.SaveChangesAsync(false, cancelToken);
+            _ = await db.SaveChangesAsync(false, cancelToken);
 
             if (db.Database.CurrentTransaction != null && transactionFromFactory)
             {
@@ -88,7 +75,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
         {
             try
             {
-                db.Database.BeginTransaction();
+                _ = db.Database.BeginTransaction();
                 transactionFromFactory = true;
                 return Result.Ok<IUnitOfWork>(this);
             }
@@ -99,11 +86,9 @@ namespace BusinessApp.Infrastructure.EntityFramework
         }
 
         public T? Find<T>(Func<T, bool> filter) where T : AggregateRoot
-        {
-            return db.ChangeTracker.Entries<T>()
+            => db.ChangeTracker.Entries<T>()
                 .Select(e => e.Entity)
                 .SingleOrDefault(filter);
-        }
 
         private static bool AlreadyInTransaction(string msg)
             => msg == "The connection is already in a transaction and cannot participate in "

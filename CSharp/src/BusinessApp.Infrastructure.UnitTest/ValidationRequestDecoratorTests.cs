@@ -101,7 +101,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 /* Arrange */
                 var query = A.Dummy<QueryStub>();
                 A.CallTo(() => validator.ValidateAsync(A<QueryStub>._, cancelToken))
-                    .Returns(Result.OK);
+                    .Returns(Result.Ok());
 
                 /* Act */
                 var _ = await sut.HandleAsync(query, cancelToken);

@@ -15,6 +15,6 @@ namespace BusinessApp.Infrastructure
         public IEnumerable<TData> Data { get; }
         public Pagination Pagination { get; }
         public IEnumerator<TData> GetEnumerator() => Data.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

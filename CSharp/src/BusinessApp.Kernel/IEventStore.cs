@@ -8,6 +8,6 @@ namespace BusinessApp.Kernel
         /// <summary>
         /// Adds an event to the store
         /// </summary>
-        EventTrackingId Add<T>(T @event) where T : notnull, IDomainEvent;
+        EventTrackingId Add<T>(T e) where T : notnull, IDomainEvent;
     }
 }

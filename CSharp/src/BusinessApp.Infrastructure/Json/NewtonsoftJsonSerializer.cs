@@ -5,10 +5,11 @@ using System.Linq;
 using BusinessApp.Kernel;
 using System.IO;
 
-
 namespace BusinessApp.Infrastructure.Json
 {
+#pragma warning disable IDE0065
     using Newtonsoft.Json.Serialization;
+#pragma warning restore IDE0065
 
     /// <summary>
     /// A json serializer based on Newtonsoft
@@ -39,11 +40,11 @@ namespace BusinessApp.Infrastructure.Json
 
             try
             {
-                var model =  serializer.Deserialize<T>(jr);
+                var model = serializer.Deserialize<T>(jr);
 
-                if (!errors.Any()) return model;
-
-                throw new ModelValidationException("There is bad data", errors);
+                return !errors.Any()
+                   ? model
+                   : throw new ModelValidationException("There is bad data", errors);
             }
             finally
             {
@@ -60,7 +61,7 @@ namespace BusinessApp.Infrastructure.Json
 
         private void OnError(object? sender, ErrorEventArgs e)
         {
-            ErrorEventArgs args = e;
+            var args = e;
             var memberName = args.ErrorContext.Member?.ToString();
 
             if (!string.IsNullOrWhiteSpace(memberName))

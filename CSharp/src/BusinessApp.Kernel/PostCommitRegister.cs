@@ -17,7 +17,7 @@ namespace BusinessApp.Kernel
             var handlersToRun = FinishHandlers.ToArray();
             FinishHandlers.Clear();
 
-            for (int i = 0; i < handlersToRun.Length; i++)
+            for (var i = 0; i < handlersToRun.Length; i++)
             {
                 await handlersToRun[i]();
             }

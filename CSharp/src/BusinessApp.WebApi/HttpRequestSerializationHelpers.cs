@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace BusinessApp.WebApi
 {
+#pragma warning disable CA1000
     public static class HttpRequestSerializationHelpers<T>
     {
         private static readonly IDictionary<string, Type> propertyCache;
@@ -56,7 +57,7 @@ namespace BusinessApp.WebApi
         {
             foreach (var kvp in properties)
             {
-                if (setterCache.TryGetValue(kvp.Key, out (Type, Action<T, object>) setterGetter))
+                if (setterCache.TryGetValue(kvp.Key, out var setterGetter))
                 {
                     var converter = TypeDescriptor.GetConverter(setterGetter.Item1);
 
@@ -78,7 +79,7 @@ namespace BusinessApp.WebApi
                 var appClass = !IsIEntityId(property.PropertyType)
                     && property.PropertyType.IsClass
                     && property.PropertyType.Namespace != null
-                    && property.PropertyType.Namespace.StartsWith("BusinessApp");
+                    && property.PropertyType.Namespace.StartsWith("BusinessApp", StringComparison.OrdinalIgnoreCase);
 
                 // prevent infinite recursion
                 if (appClass && typeof(T) != property.PropertyType)
@@ -110,13 +111,13 @@ namespace BusinessApp.WebApi
         {
             var data =
                 from kvp in dictionary
-                 let properties = kvp.Key.Split('.')
-                 group kvp by properties[0] into parent
-                 select !parent.First().Key.Contains(".")
-                     ? new KeyValuePair<string, object>(parent.Key,
-                         ConvertToType(prefix + parent.Key, parent.First().Value))
-                     : new KeyValuePair<string, object>(parent.Key,
-                         CreateDictionary(prefix + parent.Key + ".", FilterByPropertyName(dictionary, parent.Key)));
+                let properties = kvp.Key.Split('.')
+                group kvp by properties[0] into parent
+                select !parent.First().Key.Contains(".")
+                    ? new KeyValuePair<string, object>(parent.Key,
+                        ConvertToType(prefix + parent.Key, parent.First().Value))
+                    : new KeyValuePair<string, object>(parent.Key,
+                        CreateDictionary(prefix + parent.Key + ".", FilterByPropertyName(dictionary, parent.Key)));
 
             return data.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
@@ -124,7 +125,7 @@ namespace BusinessApp.WebApi
         private static object ConvertToType(string key, object val)
         {
             var cachedType = propertyCache[key];
-            bool isIEnumerable = cachedType.IsGenericIEnumerable();
+            var isIEnumerable = cachedType.IsGenericIEnumerable();
 
             if (isIEnumerable && val is string v)
             {
@@ -141,11 +142,11 @@ namespace BusinessApp.WebApi
         private static IDictionary<string, object?> FilterByPropertyName(
             IDictionary<string, object?> dictionary, string propertyName)
         {
-            string prefix = propertyName + ".";
+            var prefix = propertyName + ".";
 
             return dictionary.Keys
-                .Where(key => key.StartsWith(prefix))
-                .ToDictionary(key => key.Substring(prefix.Length), key => dictionary[key]);
+                .Where(key => key.StartsWith(prefix, StringComparison.InvariantCulture))
+                .ToDictionary(key => key[prefix.Length..], key => dictionary[key]);
         }
 
         public static Action<T, object>? BuildSetter(PropertyInfo p)
@@ -165,9 +166,7 @@ namespace BusinessApp.WebApi
             return lambda.Compile();
         }
 
-        private static bool IsIEntityId(Type type)
-        {
-            return typeof(IEntityId).IsAssignableFrom(type);
-        }
+        private static bool IsIEntityId(Type type) => typeof(IEntityId).IsAssignableFrom(type);
     }
+#pragma warning restore CA1000
 }

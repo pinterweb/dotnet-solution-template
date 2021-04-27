@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#pragma warning disable IDE0058
 namespace BusinessApp.Infrastructure.EntityFramework
 {
     public class RequestMetadataEntityConfiguration : IEntityTypeConfiguration<RequestMetadata>
@@ -43,3 +43,4 @@ namespace BusinessApp.Infrastructure.EntityFramework
         }
     }
 }
+#pragma warning restore IDE0058

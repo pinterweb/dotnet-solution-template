@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
-    [Serializable]
     public class MemberValidationException : BusinessAppException
     {
         public MemberValidationException(string memberName, IEnumerable<string> errors)

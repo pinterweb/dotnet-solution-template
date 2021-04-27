@@ -29,7 +29,7 @@ namespace BusinessApp.Infrastructure
             {
                 return await inner.HandleAsync(request, cancelToken);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.Log(new LogEntry(LogSeverity.Critical, e.Message)
                 {

@@ -13,9 +13,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
         private readonly IQueryVisitor<TResult> visitor;
 
         public ConstructedQueryVisitorFactory(IQueryVisitor<TResult> visitor)
-        {
-            this.visitor = visitor.NotNull().Expect(nameof(visitor));
-        }
+            => this.visitor = visitor.NotNull().Expect(nameof(visitor));
 
         public IQueryVisitor<TResult> Create(TQuery query) => visitor;
     }

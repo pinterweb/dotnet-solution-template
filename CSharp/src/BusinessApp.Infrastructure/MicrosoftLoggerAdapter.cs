@@ -14,17 +14,17 @@ namespace BusinessApp.Infrastructure
             this.formatter = formatter.NotNull().Expect(nameof(formatter));
         }
 
-        public void Log(LogEntry e)
-            => logger.Log(ToLevel(e.Severity), 0, e, e.Exception, (s, _) => formatter.Format(s));
+        public void Log(LogEntry entry)
+            => logger.Log(ToLevel(entry.Severity), 0, entry, entry.Exception, (s, _) => formatter.Format(s));
 
-        private static MS.LogLevel ToLevel(LogSeverity s) =>
-            s switch
-            {
-                LogSeverity.Info => MS.LogLevel.Information,
-                LogSeverity.Warning => MS.LogLevel.Warning,
-                LogSeverity.Error => MS.LogLevel.Error,
-                LogSeverity.Critical => MS.LogLevel.Critical,
-                _ => MS.LogLevel.Debug,
-            };
+        private static MS.LogLevel ToLevel(LogSeverity s) => s switch
+        {
+            LogSeverity.Info => MS.LogLevel.Information,
+            LogSeverity.Warning => MS.LogLevel.Warning,
+            LogSeverity.Error => MS.LogLevel.Error,
+            LogSeverity.Critical => MS.LogLevel.Critical,
+            LogSeverity.Debug => MS.LogLevel.Debug,
+            _ => throw new System.NotImplementedException(),
+        };
     }
 }
