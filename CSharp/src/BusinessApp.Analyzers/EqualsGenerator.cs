@@ -16,7 +16,7 @@ namespace BusinessApp.Analyzers
         public void Initialize(GeneratorInitializationContext context)
         {
 #if DEBUG
-            //Debugger.Launch();
+            //System.Diagnostics.Debugger.Launch();
 #endif
             context.RegisterForSyntaxNotifications(() => new EqualsSyntaxReceiver());
         }
@@ -29,12 +29,14 @@ namespace BusinessApp.Analyzers
 
             foreach (var node in s.TargetSyntaxNodes)
             {
+                var isStruct = node is StructDeclarationSyntax;
                 var model = context.Compilation.GetSemanticModel(node.SyntaxTree);
                 var type = model.GetDeclaredSymbol(node, context.CancellationToken) as ITypeSymbol;
                 var fullNamespace = type.ContainingNamespace.ToDisplayString();
 
                 var sb = new StringBuilder();
                 var propertyEqualities = new List<string>();
+                var propertyCompares = new List<string>();
                 var propertyHashes = new List<string>();
 
                 foreach (var property in type.GetMembers().OfType<IPropertySymbol>())
@@ -89,19 +91,39 @@ namespace BusinessApp.Analyzers
                                 propertyHashes.Add($"{hash} {propertyName}!.GetHashCode();");
                             }
                         }
+
+                        if (isStruct)
+                        {
+                            propertyCompares.Add($"global::System.Collections.Generic.Comparer<{typeName}>.Default.Compare({propertyName}, other.{propertyName})");
+                        }
                     }
                 }
 
+                var parents = new[]
+                {
+                    $"global::System.IEquatable<{type.Name}>",
+                    isStruct ? $"global::System.IComparable<{type.Name}>" : null
+                };
+
+                var memberName = isStruct ? "struct" : "class";
+                var equalityMemberName = isStruct ? type.Name : $"{type.Name}?";
+
                 _ = sb.Append($@"#nullable enable
+#pragma warning disable
 namespace {fullNamespace}
 {{
-    public partial class {type.Name}
+    public partial {memberName} {type.Name} : {string.Join(",", parents.Where(p => p is not null))}
     {{
+        public bool Equals({equalityMemberName} other)
+        {{
+            return {string.Join(Environment.NewLine + "&&", propertyEqualities)};
+        }}
+
         public override bool Equals(object? obj)
         {{
             if (obj is {type.Name} other)
             {{
-                return {string.Join(Environment.NewLine + "&&", propertyEqualities)};
+                return Equals(other);
             }}
 
             return base.Equals(obj);
@@ -112,13 +134,43 @@ namespace {fullNamespace}
             unchecked
             {{
                 int hash = 17;
-                {string.Join(System.Environment.NewLine, propertyHashes)}
+                {string.Join(Environment.NewLine, propertyHashes)}
 
                 return hash;
             }}
         }}
+");
+
+                if (isStruct)
+                {
+                    _ = sb.Append($@"
+
+        public int CompareTo({type.Name} other)
+        {{
+            return {string.Join(Environment.NewLine + "+", propertyCompares)};
+        }}
+
+        public static bool operator ==({type.Name} left, {type.Name} right) => left.Equals(right);
+        public static bool operator !=({type.Name} left, {type.Name} right) => !(left == right);
+
+        public static bool operator <({type.Name} left, {type.Name} right)
+            => left.CompareTo(right) < 0;
+
+        public static bool operator <=({type.Name} left, {type.Name} right)
+            => left.CompareTo(right) <= 0;
+
+        public static bool operator >({type.Name} left, {type.Name} right)
+            => left.CompareTo(right) > 0;
+
+        public static bool operator >=({type.Name} left, {type.Name} right)
+            => left.CompareTo(right) >= 0;
+");
+                }
+
+                _ = sb.Append($@"
     }}
 }}
+#pragma warning restore
 #nullable restore");
 
                 var fileName = $"{EscapeFileName(type!.ToDisplayString())}.gen.cs";
@@ -137,9 +189,9 @@ namespace {fullNamespace}
 
             public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
             {
-                if (syntaxNode is ClassDeclarationSyntax c)
+                if (syntaxNode is ClassDeclarationSyntax or StructDeclarationSyntax)
                 {
-                    foreach (var property in c.Members.OfType<PropertyDeclarationSyntax>())
+                    foreach (var property in ((TypeDeclarationSyntax)syntaxNode).Members.OfType<PropertyDeclarationSyntax>())
                     {
                         var hasIdAttribute = property.AttributeLists.Any(a =>
                             a.Attributes.Any(aa => aa.Name.ToString() == "Id"));

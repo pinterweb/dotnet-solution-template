@@ -10,4 +10,13 @@ namespace BusinessApp.Analyzers.IntegrationTest
 #nullable restore
 
     }
+
+    public partial struct StructStub
+    {
+#nullable enable
+        [Id]
+        public int? Id { get; set; }
+#nullable restore
+
+    }
 }
