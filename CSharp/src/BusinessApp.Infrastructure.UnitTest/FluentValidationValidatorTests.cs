@@ -32,7 +32,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.OK, result);
+                Assert.Equal(Result.Ok(), result);
             }
 
             [Fact]
@@ -41,9 +41,9 @@ namespace BusinessApp.Infrastructure.UnitTest
                 /* Arrange */
                 var firstValidator = A.Fake<FluentValidation.IValidator<CommandStub>>();
                 var secondValidator = A.Fake<FluentValidation.IValidator<CommandStub>>();
-                A.CallTo(() => firstValidator.ValidateAsync(instance, A.Dummy<CancellationToken>()))
+                A.CallTo(() => firstValidator.ValidateAsync(instance, cancelToken))
                     .Returns(new ValidationResult());
-                A.CallTo(() => secondValidator.ValidateAsync(instance, A.Dummy<CancellationToken>()))
+                A.CallTo(() => secondValidator.ValidateAsync(instance, cancelToken))
                     .Returns(new ValidationResult());
                 validators.AddRange(new[] { firstValidator, secondValidator });
 
@@ -51,7 +51,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.OK, result);
+                Assert.Equal(Result.Ok(), result);
             }
 
             [Fact]
@@ -64,7 +64,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                     new ValidationFailure("foo", "lorem")
                 };
                 var validator = A.Fake<FluentValidation.IValidator<CommandStub>>();
-                A.CallTo(() => validator.ValidateAsync(instance, A.Dummy<CancellationToken>()))
+                A.CallTo(() => validator.ValidateAsync(instance, cancelToken))
                     .Returns(new ValidationResult(failures));
                 validators.Add(validator);
 

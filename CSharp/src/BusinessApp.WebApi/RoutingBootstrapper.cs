@@ -68,16 +68,13 @@ namespace BusinessApp.WebApi
     [System.ComponentModel.TypeConverter(typeof(EntityIdTypeConverter<EntityId, int>))]
     public class EntityId : IEntityId
     {
-        public EntityId(int id)
-        {
-            Id = id;
-        }
+        public EntityId(int id) => Id = id;
 
         public int Id { get; set; }
 
         public int ToInt32(IFormatProvider? provider) => Id;
         public TypeCode GetTypeCode() => Id.GetTypeCode();
-        public static implicit operator int (EntityId id) => id.Id;
+        public static implicit operator int(EntityId id) => id.Id;
     }
 
     public class Get
@@ -90,10 +87,7 @@ namespace BusinessApp.WebApi
 
         public class Response
         {
-            public Response(EntityId? id = null)
-            {
-                Id = id ?? new EntityId(0);
-            }
+            public Response(EntityId? id = null) => Id = id ?? new EntityId(0);
 
             public EntityId Id { get; set; }
         }
@@ -104,7 +98,7 @@ namespace BusinessApp.WebApi
         {
             public Task<Result<IEnumerable<Response>, Exception>> HandleAsync(Request request, CancellationToken cancelToken)
             {
-                var response =  new []
+                var response = new[]
                 {
                     new Response(new EntityId(1)),
                     new Response(new EntityId(2)),
@@ -118,7 +112,7 @@ namespace BusinessApp.WebApi
             Task<Result<Infrastructure.EnvelopeContract<Response>, Exception>> Infrastructure.IRequestHandler<Request, Infrastructure.EnvelopeContract<Response>>.HandleAsync(
                 Request request, CancellationToken cancelToken)
             {
-                var e =  Result.Ok(new Infrastructure.EnvelopeContract<Response>(
+                var e = Result.Ok(new Infrastructure.EnvelopeContract<Response>(
                     new[] { new Response() },
                     new Infrastructure.Pagination
                     {
@@ -152,7 +146,7 @@ namespace BusinessApp.WebApi
 
         }
 
-        public class Event : IDomainEvent
+        public class WebDomainEvent : IDomainEvent
         {
             public EntityId? Id { get; set; }
 
@@ -161,33 +155,27 @@ namespace BusinessApp.WebApi
 
 
         public class Handler : Infrastructure.IRequestHandler<Query, Response>,
-            IEventHandler<Event>
+            IEventHandler<WebDomainEvent>
         {
             // to prevent infinite loops
-            private readonly Event e = new Event();
+            private readonly WebDomainEvent webEvent = new();
 
             public Task<Result<Response, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
             {
                 var events = new Response
                 {
-                    Events = new CompositeEvent(new[] { new Event() })
+                    Events = new CompositeEvent(new[] { new WebDomainEvent() })
                 };
 
                 return Task.FromResult(Result.Ok(events));
             }
 
             public Task<Result<IEnumerable<IDomainEvent>, Exception>> HandleAsync(
-                Event @event, CancellationToken cancelToken)
-            {
-                if (@event == e)
-                {
-                    return Task.FromResult(
-                        Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
-                }
-
-                return Task.FromResult(
-                    Result.Ok<IEnumerable<IDomainEvent>>(new[] { e }));
-            }
+                WebDomainEvent e, CancellationToken cancelToken)
+                => webEvent == e
+                    ? Task.FromResult(
+                        Result.Ok<IEnumerable<IDomainEvent>>(Array.Empty<IDomainEvent>()))
+                    : Task.FromResult(Result.Ok<IEnumerable<IDomainEvent>>(new[] { webEvent }));
         }
     }
 

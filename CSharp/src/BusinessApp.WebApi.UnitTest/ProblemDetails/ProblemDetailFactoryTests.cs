@@ -219,7 +219,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(A.Dummy<Exception>())
                 };
                 var error = BatchException.FromResults(results);
@@ -237,7 +237,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(A.Dummy<Exception>())
                 };
                 var error = BatchException.FromResults(results);
@@ -259,7 +259,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(new ProblemTypeExceptionStub())
                 };
                 var error = BatchException.FromResults(results);
@@ -281,7 +281,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(new ProblemTypeExceptionStub("msg from exception"))
                 };
                 var error = BatchException.FromResults(results);
@@ -305,7 +305,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 innerError.Data.Add("foo", "bar");
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(innerError)
                 };
                 var error = BatchException.FromResults(results);
@@ -332,7 +332,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 innerError.Data.Add(key, "bar");
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(innerError)
                 };
                 var error = BatchException.FromResults(results);
@@ -350,7 +350,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 /* Arrange */
                 var results = new[]
                 {
-                    Result.OK,
+                    Result.Ok(),
                     Result.Error(A.Dummy<ProblemTypeExceptionStub>())
                 };
                 var error = BatchException.FromResults(results);

@@ -115,7 +115,7 @@ namespace BusinessApp.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 #endif
-            CompositionRoot.Bootstrapper.RegisterServices(container, options, loggerFactory);
+            Bootstrapper.RegisterServices(container, options, loggerFactory);
 
             container.Collection.Register<IStartupConfiguration>(
                 new[] { typeof(Startup).Assembly },

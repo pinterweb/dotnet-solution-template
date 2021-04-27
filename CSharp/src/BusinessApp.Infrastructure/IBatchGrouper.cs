@@ -15,8 +15,7 @@ namespace BusinessApp.Infrastructure
         /// </summary>
         /// <param name="commands">The commands to group</param>
         /// <returns>The new grouped commands</returns>
-        Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(
-            IEnumerable<TCommand> commands,
+        Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(IEnumerable<TCommand> commands,
             CancellationToken cancelToken);
     }
 }

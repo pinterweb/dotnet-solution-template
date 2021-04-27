@@ -12,50 +12,48 @@ namespace BusinessApp.WebApi
     /// <summary>
     /// Decorator to add the web link headers for generate events
     /// </summary>
-    public class WeblinkingHeaderEventRequestDecorator<T, R> : IHttpRequestHandler<T, R>
-       where T : notnull
-       where R : ICompositeEvent
+    public class WeblinkingHeaderEventRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+       where TRequest : notnull
+       where TResponse : ICompositeEvent
     {
-        private readonly IHttpRequestHandler<T, R> handler;
-        private readonly IDictionary<Type, HateoasLink<T, IDomainEvent>> lookup;
+        private readonly IHttpRequestHandler<TRequest, TResponse> handler;
+        private readonly IDictionary<Type, HateoasLink<TRequest, IDomainEvent>> lookup;
 
-        public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<T, R> handler,
-            IDictionary<Type, HateoasLink<T, IDomainEvent>> links)
+        public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
+            IDictionary<Type, HateoasLink<TRequest, IDomainEvent>> links)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
-            this.lookup = links.NotNull().Expect(nameof(links));
+            lookup = links.NotNull().Expect(nameof(links));
         }
 
-        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+        public Task<Result<HandlerContext<TRequest, TResponse>, Exception>> HandleAsync(
             HttpContext context, CancellationToken cancelToken)
-        {
-            return (await handler.HandleAsync(context, cancelToken))
-                .Map(okVal =>
-                {
-                    var headerLinks = okVal.Response.Events
-                        .Select(e => (e, e.GetType()))
-                        .Where(HasLink)
-                        .Select(l => lookup[l.Item2]
-                            .ToHeaderValue(context.Request, okVal.Request, l.Item1))
-                        .ToArray();
-
-                    if (!headerLinks.Any()) return okVal;
-
-                    if (context.Response.Headers.TryGetValue("Link", out StringValues sv))
+            => handler.HandleAsync(context, cancelToken)
+                    .MapAsync(okVal =>
                     {
-                        context.Response.Headers["Link"] =
-                            StringValues.Concat(sv, new StringValues(headerLinks));
-                    }
-                    else
-                    {
-                        context.Response.Headers.Add("Link", headerLinks);
-                    }
+                        var headerLinks = okVal.Response.Events
+                            .Select(e => (e, e.GetType()))
+                            .Where(HasLink)
+                            .Select(l => lookup[l.Item2]
+                                .ToHeaderValue(context.Request, okVal.Request, l.e))
+                            .ToArray();
 
-                    return okVal;
-                });
-        }
+                        if (!headerLinks.Any()) return okVal;
+
+                        if (context.Response.Headers.TryGetValue("Link", out var sv))
+                        {
+                            context.Response.Headers["Link"] =
+                                StringValues.Concat(sv, new StringValues(headerLinks));
+                        }
+                        else
+                        {
+                            context.Response.Headers.Add("Link", headerLinks);
+                        }
+
+                        return okVal;
+                    });
 
         private bool HasLink((IDomainEvent e, Type eventType) eventLookup)
-            => lookup.TryGetValue(eventLookup.Item2, out HateoasLink<T, IDomainEvent> _);
+            => lookup.TryGetValue(eventLookup.eventType, out var _);
     }
 }

@@ -6,6 +6,6 @@ namespace BusinessApp.Infrastructure
         where TRequest : notnull
         where TEvent : IDomainEvent
     {
-        void Map(TRequest request, TEvent @event);
+        void Map(TRequest request, TEvent e);
     }
 }

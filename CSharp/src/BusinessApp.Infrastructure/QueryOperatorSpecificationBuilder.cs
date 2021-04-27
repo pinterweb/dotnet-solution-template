@@ -12,33 +12,35 @@ namespace BusinessApp.Infrastructure
         ILinqSpecificationBuilder<TQuery, TContract>
         where TQuery : notnull
     {
-        private static ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>> DescriptorCache
-            = new ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>>();
+        private static readonly ConcurrentDictionary<Type, ICollection<SpecificationDescriptor>> descriptorCache
+            = new();
 
-        private static ParameterExpression ContractParam
+        private static readonly ParameterExpression contractParam
             = Expression.Parameter(typeof(TContract), "contract");
 
-        private static ParameterExpression QueryParam
+        private static readonly ParameterExpression queryParam
             = Expression.Parameter(typeof(TQuery), "query");
 
         static QueryOperatorSpecificationBuilder()
         {
-            DescriptorCache[typeof(TQuery)] = new List<SpecificationDescriptor>();
+            descriptorCache[typeof(TQuery)] = new List<SpecificationDescriptor>();
             CreateDescriptorCache(typeof(TQuery));
         }
 
         public LinqSpecification<TContract> Build(TQuery query)
         {
-            if (DescriptorCache.TryGetValue(query.GetType(), out ICollection<SpecificationDescriptor>? e))
+            if (descriptorCache.TryGetValue(query.GetType(), out var e))
             {
+#pragma warning disable IDE0007
                 IEnumerable<LinqSpecification<TContract>> spec = e
                     .Select(p => CreateSpec(query, p))
                     .Where(s => s != null)!;
+#pragma warning restore IDE0007
 
                 return spec.Any() ? spec.Aggregate((a, b) => a & b) : new NullSpecification<TContract>(true);
             }
 
-            DescriptorCache[query.GetType()] = new List<SpecificationDescriptor>();
+            descriptorCache[query.GetType()] = new List<SpecificationDescriptor>();
             CreateDescriptorCache(query.GetType());
 
             return Build(query);
@@ -52,14 +54,12 @@ namespace BusinessApp.Infrastructure
             if (propertyValue == null) return null;
 
             var body = GetBody(propertyValue, e);
-            var lambda = Expression.Lambda<Func<TContract, bool>>(body, ContractParam);
+            var lambda = Expression.Lambda<Func<TContract, bool>>(body, contractParam);
             return new LinqSpecification<TContract>(lambda);
         }
 
         private static Expression GetBody(object propVal, SpecificationDescriptor e)
-        {
-            return MapQueryOperator(e.Attribute, Expression.Constant(propVal), e.ContractProp);
-        }
+            => MapQueryOperator(e.Attribute, Expression.Constant(propVal), e.ContractProp);
 
         private static void CreateDescriptorCache(Type queryType)
         {
@@ -74,7 +74,7 @@ namespace BusinessApp.Infrastructure
 
                 if (attribute.OperatorToUse == null && !seenTypes.Contains(property.PropertyType))
                 {
-                    seenTypes.Add(property.PropertyType);
+                    _ = seenTypes.Add(property.PropertyType);
 
                     var props = property.PropertyType
                         .GetProperties()
@@ -96,13 +96,13 @@ namespace BusinessApp.Infrastructure
                 {
                     var contractProp = Expression.Property(contractExp, opAttr.TargetProp);
 
-                    DescriptorCache[queryType].Add(new SpecificationDescriptor(
+                    descriptorCache[queryType].Add(new SpecificationDescriptor(
                            Expression.Lambda<Func<TQuery, object>>(
                                Expression.Condition(
                                    Expression.ReferenceEqual(queryExp, Expression.Constant(null)),
                                    Expression.Constant(null),
                                    Expression.Convert(queryProp, typeof(object))
-                               ), QueryParam
+                               ), queryParam
                            ).Compile(),
                         contractProp,
                         opAttr
@@ -114,7 +114,7 @@ namespace BusinessApp.Infrastructure
                 .GetProperties()
                 .Where(p => p.DeclaringType != null && p.IsDefined(typeof(QueryOperatorAttribute)));
 
-            foreach (var p in props) FillCache(p, QueryParam, ContractParam);
+            foreach (var p in props) FillCache(p, queryParam, contractParam);
         }
 
         private static Expression MapQueryOperator(
@@ -123,14 +123,16 @@ namespace BusinessApp.Infrastructure
             MemberExpression contractMemberExpr)
         {
             var contractProp = contractMemberExpr.Member as PropertyInfo;
-            var needToConvert =
-                (Nullable.GetUnderlyingType(contractProp!.PropertyType) != null
-                && attribute.OperatorToUse != QueryOperators.Contains);
+            var needToConvert = Nullable.GetUnderlyingType(contractProp!.PropertyType) != null
+                && attribute.OperatorToUse != QueryOperators.Contains;
+
+#pragma warning disable IDE0072
             var queryExp = needToConvert switch
             {
-                false => (Expression)queryMemberExpr,
-                true => (Expression)Expression.Convert(queryMemberExpr, contractProp.PropertyType),
+                false => queryMemberExpr,
+                true => Expression.Convert(queryMemberExpr, contractProp.PropertyType),
             };
+#pragma warning restore IDE0072
 
             switch (attribute.OperatorToUse)
             {

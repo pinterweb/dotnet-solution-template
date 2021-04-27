@@ -23,20 +23,16 @@ namespace BusinessApp.Infrastructure
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
+        public Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
             CancellationToken cancelToken)
-        {
-            return await inner.HandleAsync(request, cancelToken)
+            => inner.HandleAsync(request, cancelToken)
                 .AndThenAsync(r => TriggerAutomation(r, cancelToken));
-        }
 
-        private async Task<Result<TResponse, Exception>> TriggerAutomation(TResponse response,
+        private Task<Result<TResponse, Exception>> TriggerAutomation(TResponse response,
             CancellationToken cancelToken)
-        {
-            return await manager.HandleNextAsync(response.Events, cancelToken)
+            => manager.HandleNextAsync(response.Events, cancelToken)
                 .MapOrElseAsync(
                     e => Result.Error<TResponse>(e),
                     v => Result.Ok(response));
-        }
     }
 }

@@ -16,16 +16,14 @@ namespace BusinessApp.Infrastructure
         private readonly IEnumerable<FluentValidation.IValidator<T>> validators;
 
         public FluentValidationValidator(IEnumerable<FluentValidation.IValidator<T>> validators)
-        {
-            this.validators = validators.NotNull().Expect(nameof(validators));
-        }
+            => this.validators = validators.NotNull().Expect(nameof(validators));
 
         public async Task<Result<Unit, Exception>> ValidateAsync(T instance,
             CancellationToken cancelToken)
         {
             foreach (var validator in validators)
             {
-                var result = await validator.ValidateAsync(instance);
+                var result = await validator.ValidateAsync(instance, cancelToken);
 
                 if (!result.IsValid)
                 {
@@ -39,7 +37,7 @@ namespace BusinessApp.Infrastructure
                 }
             }
 
-            return Result.OK;
+            return Result.Ok();
         }
     }
 }

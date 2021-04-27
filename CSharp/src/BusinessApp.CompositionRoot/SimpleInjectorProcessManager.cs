@@ -28,7 +28,7 @@ namespace BusinessApp.CompositionRoot
         {
             var commands = await store.GetAllAsync();
 
-            if (!commands.Any()) return Result.Ok(Unit.New);
+            if (!commands.Any()) return Result.Ok(Unit.Value);
 
             var tasks = new List<Task<Result<Unit, Exception>>>();
 
@@ -49,13 +49,13 @@ namespace BusinessApp.CompositionRoot
                             .MakeGenericType(command.RequestType, e.GetType()))!;
 
                     mapper.Map(request, e, container);
-                    tasks.Add(handler.HandleAsync(request, cancelToken, container));
+                    tasks.Add(handler.HandleAsync(request, container, cancelToken));
                 }
             }
 
             return await Task.WhenAll(tasks)
                 .CollectAsync()
-                .MapAsync(r => Unit.New);
+                .MapAsync(r => Unit.Value);
         }
 
         private abstract class CommandMapper
@@ -69,7 +69,7 @@ namespace BusinessApp.CompositionRoot
         {
             public override void Map(object request, IDomainEvent @event, Container container)
             {
-                var mapper =  container.GetInstance<IRequestMapper<R, E>>();
+                var mapper = container.GetInstance<IRequestMapper<R, E>>();
 
                 mapper.Map((R)request, (E)@event);
             }
@@ -78,23 +78,21 @@ namespace BusinessApp.CompositionRoot
         private abstract class RequestHandler
         {
             public abstract Task<Result<Unit, Exception>> HandleAsync(object request,
-                CancellationToken cancelToken, Container container);
+                Container container, CancellationToken cancelToken);
         }
 
         private class GenericRequestHandler<T, R> : RequestHandler
             where T : notnull
         {
-            public async override Task<Result<Unit, Exception>> HandleAsync(object request,
-                CancellationToken cancelToken, Container container)
-            {
-                return await HandleAsync((T)request, cancelToken, container)
-                    .MapAsync(_ => Unit.New);
-            }
+            public override Task<Result<Unit, Exception>> HandleAsync(object request,
+                Container container, CancellationToken cancelToken)
+                => HandleAsync((T)request, container, cancelToken)
+                    .MapAsync(_ => Unit.Value);
 
-            public Task<Result<R, Exception>> HandleAsync(T request,
-                CancellationToken cancelToken, Container container)
+            public static Task<Result<R, Exception>> HandleAsync(T request,
+                Container container, CancellationToken cancelToken)
             {
-                var handler =  container.GetInstance<IRequestHandler<T, R>>();
+                var handler = container.GetInstance<IRequestHandler<T, R>>();
 
                 return handler.HandleAsync(request, cancelToken);
             }

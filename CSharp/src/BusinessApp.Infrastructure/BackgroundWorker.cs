@@ -12,21 +12,17 @@ namespace BusinessApp.Infrastructure
     public abstract class BackgroundWorker<T> : IDisposable
     {
         // it uses ConcurrentQueue<T> underneath
-        private readonly BlockingCollection<T> queue = new BlockingCollection<T>();
+        private readonly BlockingCollection<T> queue = new();
         private readonly Task worker;
         private bool disposed;
 
         public BackgroundWorker()
-        {
-            // use over Task.Run so we can specify
-            // LongRunning
-            worker = Task.Factory.StartNew(
+            => worker = Task.Factory.StartNew(
                 Dequeue,
                 CancellationToken.None,
                 TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
                 TaskScheduler.Default
             );
-        }
 
         public void Dispose()
         {
@@ -37,11 +33,16 @@ namespace BusinessApp.Infrastructure
                 queue.Dispose();
                 disposed = true;
             }
+
+            GC.SuppressFinalize(this);
         }
 
         protected void EnQueue(T t)
         {
-            if (disposed || queue.IsAddingCompleted || !queue.TryAdd(t)) OnAddFailed(t);
+            if (disposed || queue.IsAddingCompleted || !queue.TryAdd(t))
+            {
+                OnAddFailed(t);
+            }
         }
 
         protected abstract void OnAddFailed(T t);

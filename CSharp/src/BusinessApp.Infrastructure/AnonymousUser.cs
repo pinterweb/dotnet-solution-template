@@ -11,15 +11,14 @@ namespace BusinessApp.Infrastructure
         public const string Name = "Anonymous";
 
         private readonly IPrincipal inner;
-        private readonly IIdentity identity;
 
         public AnonymousUser(IPrincipal inner)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
-            identity = new AnonymousIdentity(inner.Identity);
+            Identity = new AnonymousIdentity(inner.Identity);
         }
 
-        public IIdentity Identity => identity;
+        public IIdentity Identity { get; }
 
         public bool IsInRole(string role) => inner.IsInRole(role);
 
@@ -27,10 +26,7 @@ namespace BusinessApp.Infrastructure
         {
             private readonly IIdentity? inner;
 
-            public AnonymousIdentity(IIdentity? inner)
-            {
-                this.inner = inner;
-            }
+            public AnonymousIdentity(IIdentity? inner) => this.inner = inner;
 
             public string? AuthenticationType => inner?.AuthenticationType;
             public bool IsAuthenticated => inner?.IsAuthenticated ?? false;

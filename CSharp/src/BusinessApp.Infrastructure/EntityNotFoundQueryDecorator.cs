@@ -8,34 +8,26 @@ namespace BusinessApp.Infrastructure
     /// <summary>
     /// Throws a business exception if no entity is found from the query
     /// </summary>
-    public class EntityNotFoundQueryDecorator<TQuery, TResult> : IRequestHandler<TQuery, TResult>
-        where TQuery : notnull, IQuery
+    public class EntityNotFoundQueryDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+        where TRequest : notnull, IQuery
     {
-        private readonly IRequestHandler<TQuery, TResult> decorated;
+        private readonly IRequestHandler<TRequest, TResponse> decorated;
 
-        public EntityNotFoundQueryDecorator(IRequestHandler<TQuery, TResult> decorated)
+        public EntityNotFoundQueryDecorator(IRequestHandler<TRequest, TResponse> decorated)
+            => this.decorated = decorated.NotNull().Expect(nameof(decorated));
+
+        public async Task<Result<TResponse, Exception>> HandleAsync(
+            TRequest request, CancellationToken cancelToken)
         {
-            this.decorated = decorated.NotNull().Expect(nameof(decorated));
-        }
+            var result = await decorated.HandleAsync(request, cancelToken);
 
-        public async Task<Result<TResult, Exception>> HandleAsync(
-            TQuery query, CancellationToken cancelToken)
-        {
-            var result = await decorated.HandleAsync(query, cancelToken);
-
-            return result.AndThen(val =>
-            {
-                if (val == null)
-                {
-                    return Result.Error<TResult>(new EntityNotFoundException(
+            return result.AndThen(val => val == null
+                ? Result.Error<TResponse>(new EntityNotFoundException(
                         "The data you tried to search for was not " +
                         "found based on your search critiera. Try to change your criteria " +
-                        "and search again. If the data is still not found, it may have been deleted.")
-                    );
-                }
-
-                return result;
-            });
+                        "and search again. If the data is still not found, it may have been deleted."))
+                : result
+            );
         }
     }
 }

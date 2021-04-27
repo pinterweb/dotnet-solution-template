@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.EntityFramework
@@ -17,42 +16,31 @@ namespace BusinessApp.Infrastructure.EntityFramework
     public class EFQueryFieldsVisitor<TResult> : IQueryVisitor<TResult>
         where TResult : class
     {
-        private static IEnumerable<string> Fields = typeof(TResult)
+        private static readonly IEnumerable<string> fields = typeof(TResult)
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(prop =>
                 prop.PropertyType.GetCustomAttribute<DataContractAttribute>() == null &&
                 !prop.PropertyType.IsGenericIEnumerable()
             )
             .Select(p => p.Name);
-        private static ConcurrentDictionary<
-            IEnumerable<string>,
-            Expression<Func<TResult, TResult>>
-        > ExpressionCache = new ConcurrentDictionary<
-            IEnumerable<string>,
-            Expression<Func<TResult, TResult>>>();
+        private static readonly ConcurrentDictionary<IEnumerable<string>, Expression<Func<TResult, TResult>>> expressionCache = new();
 
         private readonly IQuery query;
 
-        public EFQueryFieldsVisitor(IQuery query)
-        {
-            this.query = query.NotNull().Expect(nameof(query));
-        }
+        public EFQueryFieldsVisitor(IQuery query) => this.query = query.NotNull().Expect(nameof(query));
 
         public IQueryable<TResult> Visit(IQueryable<TResult> queryable)
         {
-            var acceptedFields = Fields.Intersect(query.Fields, StringComparer.OrdinalIgnoreCase);
+            var acceptedFields = fields.Intersect(query.Fields, StringComparer.OrdinalIgnoreCase);
 
-            if (acceptedFields.Any())
-            {
-                return QueryFields(queryable, acceptedFields);
-            }
-
-            return queryable;
+            return acceptedFields.Any()
+                ? QueryFields(queryable, acceptedFields)
+                : queryable;
         }
 
         private static IQueryable<TResult> QueryFields(IQueryable<TResult> query, IEnumerable<string> fields)
         {
-            if (ExpressionCache.TryGetValue(fields, out Expression<Func<TResult, TResult>>? selector))
+            if (expressionCache.TryGetValue(fields, out var selector))
             {
                 return query.Select(selector);
             }
@@ -63,7 +51,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
                 .Select(member => Expression.Bind(member.Member, member));
             var body = Expression.MemberInit(Expression.New(typeof(TResult)), bindings);
             selector = Expression.Lambda<Func<TResult, TResult>>(body, parameter);
-            ExpressionCache.TryAdd(fields, selector);
+            _ = expressionCache.TryAdd(fields, selector);
             return query.Select(selector);
         }
     }

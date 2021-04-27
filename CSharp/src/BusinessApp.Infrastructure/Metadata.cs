@@ -7,7 +7,7 @@ namespace BusinessApp.Infrastructure
     {
 #nullable disable
         protected Metadata()
-        {}
+        { }
 #nullable restore
 
         public Metadata(string dataSetName, MetadataId id, string username, MetadataType type)
@@ -31,18 +31,16 @@ namespace BusinessApp.Infrastructure
     {
 #nullable disable
         private Metadata()
-        {}
+        { }
 #nullable restore
 
         public Metadata(MetadataId id, string username, MetadataType type, T data)
-            :base (
+            : base(
                 data.Expect(nameof(data))
                     .ToString()
                     .Expect("data ToString() must return a value for the DataSetName"),
                 id, username, type)
-        {
-            Data = data.NotDefault().Expect(nameof(data));
-        }
+              => Data = data.NotDefault().Expect(nameof(data));
 
         public T Data { get; }
     }

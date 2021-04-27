@@ -2,15 +2,12 @@ using BusinessApp.Infrastructure;
 
 namespace BusinessApp.WebApi
 {
-    public  static class HttpPaginationExtensions
+    public static class HttpPaginationExtensions
     {
-        public static string[] ToHeaderValue(this Pagination page)
+        public static string[] ToHeaderValue(this Pagination page) => new[]
         {
-            return new[]
-            {
-                $"count={page.ItemCount}"
-            };
-        }
+            $"count={page.ItemCount}"
+        };
     }
 
 }

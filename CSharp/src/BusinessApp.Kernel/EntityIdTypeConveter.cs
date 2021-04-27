@@ -11,28 +11,25 @@ namespace BusinessApp.Kernel
     public class EntityIdTypeConverter<TId, T> : TypeConverter
         where TId : IEntityId
     {
-        private static readonly Type InnerType = typeof(T);
-        private static readonly Type IdType = typeof(TId);
-        private static readonly TypeConverter Inner;
-        private static readonly ConstructorInfo? ConvertFromCtor;
+        private static readonly Type innerType = typeof(T);
+        private static readonly Type idType = typeof(TId);
+        private static readonly TypeConverter inner;
+        private static readonly ConstructorInfo? convertFromCtor;
 
         static EntityIdTypeConverter()
         {
-            Inner = TypeDescriptor.GetConverter(typeof(T));
-            ConvertFromCtor = IdType.GetConstructor(new[] { InnerType });
+            inner = TypeDescriptor.GetConverter(typeof(T));
+            convertFromCtor = idType.GetConstructor(new[] { innerType });
         }
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            if (ConvertFromCtor == null) return false;
-
-            return InnerType == sourceType || Inner.CanConvertFrom(sourceType);
-        }
+            => convertFromCtor != null
+                && (innerType == sourceType || inner.CanConvertFrom(sourceType));
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture,
             object value)
         {
-            if (ConvertFromCtor == null)
+            if (convertFromCtor == null)
             {
                 var sourceTypeName = value.GetType();
 
@@ -43,30 +40,30 @@ namespace BusinessApp.Kernel
 
             if (value is T)
             {
-                return ConvertFromCtor.Invoke(new object[] { value });
+                return convertFromCtor.Invoke(new object[] { value });
             }
 
-            var innerValue = Inner.ConvertFrom(context, culture, value);
+            var innerValue = inner.ConvertFrom(context, culture, value);
 
-            return ConvertFromCtor.Invoke(new object[] { innerValue });
+            return convertFromCtor.Invoke(new object[] { innerValue });
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            => InnerType == destinationType || Inner.CanConvertTo(context, destinationType);
+            => innerType == destinationType || inner.CanConvertTo(context, destinationType);
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture,
             object value, Type destinationType)
         {
-            if (!(value is TId))
+            if (value is not TId)
             {
-                throw new FormatException($"Source value must be '{IdType.Name}'");
+                throw new FormatException($"Source value must be '{idType.Name}'");
             }
 
-            var innerValue = Convert.ChangeType(value, InnerType);
+            var innerValue = Convert.ChangeType(value, innerType, CultureInfo.CurrentCulture);
 
-            if (InnerType == destinationType) return innerValue;
-
-            return Inner.ConvertTo(context, culture, innerValue, destinationType);
+            return innerType == destinationType
+                ? innerValue
+                : inner.ConvertTo(context, culture, innerValue, destinationType);
         }
     }
 }

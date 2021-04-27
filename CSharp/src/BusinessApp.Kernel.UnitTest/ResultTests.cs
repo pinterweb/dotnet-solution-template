@@ -13,9 +13,9 @@ namespace BusinessApp.Kernel.UnitTest
             public void NewUnitReturned()
             {
                 /* Act */
-                var result = Result.OK;
+                var result = Result.Ok();
                 /* Assert */
-                Assert.Equal(Result<Unit, Exception>.Ok(Unit.New), result);
+                Assert.Equal(Result<Unit, Exception>.Ok(Unit.Value), result);
             }
         }
 

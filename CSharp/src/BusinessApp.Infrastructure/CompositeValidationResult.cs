@@ -9,12 +9,10 @@ namespace BusinessApp.Infrastructure
     {
         public CompositeValidationResult(string instanceName, string errorMessage, IEnumerable<ValidationResult> results)
             : base(errorMessage, results.SelectMany(r => r.MemberNames).Select(m => instanceName != null ? $"{instanceName}.{m}" : m))
-        {
-            this.Results = results;
-        }
+                => Results = results;
 
         public IEnumerable<ValidationResult> Results { get; }
-        public IEnumerator<ValidationResult> GetEnumerator() => this.Results.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        public IEnumerator<ValidationResult> GetEnumerator() => Results.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

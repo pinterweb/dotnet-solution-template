@@ -21,9 +21,7 @@ namespace BusinessApp.Infrastructure
         /// when the property is a nested class that has operations itself
         /// </summary>
         public QueryOperatorAttribute(string targetProp)
-        {
-            TargetProp = targetProp.NotEmpty().Expect(nameof(targetProp));
-        }
+            => TargetProp = targetProp.NotEmpty().Expect(nameof(targetProp));
 
         public string? OperatorToUse { get; }
         public string TargetProp { get; }

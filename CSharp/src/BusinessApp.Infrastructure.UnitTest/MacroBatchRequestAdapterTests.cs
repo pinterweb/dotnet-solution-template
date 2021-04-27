@@ -60,17 +60,17 @@ namespace BusinessApp.Infrastructure.UnitTest
         public class HandleAsync : MacroBatchRequestAdapterTests
         {
             [Fact]
-            public async Task NoReturnedPayloadsFromMacro_ExceptionThrown()
+            public async Task NoReturnedPayloadsFromMacro_ErrorResultReturned()
             {
                 /* Arrange */
                 var macro = A.Dummy<CommandMacro>();
                 A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(new CommandStub[0]);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, cancelToken));
+                var result = await sut.HandleAsync(macro, cancelToken);
 
                 /* Assert */
-                Assert.IsType<BusinessAppException>(ex);
+                var ex = Assert.IsType<BusinessAppException>(result.UnwrapError());
                 Assert.Equal(
                     "The macro you ran expected to find records to change, but none were " +
                     "found",
@@ -87,7 +87,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 A.CallTo(() => expander.ExpandAsync(macro, cancelToken)).Returns(commands);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(macro, cancelToken));
+                _ = await sut.HandleAsync(macro, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => inner.HandleAsync(commands, cancelToken)).MustHaveHappenedOnceExactly();

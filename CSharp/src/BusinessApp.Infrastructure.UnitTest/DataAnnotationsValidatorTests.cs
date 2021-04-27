@@ -77,7 +77,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var result = await sut.ValidateAsync(instance, cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.OK, result);
+                Assert.Equal(Result.Ok(), result);
             }
 
             [Fact]

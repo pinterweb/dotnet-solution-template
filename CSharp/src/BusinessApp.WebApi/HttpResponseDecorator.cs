@@ -8,14 +8,14 @@ using System.Threading;
 
 namespace BusinessApp.WebApi
 {
-    public class HttpResponseDecorator<T, R> : IHttpRequestHandler<T, R>
-        where T : notnull
+    public class HttpResponseDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+        where TRequest : notnull
     {
-        private readonly IHttpRequestHandler<T, R> inner;
+        private readonly IHttpRequestHandler<TRequest, TResponse> inner;
         private readonly IProblemDetailFactory problemFactory;
         private readonly ISerializer serializer;
 
-        public HttpResponseDecorator(IHttpRequestHandler<T, R> inner,
+        public HttpResponseDecorator(IHttpRequestHandler<TRequest, TResponse> inner,
             IProblemDetailFactory problemFactory,
             ISerializer serializer)
         {
@@ -24,7 +24,7 @@ namespace BusinessApp.WebApi
             this.inner = inner.NotNull().Expect(nameof(inner));
         }
 
-        public async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(HttpContext context,
+        public async Task<Result<HandlerContext<TRequest, TResponse>, Exception>> HandleAsync(HttpContext context,
             CancellationToken cancelToken)
         {
             var result = await inner.HandleAsync(context, cancelToken);
@@ -37,13 +37,13 @@ namespace BusinessApp.WebApi
 
                 context.Response.StatusCode = problem.StatusCode;
 
-                await WriteResponse(context, cancelToken, problem);
+                await WriteResponse(context, problem, cancelToken);
             }
             else if (canWrite)
             {
                 var model = result.Unwrap().Response;
 
-                await WriteResponse(context, cancelToken, model);
+                await WriteResponse(context, model, cancelToken);
             }
 
             return result;
@@ -58,14 +58,14 @@ namespace BusinessApp.WebApi
         {
             if (context.Response.HasStarted)
             {
-                throw new BusinessAppWebApiException("The response has already started outside " +
+                throw new BusinessAppException("The response has already started outside " +
                     "the expected write decorator. You cannot write it more than once.");
             }
 
             if (
                 context.Response.StatusCode == 200 &&
-                (string.Compare(context.Request.Method, "put", true) == 0 ||
-                string.Compare(context.Request.Method, "delete", true) == 0)
+                (string.Compare(context.Request.Method, "put", StringComparison.OrdinalIgnoreCase) == 0 ||
+                string.Compare(context.Request.Method, "delete", StringComparison.OrdinalIgnoreCase) == 0)
             )
             {
                 context.Response.StatusCode = StatusCodes.Status204NoContent;
@@ -75,12 +75,9 @@ namespace BusinessApp.WebApi
             return true;
         }
 
-        private async Task WriteResponse<M>(HttpContext context, CancellationToken cancelToken,
-            M model)
-        {
-            await context.Response.BodyWriter.WriteAsync(
+        private async Task WriteResponse<TModel>(HttpContext context, TModel model,
+            CancellationToken cancelToken) => await context.Response.BodyWriter.WriteAsync(
                 serializer.Serialize(model),
                 cancelToken);
-        }
     }
 }

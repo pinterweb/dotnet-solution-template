@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApp.Infrastructure.EntityFramework
@@ -16,7 +15,8 @@ namespace BusinessApp.Infrastructure.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(BusinessAppDbContext).Assembly);
+            _ = modelBuilder
+                .ApplyConfigurationsFromAssembly(typeof(BusinessAppDbContext).Assembly);
 
             base.OnModelCreating(modelBuilder);
         }

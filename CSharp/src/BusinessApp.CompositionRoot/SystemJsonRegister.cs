@@ -10,10 +10,7 @@ namespace BusinessApp.CompositionRoot
     {
         private readonly IBootstrapRegister inner;
 
-        public SystemJsonRegister(IBootstrapRegister inner)
-        {
-            this.inner = inner;
-        }
+        public SystemJsonRegister(IBootstrapRegister inner) => this.inner = inner;
 
         public void Register(RegistrationContext context)
         {

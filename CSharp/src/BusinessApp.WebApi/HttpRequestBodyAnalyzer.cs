@@ -16,25 +16,22 @@ namespace BusinessApp.WebApi
             this.analyzer = analyzer.NotNull().Expect(nameof(analyzer));
         }
 
-        public async Task HandleAsync<T, R>(HttpContext context) where T : notnull
+        public async Task HandleAsync<TRequest, TResponse>(HttpContext context) where TRequest : notnull
         {
             var payloadType = await Analyze(context.Request);
 
             if (payloadType == HttpRequestPayloadType.Array)
             {
-                await inner.HandleAsync<IEnumerable<T>, IEnumerable<R>>(context);
+                await inner.HandleAsync<IEnumerable<TRequest>, IEnumerable<TResponse>>(context);
             }
             else
             {
-                await inner.HandleAsync<T, R>(context);
+                await inner.HandleAsync<TRequest, TResponse>(context);
             }
         }
 
-        public Task<HttpRequestPayloadType> Analyze(HttpRequest request)
-        {
-            if (!request.IsCommand()) return Task.FromResult(HttpRequestPayloadType.Unknown);
-
-            return analyzer.GetBodyTypeAsync(request);
-        }
+        public Task<HttpRequestPayloadType> Analyze(HttpRequest request) => !request.IsCommand()
+            ? Task.FromResult(HttpRequestPayloadType.Unknown)
+            : analyzer.GetBodyTypeAsync(request);
     }
 }

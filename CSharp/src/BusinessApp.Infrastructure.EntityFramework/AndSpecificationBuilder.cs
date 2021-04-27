@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using BusinessApp.Kernel;
-using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
@@ -15,9 +14,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
         private readonly IEnumerable<ILinqSpecificationBuilder<TQuery, TResult>> builders;
 
         public AndSpecificationBuilder(IEnumerable<ILinqSpecificationBuilder<TQuery, TResult>> builders)
-        {
-            this.builders = builders.NotNull().Expect(nameof(builders));
-        }
+            => this.builders = builders.NotNull().Expect(nameof(builders));
 
         public LinqSpecification<TResult> Build(TQuery query)
         {
@@ -28,19 +25,12 @@ namespace BusinessApp.Infrastructure.EntityFramework
                 allSpecs.Add(builder.Build(query));
             }
 
-            if (allSpecs.Any())
-            {
-                return allSpecs.Aggregate((current, next) => current & next);
-            }
-
-            return new NullSpecification<TResult>(true);
+            return allSpecs.Any()
+                ? allSpecs.Aggregate((current, next) => current & next)
+                : new NullSpecification<TResult>(true);
         }
 
         public IQueryVisitor<TResult> Create(TQuery query)
-        {
-            return new LinqSpecificationQueryVisitor<TResult>(
-                Build(query)
-            );
-        }
+            => new LinqSpecificationQueryVisitor<TResult>(Build(query));
     }
 }

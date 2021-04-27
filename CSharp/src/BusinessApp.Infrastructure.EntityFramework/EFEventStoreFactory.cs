@@ -1,5 +1,4 @@
 using System.Security.Principal;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.EntityFramework
@@ -18,15 +17,15 @@ namespace BusinessApp.Infrastructure.EntityFramework
             this.user = user.NotNull().Expect(nameof(user));
         }
 
-        public IEventStore Create<T>(T trigger) where T : class
+        public IEventStore Create<T>(T eventTrigger) where T : class
         {
             var id = idFactory.Create();
             var metadata = new Metadata<T>(id,
                 user.Identity?.Name ?? AnonymousUser.Name,
                 MetadataType.EventTrigger,
-                trigger);
+                eventTrigger);
 
-            db.Add(metadata);
+            _ = db.Add(metadata);
 
             return new EFEventStore(id, db, idFactory);
         }
@@ -47,12 +46,12 @@ namespace BusinessApp.Infrastructure.EntityFramework
 
             public EventTrackingId Add<T>(T @event) where T : notnull, IDomainEvent
             {
-                var eventId =  idFactory.Create();
+                var eventId = idFactory.Create();
                 var id = new EventTrackingId(eventId, correlationId);
 
-                var metadata =  new EventMetadata<T>(id, @event);
+                var metadata = new EventMetadata<T>(id, @event);
 
-                db.Add(metadata);
+                _ = db.Add(metadata);
 
                 return id;
             }

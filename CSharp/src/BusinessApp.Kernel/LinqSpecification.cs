@@ -9,9 +9,7 @@ namespace BusinessApp.Kernel
     public class LinqSpecification<T> : ISpecification<T>
     {
         public LinqSpecification(Expression<Func<T, bool>> expression)
-        {
-            Predicate = expression.NotNull().Expect(nameof(expression));
-        }
+            => Predicate = expression.NotNull().Expect(nameof(expression));
 
         public virtual Expression<Func<T, bool>> Predicate { get; protected set; }
 
@@ -45,12 +43,10 @@ namespace BusinessApp.Kernel
                 this.to = to;
             }
 
+            // XXX node cannot be null because this is private class and we
+            // know what we are passing
             public override Expression Visit(Expression? node)
-            {
-                // XXX node cannot be null because this is private class and we
-                // know what we are passing
-                return node == from ? to : base.Visit(node)!;
-            }
+                => node == from ? to : base.Visit(node)!;
         }
     }
 }

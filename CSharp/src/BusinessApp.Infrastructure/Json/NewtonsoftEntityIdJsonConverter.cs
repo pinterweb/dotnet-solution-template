@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using BusinessApp.Kernel;
+using System.Globalization;
 
 namespace BusinessApp.Infrastructure.Json
 {
@@ -10,7 +11,7 @@ namespace BusinessApp.Infrastructure.Json
     /// </summary>
     public class NewtonsoftEntityIdJsonConverter : JsonConverter
     {
-        private static readonly string ErrTemplate = "Cannot read value for '{0}' because the type is incorrect";
+        private static readonly string errTemplate = "Cannot read value for '{0}' because the type is incorrect";
 
         public override bool CanConvert(Type objectType) =>
             typeof(IEntityId).IsAssignableFrom(objectType) ||
@@ -25,7 +26,7 @@ namespace BusinessApp.Infrastructure.Json
 
             try
             {
-                if (CanTryToConvertNumber(reader, converter, out Type? typeToConvertTo))
+                if (CanTryToConvertNumber(reader, converter, out var typeToConvertTo))
                 {
                     var longConverter = TypeDescriptor.GetConverter(typeof(long));
 
@@ -33,24 +34,24 @@ namespace BusinessApp.Infrastructure.Json
                         longConverter.ConvertTo(reader.Value, typeToConvertTo));
                 }
                 if (converter.CanConvertTo(reader.ValueType)
-                    || CanTryToConvertNumber(reader, converter, out Type _))
+                    || CanTryToConvertNumber(reader, converter, out var _))
                 {
-                        return converter.ConvertFrom(reader.Value);
+                    return converter.ConvertFrom(reader.Value);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-                throw new FormatException(string.Format(ErrTemplate, reader.Path), e);
+                throw new FormatException(string.Format(CultureInfo.InvariantCulture, errTemplate, reader.Path), e);
             }
 
-            throw new FormatException(string.Format(ErrTemplate, reader.Path));
+            throw new FormatException(string.Format(CultureInfo.InvariantCulture, errTemplate, reader.Path));
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value is IEntityId id)
             {
-                var innerValue = Convert.ChangeType(id, id.GetTypeCode());
+                var innerValue = Convert.ChangeType(id, id.GetTypeCode(), CultureInfo.CurrentCulture);
 
                 serializer.Serialize(writer, innerValue);
             }

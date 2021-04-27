@@ -10,11 +10,11 @@ namespace BusinessApp.WebApi.Json
         {
             var bodyReader = request.BodyReader;
             var result = await bodyReader.ReadAsync();
-            var firstBit = System.Text.Encoding.UTF8.GetString(result.Buffer.Slice(0,1).ToArray())[0];
+            var firstBit = System.Text.Encoding.UTF8.GetString(result.Buffer.Slice(0, 1).ToArray())[0];
 
             bodyReader.RewindTo(result.Buffer);
 
-            return firstBit == '[' ? HttpRequestPayloadType.Array : HttpRequestPayloadType.Object;
+            return firstBit == '[' ? HttpRequestPayloadType.Array : HttpRequestPayloadType.SingleObject;
         }
     }
 }

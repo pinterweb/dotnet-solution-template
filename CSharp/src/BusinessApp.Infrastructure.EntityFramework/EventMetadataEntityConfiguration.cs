@@ -1,8 +1,8 @@
 using BusinessApp.Kernel;
-using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#pragma warning disable IDE0058
 namespace BusinessApp.Infrastructure.EntityFramework
 {
     public abstract class EventMetadataEntityConfiguration<T> :
@@ -50,3 +50,4 @@ namespace BusinessApp.Infrastructure.EntityFramework
         protected abstract void ConfigureEvent(OwnedNavigationBuilder<EventMetadata<T>, T> builder);
     }
 }
+#pragma warning restore IDE0058

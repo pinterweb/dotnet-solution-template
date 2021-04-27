@@ -12,7 +12,7 @@ namespace BusinessApp.WebApi.ProblemDetails
 {
     public static partial class ProblemDetailOptionBootstrap
     {
-        public static HashSet<ProblemDetailOptions> KnownProblems = new HashSet<ProblemDetailOptions>
+        public static HashSet<ProblemDetailOptions> KnownProblems = new()
         {
             new ProblemDetailOptions(typeof(ActivationException), StatusCodes.Status404NotFound)
             {

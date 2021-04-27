@@ -7,14 +7,12 @@ namespace BusinessApp.Infrastructure
     {
 #nullable disable
         protected EventMetadata()
-        {}
+        { }
 #nullable restore
 
         public EventMetadata(EventTrackingId id, IDomainEvent e)
         {
-            id.NotNull().Expect(nameof(id));
-
-            Id = id.Id;
+            Id = id.NotNull().Expect(nameof(id)).Id;
             CorrelationId = id.CorrelationId;
             CausationId = id.CausationId;
             EventName = e.NotNull().Expect(nameof(e))
@@ -38,16 +36,11 @@ namespace BusinessApp.Infrastructure
     {
 #nullable disable
         private EventMetadata()
-        {}
+        { }
 #nullable restore
 
         public EventMetadata(EventTrackingId id, T e)
-            : base(id, e)
-        {
-            id.NotNull().Expect(nameof(id));
-
-            Event = e.NotNull().Expect(nameof(e));
-        }
+            : base(id, e) => Event = e.NotNull().Expect(nameof(e));
 
         public T Event { get; set; }
     }

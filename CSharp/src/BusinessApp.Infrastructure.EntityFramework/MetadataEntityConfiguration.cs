@@ -1,8 +1,8 @@
 using BusinessApp.Kernel;
-using BusinessApp.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#pragma warning disable IDE0058
 namespace BusinessApp.Infrastructure.EntityFramework
 {
     public class MetadataEntityConfiguration : IEntityTypeConfiguration<Metadata>
@@ -51,3 +51,4 @@ namespace BusinessApp.Infrastructure.EntityFramework
         }
     }
 }
+#pragma warning restore IDE0058

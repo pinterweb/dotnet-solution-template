@@ -6,23 +6,16 @@ namespace BusinessApp.CompositionRoot
 {
     public static class RegisterExtensions
     {
-        public static bool IsQueryType(this Type type)
-        {
-            return typeof(IQuery).IsAssignableFrom(type);
-        }
+        public static bool IsQueryType(this Type type) => typeof(IQuery).IsAssignableFrom(type);
 
         public static bool IsMacro(this Type type)
-        {
-            return type
+            => type
                 .GetInterfaces()
                 .Any(i => i.IsGenericType
                     && i.GetGenericTypeDefinition() == typeof(IMacro<>));
-        }
 
         public static bool IsTypeDefinition(this Type actual, Type test)
-        {
-            return actual.IsGenericType
+            => actual.IsGenericType
                 && actual.GetGenericTypeDefinition() == test;
-        }
     }
 }

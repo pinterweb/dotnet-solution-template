@@ -4,8 +4,8 @@ namespace BusinessApp.Infrastructure.EntityFramework
         where TQuery : notnull
         where TResult : class
     {
-        private static readonly NullDbSetVisitor<TResult> Visitor = new NullDbSetVisitor<TResult>();
+        private static readonly NullDbSetVisitor<TResult> visitor = new();
 
-        public IDbSetVisitor<TResult> Create(TQuery query) => Visitor;
+        public IDbSetVisitor<TResult> Create(TQuery query) => visitor;
     }
 }

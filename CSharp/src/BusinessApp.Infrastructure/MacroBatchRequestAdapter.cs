@@ -22,20 +22,16 @@ namespace BusinessApp.Infrastructure
             this.handler = handler.NotNull().Expect(nameof(handler));
         }
 
-        public async Task<Result<TResponse, Exception>> HandleAsync(TMacro macro,
+        public async Task<Result<TResponse, Exception>> HandleAsync(TMacro request,
             CancellationToken cancelToken)
         {
-            var payloads = await expander.ExpandAsync(macro, cancelToken);
+            var payloads = await expander.ExpandAsync(request, cancelToken);
 
-            if (!payloads.Any())
-            {
-                throw new BusinessAppException(
+            return !payloads.Any()
+                ? Result.Error<TResponse>(new BusinessAppException(
                     "The macro you ran expected to find records to change, but none were " +
-                    "found"
-                );
-            }
-
-            return await handler.HandleAsync(payloads, cancelToken);
+                    "found"))
+                : await handler.HandleAsync(payloads, cancelToken);
         }
     }
 }

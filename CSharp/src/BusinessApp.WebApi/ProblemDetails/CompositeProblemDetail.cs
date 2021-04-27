@@ -13,7 +13,7 @@ namespace BusinessApp.WebApi.ProblemDetails
         {
             Responses = problems.NotEmpty().Expect(nameof(problems));
 
-           this[nameof(Responses)]  = Responses;
+            this[nameof(Responses)] = Responses;
         }
 
         /// <summary>
@@ -22,6 +22,6 @@ namespace BusinessApp.WebApi.ProblemDetails
         public IEnumerable<ProblemDetail> Responses { get; }
 
         IEnumerator<ProblemDetail> IEnumerable<ProblemDetail>.GetEnumerator() => Responses.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

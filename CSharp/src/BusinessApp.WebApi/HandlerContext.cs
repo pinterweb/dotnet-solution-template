@@ -2,24 +2,22 @@
 
 namespace BusinessApp.WebApi
 {
-    public class HandlerContext<T, R>
+    public class HandlerContext<TRequest, TResponse>
     {
-        public HandlerContext(T request, R response)
+        public HandlerContext(TRequest request, TResponse response)
         {
             Request = request;
             Response = response;
         }
 
-        public T Request { get; }
-        public R Response { get; }
+        public TRequest Request { get; }
+        public TResponse Response { get; }
     }
 
     [DebuggerStepThrough]
     public class HandlerContext
     {
-        public static HandlerContext<T, R> Create<T, R>(T request, R response)
-        {
-            return new HandlerContext<T, R>(request, response);
-        }
+        public static HandlerContext<TRequest, TResponse> Create<TRequest, TResponse>(TRequest request, TResponse response)
+            => new(request, response);
     }
 }

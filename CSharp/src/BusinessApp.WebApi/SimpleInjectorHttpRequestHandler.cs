@@ -10,14 +10,10 @@ namespace BusinessApp.WebApi
         private readonly Container container;
 
         public SimpleInjectorHttpRequestHandler(Container container)
-        {
-            this.container = container.NotNull().Expect(nameof(container));
-        }
+            => this.container = container.NotNull().Expect(nameof(container));
 
-        public Task HandleAsync<T, R>(HttpContext context) where T : notnull
-        {
-            return container.GetInstance<IHttpRequestHandler<T, R>>()
+        public Task HandleAsync<TRequest, TResponse>(HttpContext context) where TRequest : notnull
+            => container.GetInstance<IHttpRequestHandler<TRequest, TResponse>>()
                 .HandleAsync(context, default);
-        }
     }
 }

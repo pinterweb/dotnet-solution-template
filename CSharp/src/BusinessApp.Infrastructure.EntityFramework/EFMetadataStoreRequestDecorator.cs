@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using BusinessApp.Kernel;
-using BusinessApp.Infrastructure;
 using System.Security.Principal;
 
 namespace BusinessApp.Infrastructure.EntityFramework
@@ -37,7 +36,7 @@ namespace BusinessApp.Infrastructure.EntityFramework
                 MetadataType.Request,
                 request);
 
-            db.Add(metadata);
+            _ = db.Add(metadata);
 
             return inner.HandleAsync(request, cancelToken);
         }

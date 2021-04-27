@@ -122,7 +122,7 @@ namespace BusinessApp.WebApi.FunctionalTest
             {
                 container.RegisterInstance(notifier);
                 container.RegisterDecorator(
-                    typeof(IEventHandler<Delete.Event>),
+                    typeof(IEventHandler<Delete.WebDomainEvent>),
                     typeof(EventDecorator));
                 container.RegisterInstance(GetEmptyLinks<Delete.Query, Delete.Response>());
                 container.RegisterInstance(GetEventLinks<Delete.Query>());
@@ -135,7 +135,7 @@ namespace BusinessApp.WebApi.FunctionalTest
                 "application/json");
             // each handler will fire twice since events are chained
             var expectedCalls = testContainer
-                .GetAllInstances<IEventHandler<Delete.Event>>()
+                .GetAllInstances<IEventHandler<Delete.WebDomainEvent>>()
                 .Count() * 2;
 
             // When
@@ -151,22 +151,22 @@ namespace BusinessApp.WebApi.FunctionalTest
         /// <summary>
         /// Test that are events are firing correctly;
         /// </summary>
-        public class EventDecorator : IEventHandler<Delete.Event>
+        public class EventDecorator : IEventHandler<Delete.WebDomainEvent>
         {
-            private readonly IEventHandler<Delete.Event> inner;
+            private readonly IEventHandler<Delete.WebDomainEvent> inner;
             private readonly ITestNotifier tester;
 
-            public EventDecorator(ITestNotifier tester, IEventHandler<Delete.Event> inner)
+            public EventDecorator(ITestNotifier tester, IEventHandler<Delete.WebDomainEvent> inner)
             {
                 this.inner = inner;
                 this.tester = tester;
             }
 
             public Task<Result<IEnumerable<IDomainEvent>, System.Exception>> HandleAsync(
-                Delete.Event @event, CancellationToken cancelToken)
+                Delete.WebDomainEvent e, CancellationToken cancelToken)
             {
                 tester.Notify();
-                return inner.HandleAsync(@event, cancelToken);
+                return inner.HandleAsync(e, cancelToken);
             }
         }
 

@@ -64,7 +64,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             public async Task NotValidContent_ResultErrorReturned(string method)
             {
                 /* Arrange */
-                var error = new BusinessAppWebApiException(
+                var error = new BusinessAppException(
                     "Expected content-type to be application/json");
                 A.CallTo(() => context.Request.ContentType).Returns("text");
                 A.CallTo(() => context.Request.Method).Returns(method);

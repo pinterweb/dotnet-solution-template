@@ -4,6 +4,6 @@ namespace BusinessApp.WebApi.ProblemDetails
 {
     public interface IProblemDetailFactory
     {
-        ProblemDetail Create(Exception error);
+        ProblemDetail Create(Exception exception);
     }
 }

@@ -39,13 +39,10 @@ namespace BusinessApp.Infrastructure
                 outcomeTracking = new ConcurrentDictionary<IDomainEvent, EventTrackingId>();
             }
 
-            public async Task<Result<IEnumerable<IDomainEvent>, Exception>> PublishAsync<T>(
-                T @event, CancellationToken cancelToken)
-                where T : IDomainEvent
-            {
-                return await inner.PublishAsync(@event, cancelToken)
+            public Task<Result<IEnumerable<IDomainEvent>, Exception>> PublishAsync<T>(
+                T @event, CancellationToken cancelToken) where T : IDomainEvent
+                => inner.PublishAsync(@event, cancelToken)
                     .AndThenAsync(o => TrackOutcomes(@event, o));
-            }
 
             /// <summary>
             /// Add the current event to the store and track unpublished events
@@ -57,7 +54,7 @@ namespace BusinessApp.Infrastructure
             {
                 var publishedTrackingId = store.Add(published);
 
-                if (outcomeTracking.TryGetValue(published, out EventTrackingId? causedById))
+                if (outcomeTracking.TryGetValue(published, out var causedById))
                 {
                     publishedTrackingId.CausationId = causedById.Id;
                 }

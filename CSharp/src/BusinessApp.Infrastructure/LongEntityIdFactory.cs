@@ -9,18 +9,12 @@ namespace BusinessApp.Infrastructure
     /// </summary>
     public class LongEntityIdFactory<T> : IEntityIdFactory<T> where T : IEntityId
     {
-        private static string ErrorMsg = $"{typeof(T).Name} must be able to convert from an Int64";
-        private static TypeConverter Converter = TypeDescriptor.GetConverter(typeof(T));
-        private static IdGenerator generator = new IdGenerator(0);
+        private static readonly string errorMsg = $"{typeof(T).Name} must be able to convert from an Int64";
+        private static readonly TypeConverter converter = TypeDescriptor.GetConverter(typeof(T));
+        private static readonly IdGenerator generator = new(0);
 
-        public T Create()
-        {
-            if (Converter.CanConvertFrom(typeof(long)))
-            {
-                return (T)Converter.ConvertFrom(generator.CreateId());
-            }
-
-            throw new BusinessAppException(ErrorMsg);
-        }
+        public T Create() => converter.CanConvertFrom(typeof(long))
+            ? (T)converter.ConvertFrom(generator.CreateId())
+            : throw new BusinessAppException(errorMsg);
     }
 }

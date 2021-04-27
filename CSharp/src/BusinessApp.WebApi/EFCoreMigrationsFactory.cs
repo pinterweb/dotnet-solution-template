@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using SimpleInjector;
 
 namespace BusinessApp.WebApi
- {
+{
     public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
     {
         public BusinessAppDbContext CreateDbContext(string[] args)
@@ -37,4 +37,4 @@ namespace BusinessApp.WebApi
             return new BusinessAppDbContext(optionsBuilder.Options);
         }
     }
- }
+}

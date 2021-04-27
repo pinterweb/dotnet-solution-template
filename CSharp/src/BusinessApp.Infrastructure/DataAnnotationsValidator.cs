@@ -49,7 +49,7 @@ namespace BusinessApp.Infrastructure
                 );
             }
 
-            return Task.FromResult(Result.OK);
+            return Task.FromResult(Result.Ok());
         }
     }
 }

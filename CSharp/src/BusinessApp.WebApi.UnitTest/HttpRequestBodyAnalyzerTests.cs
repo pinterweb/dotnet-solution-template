@@ -105,7 +105,7 @@ namespace BusinessApp.WebApi.UnitTest
                 /* Arrange */
                 A.CallTo(() => context.Request.Method).Returns(method);
                 A.CallTo(() => analyzer.GetBodyTypeAsync(context.Request))
-                    .Returns(HttpRequestPayloadType.Object);
+                    .Returns(HttpRequestPayloadType.SingleObject);
 
                 /* Act */
                 await sut.HandleAsync<RequestStub, ResponseStub>(context);

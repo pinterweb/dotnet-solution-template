@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Globalization;
 
 namespace BusinessApp.Infrastructure.Json
 {
@@ -13,11 +14,9 @@ namespace BusinessApp.Infrastructure.Json
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue,
             JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null) return null;
-
-            return Convert.ToInt64(reader.Value);
-        }
+            => reader.TokenType == JsonToken.Null
+                ? null
+                : Convert.ToInt64(reader.Value, CultureInfo.InvariantCulture);
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {

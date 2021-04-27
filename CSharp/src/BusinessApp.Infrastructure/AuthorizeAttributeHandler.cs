@@ -12,39 +12,34 @@ namespace BusinessApp.Infrastructure
     public class AuthorizeAttributeHandler<T> : IAuthorizer<T>
         where T : notnull
     {
-        private AuthorizeAttribute? Attribute = GetAttribute(typeof(T));
+        private AuthorizeAttribute? authAttribute = GetAttribute(typeof(T));
 
         private readonly IPrincipal currentUser;
 
         public AuthorizeAttributeHandler(IPrincipal currentUser)
-        {
-            this.currentUser = currentUser.NotNull().Expect(nameof(currentUser));
-        }
+            => this.currentUser = currentUser.NotNull().Expect(nameof(currentUser));
 
         public bool AuthorizeObject(T instance)
         {
-            if (Attribute == null)
+            if (authAttribute == null)
             {
                 // for child classes of {T}
-                Attribute = GetAttribute(instance.GetType());
+                authAttribute = GetAttribute(instance.GetType());
 
-                if (Attribute != null) return AuthorizeObject(instance);
+                if (authAttribute != null) return AuthorizeObject(instance);
             }
             else
             {
-                var allowedRoleCount = Attribute.Roles.Count();
+                var allowedRoleCount = authAttribute.Roles.Count();
 
                 return allowedRoleCount == 0
-                    ? true
-                    : Attribute.Roles.Any(a => currentUser.IsInRole(a));
+                    || authAttribute.Roles.Any(a => currentUser.IsInRole(a));
             }
 
             return true;
         }
 
         private static AuthorizeAttribute? GetAttribute(Type commandType)
-        {
-            return commandType.GetTypeInfo().GetCustomAttribute<AuthorizeAttribute>();
-        }
+            => commandType.GetTypeInfo().GetCustomAttribute<AuthorizeAttribute>();
     }
 }

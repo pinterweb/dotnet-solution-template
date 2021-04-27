@@ -6,10 +6,7 @@ namespace BusinessApp.Infrastructure
     public static class TypeExtensions
     {
         public static bool IsGenericIEnumerable(this Type type)
-        {
-            if (!type.IsConstructedGenericType) return false;
-
-            return type.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-        }
+            => type.IsConstructedGenericType
+                && type.GetGenericTypeDefinition() == typeof(IEnumerable<>);
     }
 }

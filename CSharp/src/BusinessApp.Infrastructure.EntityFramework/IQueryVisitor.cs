@@ -7,6 +7,6 @@ namespace BusinessApp.Infrastructure.EntityFramework
     /// </summary>
     public interface IQueryVisitor<T>
     {
-        IQueryable<T> Visit(IQueryable<T> query);
+        IQueryable<T> Visit(IQueryable<T> queryable);
     }
 }

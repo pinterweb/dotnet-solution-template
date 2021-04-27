@@ -7,7 +7,9 @@ namespace BusinessApp.Kernel
     /// </summary>
     public readonly struct Unit : IEquatable<Unit>, IComparable<Unit>, IComparable
     {
-        public static Unit New => default;
+        private static readonly Unit unit;
+
+        public static ref readonly Unit Value => ref unit;
 
         public int CompareTo(Unit other) => 0;
         public int CompareTo(object? obj) => 0;
@@ -15,7 +17,11 @@ namespace BusinessApp.Kernel
         public override bool Equals(object? obj) => obj is Unit;
         public override int GetHashCode() => 0;
         public override string ToString() => "()";
-        public static bool operator ==(Unit first, Unit second) => true;
-        public static bool operator !=(Unit first, Unit second) => false;
+        public static bool operator ==(Unit left, Unit right) => left.Equals(right);
+        public static bool operator !=(Unit left, Unit right) => !(left == right);
+        public static bool operator <(Unit left, Unit right) => left.CompareTo(right) < 0;
+        public static bool operator <=(Unit left, Unit right) => left.CompareTo(right) <= 0;
+        public static bool operator >(Unit left, Unit right) => left.CompareTo(right) > 0;
+        public static bool operator >=(Unit left, Unit right) => left.CompareTo(right) >= 0;
     }
 }

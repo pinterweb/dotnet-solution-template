@@ -5,8 +5,6 @@ namespace BusinessApp.WebApi
     public static class HttpResponseExtensions
     {
         public static bool IsSuccess(this HttpResponse response)
-        {
-            return response.StatusCode >= 200 && response.StatusCode <= 299;
-        }
+            => response.StatusCode is >= 200 and <= 299;
     }
 }

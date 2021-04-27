@@ -54,8 +54,8 @@ namespace BusinessApp.CompositionRoot
 
             foreach (var type in bootstrapDecorators)
             {
-                container.RegisterDecorator(typeof(IBootstrapRegister),type);
+                container.RegisterDecorator(typeof(IBootstrapRegister), type);
             }
         }
     }
- }
+}

@@ -11,10 +11,8 @@ namespace BusinessApp.Infrastructure.EntityFramework
         private readonly LinqSpecification<T> spec;
 
         public LinqSpecificationQueryVisitor(LinqSpecification<T> spec)
-        {
-            this.spec = spec.NotNull().Expect(nameof(spec));
-        }
+            => this.spec = spec.NotNull().Expect(nameof(spec));
 
-        public IQueryable<T> Visit(IQueryable<T> query) => query.Where(spec.Predicate);
+        public IQueryable<T> Visit(IQueryable<T> queryable) => queryable.Where(spec.Predicate);
     }
 }

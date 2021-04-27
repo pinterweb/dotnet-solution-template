@@ -1,5 +1,3 @@
-using BusinessApp.Infrastructure;
-
 namespace BusinessApp.Infrastructure.EntityFramework
 {
     /// <summary>

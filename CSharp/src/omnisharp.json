@@ -50,5 +50,11 @@
     "newLineForMembersInObjectInit":  true,
     "newLineForMembersInAnonymousTypes":  true,
     "newLineForClausesInQuery":  true
+  },
+  "RoslynExtensionsOptions": {
+    "enableAnalyzersSupport": true
+  },
+  "FormattingOptions": {
+    "enableEditorConfigSupport": true
   }
 }

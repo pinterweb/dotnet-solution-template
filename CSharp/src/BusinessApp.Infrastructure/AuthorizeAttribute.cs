@@ -20,13 +20,11 @@ namespace BusinessApp.Infrastructure
         /// </summary>
         /// <param name="policy">The roles required for authorization.</param>
         public AuthorizeAttribute(params string[] roles)
-        {
-            Roles = roles.NotNull().Expect(nameof(roles));
-        }
+            => Roles = roles.NotNull().Expect(nameof(roles));
 
         /// <summary>
         /// Roles that are allowed to access the resource.
         /// </summary>
-        public IEnumerable<string> Roles { get; } = new string[0];
+        public IEnumerable<string> Roles { get; } = Array.Empty<string>();
     }
 }

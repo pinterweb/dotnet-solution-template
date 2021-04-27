@@ -13,22 +13,22 @@ namespace BusinessApp.WebApi
     {
         /// <summary>
         /// Handles an HTTP request via the <see cref="HttpContext" /> and converts it
-        /// to a <see cref="HandlerContext{T, R}" />
+        /// to a <see cref="HandlerContext{TIn, TOut}" />
         /// </summary>
-        /// <typeparam name="T">The request type</typeparam>
-        /// <typeparam name="R">The response type</typeparam>
-        Task HandleAsync<T, R>(HttpContext context) where T : notnull;
+        /// <typeparam name="TIn">The input type</typeparam>
+        /// <typeparam name="TOut">The output type</typeparam>
+        Task HandleAsync<TIn, TOut>(HttpContext context) where TIn : notnull;
     }
 
     /// <summary>
     /// Interface to handle an HTTP request and convert it to a <see cref="HandlerContext{T, R}" />
     /// </summary>
-    /// <typeparam name="T">The request type</typeparam>
-    /// <typeparam name="R">The response type</typeparam>
-    public interface IHttpRequestHandler<T, R>
-        where T : notnull
+    /// <typeparam name="TIn">The request type</typeparam>
+    /// <typeparam name="TOut">The response type</typeparam>
+    public interface IHttpRequestHandler<TIn, TOut>
+        where TIn : notnull
     {
-        Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+        Task<Result<HandlerContext<TIn, TOut>, Exception>> HandleAsync(
             HttpContext context, CancellationToken cancelToken);
     }
 }

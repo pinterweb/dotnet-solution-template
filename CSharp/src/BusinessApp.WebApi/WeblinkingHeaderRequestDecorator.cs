@@ -11,35 +11,33 @@ namespace BusinessApp.WebApi
     /// <summary>
     /// Decorator to add the web link headers for the particular response
     /// </summary>
-    public class WeblinkingHeaderRequestDecorator<T, R> : IHttpRequestHandler<T, R>
-       where T : notnull
+    public class WeblinkingHeaderRequestDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
+       where TRequest : notnull
     {
-        private readonly IHttpRequestHandler<T, R> handler;
-        private readonly IEnumerable<HateoasLink<T, R>> links;
+        private readonly IHttpRequestHandler<TRequest, TResponse> handler;
+        private readonly IEnumerable<HateoasLink<TRequest, TResponse>> links;
 
-        public WeblinkingHeaderRequestDecorator(IHttpRequestHandler<T, R> handler,
-            IEnumerable<HateoasLink<T, R>> links)
+        public WeblinkingHeaderRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
+            IEnumerable<HateoasLink<TRequest, TResponse>> links)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
             this.links = links.NotNull().Expect(nameof(links));
         }
 
-        public virtual async Task<Result<HandlerContext<T, R>, Exception>> HandleAsync(
+        public virtual Task<Result<HandlerContext<TRequest, TResponse>, Exception>> HandleAsync(
             HttpContext context, CancellationToken cancelToken)
-        {
-            return (await handler.HandleAsync(context, cancelToken))
-                .Map(okVal =>
-                {
-                    var headerLinks = links.Select(l =>
-                        l.ToHeaderValue(context.Request, okVal.Request, okVal.Response));
-
-                    if (headerLinks.Any())
+            => handler.HandleAsync(context, cancelToken)
+                    .MapAsync(okVal =>
                     {
-                        context.Response.Headers.Add("Link", headerLinks.ToArray());
-                    }
+                        var headerLinks = links.Select(l =>
+                            l.ToHeaderValue(context.Request, okVal.Request, okVal.Response));
 
-                    return okVal;
-                });
-        }
+                        if (headerLinks.Any())
+                        {
+                            context.Response.Headers.Add("Link", headerLinks.ToArray());
+                        }
+
+                        return okVal;
+                    });
     }
 }
