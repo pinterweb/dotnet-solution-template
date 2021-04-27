@@ -39,8 +39,7 @@ namespace BusinessApp.Kernel
     /// Wraps a value with the outcome, normally from enforcing invariants
     /// and provides access to it or can throw an exception
     /// </summary>
-    public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>,
-           IComparable<Result<T, TErr>>
+    public readonly struct Result<T, TErr> : IEquatable<Result<T, TErr>>, IComparable<Result<T, TErr>>
     {
         private readonly T? value;
         private readonly TErr? error;
