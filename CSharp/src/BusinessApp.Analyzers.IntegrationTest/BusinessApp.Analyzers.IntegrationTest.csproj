@@ -7,7 +7,7 @@
 
   <PropertyGroup>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>.</CompilerGeneratedFilesOutputPath>
+    <CompilerGeneratedFilesOutputPath>./generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <!-- if we do not run this it, build will throw an error saying the methods already exist -->
