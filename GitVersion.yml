@@ -1,0 +1,5 @@
+branches:
+  master:
+    regex: ^main
+    is-mainline: true
+    source-branches: ['main']
