@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Product>BusinessApp Web Api</Product>
     <TargetFramework>net5.0</TargetFramework>
-    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>59121fd6-5ba7-4456-93e6-56dd3e6a2a8e</UserSecretsId>
     <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <IsPackable>false</IsPackable>
 <!--#if (description != '')-->
@@ -16,24 +16,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="33.0.2">
-       <PrivateAssets>all</PrivateAssets>
-     </PackageReference>
-<!--#if (winauth)-->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="5.0.4" />
-<!--#endif-->
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc" Version="5.2.0" />
-    <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.CompositionRoot\BusinessApp.CompositionRoot.csproj" />
+    <ProjectReference Include="..\BusinessApp.Infrastructure.WebApi\BusinessApp.Infrastructure.WebApi.csproj" />
   </ItemGroup>
-
-  <Target Name="CodeCheck" AfterTargets="Restore">
-      <Exec WorkingDirectory="..\..\" Command="git config core.hooksPath .githooks" />
-  </Target>
 
 <!--#if (efcore)-->
   <Target Name="Create Migrations Script" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
