@@ -1,7 +1,7 @@
 using BusinessApp.Infrastructure.EntityFramework;
 using BusinessApp.Kernel;
 using BusinessApp.Infrastructure;
-using BusinessApp.WebApi;
+using BusinessApp.Infrastructure.WebApi;
 using FakeItEasy;
 using FakeItEasy.Creation;
 using Microsoft.AspNetCore;
