@@ -38,7 +38,7 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
             var config = A.Fake<IConfiguration>();
             var configSection = A.Fake<IConfigurationSection>();
             A.CallTo(() => config.GetSection("ConnectionStrings")).Returns(configSection);
-            A.CallTo(() => configSection["main"]).Returns("foo");
+            A.CallTo(() => configSection["local"]).Returns("foo");
             _ = new Startup(config, container, A.Dummy<IWebHostEnvironment>());
             scope = AsyncScopedLifestyle.BeginScope(container);
         }
