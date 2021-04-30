@@ -144,8 +144,6 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
                         return type.MakeGenericType(serviceType.GetGenericArguments()[0],
                            serviceType.GetGenericArguments()[1]);
                     }
-                    // container.Collection.Register(MakeSvcGenericType(typeof(HateoasLink<,>))
-                    //     , new Type[0]);
                     container.RegisterInstance(hateoasSvcType, Activator.CreateInstance(hateoasImplType));
                     CreateRegistrations(container);
                     container.Verify();
@@ -187,8 +185,6 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
                         return type.MakeGenericType(serviceType.GetGenericArguments()[0],
                            serviceType.GetGenericArguments()[1]);
                     }
-                    // container.Collection.Register(MakeSvcGenericType(typeof(HateoasLink<,>))
-                    //     , new Type[0]);
                     CreateRegistrations(container);
                     container.Verify();
                     container.GetInstance(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
@@ -1433,10 +1429,6 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
             {
                 /* Arrange */
                 var linkFactory = A.Fake<Func<CommandStub, CompositeEventStub, string>>();
-                // container.Collection.Register<HateoasLink<CommandStub, CompositeEventStub>>(new[]
-                // {
-                //     new HateoasLink<CommandStub, CompositeEventStub>(linkFactory, "foo")
-                // });
                 container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IDomainEvent>>>(
                     new Dictionary<Type, HateoasLink<CommandStub, IDomainEvent>>());
                 CreateRegistrations(container);
@@ -1482,10 +1474,6 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
             {
                 /* Arrange */
                 var linkFactory = A.Fake<Func<CommandStub, CompositeEventStub, string>>();
-                // container.Collection.Register<HateoasLink<CommandStub, CompositeEventStub>>(new[]
-                // {
-                //     new HateoasLink<CommandStub, CompositeEventStub>(linkFactory, "foo")
-                // });
 #if usehateoas
                 container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IDomainEvent>>>(
                     new Dictionary<Type, HateoasLink<CommandStub, IDomainEvent>>());
