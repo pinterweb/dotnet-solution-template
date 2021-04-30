@@ -206,9 +206,16 @@ namespace BusinessApp.CompositionRoot
                 options.RegistrationAssemblies
             );
 
-            foreach (var type in validatorTypes)
+            if (!validatorTypes.Any())
             {
-                container.Collection.Append(typeof(IValidator<>), type);
+                container.Collection.Append(typeof(IValidator<>), typeof(NullValidator<>));
+            }
+            else
+            {
+                foreach (var type in validatorTypes)
+                {
+                    container.Collection.Append(typeof(IValidator<>), type);
+                }
             }
 
             container.Register(typeof(IValidator<>),
@@ -301,6 +308,7 @@ namespace BusinessApp.CompositionRoot
                 typeof(SingleQueryRequestAdapter<,>),
                 c => CanHandle(c)
                     && c.ServiceType.GetGenericArguments()[0].IsQueryType()
+                    && !c.ServiceType.GetGenericArguments()[1].IsTypeDefinition(typeof(EnvelopeContract<>))
                     && !c.ServiceType.GetGenericArguments()[1].IsGenericIEnumerable());
 
             container.RegisterConditional(typeof(IRequestHandler<,>),
@@ -316,6 +324,13 @@ namespace BusinessApp.CompositionRoot
             where T : notnull
         {
             public bool AuthorizeObject(T instance) => true;
+        }
+
+        private sealed class NullValidator<T> : IValidator<T>
+            where T : notnull
+        {
+            public Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken)
+                => Task.FromResult(Result.Ok());
         }
 
         // Marker handler so the ScopedBatchRequestProxy can be registered
