@@ -1621,11 +1621,7 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
                     implType => Assert.Equal(
                         typeof(FirstValidatorStub),
                         implType),
-#if !fluentvalidation
-                    implType => Assert.Equal(
-                        typeof(SecondValidatorStub),
-                        implType)
-#else
+#if fluentvalidation
                     implType => Assert.Equal(
                         typeof(SecondValidatorStub),
                         implType),
@@ -1640,6 +1636,10 @@ namespace BusinessApp.Infrastructure.WebApi.IntegrationTest
                         implType),
                     implType => Assert.Equal(
                         typeof(SecondFluentValidatorStub),
+                        implType)
+#else
+                    implType => Assert.Equal(
+                        typeof(SecondValidatorStub),
                         implType)
 #endif
                 );

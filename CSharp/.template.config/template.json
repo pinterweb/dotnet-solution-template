@@ -160,13 +160,13 @@
                         "src/**/Hateoas*.cs",
                         "src/**/Weblinking*.cs",
                         "src/.vs/**",
-                        "src/BusinessApp/CompositionRoot/NullRegister.cs"
+                        "src/BusinessApp.CompositionRoot/NullRegister.cs"
                     ]
                 },
                 {
                     "condition": "(!efcore)",
                     "include": [
-                        "src/BusinessApp/CompositionRoot/NullRegister.cs"
+                        "src/BusinessApp.CompositionRoot/NullRegister.cs"
                     ],
                     "exclude": [
                         "src/.config/dotnet-tools.json",
