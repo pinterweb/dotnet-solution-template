@@ -37,7 +37,7 @@ namespace BusinessApp.WebApi
 
         // XXX needed for tests
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            CreateWebHostBuilderCore(args);
+            CreateWebHostBuilderCore(args).ConfigureServices(sc => sc.AddSingleton(new Container()));
 
         private static IWebHostBuilder CreateWebHostBuilderCore(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
@@ -47,7 +47,9 @@ namespace BusinessApp.WebApi
                 })
                 .ConfigureAppConfiguration(builder =>
                 {
-                    _ = builder.AddCommandLine(args).AddEnvironmentVariables();
+                    _ = builder
+                        .AddCommandLine(args)
+                        .AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
                 .UseStartup<Startup>();
     }

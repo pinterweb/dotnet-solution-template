@@ -6,9 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bogus" Version="33.0.2">
-       <PrivateAssets>all</PrivateAssets>
-     </PackageReference>
 <!--#if (winauth)-->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="5.0.4" />
 <!--#endif-->

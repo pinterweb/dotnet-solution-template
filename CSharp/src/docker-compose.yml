@@ -1,27 +1,25 @@
-version: "3"
-networks:
-    static_network:
-        ipam:
-            driver: default
-            config:
-                - subnet: 172.20.0.0/16
+version: "2.4"
+
 services:
-    api:
-        build: .
-        ports:
-            - "8080:80"
-            - "8081:443"
-        depends_on:
-            - db
-        networks:
-            - static_network
-    db:
-        image: "microsoft/mssql-server-windows-express"
-        environment:
-            SA_PASSWORD: "foobar123@!3A"
-            ACCEPT_EULA: "Y"
-        ports:
-            - "1433:1433"
-        networks:
-            static_network:
-                ipv4_address: 172.20.128.2
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+    image:  projects/static-forms/webapi:dev
+    command: dotnet watch run
+    volumes:
+      - .:/src
+    ports:
+      - "8080:80"
+      - "8081:443"
+      - "5000:5000"
+      - "5001:5001"
+    depends_on:
+      - db
+  db:
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+      SA_PASSWORD: "foobar123@!3A"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"

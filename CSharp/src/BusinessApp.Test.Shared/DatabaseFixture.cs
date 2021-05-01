@@ -37,7 +37,7 @@ namespace BusinessApp.Test.Shared
                 .Services
                 .GetService(typeof(IConfiguration));
 
-            ConnectionStr = config.GetConnectionString("local");
+            ConnectionStr = config.GetConnectionString("Main");
 		}
 
 		public DatabaseFixture()

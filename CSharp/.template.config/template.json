@@ -70,20 +70,12 @@
           "type": "computed",
           "value": "(hateoas != \"none\")"
         },
-        "connstrName": {
-            "type": "parameter",
-            "dataType": "string",
-            "isRequired": "false",
-            "defaultValue": "SQLCONNSTR_BUSINESSAPPLICATION",
-            "replaces": "SQLCONNSTR_BUSINESSAPPLICATION",
-            "description": "Connection string name for your application"
-        },
         "docker": {
             "type": "parameter",
-            "dataType": "bool",
+            "dataType": "boolean",
             "isRequired": "false",
-            "defaultValue": "false",
-            "description": "Adds support for docker and docker-compose. Set it up with docker_run.cmd"
+            "defaultValue": "true",
+            "description": "Support for docker and docker-compose support."
         },
         "fluentvalidation": {
             "type": "parameter",
@@ -149,6 +141,18 @@
                "value":"#"
             },
             "replaces":"//#"
+        },
+        "dockerConnectionStringRename": {
+            "type": "derived",
+            "valueSource": "docker",
+            "valueTransform": "dockerConnectionStringTransformer",
+            "replaces": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
+        },
+        "dockerHostRename": {
+            "type": "derived",
+            "valueSource": "docker",
+            "valueTransform": "dockerHostInterfaceTransformer",
+            "replaces": "localhost"
         }
     },
     "sources": [
@@ -216,10 +220,9 @@
                     "exclude": [
                         "src/docker-compose.yml",
                         "src/Dockerfile",
+                        "src/Dockerfile*",
                         "src/.env",
-                        "src/docker_run.cmd",
-                        "src/.dockerignore",
-                        "src/BusinessApp.WebApi/.env.docker"
+                        "src/.dockerignore"
                     ]
                 },
                 {
@@ -242,7 +245,7 @@
       "manualInstructions": [{
          "text": "Run 'git init'"
       }],
-      "continueOnError": false,
+      "continueOnError": true,
       "description ": "sets up the project with git"
     },{
       "condition": "(vsc==\"git\")",
@@ -254,7 +257,37 @@
       "manualInstructions": [{
          "text": "Run 'git config'"
       }],
-      "continueOnError": false,
+      "continueOnError": true,
       "description ": "sets up git hooks"
-    }]
+    }],
+  "forms": {
+    "dockerConnectionStringTransformer": {
+      "identifier": "chain",
+      "steps": [ "dockerConnectionStringReplacer", "localConnectionStringReplacer" ]
+    },
+    "dockerHostInterfaceTransformer": {
+      "identifier": "chain",
+      "steps": [ "dockerHostInterfaceReplacer", "localHostInterfaceReplacer" ]
+    },
+    "dockerConnectionStringReplacer": {
+      "identifier": "replace",
+      "pattern": "true",
+      "replacement": "Server=db;User Id=sa;Password=foobar123@!3A"
+    },
+    "dockerHostInterfaceReplacer": {
+      "identifier": "replace",
+      "pattern": "true",
+      "replacement": "0.0.0.0"
+    },
+    "localConnectionStringReplacer": {
+      "identifier": "replace",
+      "pattern": "false",
+      "replacement": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
+    },
+    "localHostInterfaceReplacer": {
+      "identifier": "replace",
+      "pattern": "false",
+      "replacement": "localhost"
+    }
+  }
 }

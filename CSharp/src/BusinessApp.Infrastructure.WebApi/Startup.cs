@@ -34,23 +34,19 @@ namespace BusinessApp.Infrastructure.WebApi
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            var loggingPath = configuration.GetSection("Logging")
-                .GetValue<string>("LogFilePath");
-#if docker
-            var connStr = configuration.GetConnectionString("docker");
-#else
-            var connStr = configuration.GetConnectionString("local");
-#endif
+            var connStr = configuration.GetConnectionString("Main");
+
             options = new RegistrationOptions(connStr, env.EnvironmentName)
             {
                 RegistrationAssemblies = new[]
                 {
-                    typeof(Infrastructure.IQuery).Assembly,
+                    typeof(IQuery).Assembly,
 #if efcore
                     typeof(IQueryVisitor<>).Assembly,
 #endif
                     typeof(IEventHandler<>).Assembly,
-                    typeof(Startup).Assembly
+                    typeof(Startup).Assembly,
+                    System.Reflection.Assembly.Load("BusinessApp.Api")
                 }
             };
         }

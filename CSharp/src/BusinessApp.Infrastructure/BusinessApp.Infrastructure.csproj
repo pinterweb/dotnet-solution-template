@@ -23,9 +23,6 @@
 <!--#if (fluentvalidation)-->
     <PackageReference Include="FluentValidation" Version="9.5.1" />
 <!--#endif-->
-    <PackageReference Include="Bogus" Version="33.0.2">
-       <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="IdGen" Version="3.0.0" />
   </ItemGroup>
 
