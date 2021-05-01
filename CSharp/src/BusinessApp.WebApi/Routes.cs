@@ -18,12 +18,16 @@ namespace BusinessApp.WebApi
         public static IEnumerable<IEndpointConventionBuilder> CreateRoutes(this IEndpointRouteBuilder builder,
             Container container)
         {
-            var endpoints = System.Array.Empty<IEndpointConventionBuilder>();
-
             // TODO create routes here
             // IHttpRequestHandler getHandler() => container.GetInstance<IHttpRequestHandler>();
 
-            // builder.MapGet("/api/resources", getHandler().HandleAsync<Get.Request, IEnumerable<Get.Response>>);
+            var endpoints = Array.Empty<IEndpointConventionBuilder>();
+            // var endpoints = new[]
+            // {
+            // builder.MapGet("/api/resources",
+            // getHandler().HandleAsync<Get.Request, IEnumerable<Get.Response>>)
+            // }
+
 
             return endpoints;
         }

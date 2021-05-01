@@ -17,9 +17,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 <!--#if (docker)-->
 		.dockerignore = .dockerignore
-		docker_run.cmd = docker_run.cmd
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
+		Dockerfile.development = Dockerfile.development
+		.env = .env
 <!--#endif-->
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore

@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using SimpleInjector;
 
-namespace BusinessApp.Infrastructure.WebApi
+namespace BusinessApp.WebApi
 {
     public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
     {
@@ -25,11 +25,7 @@ namespace BusinessApp.Infrastructure.WebApi
                 .Services
                 .GetService(typeof(IConfiguration));
 
-#if docker
-            var connection = config.GetConnectionString("docker");
-#else
-            var connection = config.GetConnectionString("local");
-#endif
+            var connection = config.GetConnectionString("Main");
             var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
 
             optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Infrastructure.EntityFramework"));

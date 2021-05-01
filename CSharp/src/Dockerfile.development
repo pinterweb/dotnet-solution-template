@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+
+ENV ASPNETCORE_ENVIRONMENT=Development
+
+COPY *.crt /usr/local/share/ca-certificates/
+RUN apt-get update && apt-get install -y ca-certificates
+RUN update-ca-certificates
+
+# Just copy everything since we need to preserve dir structure & there is no other way to do it
+WORKDIR /src
+COPY . .
+RUN rm *.crt
+RUN dotnet restore
+CMD ["dotnet", "run", "BusinessApp.WebApi"]
