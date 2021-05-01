@@ -73,14 +73,15 @@ namespace BusinessApp.CompositionRoot
                 typeof(NullDbSetVisitorFactory<,>),
                 ctx => !ctx.Handled);
 
+            container.RegisterConditional(typeof(IRequestHandler<,>),
+                typeof(EFEnvelopedQueryHandler<,>),
+                ctx => CanHandle(ctx));
+
             container.RegisterConditional(
                 typeof(IRequestHandler<,>),
                 typeof(EFQueryStrategyHandler<,>),
                 ctx => CanHandle(ctx)
             );
-            container.RegisterConditional(typeof(IRequestHandler<,>),
-                typeof(EFEnvelopedQueryHandler<,>),
-                ctx => !ctx.Handled);
 
             container.Register<EFUnitOfWork>();
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());

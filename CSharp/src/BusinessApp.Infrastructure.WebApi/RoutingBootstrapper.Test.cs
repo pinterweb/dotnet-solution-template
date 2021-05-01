@@ -1,17 +1,6 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using BusinessApp.Kernel;
-#if winauth
-using Microsoft.AspNetCore.Authorization;
-#endif
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using SimpleInjector;
-
-//#if DEBUG
 using System.Collections.Generic;
-using System.Linq;
-//#endif
 
 namespace BusinessApp.Infrastructure.WebApi
 {

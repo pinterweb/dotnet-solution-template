@@ -127,11 +127,10 @@ namespace BusinessApp.Infrastructure.WebApi
 
             container.Verify();
 
-#if DEBUG
+//#if DEBUG
             app.SetupTestEndpoints(container);
-#else
+//#endif
             app.SetupEndpoints(routeBuilder);
-#endif
 
             foreach (var startup in container.GetAllInstances<IStartupConfiguration>())
             {

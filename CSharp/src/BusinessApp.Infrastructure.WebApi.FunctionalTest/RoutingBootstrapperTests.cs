@@ -34,10 +34,7 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
         public async Task GivenARequestToGetOneResource_WhenIsValidQuery_ReturnsOneResult()
         {
             // Given
-            var client = factory.NewClient(container =>
-            {
-                container.RegisterInstance(GetEmptyLinks<Get.Request, Get.Response>());
-            });
+            var client = factory.NewClient();
 
             // When
             var response = await client.GetAsync("/api/resources/1");
@@ -51,10 +48,7 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
         public async Task GivenARequestToGetManyResources_WhenIsAnEnvelope_HeadersReturnedToo()
         {
             // Given
-            var client = factory.NewClient(container =>
-            {
-                container.RegisterInstance(GetEmptyLinks<Get.Request, IEnumerable<Get.Response>>());
-            });
+            var client = factory.NewClient();
 
             // When
             var response = await client.GetAsync("/api/resources");
@@ -73,10 +67,7 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
         public async Task GivenARequestToSaveANewResource_WhenIsValidRequest_EchosResut()
         {
             // Given
-            var client = factory.NewClient(container =>
-            {
-                container.RegisterInstance(GetEmptyLinks<PostOrPut.Body, PostOrPut.Body>());
-            });
+            var client = factory.NewClient();
 
             var payload = new { id = 1, longerId = 99 };
             var content = new StringContent(JsonConvert.SerializeObject(payload),
@@ -96,10 +87,7 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
         public async Task GivenARequestToReplaceAResource_WhenIsSuccessful_NoContentReturned()
         {
             // Given
-            var client = factory.NewClient(container =>
-            {
-                container.RegisterInstance(GetEmptyLinks<PostOrPut.Body, PostOrPut.Body>());
-            });
+            var client = factory.NewClient();
 
             var payload = new { id = 1 };
             var content = new StringContent(JsonConvert.SerializeObject(payload),
@@ -126,8 +114,13 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
                 container.RegisterDecorator(
                     typeof(IEventHandler<Delete.WebDomainEvent>),
                     typeof(EventDecorator));
-                container.RegisterInstance(GetEmptyLinks<Delete.Query, Delete.Response>());
+#if DEBUG
                 container.RegisterInstance(GetEventLinks<Delete.Query>());
+#else
+#if usehateoas
+                container.RegisterInstance(GetEventLinks<Delete.Query>());
+#endif
+#endif
 
                 testContainer = container;
             });
@@ -185,10 +178,14 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
             public int Id { get; set; }
         }
 
-        private IEnumerable<HateoasLink<T, R>> GetEmptyLinks<T, R>()
-            => new List<HateoasLink<T, R>>();
-
+#if DEBUG
         private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
             => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
+#else
+#if usehateoas
+        private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
+            => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
+#endif
+#endif
     }
 }
