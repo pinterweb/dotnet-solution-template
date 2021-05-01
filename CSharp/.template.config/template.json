@@ -146,7 +146,7 @@
             "type": "derived",
             "valueSource": "docker",
             "valueTransform": "dockerConnectionStringTransformer",
-            "replaces": "BUSINESSAPP_CONNECTIONSTRINGS__MAIN"
+            "replaces": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
         },
         "dockerHostRename": {
             "type": "derived",
