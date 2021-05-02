@@ -1,6 +1,10 @@
 # BusinessApp
 _$(product_description)_
 
+- [Layout](#layout)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+
 ## Layout
 This application takes a layered approach to isolate services. Starting from the
 very inside:
