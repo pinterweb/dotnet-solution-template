@@ -4,6 +4,9 @@ _Logic to handle http requests_
 This is the main infrastructure project for web api services in a controllerless
 app.
 
+requests. Purpose for separating this from WebApi project is to keep your
+actual application projects slim.
+
 ## Services
 
 # Internal Dependencies
