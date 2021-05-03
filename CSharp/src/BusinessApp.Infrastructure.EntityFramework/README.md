@@ -1,4 +1,5 @@
 # BusinessApp.Infrastructure.EntityFramework
+_Entity Framework Supporting Services_
 
 This is an infrastructure project for the application that isolates Entity
 Framework Core services.

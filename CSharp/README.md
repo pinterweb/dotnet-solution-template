@@ -17,25 +17,19 @@ Registers all services
 [WebApi](/CSharp/src/BusinessApp.WebApi)
 The runnable aspnet web api entrypoint
 
----
-
 [Infrastructure.WebApi](/CSharp/src/BusinessApp.WebApi)
 Services to support your controllerless web api project
 
 //#if efcore
-[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.EntityFramework)
+[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.Infrastructure.EntityFramework)
 Services to support persisting and querying data with entity framework core
-
 //#endif
----
 
 [Api](/CSharp/src/BusinessApp.Api)
 Your app's business logic
 
 [Infrastructure](/CSharp/src/BusinessApp.Infrastructure)
 Services to support your app's business logic
-
----
 
 [Analyzers](/CSharp/src/BusinessApp.Analyzers)
 Code generators to make your life easier
