@@ -11,7 +11,11 @@ agnostic point of view (e.g not dependent on webapi or console project).
 
 _Application specific services (e.g. webapi service) should be registered in their own project_
 
-All services are registered via `IBootstrapRegister` service decorators. Create a
-decorator and register your services either before or after the others. When the
-application starts, it will search all files in the startup assembly for classes
-that implement `IBootstrapRegister`
+## Getting Started
+
+### Registering a new service
+Create a new class that implements `IBootstrapRegister` and inject an inner
+'IBootstrapRegister'. Then register your services either before or after
+the inner handler (__do not forget to call the inner registration__). When the
+application starts, it searches all files in the composition root assembly for
+classes that implement `IBootstrapRegister`.

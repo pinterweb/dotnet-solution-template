@@ -8,8 +8,8 @@ Framework Core services.
 
 # Getting Started
 
-- https://docs.microsoft.com/en-us/ef/core/modeling/
-  Configure your models, preferable in separate configuration files
+- Configure your models, preferable in separate configuration files\
+  https://docs.microsoft.com/en-us/ef/core/modeling/
 
 - Run migrations with migrations_add scripts
   `.\migrations_add.cmd YourMigrationName`

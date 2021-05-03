@@ -11,19 +11,20 @@ see the README:
 
 ## Projects
 
-[CompositionRoot](/CSharp/src/BusinessApp.CompositionRoot): Registers all services
-[WebApi](/CSharp/src/BusinessApp.WebApi): The runnable aspnet web api entrypoint
-[Infrastructure.WebApi](/CSharp/src/BusinessApp.WebApi): Services to support
-your controllerless web api project
+[CompositionRoot](/CSharp/src/BusinessApp.CompositionRoot): Registers all services\
+[WebApi](/CSharp/src/BusinessApp.WebApi): The runnable aspnet web api entrypoint\
+[Infrastructure.WebApi](/CSharp/src/BusinessApp.Infrastructure.WebApi): Services to support
+your controllerless web api project\
 //#if efcore
-[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.EntityFramework):
-Services to support persisting and querying data with entity framework core
+[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.Infrastructure.EntityFramework):
+Services to support persisting and querying data with entity framework core\
 //#endif
-[Api](/CSharp/src/BusinessApp.Api): Your app's business logic
+[Api](/CSharp/src/BusinessApp.Api): Your app's business logic\
 [Infrastructure](/CSharp/src/BusinessApp.Infrastructure): Services to support
-your app's business logic
-[Analyzers](/CSharp/src/BusinessApp.Analyzers): Code generators to make your life easier
-[Kernel](/CSharp/src/BusinessApp.Kernel):The core code shared by all projects
+your app's business logic\
+[Analyzers](/CSharp/src/BusinessApp.Analyzers): Code generators to make your
+life easier\
+[Kernel](/CSharp/src/BusinessApp.Kernel):The core code shared by all projects\
 
 ## Getting Started
 
@@ -31,31 +32,31 @@ your app's business logic
 - Commit your code to source control (e.g. `feat(all): Initial commit`)
 - Create your query & commands models in the Api project
 //#if efcore
-- Setup `IEntityConfiguration<{TModel}>` classes for any query contracts and
+- Setup `IEntityConfiguration<TModel>` classes for any query contracts and
   commands. Command data is automatically saved to the database and query
   contracts are queried by entity framework.
 - Run .\migrations_add to setup your database
 //#endif
 - Create routes in `Routes.cs` located in the WebApi project\
   _note: Any requests inheriting from `IQuery` returning an `IEnumerable`, will_
-  _be handled by an `IRequestHandler{T, EnvelopeContract{TResponse}}`_
+  _be handled by an `IRequestHandler<T, EnvelopeContract<TResponse>>`_
 //#if (!efcore)
-- Create a `IRequestHandler{TRequest, TResponse}` in the Api project to handle
+- Create a `IRequestHandler<TRequest, TResponse>` in the Api project to handle
    queries and commands.\
    _there is no data persistence, so you will have to set that up yourself_
    _However, you can use Bogus to fake data from a request handler_
 //#endif
 //#if efcore
-- Optional: Create a `IRequestHandler{TRequest, TResponse}` in the Api project\
+- Optional: Create a `IRequestHandler<TRequest, TResponse>` in the Api project\
    _this step is optional if you just want to save the command data. A generic_
    _request handler will run and save the command data to a database if you_
-   _configure the command in an `IEntityConfiguration<{TModel}> classes`._
+   _configure the command in an `IEntityConfiguration<TModel>` class._
    _Similarly, query objects inheriting from `IQuery` will already have a request_
    _handler to run the query. Make sure to setup your query contracts in an_
-   _`IEntityConfiguration<{TModel}>` class first. Also, you can use the Bogus_
-   _library if you want to bypass data persistence, just be sure to setup your_
-   _own request handler to generate this fake data_
+   _`IEntityConfiguration<TModel>` class first._
 //#endif
+   _You can use the Bogus library if you want to bypass data persistence_,
+   _just be sure to setup your own request handler to generate this fake data_
 //#if docker
 - Run `docker-compose up` from the src directory.\
   _the webapi image depends on the db image. However, it could take a little bit_

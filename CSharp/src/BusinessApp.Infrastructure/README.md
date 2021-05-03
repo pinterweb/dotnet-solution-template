@@ -6,10 +6,9 @@ _Depends on the Kernel project_
 This is the main infrastructure project for application services. Use this
 project to support the Api project by adding dependencies for email, logging
 validation, authentication etc. All supporting services run as
-`IRequestHandler{TRequest, TResponse}` decorators or adapters.
+`IRequestHandler<TRequest, TResponse>` decorators or adapters.
 
 ## Features
-_Features are implemented as decorators and adapters_
 
 - Validation
 - Logging
