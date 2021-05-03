@@ -36,17 +36,17 @@ your app's business logic
   contracts are queried by entity framework.
 - Run .\migrations_add to setup your database
 //#endif
-- Create routes in `Routes.cs` located in the WebApi project
+- Create routes in `Routes.cs` located in the WebApi project\
   _note: Any requests inheriting from `IQuery` returning an `IEnumerable`, will_
   _be handled by an `IRequestHandler{T, EnvelopeContract{TResponse}}`_
 //#if (!efcore)
 - Create a `IRequestHandler{TRequest, TResponse}` in the Api project to handle
-   queries and commands.
+   queries and commands.\
    _there is no data persistence, so you will have to set that up yourself_
    _However, you can use Bogus to fake data from a request handler_
 //#endif
 //#if efcore
-- Optional: Create a `IRequestHandler{TRequest, TResponse}` in the Api project
+- Optional: Create a `IRequestHandler{TRequest, TResponse}` in the Api project\
    _this step is optional if you just want to save the command data. A generic_
    _request handler will run and save the command data to a database if you_
    _configure the command in an `IEntityConfiguration<{TModel}> classes`._
@@ -57,7 +57,7 @@ your app's business logic
    _own request handler to generate this fake data_
 //#endif
 //#if docker
-- Run `docker-compose up` from the src directory.
+- Run `docker-compose up` from the src directory.\
   _the webapi image depends on the db image. However, it could take a little bit_
   _for the database to start. That will throw an error when the webapi starts up._
   _I would suggest running `docker-compose up -d db` first and wait._
