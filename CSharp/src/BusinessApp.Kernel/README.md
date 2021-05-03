@@ -1,7 +1,14 @@
-## Objects
+# BusinessApp.Kernel
 
-### EntityId
-    The unique identifier for an entity. Use this over a primitive value for a
-    richer domain model. Add the `EntityIdTypeConverter` for converting to and from
-    the inner value
-`
+Also known as the "Shared Kernel", these *core* services are shared by all projects
+and require no depedencies. Typically, you would find these servies in the
+Domain layer of a project. However, these services are too generic to be part of
+an application's domain, and therefore are moved to here to be shared.
+
+# Internal Dependencies
+
+None
+
+# External Dependencies
+
+None

@@ -1,17 +1,13 @@
-# README
+# BusinessApp.Infrastructure.WebApi
 _Logic to handle http requests_
 
 This is the main infrastructure project for web api services in a controllerless
-app.
-
-requests. Purpose for separating this from WebApi project is to keep your
-actual application projects slim.
-
-## Services
+app. These services are generic and therefore moved out of the main web api
+project so that project focuses on your contracts.
 
 # Internal Dependencies
 
-    [CompositionRoot](/CSharp/src/BusinessApp.CompositionRoot)
+[CompositionRoot](/CSharp/src/BusinessApp.CompositionRoot)
 
 # External Dependencies
 
@@ -23,6 +19,3 @@ actual application projects slim.
     - System.IO.Pipelines for JSON parsing
     - AspNetCore.App to bring in all required services to support a runnable
       ASPNET core app.
-
-## Services
-    - git hooks

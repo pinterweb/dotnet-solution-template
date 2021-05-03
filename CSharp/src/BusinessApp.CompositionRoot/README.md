@@ -1,3 +1,6 @@
+# BusinessApp.CompositionRoot
+_Service Registration_
+
 The purpose of this project is to register all your services from an application
 agnostic point of view (e.g not dependent on webapi or console project).
 
