@@ -153,6 +153,13 @@
             "valueSource": "docker",
             "valueTransform": "dockerHostInterfaceTransformer",
             "replaces": "localhost"
+        },
+        "appKebabName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "kebabCaseTransformer",
+            "replaces": "$(kebab_appname)",
+            "description": "Create a kebab case name from the app name"
         }
     },
     "sources": [
@@ -288,6 +295,9 @@
       "identifier": "replace",
       "pattern": "false",
       "replacement": "localhost"
+    },
+    "kebabCaseTransformer": {
+      "identifier": "kebabCase"
     }
   }
 }

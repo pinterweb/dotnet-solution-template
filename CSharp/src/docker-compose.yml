@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.development
-    image:  projects/static-forms/webapi:dev
+    image:  projects/$(kebab_appname)/webapi:dev
     command: dotnet watch run
     volumes:
       - .:/src
