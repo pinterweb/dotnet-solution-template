@@ -7,7 +7,7 @@ service decoration for your business needs. For project definitions see the main
 [README](/CSharp) that goes along with new applications.
 
 - [Installation](#installation)
-- [Test](#test)
+- [Testing](#testing)
 - [Running the Webapi](#running-the-webapi)
 - [New App](#new-app)
 
@@ -15,19 +15,22 @@ service decoration for your business needs. For project definitions see the main
 
 1. `git clone https://github.com/pinterweb/dotnet-webapi-template.git`
 2. `cd dotnet-webapi-template`
-3. `.\install.bat`  
+3. `.\install.bat`\
    _to uninstall run `.\install.bat u`_
 
-## Test
+## Testing
 
 1. `cd CSharp\src`
 2. `dotnet test`
 
 ## Running the Webapi
 
+The Webapi project can be run without creating a new application
+
 1. `cd CSharp\src\BusinessApp.WebApi`
-2. `dotnet watch run`  
-   _read each README to determine the data and services you need_
+2. `dotnet watch run`\
+   _read the "Getting Starting" in each project's README to determine the data_
+   _and services you need_
 
 ## New App
 
@@ -37,7 +40,7 @@ To create a new solution with all the defaults run:
 dotnet new webapi-bizapp -n <your-app-name> -o <your-app-directory>
 ```
 
-The default setup gives you:  
+The default setup gives you:\
 - git directory
 - git hooks to run tests on commits
 - [Entity Framework Core](https://github.com/dotnet/efcore)
@@ -47,7 +50,7 @@ The default setup gives you:
 - static file support
 - [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
 
-You can optionally:  
+You can optionally:\
 - Replace System.Text.Json with [Newtonsoft](https://github.com/JamesNK/Newtonsoft.Json)
 - Setup HATEOAS via [weblinking](https://tools.ietf.org/html/rfc8288)
 - Add [Fluent Validation](https://github.com/FluentValidation/FluentValidation)
