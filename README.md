@@ -8,8 +8,8 @@ service decoration for your business needs. For project definitions see the main
 
 - [Installation](#installation)
 - [Testing](#testing)
-- [Running the Webapi](#running-the-webapi)
-- [New App](#new-app)
+- [Running the webapi](#running-the-webapi)
+- [Creating a new app](#creating-a-new-app)
 
 ## Installation
 
@@ -23,16 +23,16 @@ service decoration for your business needs. For project definitions see the main
 1. `cd CSharp\src`
 2. `dotnet test`
 
-## Running the Webapi
+## Running the webapi
 
-The Webapi project can be run without creating a new application
+The webapi project can be run without creating a new application
 
 1. `cd CSharp\src\BusinessApp.WebApi`
 2. `dotnet watch run`\
    _read the "Getting Starting" in each project's README to determine the data_
    _and services you need_
 
-## New App
+## Creating a new app
 
 To create a new solution with all the defaults run:
 
