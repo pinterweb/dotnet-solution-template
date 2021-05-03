@@ -3,11 +3,11 @@ _$(product_description)_
 
 ## Summary
 
-This project is a layered C# solution, built around the concept of stratified design.
+This solution is a layered C# solution, built around the concept of stratified design.
 The kernel & analyzer projects are at the very bottom layer, providing support
 for all projects. Infrastructure code is separated out depending on its
-function to isolate dependencies. To find out more information on a project,
-see the README:
+function to isolate dependencies and function. To find out more information on a project,
+see the READMEs:
 
 ## Projects
 
@@ -44,7 +44,6 @@ life easier\
 - Create a `IRequestHandler<TRequest, TResponse>` in the Api project to handle
    queries and commands.\
    _there is no data persistence, so you will have to set that up yourself_
-   _However, you can use Bogus to fake data from a request handler_
 //#endif
 //#if efcore
 - Optional: Create a `IRequestHandler<TRequest, TResponse>` in the Api project\

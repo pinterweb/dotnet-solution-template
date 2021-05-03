@@ -29,8 +29,8 @@ The webapi project can be run without creating a new application
 
 1. `cd CSharp\src\BusinessApp.WebApi`
 2. `dotnet watch run`\
-   _read the "Getting Starting" in each project's README to determine the data_
-   _and services you need_
+   _read the "Getting Started" setions in each project's README to determine the data_
+   _and services needed_
 
 ## Creating a new app
 
@@ -40,7 +40,7 @@ To create a new solution with all the defaults run:
 dotnet new webapi-bizapp -n <your-app-name> -o <your-app-directory>
 ```
 
-The default setup gives you:\
+The default setup gives you:
 - git directory
 - git hooks to run tests on commits
 - [Entity Framework Core](https://github.com/dotnet/efcore)
@@ -50,7 +50,7 @@ The default setup gives you:\
 - static file support
 - [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
 
-You can optionally:\
+You can optionally:
 - Replace System.Text.Json with [Newtonsoft](https://github.com/JamesNK/Newtonsoft.Json)
 - Setup HATEOAS via [weblinking](https://tools.ietf.org/html/rfc8288)
 - Add [Fluent Validation](https://github.com/FluentValidation/FluentValidation)
