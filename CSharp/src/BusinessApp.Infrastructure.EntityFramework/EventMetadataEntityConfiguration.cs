@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 #pragma warning disable IDE0058
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Entity configuration to save event metadata
+    /// </summary>
     public abstract class EventMetadataEntityConfiguration<T> :
         IEntityTypeConfiguration<EventMetadata<T>>
         where T : class, IDomainEvent

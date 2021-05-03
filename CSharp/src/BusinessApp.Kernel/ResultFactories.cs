@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace BusinessApp.Kernel
 {
+    /// <summary>
+    /// Factory methods to make creating a <see cref="Result{T, TErr}" /> easier
+    /// </summary>
     [DebuggerStepThrough]
     public static partial class ResultFactories
     {

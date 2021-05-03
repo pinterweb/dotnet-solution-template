@@ -3,12 +3,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using BusinessApp.Kernel;
 using System.Threading;
-using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
     /// <summary>
-    /// Logs request errors and converts it to a <see cref="Result"/> type
+    /// Decorator that logs request errors and converts it to a <see cref="Result"/> type
     /// </summary>
     public class HttpRequestLoggingDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
         where TRequest : notnull

@@ -9,6 +9,9 @@ using SimpleInjector.Lifestyles;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Create a new set of services for the given scope
+    /// </summary>
     public class SimpleInjectorScopedBatchRequestProxy<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, TResponse>
         where TRequest : notnull

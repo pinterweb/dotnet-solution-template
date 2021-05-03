@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace BusinessApp.Infrastructure.WebApi.ProblemDetails
 {
+    /// <summary>
+    /// Extension methods for <see cref="ProblemDetail" />
+    /// </summary>
     public static class ProblemDetailExtensions
     {
         private static readonly string[] knownKeys

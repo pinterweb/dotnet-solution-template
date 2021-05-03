@@ -8,6 +8,9 @@ using SimpleInjector;
 
 namespace BusinessApp.WebApi
 {
+    /// <summary>
+    /// The main startup class for your webapi
+    /// </summary>
     public class Startup
     {
         private readonly Container container;

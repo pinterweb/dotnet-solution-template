@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace BusinessApp.Kernel
 {
+    /// <summary>
+    /// Async extensions for the <see cref="Result{T, TErr}" />
+    /// </summary>
     public static class AsyncResultExtensions
     {
         public static async Task<Result<IEnumerable<T>, Exception>> CollectAsync<T, TErr>(

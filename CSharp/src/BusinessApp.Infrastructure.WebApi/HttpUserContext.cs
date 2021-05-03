@@ -5,7 +5,7 @@ using BusinessApp.Kernel;
 namespace BusinessApp.Infrastructure.WebApi
 {
     /// <summary>
-    /// Http user implementation of the IPrincipal
+    /// Http user implementation of the <see cref="IPrincipal" />
     /// </summary>
     public class HttpUserContext : IPrincipal
     {

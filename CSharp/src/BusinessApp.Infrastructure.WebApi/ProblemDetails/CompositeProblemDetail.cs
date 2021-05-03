@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace BusinessApp.Infrastructure.WebApi.ProblemDetails
 {
+    /// <summary>
+    /// Composite pattern for many problem details that results in a 207 response
+    /// </summary>
     public class CompositeProblemDetail : ProblemDetail, IEnumerable<ProblemDetail>
     {
         public CompositeProblemDetail(IEnumerable<ProblemDetail> problems, Uri? type = null)

@@ -22,6 +22,9 @@ using Microsoft.AspNetCore.Authentication.Negotiate;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Startup class to hook up the webapi infrastructure
+    /// </summary>
     public class Startup
     {
         private readonly Container container;

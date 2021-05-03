@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Application's implementation of DbContext
+    /// </summary>
     public class BusinessAppDbContext : DbContext, IRequestStore
     {
         public BusinessAppDbContext(DbContextOptions<BusinessAppDbContext> opts)

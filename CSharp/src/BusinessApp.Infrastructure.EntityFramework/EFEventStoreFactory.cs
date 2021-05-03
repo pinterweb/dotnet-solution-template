@@ -3,6 +3,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Persists events using Entity Framework
+    /// </summary>
     public class EFEventStoreFactory : IEventStoreFactory
     {
         private readonly IEntityIdFactory<MetadataId> idFactory;

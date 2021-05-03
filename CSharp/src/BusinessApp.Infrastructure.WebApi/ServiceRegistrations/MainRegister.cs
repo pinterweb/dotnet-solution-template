@@ -5,6 +5,9 @@ using BusinessApp.CompositionRoot;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Main web api service register
+    /// </summary>
     public class MainRegister : IBootstrapRegister
     {
         private readonly RegistrationOptions options;

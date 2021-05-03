@@ -5,6 +5,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Decorator that analyzes the request payload to determine the logic for handling the request
+    /// </summary>
     public class HttpRequestBodyAnalyzer : IHttpRequestHandler
     {
         private readonly IHttpRequestHandler inner;

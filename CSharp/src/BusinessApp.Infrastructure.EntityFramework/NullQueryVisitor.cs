@@ -2,6 +2,9 @@ using System.Linq;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Null pattern to visit a queryable and does nothing
+    /// </summary>
     public sealed class NullQueryVisitor<TResult> : IQueryVisitor<TResult>
         where TResult : class
     {

@@ -3,12 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using System;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Handles IEnumerable responses by adding metadata in the header
+    /// </summary>
     public class EnvelopeQueryResourceHandler<TRequest, TResponse> : IHttpRequestHandler<TRequest, IEnumerable<TResponse>>
         where TRequest : notnull, IQuery
     {

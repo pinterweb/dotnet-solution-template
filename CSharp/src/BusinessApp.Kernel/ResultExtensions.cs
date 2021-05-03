@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace BusinessApp.Kernel
 {
+    /// <summary>
+    /// Extension methods for the <see cref="Result{T, TErr}" />
+    /// </summary>
     public static class ResultExtensions
     {
         public static Result<IEnumerable<T>, Exception> Collect<T, TErr>(

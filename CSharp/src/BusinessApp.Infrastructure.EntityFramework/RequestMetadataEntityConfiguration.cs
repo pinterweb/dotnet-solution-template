@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 #pragma warning disable IDE0058
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Entity configuration to save request metadata
+    /// </summary>
     public class RequestMetadataEntityConfiguration : IEntityTypeConfiguration<RequestMetadata>
     {
         public void Configure(EntityTypeBuilder<RequestMetadata> builder)

@@ -11,6 +11,9 @@ using System.Threading;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// The main registration class that glues the application together
+    /// </summary>
     public class MainRegister : IBootstrapRegister
     {
         private readonly RegistrationOptions options;

@@ -5,6 +5,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Service to handle request data and produce a response
+    /// </summary>
     public interface IRequestHandler<in TRequest, TResponse>
         where TRequest : notnull
     {

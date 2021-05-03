@@ -4,6 +4,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Validation exception for one member, normally in a request object
+    /// </summary>
     public class MemberValidationException : BusinessAppException
     {
         public MemberValidationException(string memberName, IEnumerable<string> errors)

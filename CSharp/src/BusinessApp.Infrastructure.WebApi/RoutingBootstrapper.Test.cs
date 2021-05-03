@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace BusinessApp.Infrastructure.WebApi
 {
     /// <summary>
-    /// Creates your routes
+    /// Creates test routes
     /// </summary>
     public static partial class RoutingBootstrapper
     {

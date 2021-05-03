@@ -7,6 +7,9 @@ using System;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Handles a request for an <see cref="EnvelopeContract" />
+    /// </summary>
     public class EFEnvelopedQueryHandler<TRequest, TResponse> : IRequestHandler<TRequest, EnvelopeContract<TResponse>>
         where TRequest : notnull, IQuery
         where TResponse : class

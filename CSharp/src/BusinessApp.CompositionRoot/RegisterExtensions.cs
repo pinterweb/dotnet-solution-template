@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Extension methods to help with registering services
+    /// </summary>
     public static class RegisterExtensions
     {
         public static bool IsQueryType(this Type type) => typeof(IQuery).IsAssignableFrom(type);

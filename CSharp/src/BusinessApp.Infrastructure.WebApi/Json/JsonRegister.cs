@@ -5,6 +5,9 @@ using Newtonsoft.Json;
 
 namespace BusinessApp.Infrastructure.WebApi.Json
 {
+    /// <summary>
+    /// Register web api specific JSON services
+    /// </summary>
     public class JsonRegister : IBootstrapRegister
     {
         private static readonly ProblemDetailOptions jsonProblemDetailOption =

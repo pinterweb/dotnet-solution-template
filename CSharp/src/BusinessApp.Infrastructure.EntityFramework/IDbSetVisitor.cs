@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Visits a <see cref="DbSet{T}" /> to provide additional functionality
+    /// </summary>
     public interface IDbSetVisitor<T>
         where T : class
     {

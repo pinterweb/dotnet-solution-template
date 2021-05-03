@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security;
 using System.Threading.Tasks;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 using SimpleInjector;
 
 namespace BusinessApp.Infrastructure.WebApi.ProblemDetails
 {
+    /// <summary>
+    /// Creates <see cref="ProblemDetailOptions" /> for exception
+    /// </summary>
     public static partial class ProblemDetailOptionBootstrap
     {
         public static HashSet<ProblemDetailOptions> KnownProblems = new()

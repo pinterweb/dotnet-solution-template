@@ -4,6 +4,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Validation exception describing all model errors
+    /// </summary>
     public class ModelValidationException : BusinessAppException, IEnumerable<MemberValidationException>
     {
         private readonly IEnumerable<MemberValidationException> memberErrors;

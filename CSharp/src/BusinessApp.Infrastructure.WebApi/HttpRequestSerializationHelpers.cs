@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -14,6 +13,9 @@ using Microsoft.AspNetCore.Routing;
 namespace BusinessApp.Infrastructure.WebApi
 {
 #pragma warning disable CA1000
+    /// <summary>
+    /// Helper methods to serialize an http request to a <typeparam name="T" />
+    /// </summary>
     public static class HttpRequestSerializationHelpers<T>
     {
         private static readonly IDictionary<string, Type> propertyCache;

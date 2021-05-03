@@ -3,6 +3,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Data describing an event
+    /// </summary>
     public abstract class EventMetadata
     {
 #nullable disable

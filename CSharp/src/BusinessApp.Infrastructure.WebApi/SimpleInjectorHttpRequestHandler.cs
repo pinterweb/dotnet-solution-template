@@ -5,6 +5,9 @@ using SimpleInjector;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Uses SimpleInjector to run the <see cref="IHttpRequestHandler{TRequest, TResponse}" />
+    /// </summary>
     public class SimpleInjectorHttpRequestHandler : IHttpRequestHandler
     {
         private readonly Container container;

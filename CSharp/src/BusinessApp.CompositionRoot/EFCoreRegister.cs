@@ -9,6 +9,9 @@ using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Registers services for entity framework
+    /// </summary>
     public class EFCoreRegister : IBootstrapRegister
     {
 //#if DEBUG

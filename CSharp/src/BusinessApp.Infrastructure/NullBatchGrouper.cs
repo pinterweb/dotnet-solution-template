@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Null pattern that does not group the commands
+    /// </summary>
     public class NullBatchGrouper<TCommand> : IBatchGrouper<TCommand>
         where TCommand : notnull
     {

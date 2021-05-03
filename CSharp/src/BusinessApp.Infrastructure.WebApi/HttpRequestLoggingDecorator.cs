@@ -2,12 +2,11 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using BusinessApp.Kernel;
-using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
     /// <summary>
-    /// Logs request errors
+    /// Deocrator that logs request errors
     /// </summary>
     public class HttpRequestLoggingDecorator : IHttpRequestHandler
     {

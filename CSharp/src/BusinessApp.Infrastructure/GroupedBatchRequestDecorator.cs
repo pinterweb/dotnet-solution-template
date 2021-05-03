@@ -7,6 +7,12 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Groups related requests together before running any subsequence handlers
+    /// </summary>
+    /// <remarks>
+    /// This is useful for grouping data together in one business transaction
+    /// </remarks>
     public class GroupedBatchRequestDecorator<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
         where TRequest : notnull

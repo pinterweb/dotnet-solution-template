@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 
 namespace BusinessApp.Infrastructure.WebApi.ProblemDetails
 {
+    /// <summary>
+    /// Default implementation for the <see cref="IProblemDetailFactory" /> service
+    /// </summary>
     public class ProblemDetailFactory : IProblemDetailFactory
     {
         private readonly HashSet<ProblemDetailOptions> options;

@@ -7,7 +7,7 @@ using System.Security.Principal;
 namespace BusinessApp.Infrastructure.EntityFramework
 {
     /// <summary>
-    /// Persist the requests
+    /// Persist the requests using Entity Framework
     /// </summary>
     public class EFMetadataStoreRequestDecorator<TRequest, TResponse> :
         IRequestHandler<TRequest, TResponse>

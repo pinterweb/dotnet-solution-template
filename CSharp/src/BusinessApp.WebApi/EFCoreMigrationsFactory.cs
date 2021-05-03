@@ -9,6 +9,9 @@ using SimpleInjector;
 
 namespace BusinessApp.WebApi
 {
+    /// <summary>
+    /// <see cref="IDesignTimeDbContextFactory" /> needed for entity framework migrations
+    /// </summary>
     public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
     {
         public BusinessAppDbContext CreateDbContext(string[] args)
@@ -17,8 +20,9 @@ namespace BusinessApp.WebApi
                 .ConfigureServices(sc => sc.AddSingleton(new Container()))
                 .ConfigureAppConfiguration(builder =>
                 {
-                    builder.AddCommandLine(args);
-                    builder.AddEnvironmentVariables();
+                    _ = builder
+                        .AddCommandLine(args)
+                        .AddEnvironmentVariables();
                 })
                 .UseStartup<Startup>()
                 .Build()
@@ -28,7 +32,8 @@ namespace BusinessApp.WebApi
             var connection = config.GetConnectionString("Main");
             var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
 
-            optionsBuilder.UseSqlServer(connection, x => x.MigrationsAssembly("BusinessApp.Infrastructure.EntityFramework"));
+            _ = optionsBuilder.UseSqlServer(connection,
+                x => x.MigrationsAssembly("BusinessApp.Infrastructure.EntityFramework"));
 
             return new BusinessAppDbContext(optionsBuilder.Options);
         }

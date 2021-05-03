@@ -2,6 +2,9 @@ using System;
 
 namespace BusinessApp.Infrastructure.WebApi.ProblemDetails
 {
+    /// <summary>
+    /// Options that help create <see cref="ProblemDetail" />
+    /// </summary>
     public class ProblemDetailOptions
     {
         public ProblemDetailOptions(Type problemType, int statusCode)

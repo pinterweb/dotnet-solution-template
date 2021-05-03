@@ -8,6 +8,9 @@ using BusinessApp.Infrastructure.EntityFramework;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Entity Framework Core startup logic
+    /// </summary>
     public class EFCoreStartup : IStartupConfiguration
     {
         private readonly Container container;

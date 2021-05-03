@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Composite pattern to hold many validation results
+    /// </summary>
     public class CompositeValidationResult : ValidationResult, IEnumerable<ValidationResult>
     {
         public CompositeValidationResult(string instanceName, string errorMessage, IEnumerable<ValidationResult> results)

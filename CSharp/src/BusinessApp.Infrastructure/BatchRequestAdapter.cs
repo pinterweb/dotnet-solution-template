@@ -7,6 +7,16 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Accepts an `IEnumerable` request and calls the "inner" handler that
+    /// handles the single request.
+    /// </summary>
+    /// <remarks>
+    /// This is useful so you do not have to write 2 handlers, one for the
+    /// `IEnumerable` request and one for the single request. The single
+    /// handler is your api logic to change data. With this adapter you do not
+    /// have to write multiple handlers to handle one or many of the same request.
+    /// </remarks>
     public class BatchRequestAdapter<TRequest, TResponse>
         : IRequestHandler<IEnumerable<TRequest>, IEnumerable<TResponse>>
         where TRequest : notnull

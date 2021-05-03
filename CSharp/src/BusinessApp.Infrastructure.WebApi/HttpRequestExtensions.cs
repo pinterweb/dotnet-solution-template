@@ -3,10 +3,12 @@ using System.Linq;
 using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
-using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Extensions for <see cref="HttpRequest" />
+    /// </summary>
     public static class HttpRequestExtensions
     {
         private static readonly string[] bodyMethods = new[]

@@ -3,11 +3,13 @@ using System;
 using System.Threading.Tasks;
 using BusinessApp.Kernel;
 using BusinessApp.Infrastructure.WebApi.ProblemDetails;
-using BusinessApp.Infrastructure;
 using System.Threading;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Decorator that writes an http response
+    /// </summary>
     public class HttpResponseDecorator<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
         where TRequest : notnull
     {
@@ -53,7 +55,7 @@ namespace BusinessApp.Infrastructure.WebApi
         /// Starts the response by checking the current status and setting a status
         /// based on the method if applicable
         /// </summary>
-        /// </returns>true if can write</returns>
+        /// <returns>true if can write</returns>
         private static bool StartResponse(HttpContext context)
         {
             if (context.Response.HasStarted)

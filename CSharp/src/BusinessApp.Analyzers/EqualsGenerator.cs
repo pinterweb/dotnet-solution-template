@@ -8,6 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace BusinessApp.Analyzers
 {
+    /// <summary>
+    /// Adds equality related methods to classes or structs
+    /// </summary>
+    /// <remarks>
+    /// Your object must have the partial modifier or a compile time error will
+    /// ocurr
+    /// </remarks>
     [Generator]
     public class EqualsGenerator : ISourceGenerator
     {

@@ -7,7 +7,7 @@ using SimpleInjector;
 namespace BusinessApp.CompositionRoot
 {
     /// <summary>
-    /// Registers authorization based on the <see cref="AuthorizeAttribute" />
+    /// Registers authorization services
     /// </summary>
     public class AuthorizationRegister : IBootstrapRegister
     {
@@ -34,9 +34,7 @@ namespace BusinessApp.CompositionRoot
             var requestType = ctx.ServiceType.GetGenericArguments()[0];
 
             static bool HasAuthAttribute(Type targetType)
-            {
-                return targetType.GetCustomAttribute<AuthorizeAttribute>() != null;
-            }
+                => targetType.GetCustomAttribute<AuthorizeAttribute>() != null;
 
             while (!HasAuthAttribute(requestType) && requestType.IsConstructedGenericType)
             {

@@ -3,6 +3,9 @@ using MS = Microsoft.Extensions.Logging;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// A microsoft implementation of the apps <see cref="ILogger" /> service
+    /// </summary>
     public sealed class MicrosoftLoggerAdapter : ILogger
     {
         private readonly MS.ILogger logger;

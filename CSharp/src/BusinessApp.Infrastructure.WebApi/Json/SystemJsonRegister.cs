@@ -2,6 +2,9 @@ using BusinessApp.CompositionRoot;
 
 namespace BusinessApp.Infrastructure.WebApi.Json
 {
+    /// <summary>
+    /// Register web api specific system.text.json services
+    /// </summary>
     public class SystemJsonRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

@@ -2,6 +2,9 @@ using BusinessApp.Infrastructure;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Registers services related to fluent validation
+    /// </summary>
     public class FluentValidationRegister : IBootstrapRegister
     {
         private readonly RegistrationOptions options;

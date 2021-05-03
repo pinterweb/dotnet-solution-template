@@ -18,7 +18,6 @@ namespace BusinessApp.WebApi
         public static IEnumerable<IEndpointConventionBuilder> CreateRoutes(this IEndpointRouteBuilder builder,
             Container container)
         {
-            // TODO create routes here
             // IHttpRequestHandler getHandler() => container.GetInstance<IHttpRequestHandler>();
 
             var endpoints = Array.Empty<IEndpointConventionBuilder>();

@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// General string helper methods extending the base class library
+    /// </summary>
     public static class StringExtensions
     {
         public static string ConvertToPascalCase(this string str)

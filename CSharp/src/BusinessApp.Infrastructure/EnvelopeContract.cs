@@ -4,6 +4,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Has metadata describing the data property
+    /// </summary>
     public class EnvelopeContract<TData> : IEnumerable<TData>
     {
         public EnvelopeContract(IEnumerable<TData> data, Pagination pagination)

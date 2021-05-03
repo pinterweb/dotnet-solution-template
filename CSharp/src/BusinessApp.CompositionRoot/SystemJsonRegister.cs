@@ -6,6 +6,9 @@ using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Registers services related to System.Test.Json
+    /// </summary>
     public class SystemJsonRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

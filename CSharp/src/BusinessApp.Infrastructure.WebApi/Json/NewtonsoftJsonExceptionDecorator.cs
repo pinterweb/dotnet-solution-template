@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using BusinessApp.Kernel;
 using System.Threading;
 using Newtonsoft.Json;
-using BusinessApp.Infrastructure;
 
 namespace BusinessApp.Infrastructure.WebApi.Json
 {

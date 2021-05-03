@@ -4,6 +4,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Options to use at registration time
+    /// </summary>
     public sealed class RegistrationOptions
     {
         public RegistrationOptions(string connStr, string envName)

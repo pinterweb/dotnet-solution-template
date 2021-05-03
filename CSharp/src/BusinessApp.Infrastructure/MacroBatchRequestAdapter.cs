@@ -7,6 +7,15 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Accepts a single request and expands it into an `IEnumerable` request
+    /// using the <see cref="IMacro{TRequest}" />
+    /// </summary>
+    /// <remarks>
+    /// This is useful when you need to change many values based on a query
+    //  and those changes are the same for all objects returned by the query.
+    // The alternative would be sending many requests.
+    /// <summary>
     public class MacroBatchRequestAdapter<TMacro, TRequest, TResponse>
         : IRequestHandler<TMacro, TResponse>
         where TMacro : IMacro<TRequest>

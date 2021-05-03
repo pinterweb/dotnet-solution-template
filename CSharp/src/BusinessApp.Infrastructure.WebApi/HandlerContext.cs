@@ -2,6 +2,10 @@
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Class returned from <see cref="IHttpRequestHandler{TIn, TOut}" /> to
+    /// simplify all data returned from handlers
+    /// </summary>
     public class HandlerContext<TRequest, TResponse>
     {
         public HandlerContext(TRequest request, TResponse response)

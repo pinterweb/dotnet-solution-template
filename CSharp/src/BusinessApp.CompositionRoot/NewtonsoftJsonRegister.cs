@@ -6,6 +6,9 @@ using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Registers services related to newtonsoft JSON
+    /// </summary>
     public class NewtonsoftJsonRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

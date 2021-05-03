@@ -5,7 +5,7 @@ using BusinessApp.Kernel;
 namespace BusinessApp.Infrastructure
 {
     /// <summary>
-    /// ILogger implementation that writes to stdout or stderr
+    /// <see cref="ILogger" /> implementation that writes to stdout or stderr
     /// </summary>
     public class ConsoleLogger : ILogger
     {

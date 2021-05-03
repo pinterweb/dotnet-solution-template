@@ -3,6 +3,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Metadata to decribe how a query logic should run
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class QueryOperatorAttribute : Attribute
     {

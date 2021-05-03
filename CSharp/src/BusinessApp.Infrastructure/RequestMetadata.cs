@@ -5,6 +5,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Describes a request/response workflow
+    /// </summary>
     public class RequestMetadata
     {
         private const string ErrTemplate =

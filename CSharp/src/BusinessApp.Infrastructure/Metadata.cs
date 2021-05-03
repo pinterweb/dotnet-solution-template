@@ -3,6 +3,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// General class to describe any piece of data
+    /// </summary>
     public class Metadata
     {
 #nullable disable

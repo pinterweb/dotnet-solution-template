@@ -7,6 +7,9 @@ using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Decorator to run the authorization service
+    /// </summary>
     public class AuthorizationRequestDecorator<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
         where TRequest : notnull
     {

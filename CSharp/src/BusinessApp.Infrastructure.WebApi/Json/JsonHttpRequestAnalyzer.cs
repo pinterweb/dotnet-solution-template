@@ -4,6 +4,9 @@ using System.Buffers;
 
 namespace BusinessApp.Infrastructure.WebApi.Json
 {
+    /// <summary>
+    /// Analayzed a request and outputs metadata
+    /// </summary>
     public class JsonHttpRequestAnalyzer : IHttpRequestAnalyzer
     {
         public async Task<HttpRequestPayloadType> GetBodyTypeAsync(HttpRequest request)

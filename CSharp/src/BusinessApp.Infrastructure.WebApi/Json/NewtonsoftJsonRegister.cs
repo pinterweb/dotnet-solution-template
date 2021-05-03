@@ -2,6 +2,9 @@ using BusinessApp.CompositionRoot;
 
 namespace BusinessApp.Infrastructure.WebApi.Json
 {
+    /// <summary>
+    /// Register web api specific newton json services
+    /// </summary>
     public class NewtonsoftJsonRegister : IBootstrapRegister
     {
         private readonly IBootstrapRegister inner;

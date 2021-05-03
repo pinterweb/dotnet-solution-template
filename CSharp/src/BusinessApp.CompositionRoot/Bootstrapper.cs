@@ -5,6 +5,9 @@ using SimpleInjector;
 
 namespace BusinessApp.CompositionRoot
 {
+    /// <summary>
+    /// Entry point to this assembly
+    /// </summary>
     public static class Bootstrapper
     {
         public static void RegisterServices(Container container,

@@ -6,6 +6,9 @@ using Microsoft.Extensions.Localization;
 
 namespace BusinessApp.Infrastructure.WebApi.ProblemDetails
 {
+    /// <summary>
+    /// Localizes a <see cref="ProblemDetail" /> response
+    /// </summary>
     public class LocalizedProblemDetailFactory : IProblemDetailFactory
     {
         private readonly IProblemDetailFactory inner;

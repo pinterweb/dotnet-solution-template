@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessApp.Infrastructure.EntityFramework
 {
+    /// <summary>
+    /// Unit of work pattern wrapping Entity Framework
+    /// </summary>
     public class EFUnitOfWork : IUnitOfWork, ITransactionFactory
     {
         private bool transactionFromFactory;

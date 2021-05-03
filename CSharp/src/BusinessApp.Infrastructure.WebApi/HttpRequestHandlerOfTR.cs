@@ -1,12 +1,15 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using System;
 
 namespace BusinessApp.Infrastructure.WebApi
 {
+    /// <summary>
+    /// Transforms an <see cref="HttpContext" /> into <typeparam name="TRequest" />
+    /// and <typeparam name="TResponse" /> objects
+    /// </summary>
     public class HttpRequestHandler<TRequest, TResponse> : IHttpRequestHandler<TRequest, TResponse>
         where TRequest : notnull
     {

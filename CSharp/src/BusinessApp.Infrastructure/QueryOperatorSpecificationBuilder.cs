@@ -8,6 +8,9 @@ using System.Collections.Concurrent;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Service to create the filters for a query based on the <see cref="QueryOperatorAttribute" />
+    /// </summary>
     public class QueryOperatorSpecificationBuilder<TQuery, TContract> :
         ILinqSpecificationBuilder<TQuery, TContract>
         where TQuery : notnull

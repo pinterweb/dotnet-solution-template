@@ -7,6 +7,9 @@ using System.Collections.Concurrent;
 
 namespace BusinessApp.Infrastructure
 {
+    /// <summary>
+    /// Publishes event data while capture metadata for each event published
+    /// </summary>
     public class EventMetadataPublisherFactory : IEventPublisherFactory
     {
         private readonly IEventPublisher inner;
