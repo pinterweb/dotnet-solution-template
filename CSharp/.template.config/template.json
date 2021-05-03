@@ -1,10 +1,10 @@
 {
     "$schema": "http://json.schemastore.org/template",
     "author": "Jeremy Zagorski",
-    "classifications": [ "Solution", "Web", "WebApi", "Routing" ],
+    "classifications": [ "Solution", "API", "WebApi", "Routing", "Controllerless", "Endpoints" ],
     "identity": "WebApiSolution.CSharp",
-    "name": "ASP.NET Core Web API Routing Solution",
-    "shortName": "webapi-bizapp",
+    "name": "Solution File with Project Layers",
+    "shortName": "sln-layers",
     "tags": {
         "language": "C#",
         "type": "project"

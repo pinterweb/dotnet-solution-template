@@ -13,8 +13,8 @@ service decoration for your business needs. For project definitions see the main
 
 ## Installation
 
-1. `git clone https://github.com/pinterweb/dotnet-webapi-template.git`
-2. `cd dotnet-webapi-template`
+1. `git clone https://github.com/pinterweb/dotnet-solution-template.git`
+2. `cd dotnet-solution-template`
 3. `.\install.bat`\
    _to uninstall run `.\install.bat u`_
 
@@ -37,7 +37,7 @@ The webapi project can be run without creating a new application
 To create a new solution with all the defaults run:
 
 ```
-dotnet new webapi-bizapp -n <your-app-name> -o <your-app-directory>
+dotnet new sln-layers -n <your-app-name> -o <your-app-directory>
 ```
 
 The default setup gives you:
@@ -60,5 +60,5 @@ You can optionally:
 To see all the available template options run:
 
 ```
-dotnet new webapi-bizapp --help
+dotnet new sln-layers --help
 ```
