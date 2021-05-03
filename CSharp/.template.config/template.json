@@ -171,7 +171,8 @@
                         "src/**/Hateoas*.cs",
                         "src/**/Weblinking*.cs",
                         "src/.vs/**",
-                        "src/BusinessApp.CompositionRoot/NullRegister.cs"
+                        "src/BusinessApp.CompositionRoot/NullRegister.cs",
+                        "src/BusinessApp.Infrastructure.WebApi/Resources/*.*"
                     ]
                 },
                 {
