@@ -1,5 +1,3 @@
-# README
-
 The purpose of this project is to register all your services from an application
 agnostic point of view (e.g not dependent on webapi or console project).
 
@@ -12,15 +10,15 @@ that implement `IBootstrapRegister`
 
 # Internal Dependencies
 
-    [Api](/CSharp/src/BusinessApp.Api)
-    [Infrastructure](/CSharp/src/BusinessApp.Infrastructure)
+[Api](/CSharp/src/BusinessApp.Api)
+[Infrastructure](/CSharp/src/BusinessApp.Infrastructure)
 //#if efcore
-    [Infrastructure.EntityFramework](/CSharp/src/BusinessApp.EntityFramework)
+[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.EntityFramework)
 //#endif
-    [Kernel](/CSharp/src/BusinessApp.Kernel)
+[Kernel](/CSharp/src/BusinessApp.Kernel)
 
 # External Dependencies
 
-    - [Simple Injector](https://github.com/simpleinjector/SimpleInjector)
-    - Microsoft.Extensions.Logging.*
-    - Microsoft.Extensions.Localization
+- [Simple Injector](https://github.com/simpleinjector/SimpleInjector)
+- Microsoft.Extensions.Logging.*
+- Microsoft.Extensions.Localization

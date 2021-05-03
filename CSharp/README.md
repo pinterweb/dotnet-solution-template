@@ -5,31 +5,41 @@ _$(product_description)_
 
 This project is a layered C# solution, built around the concept of stratified design.
 The kernel & analyzer projects are at the very core/bottom providing support
-for all projects code. Infrastructure code is separated out depending on its
+for all projects. Infrastructure code is separated out depending on its
 function to isolate dependencies. To find out more information on the project,
-see the READMEs in each projects:
+see the README in each project:
 
 ## Projects
 
 [CompositionRoot](/CSharp/src/BusinessApp.CompositionRoot)
 Registers all services
+
 [WebApi](/CSharp/src/BusinessApp.WebApi)
 The runnable aspnet web api entrypoint
+
 ---
+
 [Infrastructure.WebApi](/CSharp/src/BusinessApp.WebApi)
 Services to support your controllerless web api project
+
 //#if efcore
 [Infrastructure.EntityFramework](/CSharp/src/BusinessApp.EntityFramework)
 Services to support persisting and querying data with entity framework core
+
 //#endif
 ---
+
 [Api](/CSharp/src/BusinessApp.Api)
 Your app's business logic
+
 [Infrastructure](/CSharp/src/BusinessApp.Infrastructure)
 Services to support your app's business logic
+
 ---
+
 [Analyzers](/CSharp/src/BusinessApp.Analyzers)
 Code generators to make your life easier
+
 [Kernel](/CSharp/src/BusinessApp.Kernel)
 The core code shared by all projects
 

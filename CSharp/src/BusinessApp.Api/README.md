@@ -10,9 +10,9 @@ __Note: If you have a Domain project, you probably want to add a reference to it
 
 # Internal Dependencies
 
-    - Kernel Project
-    - Infrastructure Project to support request handling
+- Kernel Project
+- Infrastructure Project to support request handling
 
 # External Dependencies
 
-    - https://github.com/bchavez/Bogus (dev dependency)
+- [Bogus](https://github.com/bchavez/Bogus)
