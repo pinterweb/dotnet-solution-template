@@ -1,21 +1,12 @@
 # BusinessApp.Infrastructure.EntityFramework
-_Entity Framework Supporting Services_
+> Entity Framework Supporting Services
+
+_Depends on Kernel, Api and Infrastructure projects_
 
 This is an infrastructure project for the application that isolates Entity
 Framework Core services.
 
-# Internal Dependencies
-
-[Infrastructure](/CSharp/src/BusinessApp.Infrastructure)
-So that contract models and data related request handlers can be registered
-
-[Kernel](/CSharp/src/BusinessApp.Kernel)
-
-# External Dependencies
-
-[Entity Framework Core](https://github.com/dotnet/efcore)
-
-# Next Steps
+# Getting Started
 
 - https://docs.microsoft.com/en-us/ef/core/modeling/
   Configure your models, preferable in separate configuration files

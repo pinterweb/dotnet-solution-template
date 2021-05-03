@@ -6,8 +6,8 @@ _$(product_description)_
 This project is a layered C# solution, built around the concept of stratified design.
 The kernel & analyzer projects are at the very core/bottom providing support
 for all projects. Infrastructure code is separated out depending on its
-function to isolate dependencies. To find out more information on the project,
-see the README in each project:
+function to isolate dependencies. To find out more information on a project,
+see the README:
 
 ## Projects
 
@@ -21,7 +21,7 @@ The runnable aspnet web api entrypoint
 Services to support your controllerless web api project
 
 //#if efcore
-[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.Infrastructure.EntityFramework)
+[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.EntityFramework)
 Services to support persisting and querying data with entity framework core
 //#endif
 
