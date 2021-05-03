@@ -1,63 +1,64 @@
-# Dotnet WebApi Template
+# Dotnet Solution Template
+_Layered dotnet solution template decorated with services_
 
-TODO need to update
-
-Inspired by [solidservices](https://github.com/dotnetjunkie/solidservices)
+Inspired by [solidservices](https://github.com/dotnetjunkie/solidservices) and
+powered by [Simple Injector](https://github.com/simpleinjector/SimpleInjector) to provide rich
+service decoration for your business needs. For project definitions see the main
+[README](/CSharp) that goes along with new applications.
 
 - [Installation](#installation)
-- [Usage](#usage)
-- [Solution Layout](#layout)
+- [Testing](#testing)
+- [Running the webapi](#running-the-webapi)
+- [Creating a new app](#creating-a-new-app)
 
 ## Installation
 
-To install the template in the `dotnet new` list, run
+1. `git clone https://github.com/pinterweb/dotnet-webapi-template.git`
+2. `cd dotnet-webapi-template`
+3. `.\install.bat`\
+   _to uninstall run `.\install.bat u`_
+
+## Testing
+
+1. `cd CSharp\src`
+2. `dotnet test`
+
+## Running the webapi
+
+The webapi project can be run without creating a new application
+
+1. `cd CSharp\src\BusinessApp.WebApi`
+2. `dotnet watch run`\
+   _read the "Getting Started" setions in each project's README to determine the data_
+   _and services needed_
+
+## Creating a new app
+
+To create a new solution with all the defaults run:
+
 ```
-install.bat
+dotnet new webapi-bizapp -n <your-app-name> -o <your-app-directory>
 ```
 
-To uninstall the template run:
-```
-install.bat u
-```
+The default setup gives you:
+- git directory
+- git hooks to run tests on commits
+- [Entity Framework Core](https://github.com/dotnet/efcore)
+- JSON parsing with System.Text.Json
+- docker setup
+- data annotations validation
+- static file support
+- [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
 
-## Usage
-
-To create a new project using the template with all the default options run:
-
-```
-dotnet new webapi-bizapp --copyrightName "Your Copyright"
-```
-
-Then navigate to the WebApi project and run `dotnet run`. The application runs on port 5000,
-but should return 404's until you implement your own routes and handlers.
+You can optionally:
+- Replace System.Text.Json with [Newtonsoft](https://github.com/JamesNK/Newtonsoft.Json)
+- Setup HATEOAS via [weblinking](https://tools.ietf.org/html/rfc8288)
+- Add [Fluent Validation](https://github.com/FluentValidation/FluentValidation)
+- Add window authentication for intranet apps
+- Add CORS in development mode if your clients are built separately
 
 To see all the available template options run:
 
 ```
 dotnet new webapi-bizapp --help
 ```
-
-
-## Layout
-The layout of the solution is driven by a Command/Query request processing in
-the infrastructure layer, having a core shared kernel.
-
-### Kernel Layer
-Classes/Services to serve the Aggregate(s)
-* _No dependencies_
-
-### Infrastructure Layer
-Classes/Services to serve the domain in a command/query fashion
-* _dependencies: System.ComponentModel.Annotations_
-* _optional dependencies: Fluent Validation_
-
-### Infrastructure EntityFramework Layer
-Classes/Services to persist the domain Aggregate(s)
-* _optional dependencies: Entity Framework Core_
-
-### WebApi Layer
-Classes/Services to run a minimal web request/response application. This should
-help you focus on building your application and not relying so much on the framework.
-Routes are used rather than controllers to force you to implement your own command/query
-handling
-* _dependencies: SimpleInjector, DotnetEnv_
