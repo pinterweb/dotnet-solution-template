@@ -13,7 +13,7 @@ namespace BusinessApp.CompositionRoot
         {
             DbConnectionString = connStr
                 .NotEmpty()
-                .Expect("A data connection string is bootstrap to start this application");
+                .Expect("A data connection string is required to start this application");
 
             EnvironmentName = envName ?? "Development";
         }
