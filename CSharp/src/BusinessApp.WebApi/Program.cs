@@ -2,10 +2,13 @@ using System;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BusinessApp.Infrastructure;
+using BusinessApp.Infrastructure.WebApi;
 using SimpleInjector;
+using System.Linq;
 
 namespace BusinessApp.WebApi
 {
@@ -50,7 +53,31 @@ namespace BusinessApp.WebApi
                     _ = builder
                         .AddCommandLine(args)
                         .AddEnvironmentVariables(prefix: "BusinessApp_");
+
+                    ReplaceJsonConfigProvider(builder);
                 })
                 .UseStartup<Startup>();
+
+        private static void ReplaceJsonConfigProvider(IConfigurationBuilder builder)
+        {
+            var jsonConfigurationSources = builder.Sources.OfType<JsonConfigurationSource>().ToList();
+
+            foreach (var src in jsonConfigurationSources)
+            {
+                var indexOfJsonConfigurationSource = builder.Sources
+                    .IndexOf(src);
+
+                builder.Sources.RemoveAt(indexOfJsonConfigurationSource);
+                builder.Sources.Insert(
+                    indexOfJsonConfigurationSource,
+                    new ExpandJsonConfigurationSource
+                    {
+                        FileProvider = src.FileProvider,
+                        Path = src.Path,
+                        Optional = src.Optional,
+                        ReloadOnChange = src.ReloadOnChange
+                    });
+            }
+        }
     }
 }
