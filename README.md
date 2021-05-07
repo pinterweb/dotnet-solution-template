@@ -29,7 +29,7 @@ The webapi project can be run without creating a new application
 
 1. `cd CSharp\src\BusinessApp.WebApi`
 2. `dotnet watch run`\
-   _read the "Getting Started" setions in each project's README to determine the data_
+   _read the "Getting Started" sections in each project's README to determine the data_
    _and services needed_
 
 ## Creating a new app
