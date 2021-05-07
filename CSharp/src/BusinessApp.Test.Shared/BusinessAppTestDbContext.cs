@@ -33,7 +33,7 @@ namespace BusinessApp.Test.Shared
         protected override BusinessAppDbContext Create() => new BusinessAppTestDbContext();
     }
 
-    public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppTestDbContext>
+    public sealed class EFCoreMigrationsFactory : IDesignTimeDbContextFactory<BusinessAppTestDbContext>
     {
         public BusinessAppTestDbContext CreateDbContext(string[] args)
         {

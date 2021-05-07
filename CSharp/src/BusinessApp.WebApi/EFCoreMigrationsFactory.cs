@@ -1,30 +1,18 @@
 using BusinessApp.Infrastructure.EntityFramework;
-using Microsoft.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting;
-using SimpleInjector;
 
 namespace BusinessApp.WebApi
 {
     /// <summary>
     /// <see cref="IDesignTimeDbContextFactory" /> needed for entity framework migrations
     /// </summary>
-    public sealed class MigrationsContextFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
+    public sealed class EFCoreMigrationsFactory : IDesignTimeDbContextFactory<BusinessAppDbContext>
     {
         public BusinessAppDbContext CreateDbContext(string[] args)
         {
-            var config = (IConfiguration?)WebHost.CreateDefaultBuilder(args)
-                .ConfigureServices(sc => sc.AddSingleton(new Container()))
-                .ConfigureAppConfiguration(builder =>
-                {
-                    _ = builder
-                        .AddCommandLine(args)
-                        .AddEnvironmentVariables();
-                })
-                .UseStartup<Startup>()
+            var config = (IConfiguration?)Program.CreateWebHostBuilder(args)
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));
