@@ -28,8 +28,9 @@ life easier\
 
 ## Getting Started
 
+- Commit your code to source control (e.g. `feat(all): Add initial infrastructure`)
 - Add your continuous integration assets (e.g. azure-pipeline.yml)
-- Commit your code to source control (e.g. `feat(all): Initial commit`)
+- Commit your code to source control (e.g. `chore(build): Add build/release assets`)
 - Create your query & commands models in the Api project
 //#if efcore
 - Setup `IEntityConfiguration<TModel>` classes for any query contracts and
@@ -58,9 +59,9 @@ life easier\
    _just be sure to setup your own request handler to generate this fake data_
 //#if docker
 - Run `docker-compose up` from the src directory.\
-  _the webapi image depends on the db image. However, it could take a little bit_
-  _for the database to start. That will throw an error when the webapi starts up._
-  _I would suggest running `docker-compose up -d db` first and wait._
+  _the webapi image depends on the db image. However, if you have a local sql
+  _server you would like to use instead, you can change the "db" server name_
+  _to "host.docker.internal" to target your host machine database_
 //#endif
 //#if (!docker)
 - Run `dotnet watch run`

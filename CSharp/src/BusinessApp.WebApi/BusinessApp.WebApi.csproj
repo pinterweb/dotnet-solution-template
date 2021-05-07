@@ -4,7 +4,6 @@
     <Product>BusinessApp Web Api</Product>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>59121fd6-5ba7-4456-93e6-56dd3e6a2a8e</UserSecretsId>
-    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
     <IsPackable>false</IsPackable>
 <!--#if (description != '')-->
     <Description>$(product_description)</Description>
@@ -30,7 +29,7 @@
 <!--#if (efcore)-->
   <Target Name="Create Migrations Script" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
       <Exec Command="dotnet tool restore" />
-      <Exec Command="dotnet tool run dotnet-ef migrations script --configuration $(Configuration) --no-build --idempotent --output $(build_artifactstagingdirectory)/migrations/BusinessAppDbContext.sql --context BusinessAppDbContext" />
+      <Exec Command="dotnet tool run dotnet-ef migrations script --configuration $(Configuration) --no-build --idempotent --output $(BUILD_ARTIFACTSTAGINGDIRECTORY)/migrations/BusinessAppDbContext.sql --context BusinessAppDbContext" />
   </Target>
 <!--#endif-->
 

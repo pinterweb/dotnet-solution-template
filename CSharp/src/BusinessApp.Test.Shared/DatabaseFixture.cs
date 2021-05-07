@@ -31,6 +31,7 @@ namespace BusinessApp.Test.Shared
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder.AddJsonFile("appsettings.test.json");
+                    builder.AddEnvironmentVariables(prefix: "StaticForms_");
                 })
                 .UseStartup<Startup>()
                 .Build()

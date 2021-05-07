@@ -58,8 +58,8 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
             var accessHeader = Assert.Single(
                 response.Headers.GetValues("Access-Control-Expose-Headers"));
             var pageHeader = Assert.Single(
-                response.Headers.GetValues("VND.parkeremg.pagination"));
-            Assert.Equal("VND.parkeremg.pagination", accessHeader);
+                response.Headers.GetValues("VND.foobar.pagination"));
+            Assert.Equal("VND.foobar.pagination", accessHeader);
             Assert.Equal("count=1", pageHeader);
         }
 
