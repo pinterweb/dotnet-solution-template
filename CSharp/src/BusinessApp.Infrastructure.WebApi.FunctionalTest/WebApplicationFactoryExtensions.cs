@@ -32,18 +32,19 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
             var client = factory
                 .WithWebHostBuilder(builder =>
                 {
-                    builder.ConfigureAppConfiguration((hostingContext, config) =>
+                    _ = builder.ConfigureAppConfiguration((hostingContext, config) =>
                     {
-                        config.AddJsonFile("appsettings.test.json");
+                        _ = config.AddJsonFile("appsettings.test.json")
+                            .AddEnvironmentVariables(prefix: "StaticForms_");
                     })
                     .ConfigureServices(services =>
                     {
-                        services.AddSingleton(container);
+                        _ = services.AddSingleton(container);
                     })
                     .ConfigureTestServices(services =>
                     {
                         configuringServices?.Invoke(container);
-                        services.AddAuthentication(AuthenticationScheme)
+                        _ = services.AddAuthentication(AuthenticationScheme)
                                 .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>
                                 (AuthenticationScheme, options => { });
 
@@ -71,7 +72,7 @@ namespace BusinessApp.Infrastructure.WebApi.FunctionalTest
                 UrlEncoder
                 encoder,
                 ISystemClock clock) : base(options, logger, encoder, clock)
-            {}
+            { }
 
             protected override Task<AuthenticateResult> HandleAuthenticateAsync()
             {

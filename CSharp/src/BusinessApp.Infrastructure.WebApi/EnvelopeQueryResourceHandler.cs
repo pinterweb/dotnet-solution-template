@@ -35,9 +35,15 @@ namespace BusinessApp.Infrastructure.WebApi
                 : await handler.HandleAsync(query, cancelToken)
                 .MapAsync(envelope =>
                 {
-                    context.Response.Headers.Add("Access-Control-Expose-Headers", new[] { "VND.parkeremg.pagination" });
-                    context.Response.Headers.Add("VND.parkeremg.pagination",
+#if !DEBUG
+                    context.Response.Headers.Add("Access-Control-Expose-Headers", new[] { "VND.$(lower_appname).pagination" });
+                    context.Response.Headers.Add("VND.$(lower_appname).pagination",
                         new StringValues(envelope.Pagination.ToHeaderValue()));
+#else
+                    context.Response.Headers.Add("Access-Control-Expose-Headers", new[] { "VND.foobar.pagination" });
+                    context.Response.Headers.Add("VND.foobar.pagination",
+                        new StringValues(envelope.Pagination.ToHeaderValue()));
+#endif
 
                     return HandlerContext.Create(query, envelope.Data);
                 });

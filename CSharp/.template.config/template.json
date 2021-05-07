@@ -160,6 +160,20 @@
             "valueTransform": "kebabCaseTransformer",
             "replaces": "$(kebab_appname)",
             "description": "Create a kebab case name from the app name"
+        },
+        "appUpperName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "upperCaseTransformer",
+            "replaces": "$(upper_appname)",
+            "description": "Create an upper case name from the app name"
+        },
+        "appLowerName": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "lowerCaseTransformer",
+            "replaces": "$(lower_appname)",
+            "description": "Create an upper case name from the app name"
         }
     },
     "sources": [
@@ -226,10 +240,11 @@
                 {
                     "condition": "(!docker)",
                     "exclude": [
-                        "src/docker-compose.yml",
+                        "src/docker-compose.*",
                         "src/Dockerfile",
                         "src/Dockerfile*",
                         "src/.env",
+                        "src/.env.dev",
                         "src/.dockerignore"
                     ]
                 },
@@ -299,6 +314,12 @@
     },
     "kebabCaseTransformer": {
       "identifier": "kebabCase"
+    },
+    "upperCaseTransformer": {
+      "identifier": "upperCase"
+    },
+    "lowerCaseTransformer": {
+      "identifier": "lowerCase"
     }
   }
 }
