@@ -28,7 +28,7 @@ life easier\
 
 ## Getting Started
 
-- Commit your code to source control (e.g. `feat(all): Initial infrastructure`)
+- Commit your code to source control (e.g. `feat(all): Add initial infrastructure`)
 - Add your continuous integration assets (e.g. azure-pipeline.yml)
 - Commit your code to source control (e.g. `chore(build): Add build/release assets`)
 - Create your query & commands models in the Api project
