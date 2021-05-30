@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 #if efcore
-using BusinessApp.Infrastructure.EntityFramework;
+using BusinessApp.Infrastructure.Persistence;
 #endif
 using Microsoft.Extensions.Logging;
 using BusinessApp.CompositionRoot;

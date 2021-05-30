@@ -4,7 +4,7 @@ namespace BusinessApp.Test.Shared
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Migrations;
     using Microsoft.Extensions.Logging;
-    using BusinessApp.Infrastructure.EntityFramework;
+    using BusinessApp.Infrastructure.Persistence;
     using Microsoft.Extensions.Configuration;
     using Microsoft.AspNetCore.Hosting;
     using BusinessApp.WebApi;

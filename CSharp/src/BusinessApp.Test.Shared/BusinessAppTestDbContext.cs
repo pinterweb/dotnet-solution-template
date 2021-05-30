@@ -1,4 +1,4 @@
-using BusinessApp.Infrastructure.EntityFramework;
+using BusinessApp.Infrastructure.Persistence;
 using BusinessApp.Kernel;
 using BusinessApp.Infrastructure;
 using BusinessApp.WebApi;

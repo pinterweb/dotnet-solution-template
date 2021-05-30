@@ -18,10 +18,10 @@ using BusinessApp.WebApi.Json;
 using Microsoft.Extensions.Localization;
 using BusinessApp.CompositionRoot;
 #if DEBUG
-using BusinessApp.Infrastructure.EntityFramework;
+using BusinessApp.Infrastructure.Persistence;
 #else
 #if efcore
-using BusinessApp.Infrastructure.EntityFramework;
+using BusinessApp.Infrastructure.Persistence;
 #endif
 #endif
 

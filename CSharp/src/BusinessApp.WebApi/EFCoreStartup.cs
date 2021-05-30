@@ -4,7 +4,7 @@ using BusinessApp.Kernel;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 using System;
-using BusinessApp.Infrastructure.EntityFramework;
+using BusinessApp.Infrastructure.Persistence;
 
 namespace BusinessApp.WebApi
 {
