@@ -4,7 +4,7 @@ version: "3.9"
 services:
   webapi:
     build:
-      context: .
+      context: ./src
       args:
         $(upper_appname)_CONNECTIONSTRINGS__MAIN: "${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}"
     image:  projects/$(lower_appname)/webapi:latest

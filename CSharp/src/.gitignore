@@ -200,3 +200,8 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+//#if (docker)
+# for local requirements certs many need to be added
+*.crt
+//#endif

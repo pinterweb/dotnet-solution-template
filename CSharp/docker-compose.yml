@@ -8,7 +8,7 @@ services:
     image:  projects/$(lower_appname)/webapi:dev
     command: dotnet watch run
     volumes:
-      - .:/src
+      - .:/webapi
     ports:
       - "${$(upper_appname)_WEBAPI__HTTP_PORT?}:5000"
       - "${$(upper_appname)_WEBAPI__HTTPS_PORT?}:5001"

@@ -6,9 +6,9 @@ RUN apt-get install -y ca-certificates
 RUN update-ca-certificates
 
 # Just copy everything since we need to preserve dir structure & there is no other way to do it
-WORKDIR /src
+WORKDIR /webapi
 COPY . .
 RUN dotnet restore
 
-WORKDIR /src/BusinessApp.WebApi
+WORKDIR /webapi/BusinessApp.WebApi
 CMD ["dotnet", "run"]

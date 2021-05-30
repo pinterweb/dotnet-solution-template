@@ -148,12 +148,6 @@
             "valueTransform": "dockerConnectionStringTransformer",
             "replaces": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
         },
-        "dockerHostRename": {
-            "type": "derived",
-            "valueSource": "docker",
-            "valueTransform": "dockerHostInterfaceTransformer",
-            "replaces": "localhost"
-        },
         "appKebabName": {
             "type": "derived",
             "valueSource": "name",
@@ -288,29 +282,15 @@
       "identifier": "chain",
       "steps": [ "dockerConnectionStringReplacer", "localConnectionStringReplacer" ]
     },
-    "dockerHostInterfaceTransformer": {
-      "identifier": "chain",
-      "steps": [ "dockerHostInterfaceReplacer", "localHostInterfaceReplacer" ]
-    },
     "dockerConnectionStringReplacer": {
       "identifier": "replace",
       "pattern": "true",
       "replacement": "Server=db;User Id=sa;Password=foobar123@!3A"
     },
-    "dockerHostInterfaceReplacer": {
-      "identifier": "replace",
-      "pattern": "true",
-      "replacement": "0.0.0.0"
-    },
     "localConnectionStringReplacer": {
       "identifier": "replace",
       "pattern": "false",
       "replacement": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
-    },
-    "localHostInterfaceReplacer": {
-      "identifier": "replace",
-      "pattern": "false",
-      "replacement": "localhost"
     },
     "kebabCaseTransformer": {
       "identifier": "kebabCase"
