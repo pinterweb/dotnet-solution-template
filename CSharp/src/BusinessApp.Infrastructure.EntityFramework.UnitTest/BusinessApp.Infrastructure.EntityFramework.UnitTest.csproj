@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -14,8 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj" />
-    <ProjectReference Include="..\BusinessApp.Kernel\BusinessApp.Kernel.csproj" />
     <ProjectReference Include="..\BusinessApp.Test.Shared\BusinessApp.Test.Shared.csproj" />
   </ItemGroup>
 

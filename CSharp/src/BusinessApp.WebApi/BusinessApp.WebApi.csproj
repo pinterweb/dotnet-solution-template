@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BusinessApp.Infrastructure.WebApi\BusinessApp.Infrastructure.WebApi.csproj" />
-    <ProjectReference Include="..\BusinessApp.Api\BusinessApp.Api.csproj" />
   </ItemGroup>
 
 <!--#if (efcore)-->

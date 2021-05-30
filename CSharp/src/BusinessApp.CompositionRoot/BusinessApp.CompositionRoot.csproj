@@ -14,12 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.Infrastructure\BusinessApp.Infrastructure.csproj" />
+<!--#if (!efcore)-->
+    <ProjectReference Include="..\BusinessApp.Api\BusinessApp.Api.csproj" />
+<!--#endif-->
 <!--#if (efcore)-->
     <ProjectReference Include="..\BusinessApp.Infrastructure.EntityFramework\BusinessApp.Infrastructure.EntityFramework.csproj" />
 <!--#endif-->
-    <ProjectReference Include="..\BusinessApp.Kernel\BusinessApp.Kernel.csproj" />
-    <ProjectReference Include="..\BusinessApp.Api\BusinessApp.Api.csproj" />
   </ItemGroup>
 
 </Project>
