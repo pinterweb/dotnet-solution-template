@@ -1,4 +1,4 @@
-using BusinessApp.Infrastructure.EntityFramework;
+using BusinessApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +21,7 @@ namespace BusinessApp.WebApi
             var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
 
             _ = optionsBuilder.UseSqlServer(connection,
-                x => x.MigrationsAssembly("BusinessApp.Infrastructure.EntityFramework"));
+                x => x.MigrationsAssembly("BusinessApp.Infrastructure.Persistence"));
 
             return new BusinessAppDbContext(optionsBuilder.Options);
         }

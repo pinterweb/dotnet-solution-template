@@ -190,8 +190,8 @@
                     ],
                     "exclude": [
                         "src/.config/dotnet-tools.json",
-                        "src/BusinessApp.Infrastructure.EntityFramework/**",
-                        "src/BusinessApp.Infrastructure.EntityFramework*/**",
+                        "src/BusinessApp.Infrastructure.Persistence/**",
+                        "src/BusinessApp.Infrastructure.Persistence*/**",
                         "src/BusinessApp.Test.Shared/BusinessAppTestDbContext.cs",
                         "src/BusinessApp.Test.Shared/DatabaseFixture.cs",
                         "src/BusinessApp.Test.Shared/migrations*.cmd",

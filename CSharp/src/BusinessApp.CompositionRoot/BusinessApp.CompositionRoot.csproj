@@ -18,7 +18,7 @@
     <ProjectReference Include="..\BusinessApp.Api\BusinessApp.Api.csproj" />
 <!--#endif-->
 <!--#if (efcore)-->
-    <ProjectReference Include="..\BusinessApp.Infrastructure.EntityFramework\BusinessApp.Infrastructure.EntityFramework.csproj" />
+    <ProjectReference Include="..\BusinessApp.Infrastructure.Persistence\BusinessApp.Infrastructure.Persistence.csproj" />
 <!--#endif-->
   </ItemGroup>
 

@@ -16,7 +16,7 @@ see the READMEs:
 [CompositionRoot](/CSharp/src/BusinessApp.CompositionRoot): Registers all services\
 [WebApi](/CSharp/src/BusinessApp.WebApi): The runnable aspnet web api entrypoint\
 //#if efcore
-[Infrastructure.EntityFramework](/CSharp/src/BusinessApp.Infrastructure.EntityFramework):
+[Infrastructure.Persistence](/CSharp/src/BusinessApp.Infrastructure.Persistence):
 Services to support persisting and querying data with entity framework core\
 //#endif
 [Api](/CSharp/src/BusinessApp.Api): Your app's business logic\
