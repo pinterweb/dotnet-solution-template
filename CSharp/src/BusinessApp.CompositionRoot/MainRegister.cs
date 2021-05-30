@@ -40,6 +40,7 @@ namespace BusinessApp.CompositionRoot
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
             context.Container.Register<IProcessManager, SimpleInjectorProcessManager>();
 
+            RegisterSpecifications(context.Container);
             RegisterAuthorization(context.Container);
             RegisterBatchSupport(context.Container);
             RegisterLocalization(context.Container);
@@ -47,6 +48,18 @@ namespace BusinessApp.CompositionRoot
             RegisterValidators(context.Container);
             RegisterRequestDecoratePipeline(context);
             RegisterAppHandlers(context.Container);
+        }
+
+        private void RegisterSpecifications(Container container)
+        {
+            container.Register(typeof(ILinqSpecificationBuilder<,>),
+                typeof(AndLinqSpecificationBuilder<,>));
+
+            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>),
+                options.RegistrationAssemblies);
+
+            container.Collection.Append(typeof(ILinqSpecificationBuilder<,>),
+                typeof(QueryOperatorSpecificationBuilder<,>));
         }
 
         private static void RegisterAuthorization(Container container)

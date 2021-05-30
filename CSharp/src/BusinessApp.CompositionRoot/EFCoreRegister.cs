@@ -107,23 +107,17 @@ namespace BusinessApp.CompositionRoot
             container.Register(typeof(IQueryVisitorFactory<,>),
                 typeof(CompositeQueryVisitorBuilder<,>));
 
-            container.Register(typeof(ILinqSpecificationBuilder<,>),
-                typeof(AndSpecificationBuilder<,>));
-
-            container.Collection.Register(typeof(ILinqSpecificationBuilder<,>),
-                options.RegistrationAssemblies);
-
             container.Collection.Register(typeof(IQueryVisitor<>), options.RegistrationAssemblies);
+
+            container.Register(typeof(AndLinqSpecificationBuilder<,>));
 
             container.RegisterConditional(
                 typeof(IQueryVisitor<>),
                 typeof(NullQueryVisitor<>), ctx => !ctx.Handled);
 
-            container.Collection.Append(typeof(ILinqSpecificationBuilder<,>), typeof(QueryOperatorSpecificationBuilder<,>));
-
             container.Collection.Register(typeof(IQueryVisitorFactory<,>), new[]
             {
-                typeof(AndSpecificationBuilder<,>),
+                typeof(AndQueryVisitorFactory<,>),
                 typeof(ConstructedQueryVisitorFactory<,>),
             });
         }
