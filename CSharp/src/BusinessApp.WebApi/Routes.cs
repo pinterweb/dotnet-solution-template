@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 #endif
 using System;
 using System.Collections.Generic;
-using BusinessApp.Infrastructure.WebApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using SimpleInjector;

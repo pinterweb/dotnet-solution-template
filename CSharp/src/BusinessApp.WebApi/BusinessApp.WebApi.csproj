@@ -19,11 +19,21 @@
     <PackageReference Include="Bogus" Version="33.0.2">
        <PrivateAssets>all</PrivateAssets>
      </PackageReference>
+<!--#if (winauth)-->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="5.0.4" />
+<!--#endif-->
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="SimpleInjector.Integration.AspNetCore.Mvc" Version="5.2.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BusinessApp.Infrastructure.WebApi\BusinessApp.Infrastructure.WebApi.csproj" />
+    <ProjectReference Include="..\BusinessApp.CompositionRoot\BusinessApp.CompositionRoot.csproj" />
   </ItemGroup>
+
+  <Target Name="CodeCheck" AfterTargets="Restore">
+      <Exec WorkingDirectory="..\..\" Command="git config core.hooksPath .githooks" />
+  </Target>
 
 <!--#if (efcore)-->
   <Target Name="Create Migrations Script" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
