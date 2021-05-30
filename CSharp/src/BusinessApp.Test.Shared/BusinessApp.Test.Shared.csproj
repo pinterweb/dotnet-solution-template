@@ -6,7 +6,9 @@
 
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="6.2.1" />
+<!--#if (efcore)-->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.3" />
+<!--#endif-->
   </ItemGroup>
 
   <ItemGroup>
