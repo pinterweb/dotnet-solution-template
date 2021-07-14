@@ -19,6 +19,31 @@ namespace BusinessApp.Infrastructure.Persistence.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("BusinessApp.Infrastructure.RequestMetadata", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("RequestMetadataId")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("EventTriggers")
+                        .IsRequired()
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("ResponseType")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RequestMetadata", "dbo");
+                });
+
             modelBuilder.Entity("BusinessApp.Infrastructure.Metadata", b =>
                 {
                     b.Property<long>("Id")

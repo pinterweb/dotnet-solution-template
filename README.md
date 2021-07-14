@@ -50,6 +50,13 @@ The default setup gives you:
 - static file support
 - [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
 
+Plus features not in the core code:
+- Macro "like" Request Handling
+- Automation
+- Command Streaming\
+(see [Infrastructure](./CSharp/src/BusinessApp.Infrastructure/README.md): For more details
+
+
 You can optionally:
 - Replace System.Text.Json with [Newtonsoft](https://github.com/JamesNK/Newtonsoft.Json)
 - Setup HATEOAS via [weblinking](https://tools.ietf.org/html/rfc8288)

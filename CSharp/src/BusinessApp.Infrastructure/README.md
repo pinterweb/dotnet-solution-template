@@ -17,6 +17,7 @@ validation, authentication etc. All supporting services run as
 - Macro "like" Request Handling\
   _A macro is a single request from a client that issues batch commands_
 - Event Streaming
+- Command Streaming
 - Query Filtering
 - JSON parsing
 - Unique ID Generation
