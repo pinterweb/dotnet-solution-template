@@ -13,7 +13,6 @@ validation, authentication etc. All supporting services run as
 - Validation
 - Logging
 - Authorization
-- Batch Request Handling
 - Event Streaming
 - Command Streaming
 - Query Filtering
