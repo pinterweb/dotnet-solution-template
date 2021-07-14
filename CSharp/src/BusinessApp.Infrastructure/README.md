@@ -15,7 +15,6 @@ validation, authentication etc. All supporting services run as
 - Authorization
 - Batch Request Handling
 - Event Streaming
-- Command Streaming
 - Query Filtering
 - JSON parsing
 - Unique ID Generation
