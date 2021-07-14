@@ -22,4 +22,4 @@ validation, authentication etc. All supporting services run as
 - JSON parsing
 - Unique ID Generation
 - Automation\
-  _Triggers "workflows", where one request can trigger another request_
+  _Triggers "workflows", where an event can trigger another request_
