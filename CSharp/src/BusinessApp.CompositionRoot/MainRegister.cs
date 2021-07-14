@@ -31,14 +31,12 @@ namespace BusinessApp.CompositionRoot
 
             container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
             container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
-            container.Register(typeof(IRequestMapper<,>), options.RegistrationAssemblies);
 
             container.Register<IEventPublisherFactory, EventMetadataPublisherFactory>();
             container.Register<PostCommitRegister>();
             container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
 
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
-            context.Container.Register<IProcessManager, SimpleInjectorProcessManager>();
 
             RegisterSpecifications(context.Container);
             RegisterAuthorization(context.Container);
@@ -154,13 +152,6 @@ namespace BusinessApp.CompositionRoot
                     && !c.ImplementationType.IsTypeDefinition(typeof(TransactionRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>))
             );
-
-            context.Container.RegisterDecorator(
-                serviceType,
-                typeof(AutomationRequestDecorator<,>),
-                c => c.AppliedDecorators
-                    .Where(a => a.IsGenericType)
-                    .Any(a => a.GetGenericTypeDefinition() == typeof(EventConsumingRequestDecorator<,>)));
 
             #endregion
 

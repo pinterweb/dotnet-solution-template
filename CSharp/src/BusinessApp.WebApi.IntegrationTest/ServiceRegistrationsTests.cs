@@ -312,9 +312,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(TransactionRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
                         implType => Assert.Equal(
-                            typeof(AutomationRequestDecorator<CommandStub, CompositeEventStub>),
-                            implType),
-                        implType => Assert.Equal(
                             typeof(EventConsumingRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
                         implType => Assert.Equal(
@@ -545,9 +542,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                             implType),
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CompositeEventStub>),
-                            implType),
-                        implType => Assert.Equal(
-                            typeof(AutomationRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
                         implType => Assert.Equal(
                             typeof(EventConsumingRequestDecorator<CommandStub, CompositeEventStub>),
