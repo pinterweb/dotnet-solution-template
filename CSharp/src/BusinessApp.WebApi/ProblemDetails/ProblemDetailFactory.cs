@@ -35,7 +35,9 @@ namespace BusinessApp.WebApi.ProblemDetails
                 option = actualValue;
             }
 
-            return CreateSingleProblem(exception, option);
+            return exception is BatchException f
+                ? CreateCompositeProblem(f)
+                : CreateSingleProblem(exception, option);
         }
 
         private static ProblemDetail CreateSingleProblem(Exception? error,
@@ -57,6 +59,23 @@ namespace BusinessApp.WebApi.ProblemDetails
             }
 
             return problem;
+        }
+
+        private ProblemDetail CreateCompositeProblem(BatchException errors)
+        {
+            var responses = errors
+                .Select(r =>
+                    r.MapOrElse(
+                        err => Create(err),
+                        ok => new ProblemDetail(StatusCodes.Status200OK)
+                    )
+                );
+
+            return new CompositeProblemDetail(responses)
+            {
+                Detail = "The request partially succeeded. Please review the errors before " +
+                    "continuing"
+            };
         }
     }
 }
