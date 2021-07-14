@@ -25,7 +25,6 @@ namespace BusinessApp.CompositionRoot
             var container = context.Container;
 
             container.Register<IEventStoreFactory, NullEventStoreFactory>();
-            container.Register<IRequestStore, NullRequestStore>();
             container.Register<ITransactionFactory, NullTransactionFactory>();
         }
 #endif
@@ -39,12 +38,6 @@ namespace BusinessApp.CompositionRoot
                 public EventTrackingId Add<T>(T e) where T : notnull, IDomainEvent
                     => new(new MetadataId(0), new MetadataId(0));
             }
-        }
-
-        private sealed class NullRequestStore : IRequestStore
-        {
-            public Task<IEnumerable<RequestMetadata>> GetAllAsync()
-                => Task.FromResult<IEnumerable<RequestMetadata>>(Array.Empty<RequestMetadata>());
         }
 
         private sealed class NullTransactionFactory : ITransactionFactory

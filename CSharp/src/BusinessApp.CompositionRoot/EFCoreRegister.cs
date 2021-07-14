@@ -48,14 +48,6 @@ namespace BusinessApp.CompositionRoot
 
             RegisterHandlers(container);
 
-            container.RegisterDecorator(
-                typeof(IRequestHandler<,>),
-                typeof(EFMetadataStoreRequestDecorator<,>),
-                c => !c.ServiceType.GetGenericArguments()[0].IsGenericIEnumerable()
-                    && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
-                    && !c.ImplementationType.Name.Contains("Decorator")
-                    && !typeof(ICompositeEvent).IsAssignableFrom(c.ServiceType.GetGenericArguments()[1]));
-
             inner.Register(context);
 
             context.Container.RegisterDecorator(
@@ -90,7 +82,6 @@ namespace BusinessApp.CompositionRoot
             container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
 
             container.Register<BusinessAppDbContext>();
-            container.Register<IRequestStore>(() => container.GetInstance<BusinessAppDbContext>());
             container.RegisterInstance(
               new DbContextOptionsBuilder<BusinessAppDbContext>()
 //#if DEBUG
