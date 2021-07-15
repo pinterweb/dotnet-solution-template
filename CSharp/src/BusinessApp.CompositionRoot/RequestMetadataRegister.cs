@@ -43,6 +43,6 @@ namespace BusinessApp.CompositionRoot
             public Task<IEnumerable<RequestMetadata>> GetAllAsync()
                 => Task.FromResult<IEnumerable<RequestMetadata>>(Array.Empty<RequestMetadata>());
         }
-    }
 #endif
+    }
 }

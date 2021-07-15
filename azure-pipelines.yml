@@ -46,11 +46,19 @@ steps:
       projects: '**/*.sln'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Base Build'
+    displayName: "Build Base"
     inputs:
       command: build
       projects: '**/*.sln'
       versioningScheme: byBuildNumber
+
+  - task: DotNetCoreCLI@2
+    displayName: "Build All Features"
+    inputs:
+      command: build
+      projects: '**/*.sln'
+      versioningScheme: byBuildNumber
+      arguments: '-p:DefineConstants=automation%3Bmacro%3Bmetadata%3Befcore%3B$(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
     displayName: 'Build EFCore'
