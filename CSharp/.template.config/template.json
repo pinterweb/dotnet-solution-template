@@ -268,14 +268,6 @@
                     ]
                 },
                 {
-                    "condition": "(novalidation)",
-                    "exclude": [
-                        "src/Validation*.cs",
-                        "src/*Validation*.cs",
-                        "src/*Validation.cs"
-                    ]
-                },
-                {
                     "condition": "(!automation)",
                     "exclude": [
                         "src/**/*ProcessManager*.cs",
