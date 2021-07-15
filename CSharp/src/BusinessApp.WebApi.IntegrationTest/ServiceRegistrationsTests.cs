@@ -887,6 +887,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             }
 
 #else
+#if macro
             public class MacroRequest : ServiceRegistrationsTests
             {
                 [Fact]
@@ -1094,6 +1095,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     );
                 }
             }
+#endif
 #endif
 
             public class QueryRequest : ServiceRegistrationsTests
