@@ -42,7 +42,7 @@
         "efcore": {
             "type": "parameter",
             "dataType": "bool",
-            "defaultValue": "true",
+            "defaultValue": "false",
             "description": "Adds services for entity framework core in your data layer"
         },
         "json": {
@@ -58,6 +58,24 @@
                 "description": "use Newtonsoft.Json"
             }]
         },
+        "automation": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Adds the automation services"
+        },
+        "metadata": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to stream requests to a data source"
+        },
+        "macro": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to support macro requests"
+        },
         "systemjson": {
           "type": "computed",
           "value": "(json == \"systemjson\")"
@@ -69,6 +87,10 @@
         "usehateoas": {
           "type": "computed",
           "value": "(hateoas != \"none\")"
+        },
+        "novalidation": {
+          "type": "computed",
+          "value": "(!fluentvalidation && !dataannotations)"
         },
         "docker": {
             "type": "parameter",
@@ -88,7 +110,7 @@
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
-            "defaultValue": "true",
+            "defaultValue": "false",
             "description": "Adds data annotations for validation to app project"
         },
         "winauth": {
@@ -109,7 +131,7 @@
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
-            "defaultValue": "true",
+            "defaultValue": "false",
             "description": "Adds support to serve static files"
         },
         "hateoas": {
@@ -247,6 +269,37 @@
                     "include": [
                         "src/**/Hateoas*.cs",
                         "src/**/WeblinkingHeader*.cs"
+                    ]
+                },
+                {
+                    "condition": "(novalidation)",
+                    "exclude": [
+                        "src/Validation*.cs",
+                        "src/*Validation*.cs",
+                        "src/*Validation.cs"
+                    ]
+                },
+                {
+                    "condition": "(!automation)",
+                    "exclude": [
+                        "src/**/*ProcessManager*.cs",
+                        "src/**/Automation*.cs"
+                    ]
+                },
+                {
+                    "condition": "(!metadata)",
+                    "exclude": [
+                        "src/**/RequestMetadata*.cs",
+                        "src/**/*MetadataStore*.cs",
+                        "src/**/IRequestMapper.cs",
+                        "src/**/IRequestStore.cs"
+                    ]
+                },
+                {
+                    "condition": "(!macro)",
+                    "exclude": [
+                        "src/**/Macro*.cs",
+                        "src/**/*Macro*.cs"
                     ]
                 }
             ]
