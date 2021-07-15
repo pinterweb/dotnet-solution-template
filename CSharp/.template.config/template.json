@@ -42,7 +42,7 @@
         "efcore": {
             "type": "parameter",
             "dataType": "bool",
-            "defaultValue": "false",
+            "defaultValue": "true",
             "description": "Adds services for entity framework core in your data layer"
         },
         "json": {
@@ -58,24 +58,6 @@
                 "description": "use Newtonsoft.Json"
             }]
         },
-        "automation": {
-            "type": "parameter",
-            "dataType": "bool",
-            "defaultValue": "false",
-            "description": "Adds the automation services"
-        },
-        "metadata": {
-            "type": "parameter",
-            "dataType": "bool",
-            "defaultValue": "false",
-            "description": "Add services to stream requests to a data source"
-        },
-        "macro": {
-            "type": "parameter",
-            "dataType": "bool",
-            "defaultValue": "false",
-            "description": "Add services to support macro requests"
-        },
         "systemjson": {
           "type": "computed",
           "value": "(json == \"systemjson\")"
@@ -87,10 +69,6 @@
         "usehateoas": {
           "type": "computed",
           "value": "(hateoas != \"none\")"
-        },
-        "novalidation": {
-          "type": "computed",
-          "value": "(!fluentvalidation && !dataannotations)"
         },
         "docker": {
             "type": "parameter",
@@ -110,7 +88,7 @@
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
-            "defaultValue": "false",
+            "defaultValue": "true",
             "description": "Adds data annotations for validation to app project"
         },
         "winauth": {
@@ -131,7 +109,7 @@
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
-            "defaultValue": "false",
+            "defaultValue": "true",
             "description": "Adds support to serve static files"
         },
         "hateoas": {
@@ -190,6 +168,24 @@
             "valueTransform": "lowerCaseTransformer",
             "replaces": "$(lower_appname)",
             "description": "Create an upper case name from the app name"
+        },
+        "automation": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Adds the automation services"
+        },
+        "metadata": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to stream requests to a data source"
+        },
+        "macro": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to support macro requests"
         }
     },
     "sources": [
