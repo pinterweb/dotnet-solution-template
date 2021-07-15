@@ -27,7 +27,6 @@ namespace BusinessApp.CompositionRoot
                 c => c.AppliedDecorators
                     .Where(a => a.IsGenericType)
                     .Any(a => a.GetGenericTypeDefinition() == typeof(EventConsumingRequestDecorator<,>)));
-
         }
     }
 }
