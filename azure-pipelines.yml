@@ -69,7 +69,7 @@ steps:
       arguments: '-p:DefineConstants=efcore%3B$(buildConfiguration)'
 
   - task: DotNetCoreCLI@2
-    displayName: Test
+    displayName: Test All Features
     inputs:
       command: test
       # XXX do not target solution, we need the data integrations tests to run
@@ -77,3 +77,14 @@ steps:
       # since there is a compiler directive to build the DB with efcore and running
       # the test with DefineConstants does not work
       projects: '$(testProjects)'
+
+  - task: DotNetCoreCLI@2
+    displayName: Test No Features
+    inputs:
+      command: test
+      # XXX do not target solution, we need the data integrations tests to run
+      # before the functional tests or else the test databsae will not be there
+      # since there is a compiler directive to build the DB with efcore and running
+      # the test with DefineConstants does not work
+      projects: '$(testProjects)'
+      arguments: '-p:DefineConstants=RELEASE'
