@@ -168,6 +168,24 @@
             "valueTransform": "lowerCaseTransformer",
             "replaces": "$(lower_appname)",
             "description": "Create an upper case name from the app name"
+        },
+        "automation": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Adds the automation services"
+        },
+        "metadata": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to stream requests to a data source"
+        },
+        "macro": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to support macro requests"
         }
     },
     "sources": [
@@ -247,6 +265,29 @@
                     "include": [
                         "src/**/Hateoas*.cs",
                         "src/**/WeblinkingHeader*.cs"
+                    ]
+                },
+                {
+                    "condition": "(!automation)",
+                    "exclude": [
+                        "src/**/*ProcessManager*.cs",
+                        "src/**/Automation*.cs"
+                    ]
+                },
+                {
+                    "condition": "(!metadata)",
+                    "exclude": [
+                        "src/**/RequestMetadata*.cs",
+                        "src/**/*MetadataStore*.cs",
+                        "src/**/IRequestMapper.cs",
+                        "src/**/IRequestStore.cs"
+                    ]
+                },
+                {
+                    "condition": "(!macro)",
+                    "exclude": [
+                        "src/**/Macro*.cs",
+                        "src/**/*Macro*.cs"
                     ]
                 }
             ]

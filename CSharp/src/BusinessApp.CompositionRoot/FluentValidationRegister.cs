@@ -29,7 +29,6 @@ namespace BusinessApp.CompositionRoot
             container.Collection.Append(
                 typeof(IValidator<>),
                 typeof(FluentValidationValidator<>));
-
         }
     }
 }

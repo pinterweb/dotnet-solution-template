@@ -14,11 +14,18 @@ validation, authentication etc. All supporting services run as
 - Logging
 - Authorization
 - Batch Request Handling
+//#if macro
 - Macro "like" Request Handling\
   _A macro is a single request from a client that issues batch commands_
+//#endif
 - Event Streaming
+//#if metadata
+- Command Streaming
+//#endif
 - Query Filtering
 - JSON parsing
 - Unique ID Generation
+//#if automation
 - Automation\
   _Triggers "workflows", where an event can trigger another request_
+//#endif
