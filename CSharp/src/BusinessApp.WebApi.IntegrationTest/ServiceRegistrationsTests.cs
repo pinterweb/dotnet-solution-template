@@ -35,39 +35,13 @@ namespace BusinessApp.WebApi.IntegrationTest
         public ServiceRegistrationsTests()
         {
             container = new Container();
-            var config = A.Fake<IConfiguration>();
-            var configSection = A.Fake<IConfigurationSection>();
-            A.CallTo(() => config.GetSection("ConnectionStrings")).Returns(configSection);
-            A.CallTo(() => configSection["Main"]).Returns("foo");
-            _ = new Startup(config, container, A.Dummy<IWebHostEnvironment>());
-            scope = AsyncScopedLifestyle.BeginScope(container);
+            scope = container.CreateScope();
         }
 
         public void Dispose() => scope.Dispose();
 
         public void CreateRegistrations(Container container, string envName = "Development")
         {
-            var bootstrapOptions = new RegistrationOptions(
-                "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
-                envName)
-            {
-                RegistrationAssemblies = new[]
-                {
-                    typeof(ServiceRegistrationsTests).Assembly,
-                    typeof(Infrastructure.IQuery).Assembly,
-#if DEBUG
-                    typeof(IQueryVisitor<>).Assembly,
-#else
-#if efcore
-                    typeof(IQueryVisitor<>).Assembly,
-#endif
-#endif
-                    typeof(IEventHandler<>).Assembly,
-                    typeof(Startup).Assembly
-                }
-            };
-            container.RegisterInstance(A.Fake<IHttpContextAccessor>());
-            container.RegisterInstance(A.Fake<IStringLocalizerFactory>());
 #if DEBUG
             container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
             container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
@@ -77,9 +51,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
 #endif
 #endif
-            CompositionRoot.Bootstrapper.RegisterServices(container,
-                bootstrapOptions,
-                A.Dummy<ILoggerFactory>());
+            container.CreateRegistrations(envName);
         }
 
         public class RequestHandlers : ServiceRegistrationsTests

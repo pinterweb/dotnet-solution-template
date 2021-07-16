@@ -39,7 +39,6 @@ namespace BusinessApp.CompositionRoot
             context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
 
             RegisterSpecifications(context.Container);
-            RegisterAuthorization(context.Container);
             RegisterBatchSupport(context.Container);
             RegisterLocalization(context.Container);
             RegisterLogging(context.Container);
@@ -65,12 +64,6 @@ namespace BusinessApp.CompositionRoot
             container.Collection.Append(typeof(ILinqSpecificationBuilder<,>),
                 typeof(QueryOperatorSpecificationBuilder<,>));
         }
-
-        private static void RegisterAuthorization(Container container)
-            => container.RegisterConditional(
-                typeof(IAuthorizer<>),
-                typeof(NullAuthorizer<>),
-                c => !c.Handled);
 
         private static void RegisterLocalization(Container container)
         {
@@ -438,15 +431,6 @@ namespace BusinessApp.CompositionRoot
                 typeof(NoBusinessLogicRequestHandler<>),
                 Lifestyle.Scoped,
                 c => CanHandle(c) && !c.ServiceType.GetGenericArguments()[0].IsQueryType());
-        }
-
-        /// <summary>
-        /// Null object pattern. When no authorization is used on a request
-        /// </summary>
-        private sealed class NullAuthorizer<T> : IAuthorizer<T>
-            where T : notnull
-        {
-            public bool AuthorizeObject(T instance) => true;
         }
 
 #if DEBUG
