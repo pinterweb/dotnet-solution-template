@@ -13,7 +13,6 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  buildConfiguration: 'DEBUG'
   GitVersion.SemVer: ''
   testProjects: '**/*Test.csproj'
 
@@ -21,22 +20,22 @@ steps:
   - task: gitversion/setup@0
     displayName: Install GitVersion
     inputs:
-      versionSpec: "5.3.7"
+      versionSpec: '5.3.7'
 
   - task: gitversion/execute@0
     displayName: Use GitVersion
     inputs:
       useConfigFile: true
-      configFilePath: "GitVersion.yml"
+      configFilePath: 'GitVersion.yml'
 
   - script: |
       echo FullSemVer: $(fullSemVer)
       echo ##vso[build.updatebuildnumber]$(fullSemVer)
-    displayName: 'Update build number'
+    displayName: Update build number
 
   - task: UseDotNet@2
     inputs:
-      packageType: 'sdk'
+      packageType: sdk
       version: '5.0.x'
 
   - task: DotNetCoreCLI@2
@@ -46,7 +45,7 @@ steps:
       projects: '**/*.sln'
 
   - task: DotNetCoreCLI@2
-    displayName: "Build All Features"
+    displayName: Build All Features
     inputs:
       command: build
       projects: '**/*.sln'
@@ -54,19 +53,27 @@ steps:
       arguments: '-c Debug'
 
   - task: DotNetCoreCLI@2
-    displayName: 'Build EFCore'
+    displayName: Build No Features
     inputs:
       command: build
       projects: '**/*.sln'
       versioningScheme: byBuildNumber
-      arguments: '-p:DefineConstants=efcore%3B$(buildConfiguration)'
+      arguments: '-c Release'
 
+# XXX do not target solution, we need the data integrations tests to run
+# before the functional tests or else the test databsae will not be there
+# since there is a compiler directive to build the DB with efcore and running
+# the test with DefineConstants does not work
   - task: DotNetCoreCLI@2
-    displayName: Test
+    displayName: Test All Features
     inputs:
       command: test
-      # XXX do not target solution, we need the data integrations tests to run
-      # before the functional tests or else the test databsae will not be there
-      # since there is a compiler directive to build the DB with efcore and running
-      # the test with DefineConstants does not work
       projects: '$(testProjects)'
+      arguments: '-c Debug'
+
+  - task: DotNetCoreCLI@2
+    displayName: Test No Features
+    inputs:
+      command: test
+      projects: '$(testProjects)'
+      arguments: '-c Release'
