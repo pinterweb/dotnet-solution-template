@@ -206,10 +206,19 @@
                     ]
                 },
                 {
+                    "condition": "(efcore)",
+                    "exclude": [
+                        "src/BusinessApp.NoPersistence.sln"
+                    ]
+                },
+                {
                     "condition": "(!efcore)",
                     "include": [
                         "src/BusinessApp.CompositionRoot/NullRegister.cs"
                     ],
+                    "rename": {
+                        "src/BusinessApp.NoPersistence.sln": "src/BusinessApp.sln"
+                    },
                     "exclude": [
                         "src/.config/dotnet-tools.json",
                         "src/BusinessApp.Infrastructure.Persistence/**",
@@ -218,7 +227,8 @@
                         "src/BusinessApp.Test.Shared/DatabaseFixture.cs",
                         "src/BusinessApp.Test.Shared/migrations*.cmd",
                         "src/**/EFCore*.cs",
-                        "**/Migrations/*.*"
+                        "**/Migrations/*.*",
+                        "src/BusinessApp.sln"
                     ]
                 },
                 {
