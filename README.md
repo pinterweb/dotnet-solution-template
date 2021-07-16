@@ -43,18 +43,18 @@ dotnet new sln-layers -n <your-app-name> -o <your-app-directory>
 The default setup gives you:
 - git directory
 - git hooks to run tests on commits
-- [Entity Framework Core](https://github.com/dotnet/efcore)
 - JSON parsing with System.Text.Json
 - docker setup
-- static file support
 - [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
 
 You can optionally:
 - Replace System.Text.Json with [Newtonsoft](https://github.com/JamesNK/Newtonsoft.Json)
 - Setup HATEOAS via [weblinking](https://tools.ietf.org/html/rfc8288)
+- Add [Entity Framework Core](https://github.com/dotnet/efcore)
 - Add [Fluent Validation](https://github.com/FluentValidation/FluentValidation)
 - Add window authentication for intranet apps
 - Add CORS in development mode if your clients are built separately
+- Add static file support
 
 To see all the available template options run:
 
