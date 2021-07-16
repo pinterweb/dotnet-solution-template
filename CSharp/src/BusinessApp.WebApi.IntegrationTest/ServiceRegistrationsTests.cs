@@ -134,7 +134,10 @@ namespace BusinessApp.WebApi.IntegrationTest
                     CreateRegistrations(container);
                     container.Verify();
                     var isBatchService = serviceType.GetGenericArguments()[0].IsGenericIEnumerable();
-                    var take = isBatchService ? 5 : 3;
+                    var expectedServices = expectedServicesAndBatchOnlyFlag
+                            .Where(t => t.Item2 == isBatchService || !t.Item2)
+                            .Select(i => i.Item1).ToList();
+                    var take = expectedServices.Count();
 
                     /* Act */
                     var _ = container.GetInstance(serviceType);
@@ -143,9 +146,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var handlers = GetServiceGraph(serviceType);
 
                     Assert.Equal(
-                        expectedServicesAndBatchOnlyFlag
-                            .Where(t => t.Item2 == isBatchService || !t.Item2)
-                            .Select(i => i.Item1).ToList(),
+                        expectedServices,
                         handlers.Take(take).Select(i => i.GetGenericTypeDefinition()).ToList()
                     );
                 }
@@ -171,7 +172,10 @@ namespace BusinessApp.WebApi.IntegrationTest
                     container.GetInstance(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
                     container.GetInstance(serviceType);
                     var isBatchService = serviceType.GetGenericArguments()[0].IsGenericIEnumerable();
-                    var take = isBatchService ? 5 : 3;
+                    var expectedServices = expectedServicesAndBatchOnlyFlag
+                            .Where(t => t.Item2 == isBatchService || !t.Item2)
+                            .Select(i => i.Item1).ToList();
+                    var take = expectedServices.Count();
 
                     /* Act */
                     var firstType = container.GetRegistration(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
@@ -182,9 +186,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         .Where(t => t.ServiceType == serviceType)
                         .Select(ip => ip.Registration.ImplementationType);
                     Assert.Equal(
-                        expectedServicesAndBatchOnlyFlag
-                            .Where(t => t.Item2 == isBatchService || !t.Item2)
-                            .Select(i => i.Item1).ToList(),
+                        expectedServices,
                         graph.Take(take).Select(i => i.GetGenericTypeDefinition()).ToList()
                     );
                 }
@@ -211,7 +213,10 @@ namespace BusinessApp.WebApi.IntegrationTest
                     container.GetInstance(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
                     container.GetInstance(serviceType);
                     var isBatchService = serviceType.GetGenericArguments()[0].IsGenericIEnumerable();
-                    var take = isBatchService ? 5 : 3;
+                    var expectedServices = expectedServicesAndBatchOnlyFlag
+                            .Where(t => t.Item2 == isBatchService || !t.Item2)
+                            .Select(i => i.Item1).ToList();
+                    var take = expectedServices.Count();
 
                     /* Act */
                     var firstType = container.GetRegistration(MakeSvcGenericType(typeof(IHttpRequestHandler<,>)));
@@ -222,9 +227,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         .Where(t => t.ServiceType == serviceType)
                         .Select(ip => ip.Registration.ImplementationType);
                     Assert.Equal(
-                        expectedServicesAndBatchOnlyFlag
-                            .Where(t => t.Item2 == isBatchService || !t.Item2)
-                            .Select(i => i.Item1).ToList(),
+                        expectedServices,
                         graph.Take(take).Select(i => i.GetGenericTypeDefinition()).ToList()
                     );
                 }
