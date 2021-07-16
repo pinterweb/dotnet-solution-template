@@ -70,10 +70,3 @@ steps:
       command: test
       projects: '$(testProjects)'
       arguments: '-c Debug'
-
-  - task: DotNetCoreCLI@2
-    displayName: Test No Features
-    inputs:
-      command: test
-      projects: '$(testProjects)'
-      arguments: '-c Release'

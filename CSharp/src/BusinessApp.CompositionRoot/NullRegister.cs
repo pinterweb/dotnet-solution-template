@@ -24,8 +24,8 @@ namespace BusinessApp.CompositionRoot
             inner.Register(context);
             var container = context.Container;
 
-            container.Register<IEventStoreFactory, NullEventStoreFactory>();
-            container.Register<ITransactionFactory, NullTransactionFactory>();
+            container.RegisterConditional<IEventStoreFactory, NullEventStoreFactory>(c => !c.Handled);
+            container.RegisterConditional<ITransactionFactory, NullTransactionFactory>(c => !c.Handled);
         }
 #endif
 
