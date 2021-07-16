@@ -79,7 +79,7 @@ namespace BusinessApp.CompositionRoot
                 typeof(IQueryVisitorFactory<,>),
                 typeof(EFQueryVisitorFactory<,>));
 
-            container.RegisterConditional<IEventStoreFactory, EFEventStoreFactory>(c => !c.Handled);
+            container.Register<IEventStoreFactory, EFEventStoreFactory>();
 
             container.Register(typeof(IDbSetVisitorFactory<,>), options.RegistrationAssemblies);
 
@@ -98,7 +98,7 @@ namespace BusinessApp.CompositionRoot
                 ctx => CanHandle(ctx)
             );
 
-            container.RegisterConditional<ITransactionFactory, EFUnitOfWork>(c => !c.Handled);
+            container.Register<ITransactionFactory, EFUnitOfWork>();
 
             container.Register<BusinessAppDbContext>();
             container.RegisterInstance(
