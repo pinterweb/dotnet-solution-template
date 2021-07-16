@@ -27,6 +27,11 @@ namespace BusinessApp.CompositionRoot
                 IsAuthCommand);
 
             inner.Register(context);
+
+            container.RegisterConditional(
+                typeof(IAuthorizer<>),
+                typeof(NullAuthorizer<>),
+                c => !c.Handled);
         }
 
         private static bool IsAuthCommand(PredicateContext ctx)
@@ -42,6 +47,15 @@ namespace BusinessApp.CompositionRoot
             }
 
             return HasAuthAttribute(requestType);
+        }
+
+        /// <summary>
+        /// Null object pattern. When no authorization is used on a request
+        /// </summary>
+        private sealed class NullAuthorizer<T> : IAuthorizer<T>
+            where T : notnull
+        {
+            public bool AuthorizeObject(T instance) => true;
         }
     }
 }
