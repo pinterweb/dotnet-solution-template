@@ -273,7 +273,6 @@
                 },
                 {
                     "condition": "(!validation)",
-                    "include": [ "src/**/ModelValidationException.cs", "src/MemberValidationException.cs" ],
                     "exclude": [
                         "src/**/Validation*.cs",
                         "src/**/*Validation*.cs",
@@ -282,6 +281,10 @@
                         "src/**/*Validator*.cs",
                         "src/**/Validator*.cs"
                     ]
+                },
+                {
+                    "condition": "(!validation)",
+                    "include": [ "src/**/ModelValidationException.cs", "src/**/MemberValidationException.cs" ]
                 },
                 {
                     "condition": "(!automation)",
