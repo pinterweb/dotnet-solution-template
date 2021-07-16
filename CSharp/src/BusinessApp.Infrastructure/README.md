@@ -10,7 +10,9 @@ validation, authentication etc. All supporting services run as
 
 ## Features
 
+//#if validation
 - Validation
+//#endif
 - Logging
 - Authorization
 - Batch Request Handling
