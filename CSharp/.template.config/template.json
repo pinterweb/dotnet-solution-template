@@ -1,7 +1,7 @@
 {
     "$schema": "http://json.schemastore.org/template",
     "author": "Jeremy Zagorski",
-    "classifications": [ "Solution", "API", "WebApi", "Routing", "Controllerless", "Endpoints" ],
+    "classifications": [ "Solution", "WebApi", "Controllerless" ],
     "identity": "WebApiSolution.CSharp",
     "name": "Solution File with Project Layers",
     "shortName": "sln-layers",
@@ -42,7 +42,7 @@
         "efcore": {
             "type": "parameter",
             "dataType": "bool",
-            "defaultValue": "true",
+            "defaultValue": "false",
             "description": "Adds services for entity framework core in your data layer"
         },
         "json": {
@@ -88,7 +88,7 @@
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
-            "defaultValue": "true",
+            "defaultValue": "false",
             "description": "Adds data annotations for validation to app project"
         },
         "winauth": {
@@ -109,7 +109,7 @@
             "type": "parameter",
             "dataType": "bool",
             "isRequired": "false",
-            "defaultValue": "true",
+            "defaultValue": "false",
             "description": "Adds support to serve static files"
         },
         "hateoas": {

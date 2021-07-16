@@ -98,8 +98,7 @@ namespace BusinessApp.CompositionRoot
                 ctx => CanHandle(ctx)
             );
 
-            container.Register<EFUnitOfWork>();
-            container.Register<ITransactionFactory>(() => container.GetInstance<EFUnitOfWork>());
+            container.Register<ITransactionFactory, EFUnitOfWork>();
 
             container.Register<BusinessAppDbContext>();
             container.RegisterInstance(
