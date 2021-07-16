@@ -96,7 +96,13 @@ namespace BusinessApp.WebApi.IntegrationTest
                         (typeof(GroupedBatchRequestDecorator<,>), true),
                         (typeof(SimpleInjectorScopedBatchRequestProxy<,>), true),
                         (typeof(AuthorizationRequestDecorator<,>), false),
+#if DEBUG
                         (typeof(ValidationRequestDecorator<,>), false),
+#else
+#if validation
+                        (typeof(ValidationRequestDecorator<,>), false),
+#endif
+#endif
                     };
                 }
 
@@ -122,7 +128,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 };
 
                 [Theory, MemberData(nameof(HandlerTypes))]
-                public void NoConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
+                public void NoConsumer_StillHasExpectedDecorators(Type serviceType)
                 {
                     /* Arrange */
                     CreateRegistrations(container);
@@ -146,7 +152,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 
 #if DEBUG
                 [Theory, MemberData(nameof(HandlerTypes))]
-                public void HasDifferentConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
+                public void HasDifferentConsumer_StillHasExpectedDecorators(Type serviceType)
                 {
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
@@ -184,7 +190,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 }
 #else
                 [Theory, MemberData(nameof(HandlerTypes))]
-                public void HasDifferentConsumer_HasExceptionAuthAndValidationAsFirstThree(Type serviceType)
+                public void HasDifferentConsumer_StillHasExpectedDecorators(Type serviceType)
                 {
 #if usehateoas
                     /* Arrange */
@@ -288,9 +294,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                           implType => Assert.Equal(
                               typeof(AuthorizationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                               implType),
+#if validation
                           implType => Assert.Equal(
                               typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                               implType),
+#endif
                           implType => Assert.Equal(
                               typeof(DeadlockRetryRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                               implType),
@@ -373,9 +381,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
@@ -458,9 +468,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<CommandStub, CommandStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<CommandStub, CommandStub>),
                             implType),
@@ -565,9 +577,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
@@ -577,9 +591,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(BatchRequestAdapter<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
@@ -678,9 +694,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                             implType),
@@ -690,9 +708,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(BatchRequestAdapter<CommandStub, CompositeEventStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
+#endif
 #if automation
                         implType => Assert.Equal(
                             typeof(AutomationRequestDecorator<CommandStub, CompositeEventStub>),
@@ -791,9 +811,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
@@ -803,9 +825,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(BatchRequestAdapter<CommandStub, CommandStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
@@ -914,9 +938,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
@@ -931,9 +957,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(SimpleInjectorScopedBatchRequestProxy<NoHandlerCommandStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                             implType),
@@ -943,9 +971,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(BatchRequestAdapter<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
@@ -981,9 +1011,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<CompositeEventStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CompositeEventStub>>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CompositeEventStub>>),
@@ -998,9 +1030,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(SimpleInjectorScopedBatchRequestProxy<CommandStub, IEnumerable<CompositeEventStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                             implType),
@@ -1010,9 +1044,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(BatchRequestAdapter<CommandStub, CompositeEventStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CompositeEventStub>),
                             implType),
+#endif
 #if automation
                         implType => Assert.Equal(
                             typeof(AutomationRequestDecorator<CommandStub, CompositeEventStub>),
@@ -1052,9 +1088,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
@@ -1069,9 +1107,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(SimpleInjectorScopedBatchRequestProxy<CommandStub, IEnumerable<CommandStub>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                             implType),
@@ -1081,9 +1121,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(BatchRequestAdapter<CommandStub, CommandStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                             implType),
+#endif
 #if efcore && metadata
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
@@ -1175,9 +1217,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<QueryStub, ResponseStub>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<QueryStub, ResponseStub>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<QueryStub, ResponseStub>),
                             implType),
@@ -1270,9 +1314,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<UnregisteredQuery, UnregisteredQuery>),
                             implType),
@@ -1369,9 +1415,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(AuthorizationRequestDecorator<UnregisteredQuery, EnvelopeContract<UnregisteredQuery>>),
                             implType),
+#if validation
                         implType => Assert.Equal(
                             typeof(ValidationRequestDecorator<UnregisteredQuery, EnvelopeContract<UnregisteredQuery>>),
                             implType),
+#endif
                         implType => Assert.Equal(
                             typeof(DeadlockRetryRequestDecorator<UnregisteredQuery, EnvelopeContract<UnregisteredQuery>>),
                             implType),
@@ -1520,9 +1568,9 @@ namespace BusinessApp.WebApi.IntegrationTest
 #endif
         }
 
+#if DEBUG
         public class Validators : ServiceRegistrationsTests
         {
-#if DEBUG
             [Fact]
             public void RegistersAllValidators()
             {
@@ -1571,7 +1619,33 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType)
                 );
             }
+
+            private class FirstFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
+            { }
+
+            private class SecondFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
+            { }
+
+            private class FirstValidatorStub : IValidator<CommandStub>
+            {
+                public Task<Result<Unit, Exception>> ValidateAsync(CommandStub instance, CancellationToken cancelToken)
+                {
+                    return Task.FromResult(Result.Ok());
+                }
+            }
+
+            private class SecondValidatorStub : IValidator<CommandStub>
+            {
+                public Task<Result<Unit, Exception>> ValidateAsync(CommandStub instance, CancellationToken cancelToken)
+                {
+                    return Task.FromResult(Result.Ok());
+                }
+            }
+        }
 #else
+#if validation
+        public class Validators : ServiceRegistrationsTests
+        {
             [Fact]
             public void RegistersAllValidators()
             {
@@ -1628,21 +1702,13 @@ namespace BusinessApp.WebApi.IntegrationTest
 #endif
                 );
             }
-#endif
-#if DEBUG
-            private class FirstFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
-            { }
 
-            private class SecondFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
-            { }
-#else
 #if fluentvalidation
             private class FirstFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
             { }
 
             private class SecondFluentValidatorStub : FluentValidation.AbstractValidator<CommandStub>
             { }
-#endif
 #endif
 
             private class FirstValidatorStub : IValidator<CommandStub>
@@ -1661,6 +1727,8 @@ namespace BusinessApp.WebApi.IntegrationTest
                 }
             }
         }
+#endif
+#endif
 
         public class Loggers : ServiceRegistrationsTests
         {

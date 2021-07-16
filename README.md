@@ -46,7 +46,6 @@ The default setup gives you:
 - [Entity Framework Core](https://github.com/dotnet/efcore)
 - JSON parsing with System.Text.Json
 - docker setup
-- data annotations validation
 - static file support
 - [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
 

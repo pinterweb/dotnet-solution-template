@@ -186,6 +186,10 @@
             "dataType": "bool",
             "defaultValue": "false",
             "description": "Add services to support macro requests"
+        },
+        "validation": {
+          "type": "computed",
+          "value": "((fluentvalidation || dataannotations))"
         }
     },
     "sources": [
@@ -265,6 +269,18 @@
                     "include": [
                         "src/**/Hateoas*.cs",
                         "src/**/WeblinkingHeader*.cs"
+                    ]
+                },
+                {
+                    "condition": "(!validation)",
+                    "include": [ "src/**/ModelValidationException.cs", "src/MemberValidationException.cs" ],
+                    "exclude": [
+                        "src/**/Validation*.cs",
+                        "src/**/*Validation*.cs",
+                        "src/**/*Validation.cs",
+                        "src/**/*Validator.cs",
+                        "src/**/*Validator*.cs",
+                        "src/**/Validator*.cs"
                     ]
                 },
                 {

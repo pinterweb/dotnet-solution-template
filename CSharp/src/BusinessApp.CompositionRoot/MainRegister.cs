@@ -43,7 +43,13 @@ namespace BusinessApp.CompositionRoot
             RegisterBatchSupport(context.Container);
             RegisterLocalization(context.Container);
             RegisterLogging(context.Container);
+#if DEBUG
             RegisterValidators(context.Container);
+#else
+#if validation
+            RegisterValidators(context.Container);
+#endif
+#endif
             RegisterRequestDecoratePipeline(context);
             RegisterAppHandlers(context.Container);
         }
@@ -195,7 +201,13 @@ namespace BusinessApp.CompositionRoot
                 c => !c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(TransactionRequestDecorator<,>))
+#if DEBUG
                     && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>))
+#else
+#if validation
+                    && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>))
+#endif
+#endif
             );
 
 
@@ -203,10 +215,19 @@ namespace BusinessApp.CompositionRoot
 
             #region Batch Additios
 
+#if DEBUG
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(ValidationRequestDecorator<,>),
                 c => c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>)));
+#else
+#if validation
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(ValidationRequestDecorator<,>),
+                c => c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>)));
+#endif
+#endif
 
             context.Container.RegisterDecorator(
                 serviceType,
@@ -232,6 +253,7 @@ namespace BusinessApp.CompositionRoot
                         || c.ServiceType.GetGenericArguments()[0].IsMacro()
                     ));
 #else
+#if validation
 #if macro
             // register this conditionally too so we can inject it at certain points
             // that need new validation not handled by the decoration registration
@@ -254,6 +276,7 @@ namespace BusinessApp.CompositionRoot
                     && c.Consumer.ImplementationType.IsTypeDefinition(typeof(BatchRequestAdapter<,>)));
 #endif
 #endif
+#endif
             #endregion
         }
 
@@ -263,6 +286,7 @@ namespace BusinessApp.CompositionRoot
                 && context.Consumer.ImplementationType != context.ImplementationType;
 
 
+#if DEBUG
         private void RegisterValidators(Container container)
         {
             var validatorTypes = container.GetTypesToRegister(
@@ -286,6 +310,33 @@ namespace BusinessApp.CompositionRoot
                 typeof(CompositeValidator<>),
                 Lifestyle.Singleton);
         }
+#else
+#if validation
+        private void RegisterValidators(Container container)
+        {
+            var validatorTypes = container.GetTypesToRegister(
+                typeof(IValidator<>),
+                options.RegistrationAssemblies
+            );
+
+            if (!validatorTypes.Any())
+            {
+                container.Collection.Append(typeof(IValidator<>), typeof(NullValidator<>));
+            }
+            else
+            {
+                foreach (var type in validatorTypes)
+                {
+                    container.Collection.Append(typeof(IValidator<>), type);
+                }
+            }
+
+            container.Register(typeof(IValidator<>),
+                typeof(CompositeValidator<>),
+                Lifestyle.Singleton);
+        }
+#endif
+#endif
 
         private void RegisterBatchSupport(Container container)
         {
@@ -398,12 +449,23 @@ namespace BusinessApp.CompositionRoot
             public bool AuthorizeObject(T instance) => true;
         }
 
+#if DEBUG
         private sealed class NullValidator<T> : IValidator<T>
             where T : notnull
         {
             public Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken)
                 => Task.FromResult(Result.Ok());
         }
+#else
+#if validation
+        private sealed class NullValidator<T> : IValidator<T>
+            where T : notnull
+        {
+            public Task<Result<Unit, Exception>> ValidateAsync(T instance, CancellationToken cancelToken)
+                => Task.FromResult(Result.Ok());
+        }
+#endif
+#endif
 
         // Marker handler so the ScopedBatchRequestProxy can be registered
         private sealed class DummyScopedBatchRequestDelegator<T, R> : IRequestHandler<IEnumerable<T>, R>
