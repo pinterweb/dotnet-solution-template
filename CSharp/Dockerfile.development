@@ -11,5 +11,8 @@ RUN useradd -ms /bin/bash dotnet
 
 WORKDIR /home/dotnet/$(lower_appname)
 
+EXPOSE 5000
+EXPOSE 5001
+
 USER dotnet
 CMD ["dotnet"]
