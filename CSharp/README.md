@@ -58,7 +58,9 @@ life easier\
    _You can use the Bogus library if you want to bypass data persistence_,
    _just be sure to setup your own request handler to generate this fake data_
 //#if docker
-- Run `docker-compose up` from the src directory.\
+- To develop in the container run `docker-compose up -d db` first, then
+  run `docker-compose run --rm --service-ports $(lower_appname) bash` to enter
+  the container. Within the container run `dotnet watch run --launch-profile Docker`.\
   _the webapi image depends on the db image. However, if you have a local sql
   _server you would like to use instead, you can change the "db" server name_
   _to "host.docker.internal" to target your host machine database_
