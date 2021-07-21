@@ -280,7 +280,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                           implType => Assert.Equal(
                               typeof(TransactionRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                               implType),
-#if efcore && metadata
+#if (efcore && metadata)
                           implType => Assert.Equal(
                               typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                               implType),
@@ -454,7 +454,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType => Assert.Equal(
                             typeof(TransactionRequestDecorator<CommandStub, CommandStub>),
                             implType),
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
                             implType),
@@ -571,7 +571,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
@@ -805,7 +805,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
                             implType),
@@ -918,7 +918,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
                             implType),
@@ -951,7 +951,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<NoHandlerCommandStub, NoHandlerCommandStub>),
                             implType),
@@ -991,7 +991,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CompositeEventStub>>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CompositeEventStub>>),
                             implType),
@@ -1068,7 +1068,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<MacroStub, IEnumerable<CommandStub>>),
                             implType),
@@ -1101,7 +1101,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             typeof(ValidationRequestDecorator<CommandStub, CommandStub>),
                             implType),
 #endif
-#if efcore && metadata
+#if (efcore && metadata)
                         implType => Assert.Equal(
                             typeof(EFMetadataStoreRequestDecorator<CommandStub, CommandStub>),
                             implType),
