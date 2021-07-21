@@ -1,5 +1,5 @@
 # Dotnet Solution Template
-_Layered dotnet solution template decorated with services_
+> Layered dotnet solution template decorated with services
 
 Inspired by [solidservices](https://github.com/dotnetjunkie/solidservices) and
 powered by [Simple Injector](https://github.com/simpleinjector/SimpleInjector) to provide rich
@@ -15,8 +15,12 @@ service decoration for your business needs. For project definitions see the main
 
 1. `git clone https://github.com/pinterweb/dotnet-solution-template.git`
 2. `cd dotnet-solution-template`
-3. `.\install.bat`\
-   _to uninstall run `.\install.bat u`_
+3. `.\install.bat` or `sh ./install.sh`\
+   _to uninstall run `.\install.bat u` or `sh ./install.sh u`_
+
+### Docker
+1. `docker-compose run --rm --service-ports dotnet-sln-template bash`
+1. `sh ./install.sh`
 
 ## Testing
 
@@ -44,20 +48,18 @@ The default setup gives you:
 - git directory
 - git hooks to run tests on commits
 - JSON parsing with System.Text.Json
-- docker setup
+- Docker setup
 - [Bogus](https://github.com/bchavez/Bogus) for fake data generation in development
-
-You can optionally:
-- Replace System.Text.Json with [Newtonsoft](https://github.com/JamesNK/Newtonsoft.Json)
-- Setup HATEOAS via [weblinking](https://tools.ietf.org/html/rfc8288)
-- Add [Entity Framework Core](https://github.com/dotnet/efcore)
-- Add [Fluent Validation](https://github.com/FluentValidation/FluentValidation)
-- Add window authentication for intranet apps
-- Add CORS in development mode if your clients are built separately
-- Add static file support
 
 To see all the available template options run:
 
 ```
 dotnet new sln-layers --help
 ```
+
+Once you installed your new app do not forget to:
+- [ ] Add something in your CONTRIBUTING
+
+For Docker:
+- [ ] Add extra dependencies in your docker development container if you want
+- [ ] Copy over any custom root CA certs to get NuGet to work

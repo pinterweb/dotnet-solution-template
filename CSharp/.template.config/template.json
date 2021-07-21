@@ -142,12 +142,6 @@
             },
             "replaces":"//#"
         },
-        "dockerConnectionStringRename": {
-            "type": "derived",
-            "valueSource": "docker",
-            "valueTransform": "dockerConnectionStringTransformer",
-            "replaces": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
-        },
         "appKebabName": {
             "type": "derived",
             "valueSource": "name",
@@ -348,20 +342,6 @@
       "description ": "sets up git hooks"
     }],
   "forms": {
-    "dockerConnectionStringTransformer": {
-      "identifier": "chain",
-      "steps": [ "dockerConnectionStringReplacer", "localConnectionStringReplacer" ]
-    },
-    "dockerConnectionStringReplacer": {
-      "identifier": "replace",
-      "pattern": "true",
-      "replacement": "Server=db;User Id=sa;Password=foobar123@!3A"
-    },
-    "localConnectionStringReplacer": {
-      "identifier": "replace",
-      "pattern": "false",
-      "replacement": "Server=(localdb)\\\\MSSQLLocalDb;Integrated Security=true"
-    },
     "kebabCaseTransformer": {
       "identifier": "kebabCase"
     },

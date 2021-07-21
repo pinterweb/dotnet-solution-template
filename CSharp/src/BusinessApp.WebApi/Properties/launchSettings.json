@@ -22,11 +22,12 @@
     "BusinessApp.WebApi": {
             "commandName": "Project",
             "launchBrowser": false,
-            "applicationUrl": "http://0.0.0.0:5000;https://0.0.0.0:5001;http://localhost:5002;https://localhost:5003",
+            "applicationUrl": "http://localhost:5000;https://localhost:5001",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
+//#if docker
         "Docker": {
             "commandName": "Docker",
             "launchBrowser": true,
@@ -35,5 +36,6 @@
             "useSSL": true,
             "sslPort": 44336
         }
+//#endif
     }
 }

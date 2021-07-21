@@ -9,10 +9,10 @@ RUN update-ca-certificates
 
 RUN useradd -ms /bin/bash dotnet
 
-WORKDIR /home/dotnet/$(lower_appname)
+WORKDIR /home/dotnet/dotnet-sln-template
+USER dotnet
 
 EXPOSE 5000
 EXPOSE 5001
 
-USER dotnet
 CMD ["dotnet"]
