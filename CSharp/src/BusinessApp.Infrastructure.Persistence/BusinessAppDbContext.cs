@@ -10,10 +10,8 @@ namespace BusinessApp.Infrastructure.Persistence
     public class BusinessAppDbContext : DbContext
 #if DEBUG
         , IRequestStore
-#else
-#if metadata
+#elif automation
         , IRequestStore
-#endif
 #endif
     {
         public BusinessAppDbContext(DbContextOptions<BusinessAppDbContext> opts)
@@ -23,11 +21,9 @@ namespace BusinessApp.Infrastructure.Persistence
 #if DEBUG
         public async Task<IEnumerable<RequestMetadata>> GetAllAsync()
             => await Set<RequestMetadata>().ToListAsync();
-#else
-#if metadata
+#elif automation
         public async Task<IEnumerable<RequestMetadata>> GetAllAsync()
             => await Set<RequestMetadata>().ToListAsync();
-#endif
 #endif
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

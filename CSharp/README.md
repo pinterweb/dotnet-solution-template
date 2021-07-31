@@ -28,14 +28,14 @@ life easier\
 
 ## Getting Started
 
-- Commit your code to source control (e.g. `feat(all): Add initial infrastructure`)
-- Add your continuous integration assets (e.g. azure-pipeline.yml)
-- Commit your code to source control (e.g. `chore(build): Add build/release assets`)
 - Create your query & commands models in the Api project
 //#if efcore
 - Setup `IEntityConfiguration<TModel>` classes for any query contracts and
-  commands. Command data is automatically saved to the database and query
-  contracts are queried by entity framework.
+  commands.
+//#if metadata
+    - Command data is automatically saved to the database.
+//#endif
+    - Query contracts are queried by entity framework.
 - Run .\migrations_add to setup your database
 //#endif
 - Create routes in `Routes.cs` located in the WebApi project\
@@ -47,11 +47,14 @@ life easier\
    _there is no data persistence, so you will have to set that up yourself_
 //#endif
 //#if efcore
-- Optional: Create a `IRequestHandler<TRequest, TResponse>` in the Api project\
+- Optional: Create a `IRequestHandler<TRequest, TResponse>` in the Api project
+  to handle any business logic.\
+//#if metadata
    _this step is optional if you just want to save the command data. A generic_
    _request handler will run and save the command data to a database if you_
    _configure the command in an `IEntityConfiguration<TModel>` class._
-   _Similarly, query objects inheriting from `IQuery` will already have a request_
+//#endif
+   _Query objects inheriting from `IQuery` will already have a request_
    _handler to run the query. Make sure to setup your query contracts in an_
    _`IEntityConfiguration<TModel>` class first._
 //#endif

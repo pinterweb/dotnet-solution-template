@@ -188,8 +188,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 {
                     table.PrimaryKey("PK_RequestMetadata", x => x.RequestMetadataId);
                 });
-#else
-#if metadata
+#elif automation
             migrationBuilder.CreateTable(
                 name: "RequestMetadata",
                 schema: "dbo",
@@ -205,7 +204,6 @@ namespace BusinessApp.Test.Shared.Migrations
                 {
                     table.PrimaryKey("PK_RequestMetadata", x => x.RequestMetadataId);
                 });
-#endif
 #endif
 
             migrationBuilder.CreateIndex(
@@ -273,9 +271,15 @@ namespace BusinessApp.Test.Shared.Migrations
                 name: "Metadata",
                 schema: "dbo");
 
+#if DEBUG
             migrationBuilder.DropTable(
                 name: "RequestMetadata",
                 schema: "dbo");
+#elif automation
+            migrationBuilder.DropTable(
+                name: "RequestMetadata",
+                schema: "dbo");
+#endif
         }
     }
 }

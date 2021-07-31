@@ -42,8 +42,7 @@ namespace BusinessApp.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_RequestMetadata", x => x.RequestMetadataId);
                 });
-#else
-#if metadata
+#elif automation
             migrationBuilder.CreateTable(
                 name: "RequestMetadata",
                 schema: "dbo",
@@ -60,7 +59,6 @@ namespace BusinessApp.Infrastructure.Persistence.Migrations
                     table.PrimaryKey("PK_RequestMetadata", x => x.RequestMetadataId);
                 });
 #endif
-#endif
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -73,12 +71,10 @@ namespace BusinessApp.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "RequestMetadata",
                 schema: "dbo");
-#else
-#if metadata
+#elif metadata
             migrationBuilder.DropTable(
                 name: "RequestMetadata",
                 schema: "dbo");
-#endif
 #endif
         }
     }

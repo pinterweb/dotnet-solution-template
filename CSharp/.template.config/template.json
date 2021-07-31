@@ -294,16 +294,16 @@
                     "condition": "(!automation)",
                     "exclude": [
                         "src/**/*ProcessManager*.cs",
-                        "src/**/Automation*.cs"
+                        "src/**/Automation*.cs",
+                        "src/**/IRequestStore.cs",
+                        "src/**/IRequestMapper.cs",
+                        "src/**/RequestMetadata.cs"
                     ]
                 },
                 {
                     "condition": "(!metadata)",
                     "exclude": [
-                        "src/**/RequestMetadata*.cs",
-                        "src/**/*MetadataStore*.cs",
-                        "src/**/IRequestMapper.cs",
-                        "src/**/IRequestStore.cs"
+                        "src/**/*MetadataStore*.cs"
                     ]
                 },
                 {
