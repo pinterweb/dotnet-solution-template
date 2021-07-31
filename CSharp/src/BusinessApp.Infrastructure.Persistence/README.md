@@ -10,6 +10,10 @@ technologies such as Entity Framework
 
 - Configure your models, preferable in separate configuration files\
   https://docs.microsoft.com/en-us/ef/core/modeling/
+//#if metadata
+  _When command streaming is setup, inherit from MetadataEntityConfiguration<T>_
+  _to save your request data alongside the metadata_
+//#endif
 
 - Run migrations with migrations_add scripts\
   `.\migrations_add.cmd YourMigrationName`\
