@@ -217,13 +217,11 @@ namespace BusinessApp.CompositionRoot
                 serviceType,
                 typeof(ValidationRequestDecorator<,>),
                 c => c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>)));
-#else
-#if validation
+#elif validation
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(ValidationRequestDecorator<,>),
                 c => c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>)));
-#endif
 #endif
 
 #if DEBUG
