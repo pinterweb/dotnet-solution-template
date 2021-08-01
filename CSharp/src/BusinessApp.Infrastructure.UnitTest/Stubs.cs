@@ -6,10 +6,17 @@ namespace BusinessApp.Infrastructure.UnitTest
     public class CommandStub
     {}
 
+#if DEBUG
     public class CompositeEventStub : ICompositeEvent
     {
         public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
     }
+#elif events
+    public class CompositeEventStub : ICompositeEvent
+    {
+        public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
+    }
+#endif
 
     [Authorize]
     public class AuthCommandStub : CommandStub

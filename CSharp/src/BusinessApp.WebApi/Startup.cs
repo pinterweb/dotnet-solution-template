@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-#if efcore
+#if DEBUG
+using Microsoft.EntityFrameworkCore;
+#elif efcore
 using Microsoft.EntityFrameworkCore;
 #endif
 using BusinessApp.Kernel;
@@ -8,13 +10,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
-#if efcore
+#if DEBUG
+using BusinessApp.Infrastructure.Persistence;
+#elif efcore
 using BusinessApp.Infrastructure.Persistence;
 #endif
 using Microsoft.Extensions.Logging;
 using BusinessApp.CompositionRoot;
 using BusinessApp.Infrastructure;
 #if winauth
+using Microsoft.AspNetCore.Authentication.Negotiate;
+#elif winauth
 using Microsoft.AspNetCore.Authentication.Negotiate;
 #endif
 
@@ -41,12 +47,14 @@ namespace BusinessApp.WebApi
             {
                 RegistrationAssemblies = new[]
                 {
-                    typeof(IQuery).Assembly,
-#if efcore
+                    typeof(IQuery).Assembly, // infrastructure
+#if DEBUG
                     typeof(IQueryVisitor<>).Assembly,
+#elif efcore
+                    typeof(IQueryVisitor<>).Assembly, // persistence
 #endif
-                    typeof(IEventHandler<>).Assembly,
-                    typeof(Startup).Assembly,
+                    typeof(ValueKind).Assembly, // Kernel
+                    typeof(Startup).Assembly, // webapi
                     System.Reflection.Assembly.Load("BusinessApp.Api")
                 }
             };

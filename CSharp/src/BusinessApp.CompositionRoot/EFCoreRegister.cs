@@ -63,8 +63,12 @@ namespace BusinessApp.CompositionRoot
                 typeof(EFMetadataStoreRequestDecorator<,>),
                 c => !c.ServiceType.GetGenericArguments()[0].IsGenericIEnumerable()
                     && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
+#if events
                     && !c.ImplementationType.Name.Contains("Decorator")
                     && !typeof(ICompositeEvent).IsAssignableFrom(c.ServiceType.GetGenericArguments()[1]));
+#else
+                    && !c.ImplementationType.Name.Contains("Decorator"));
+#endif
 #endif
 #endif
 
@@ -79,7 +83,11 @@ namespace BusinessApp.CompositionRoot
                 typeof(IQueryVisitorFactory<,>),
                 typeof(EFQueryVisitorFactory<,>));
 
+#if DEBUG
             container.Register<IEventStoreFactory, EFEventStoreFactory>();
+#elif events
+            container.Register<IEventStoreFactory, EFEventStoreFactory>();
+#endif
 
             container.Register(typeof(IDbSetVisitorFactory<,>), options.RegistrationAssemblies);
 

@@ -120,15 +120,17 @@ namespace BusinessApp.WebApi.FunctionalTest
             var client = factory.NewClient(container =>
             {
                 container.RegisterInstance(notifier);
+#if DEBUG
                 container.RegisterDecorator(
                     typeof(IEventHandler<Delete.WebDomainEvent>),
                     typeof(EventDecorator));
-#if DEBUG
+
                 container.RegisterInstance(GetEventLinks<Delete.Query>());
-#else
-#if usehateoas
+#elif (events && usehateoas)
+                container.RegisterDecorator(
+                    typeof(IEventHandler<Delete.WebDomainEvent>),
+                    typeof(EventDecorator));
                 container.RegisterInstance(GetEventLinks<Delete.Query>());
-#endif
 #endif
 
                 testContainer = container;
@@ -137,10 +139,16 @@ namespace BusinessApp.WebApi.FunctionalTest
             var content = new StringContent(JsonConvert.SerializeObject(payload),
                 Encoding.UTF8,
                 "application/json");
+#if DEBUG
+            var expectedCalls = testContainer
+                .GetAllInstances<IEventHandler<Delete.WebDomainEvent>>()
+                .Count() * 2;
+#elif events
             // each handler will fire twice since events are chained
             var expectedCalls = testContainer
                 .GetAllInstances<IEventHandler<Delete.WebDomainEvent>>()
                 .Count() * 2;
+#endif
 
             // When
             var response = await client.DeleteAsync("/api/resources/1");
@@ -148,10 +156,16 @@ namespace BusinessApp.WebApi.FunctionalTest
             // Then
             await response.Success(output);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+#if DEBUG
             A.CallTo(() => notifier.Notify())
                 .MustHaveHappened(expectedCalls, Times.Exactly);
+#elif events
+            A.CallTo(() => notifier.Notify())
+                .MustHaveHappened(expectedCalls, Times.Exactly);
+#endif
         }
 
+#if DEBUG
         /// <summary>
         /// Test that are events are firing correctly;
         /// </summary>
@@ -173,6 +187,29 @@ namespace BusinessApp.WebApi.FunctionalTest
                 return inner.HandleAsync(e, cancelToken);
             }
         }
+#elif events
+        /// <summary>
+        /// Test that are events are firing correctly;
+        /// </summary>
+        public class EventDecorator : IEventHandler<Delete.WebDomainEvent>
+        {
+            private readonly IEventHandler<Delete.WebDomainEvent> inner;
+            private readonly ITestNotifier tester;
+
+            public EventDecorator(ITestNotifier tester, IEventHandler<Delete.WebDomainEvent> inner)
+            {
+                this.inner = inner;
+                this.tester = tester;
+            }
+
+            public Task<Result<IEnumerable<IDomainEvent>, System.Exception>> HandleAsync(
+                Delete.WebDomainEvent e, CancellationToken cancelToken)
+            {
+                tester.Notify();
+                return inner.HandleAsync(e, cancelToken);
+            }
+        }
+#endif
 
         /// <summary>
         /// Service to inject to test actual services are called
@@ -190,11 +227,9 @@ namespace BusinessApp.WebApi.FunctionalTest
 #if DEBUG
         private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
             => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
-#else
-#if usehateoas
+#elif (usehateoas && events)
         private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
             => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
-#endif
 #endif
     }
 }

@@ -77,10 +77,16 @@ namespace BusinessApp.Test.Shared
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+#if DEBUG
+            modelBuilder.Entity<DomainEventStub>()
+                .Property(p => p.Id)
+                .HasConversion(id => id.ToInt64(null), val => new MetadataId(val));
+#elif events
             // additional test models here
             modelBuilder.Entity<DomainEventStub>()
                 .Property(p => p.Id)
                 .HasConversion(id => id.ToInt64(null), val => new MetadataId(val));
+#endif
             modelBuilder.Entity<ResponseStub>();
             modelBuilder.Entity<RequestStub>();
             modelBuilder.Entity<ChildResponseStub>();
@@ -88,9 +94,11 @@ namespace BusinessApp.Test.Shared
 
             base.OnModelCreating(modelBuilder);
 
-#region Event Modeling
+#if DEBUG
             modelBuilder.ApplyConfiguration(new DeleteEventConfiguration());
-#endregion
+#elif events
+            modelBuilder.ApplyConfiguration(new DeleteEventConfiguration());
+#endif
 
 #region Command Modeling
             modelBuilder.ApplyConfiguration(new DeleteQueryConfiguration());
@@ -98,6 +106,7 @@ namespace BusinessApp.Test.Shared
 #endregion
         }
 
+#if DEBUG
         private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.WebDomainEvent>
         {
             protected override string TableName => "DeleteEvent";
@@ -109,6 +118,19 @@ namespace BusinessApp.Test.Shared
                     .HasConversion(id => (int)id, val => new EntityId(val));
             }
         }
+#elif events
+        private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.WebDomainEvent>
+        {
+            protected override string TableName => "DeleteEvent";
+
+            protected override void ConfigureEvent(
+                OwnedNavigationBuilder<EventMetadata<Delete.WebDomainEvent>, Delete.WebDomainEvent> builder)
+            {
+                builder.Property(p => p.Id)
+                    .HasConversion(id => (int)id, val => new EntityId(val));
+            }
+        }
+#endif
 
         private class PostOrPutBodyConfiguration : MetadataEntityConfiguration<PostOrPut.Body>
         {

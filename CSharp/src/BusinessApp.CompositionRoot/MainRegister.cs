@@ -30,13 +30,9 @@ namespace BusinessApp.CompositionRoot
             var container = context.Container;
 
             container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
-            container.Collection.Register(typeof(IEventHandler<>), options.RegistrationAssemblies);
 
-            container.Register<IEventPublisherFactory, EventMetadataPublisherFactory>();
             container.Register<PostCommitRegister>();
             container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
-
-            context.Container.RegisterSingleton<IEventPublisher, SimpleInjectorEventPublisher>();
 
             RegisterSpecifications(context.Container);
             RegisterLocalization(context.Container);
@@ -204,7 +200,7 @@ namespace BusinessApp.CompositionRoot
                     && !c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(TransactionRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>)));
-#elif validation
+#elif events
             // decorate the inner most handler that is not a decorator running as a service
             // most of the time this would be the actual command handler
 
@@ -214,7 +210,9 @@ namespace BusinessApp.CompositionRoot
                 c => !c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(TransactionRequestDecorator<,>))
+#if validation
                     && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>))
+#endif
             );
 #endif
 

@@ -18,19 +18,32 @@ namespace BusinessApp.WebApi
 
         public void Register(RegistrationContext context)
         {
+#if DEBUG
             context.Container.RegisterDecorator(
                 typeof(IHttpRequestHandler<,>),
                 typeof(WeblinkingHeaderEventRequestDecorator<,>)
             );
+#elif events
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler<,>),
+                typeof(WeblinkingHeaderEventRequestDecorator<,>)
+            );
+#endif
 
             context.Container.RegisterDecorator(
                 typeof(IHttpRequestHandler<,>),
                 typeof(WeblinkingHeaderRequestDecorator<,>)
             );
 
+#if DEBUG
             context.Container.Collection.Register(
                 typeof(HateoasEventLink<,>),
                 options.RegistrationAssemblies);
+#elif events
+            context.Container.Collection.Register(
+                typeof(HateoasEventLink<,>),
+                options.RegistrationAssemblies);
+#endif
 
             context.Container.Collection.Register(
                 typeof(HateoasLink<,>),
