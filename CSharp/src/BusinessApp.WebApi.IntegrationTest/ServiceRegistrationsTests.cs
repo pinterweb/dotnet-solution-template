@@ -299,7 +299,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                 }
 #endif
 
-#if DEBUG
                 [Fact]
                 public void WithEventResponse_HasSingleAndEventDecorators()
                 {
