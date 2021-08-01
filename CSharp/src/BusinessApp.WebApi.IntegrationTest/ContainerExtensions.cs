@@ -40,12 +40,10 @@ namespace BusinessApp.WebApi.IntegrationTest
                     typeof(Infrastructure.IQuery).Assembly,
 #if DEBUG
                     typeof(IQueryVisitor<>).Assembly,
-#else
-#if efcore
+#elif efcore
                     typeof(IQueryVisitor<>).Assembly,
 #endif
-#endif
-                    typeof(IEventHandler<>).Assembly,
+                    typeof(ValueKind).Assembly,
                     typeof(Startup).Assembly
                 }
             };
