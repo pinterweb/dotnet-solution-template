@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BusinessApp.Kernel;
 
 namespace BusinessApp.Infrastructure
@@ -15,7 +16,11 @@ namespace BusinessApp.Infrastructure
             : base(modelMessage) => memberErrors = new List<MemberValidationException>();
 
         public ModelValidationException(string message, IEnumerable<MemberValidationException> memberErrors)
-            : base(message) => this.memberErrors = memberErrors.NotEmpty().Expect(nameof(memberErrors));
+            : base(message)
+        {
+            this.memberErrors = memberErrors.NotEmpty().Expect(nameof(memberErrors));
+            Data.Add("ValidationErrors", memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public IEnumerator<MemberValidationException> GetEnumerator() => memberErrors.GetEnumerator();
