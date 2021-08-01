@@ -10,18 +10,16 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
 {
     public class NewtonsoftJsonSerializerTests
     {
-        private readonly ILogger logger;
         private readonly JsonSerializerSettings settings;
         private readonly NewtonsoftJsonSerializer sut;
 
         public NewtonsoftJsonSerializerTests()
         {
-            logger = A.Fake<ILogger>();
             settings = new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
             };
-            sut = new NewtonsoftJsonSerializer(settings, logger);
+            sut = new NewtonsoftJsonSerializer(settings);
         }
 
         public class Deserialize : NewtonsoftJsonSerializerTests
@@ -119,86 +117,6 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
 
                 /* Assert */
                 var error = Assert.IsType<JsonSerializationException>(ex);
-            }
-
-            public class OnError : NewtonsoftJsonSerializerTests
-            {
-                LogEntry entry;
-
-                public OnError()
-                {
-                    A.CallTo(() => logger.Log(A<LogEntry>._))
-                        .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
-                }
-
-                [Fact]
-                public void LogsErrorSeverity()
-                {
-                    /* Arrange */
-                    using var ms = new MemoryStream();
-                    using var sw = new StreamWriter(ms);
-                    sw.Write("{\"foo\":\"foo\"}");
-                    sw.Flush();
-                    ms.Position = 0;
-
-                    /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-
-                    /* Assert */
-                    Assert.Equal(LogSeverity.Error, entry.Severity);
-                }
-
-                [Fact]
-                public void LogsErrorMsg()
-                {
-                    /* Arrange */
-                    using var ms = new MemoryStream();
-                    using var sw = new StreamWriter(ms);
-                    sw.Write("{\"foo\":\"foo\"}");
-                    sw.Flush();
-                    ms.Position = 0;
-
-                    /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-
-                    /* Assert */
-                    Assert.Equal("Deserialization failed", entry.Message);
-                }
-
-                [Fact]
-                public void LogsOriginalError()
-                {
-                    /* Arrange */
-                    using var ms = new MemoryStream();
-                    using var sw = new StreamWriter(ms);
-                    sw.Write("{\"foo\":\"foo\"}");
-                    sw.Flush();
-                    ms.Position = 0;
-
-                    /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-
-                    /* Assert */
-                    Assert.IsType<JsonReaderException>(entry.Exception);
-                }
-
-                [Fact]
-                public void LogsOriginalObject()
-                {
-                    /* Arrange */
-                    using var ms = new MemoryStream();
-                    using var sw = new StreamWriter(ms);
-                    sw.Write("{\"bar\":1,\"foo\":\"foo\"}");
-                    sw.Flush();
-                    ms.Position = 0;
-
-                    /* Act */
-                    var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-
-                    /* Assert */
-                    var model = Assert.IsType<TestModel>(entry.Data);
-                    Assert.Equal(1, model.Bar);
-                }
             }
         }
 

@@ -16,15 +16,13 @@ namespace BusinessApp.Infrastructure.Json
     /// </summary>
     public class NewtonsoftJsonSerializer : ISerializer
     {
-        private readonly ILogger logger;
         private readonly JsonSerializerSettings settings;
         private readonly JsonSerializer serializer;
         private List<MemberValidationException> errors;
 
-        public NewtonsoftJsonSerializer(JsonSerializerSettings settings, ILogger logger)
+        public NewtonsoftJsonSerializer(JsonSerializerSettings settings)
         {
-            this.logger = logger.NotNull().Expect(nameof(logger));
-            this.settings = settings.NotNull().Expect(nameof(logger));
+            this.settings = settings.NotNull().Expect(nameof(settings));
             serializer = JsonSerializer.Create(settings);
             errors = new List<MemberValidationException>();
         }
@@ -73,12 +71,6 @@ namespace BusinessApp.Infrastructure.Json
 
                 args.ErrorContext.Handled = true;
             }
-
-            logger.Log(new LogEntry(LogSeverity.Error, "Deserialization failed")
-            {
-                Exception = args.ErrorContext.Error,
-                Data = args.ErrorContext.OriginalObject
-            });
         }
     }
 }
