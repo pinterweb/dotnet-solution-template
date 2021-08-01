@@ -19,10 +19,8 @@ using Microsoft.Extensions.Localization;
 using BusinessApp.CompositionRoot;
 #if DEBUG
 using BusinessApp.Infrastructure.Persistence;
-#else
-#if efcore
+#elif efcore
 using BusinessApp.Infrastructure.Persistence;
-#endif
 #endif
 
 namespace BusinessApp.WebApi.IntegrationTest
@@ -82,7 +80,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                 public static IEnumerable<object[]> HandlerTypes => new[]
                 {
                     new object[] { typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>) },
+#if DEBUG
                     new object[] { typeof(IRequestHandler<CommandStub, CompositeEventStub>) },
+#elif events
+                    new object[] { typeof(IRequestHandler<CommandStub, CompositeEventStub>) },
+#endif
                     new object[] { typeof(IRequestHandler<CommandStub, CommandStub>) },
 #if DEBUG
                     new object[] { typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>) },
@@ -90,7 +92,9 @@ namespace BusinessApp.WebApi.IntegrationTest
                     new object[] { typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>) },
 #elif hasbatch
                     new object[] { typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>) },
+#if events
                     new object[] { typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>) },
+#endif
                     new object[] { typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>) },
 #endif
 #if DEBUG
@@ -100,7 +104,9 @@ namespace BusinessApp.WebApi.IntegrationTest
 #else
 #if macro
                     new object[] { typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>) },
+#if events
                     new object[] { typeof(IRequestHandler<MacroStub, IEnumerable<CompositeEventStub>>) },
+#endif
                     new object[] { typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>) },
 #endif
 #endif
@@ -137,7 +143,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
-                        typeof(IDomainEvent));
+                         typeof(IDomainEvent));
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     Type MakeSvcGenericType(Type type)
@@ -177,7 +183,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
+#if events
                         typeof(IDomainEvent));
+#else
+                        typeof(ResponseStub));
+#endif
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     container.RegisterInstance(hateoasSvcType, Activator.CreateInstance(hateoasImplType));
@@ -299,6 +309,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 }
 #endif
 
+#if DEBUG
                 [Fact]
                 public void WithEventResponse_HasSingleAndEventDecorators()
                 {
@@ -340,6 +351,53 @@ namespace BusinessApp.WebApi.IntegrationTest
                             implType)
                     );
                 }
+#elif events
+                [Fact]
+                public void WithEventResponse_HasSingleAndEventDecorators()
+                {
+                    /* Arrange */
+                    CreateRegistrations(container);
+                    container.Verify();
+                    var serviceType = typeof(IRequestHandler<CommandStub, CompositeEventStub>);
+
+                    /* Act */
+                    var _ = container.GetInstance(serviceType);
+
+                    /* Assert */
+                    var handlers = GetServiceGraph(serviceType);
+
+                    Assert.Collection(handlers,
+                        implType => Assert.Equal(
+                            typeof(RequestExceptionDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(AuthorizationRequestDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+#if validation
+                        implType => Assert.Equal(
+                            typeof(ValidationRequestDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+#endif
+                        implType => Assert.Equal(
+                            typeof(DeadlockRetryRequestDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(TransactionRequestDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+#if automation
+                        implType => Assert.Equal(
+                            typeof(AutomationRequestDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+#endif
+                        implType => Assert.Equal(
+                            typeof(EventConsumingRequestDecorator<CommandStub, CompositeEventStub>),
+                            implType),
+                        implType => Assert.Equal(
+                            typeof(CommandHandlerEventStub),
+                            implType)
+                    );
+                }
+#endif
 
 #if DEBUG
                 [Fact]
@@ -653,6 +711,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     );
                 }
 
+#if events
                 [Fact]
                 public void WithEventResponse_HasBatchAndEventDecorators()
                 {
@@ -714,6 +773,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             implType)
                     );
                 }
+#endif
 
                 [Fact]
                 public void WithoutEventResponse_HasBatchDecorators()
@@ -919,6 +979,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     );
                 }
 
+#if events
                 [Fact]
                 public void WithEventResponse_BatchMacroDecoratorsInHandlers()
                 {
@@ -994,6 +1055,8 @@ namespace BusinessApp.WebApi.IntegrationTest
                             implType)
                     );
                 }
+#endif
+
 
                 [Fact]
                 public void WithOutResponse_BatchMacroDecoratorsInHandlers()
@@ -1448,7 +1511,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType)
                 );
             }
-#else
+#elif events
             [Fact]
             public void OfTR_HasCorrectOrder()
             {
@@ -1500,6 +1563,68 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(HttpRequestHandler<CommandStub, CompositeEventStub>),
                         implType)
                 );
+            }
+#else
+            [Fact]
+            public void OfTR_HasCorrectOrder()
+            {
+                /* Arrange */
+                var linkFactory = A.Fake<Func<CommandStub, ResponseStub, string>>();
+#if usehateoas
+                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, ResponseStub>>>(
+                    new Dictionary<Type, HateoasLink<CommandStub, ResponseStub>>());
+#endif
+                container.Register(typeof(IRequestHandler<CommandStub, ResponseStub>),
+                    typeof(NullRequestHandler<CommandStub, ResponseStub>));
+                CreateRegistrations(container);
+                container.Verify();
+                var serviceType = typeof(IHttpRequestHandler<CommandStub, ResponseStub>);
+
+                /* Act */
+                var _ = container.GetInstance(serviceType);
+
+                /* Assert */
+                var handlers = GetServiceGraph(serviceType);
+
+                Assert.Collection(handlers,
+                    implType => Assert.Equal(
+                        typeof(HttpResponseDecorator<CommandStub, ResponseStub>),
+                        implType),
+                    implType => Assert.Equal(
+                        typeof(HttpRequestLoggingDecorator<CommandStub, ResponseStub>),
+                        implType),
+#if usehateoas
+                    implType => Assert.Equal(
+                        typeof(WeblinkingHeaderRequestDecorator<CommandStub, ResponseStub>),
+                        implType),
+#endif
+                    implType => Assert.Equal(
+                        typeof(JsonHttpDecorator<CommandStub, ResponseStub>),
+                        implType),
+#if newtonsoft
+                    implType => Assert.Equal(
+                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, ResponseStub>),
+                        implType),
+#endif
+#if systemjson
+                    implType => Assert.Equal(
+                        typeof(SystemJsonExceptionDecorator<CommandStub, ResponseStub>),
+                        implType),
+#endif
+                    implType => Assert.Equal(
+                        typeof(HttpRequestHandler<CommandStub, ResponseStub>),
+                        implType)
+                );
+            }
+
+            public class NullRequestHandler<TRequest, TResponse> : IRequestHandler<TRequest, TResponse>
+                where TResponse : new()
+            {
+                public Task<Result<TResponse, Exception>> HandleAsync(TRequest request,
+                    CancellationToken cancelToken)
+                {
+                    return Task.FromResult(Result.Ok(new TResponse()));
+                }
             }
 #endif
         }
@@ -1764,6 +1889,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 .Where(t => t.IsVisible);
         }
 
+#if DEBUG
         public sealed class CommandHandlerEventStub : IRequestHandler<CommandStub, CompositeEventStub>
         {
             public Task<Result<CompositeEventStub, Exception>> HandleAsync(CommandStub request,
@@ -1772,6 +1898,16 @@ namespace BusinessApp.WebApi.IntegrationTest
                 throw new NotImplementedException();
             }
         }
+#elif events
+        public sealed class CommandHandlerEventStub : IRequestHandler<CommandStub, CompositeEventStub>
+        {
+            public Task<Result<CompositeEventStub, Exception>> HandleAsync(CommandStub request,
+                CancellationToken cancelToken)
+            {
+                throw new NotImplementedException();
+            }
+        }
+#endif
 
         public sealed class CommandHandlerStub : IRequestHandler<CommandStub, CommandStub>
         {
@@ -1794,10 +1930,17 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         public sealed class CommandStub { }
 
+#if DEBUG
         public sealed class CompositeEventStub : ICompositeEvent
         {
             public IEnumerable<IDomainEvent> Events { get; set; }
         }
+#elif events
+        public sealed class CompositeEventStub : ICompositeEvent
+        {
+            public IEnumerable<IDomainEvent> Events { get; set; }
+        }
+#endif
 
 #if DEBUG
         public sealed class MacroStub : IMacro<CommandStub> { }

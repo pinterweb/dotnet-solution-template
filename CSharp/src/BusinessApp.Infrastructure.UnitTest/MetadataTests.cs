@@ -17,19 +17,19 @@ namespace BusinessApp.Infrastructure.UnitTest
                 {
                     null,
                     "foo",
-                    A.Dummy<DomainEventStub>()
+                    A.Dummy<RequestStub>()
                 },
                 new object[]
                 {
                     A.Dummy<MetadataId>(),
                     null,
-                    A.Dummy<DomainEventStub>()
+                    A.Dummy<RequestStub>()
                 },
                 new object[]
                 {
                     A.Dummy<MetadataId>(),
                     "",
-                    A.Dummy<DomainEventStub>()
+                    A.Dummy<RequestStub>()
                 },
                 new object[]
                 {
@@ -40,10 +40,10 @@ namespace BusinessApp.Infrastructure.UnitTest
             };
 
             [Theory, MemberData(nameof(InvalidArgs))]
-            public void InvalidArgs_ExceptionThrown(MetadataId id, string u, DomainEventStub t)
+            public void InvalidArgs_ExceptionThrown(MetadataId id, string u, RequestStub t)
             {
                 /* Arrange */
-                void shouldThrow() => new Metadata<DomainEventStub>(id, u,
+                void shouldThrow() => new Metadata<RequestStub>(id, u,
                     A.Dummy<MetadataType>(), t);
 
                 /* Act */
@@ -57,9 +57,9 @@ namespace BusinessApp.Infrastructure.UnitTest
             public void DataToString_WhenNull_ExceptionThrown()
             {
                 /* Arrange */
-                var e = A.Fake<DomainEventStub>();
+                var e = A.Fake<RequestStub>();
                 A.CallTo(() => e.ToString()).Returns(null);
-                void shouldThrow() => new Metadata<DomainEventStub>(A.Dummy<MetadataId>(),
+                void shouldThrow() => new Metadata<RequestStub>(A.Dummy<MetadataId>(),
                     "foo", A.Dummy<MetadataType>(), e);
 
                 /* Act */
@@ -76,11 +76,11 @@ namespace BusinessApp.Infrastructure.UnitTest
             public void DataArg_DataSetPropSet()
             {
                 /* Arrange */
-                var data = A.Fake<DomainEventStub>();
+                var data = A.Fake<RequestStub>();
                 A.CallTo(() => data.ToString()).Returns("foobar");
 
                 /* Act */
-                var sut = new Metadata<DomainEventStub>(A.Dummy<MetadataId>(), "foo",
+                var sut = new Metadata<RequestStub>(A.Dummy<MetadataId>(), "foo",
                     A.Dummy<MetadataType>(), data);
 
                 /* Assert */
@@ -91,10 +91,10 @@ namespace BusinessApp.Infrastructure.UnitTest
             public void DataArg_DataPropSet()
             {
                 /* Arrange */
-                var data = A.Dummy<DomainEventStub>();
+                var data = A.Dummy<RequestStub>();
 
                 /* Act */
-                var sut = new Metadata<DomainEventStub>(A.Dummy<MetadataId>(), "foo",
+                var sut = new Metadata<RequestStub>(A.Dummy<MetadataId>(), "foo",
                     A.Dummy<MetadataType>(), data);
 
                 /* Assert */
@@ -108,8 +108,8 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var id = A.Dummy<MetadataId>();
 
                 /* Act */
-                var sut = new Metadata<DomainEventStub>(id, "foo", A.Dummy<MetadataType>(),
-                    A.Dummy<DomainEventStub>());
+                var sut = new Metadata<RequestStub>(id, "foo", A.Dummy<MetadataType>(),
+                    A.Dummy<RequestStub>());
 
                 /* Assert */
                 Assert.Same(id, sut.Id);
@@ -122,8 +122,8 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var id = A.Dummy<MetadataId>();
 
                 /* Act */
-                var sut = new Metadata<DomainEventStub>(A.Dummy<MetadataId>(), "foo",
-                    A.Dummy<MetadataType>(), A.Dummy<DomainEventStub>());
+                var sut = new Metadata<RequestStub>(A.Dummy<MetadataId>(), "foo",
+                    A.Dummy<MetadataType>(), A.Dummy<RequestStub>());
 
                 /* Assert */
                 Assert.Equal("foo", sut.Username);
@@ -136,8 +136,8 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var type = MetadataType.Request;
 
                 /* Act */
-                var sut = new Metadata<DomainEventStub>(A.Dummy<MetadataId>(), "foo", type,
-                     A.Dummy<DomainEventStub>());
+                var sut = new Metadata<RequestStub>(A.Dummy<MetadataId>(), "foo", type,
+                     A.Dummy<RequestStub>());
 
                 /* Assert */
                 Assert.Equal("Request", sut.TypeName);
@@ -150,8 +150,8 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var before = DateTimeOffset.UtcNow;
 
                 /* Act */
-                var sut = new Metadata<DomainEventStub>(A.Dummy<MetadataId>(), "foo",
-                    A.Dummy<MetadataType>(), A.Dummy<DomainEventStub>());
+                var sut = new Metadata<RequestStub>(A.Dummy<MetadataId>(), "foo",
+                    A.Dummy<MetadataType>(), A.Dummy<RequestStub>());
 
                 /* Assert */
                 var after = DateTimeOffset.UtcNow;

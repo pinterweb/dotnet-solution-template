@@ -52,14 +52,6 @@ steps:
       versioningScheme: byBuildNumber
       arguments: '-c Debug'
 
-  - task: DotNetCoreCLI@2
-    displayName: Build No Features
-    inputs:
-      command: build
-      projects: '**/*.sln'
-      versioningScheme: byBuildNumber
-      arguments: '-c Release'
-
 # XXX do not target solution, we need the data integrations tests to run
 # before the functional tests or else the test databsae will not be there
 # since there is a compiler directive to build the DB with efcore and running

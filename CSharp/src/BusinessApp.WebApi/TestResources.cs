@@ -84,10 +84,10 @@ namespace BusinessApp.WebApi
             public EntityId? Id { get; set; }
         }
 
+#if DEBUG
         public class Response : ICompositeEvent
         {
             public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
-
         }
 
         public class WebDomainEvent : IDomainEvent
@@ -96,8 +96,24 @@ namespace BusinessApp.WebApi
 
             public DateTimeOffset OccurredUtc { get; }
         }
+#elif events
+        public class Response : ICompositeEvent
+        {
+            public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
+        }
 
+        public class WebDomainEvent : IDomainEvent
+        {
+            public EntityId? Id { get; set; }
 
+            public DateTimeOffset OccurredUtc { get; }
+        }
+#else
+        public class Response
+        { }
+#endif
+
+#if DEBUG
         public class Handler : Infrastructure.IRequestHandler<Query, Response>,
             IEventHandler<WebDomainEvent>
         {
@@ -121,5 +137,38 @@ namespace BusinessApp.WebApi
                         Result.Ok<IEnumerable<IDomainEvent>>(Array.Empty<IDomainEvent>()))
                     : Task.FromResult(Result.Ok<IEnumerable<IDomainEvent>>(new[] { webEvent }));
         }
+#elif events
+        public class Handler : Infrastructure.IRequestHandler<Query, Response>,
+            IEventHandler<WebDomainEvent>
+        {
+            // to prevent infinite loops
+            private readonly WebDomainEvent webEvent = new();
+
+            public Task<Result<Response, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
+            {
+                var events = new Response
+                {
+                    Events = new CompositeEvent(new[] { new WebDomainEvent() })
+                };
+
+                return Task.FromResult(Result.Ok(events));
+            }
+
+            public Task<Result<IEnumerable<IDomainEvent>, Exception>> HandleAsync(
+                WebDomainEvent e, CancellationToken cancelToken)
+                => webEvent == e
+                    ? Task.FromResult(
+                        Result.Ok<IEnumerable<IDomainEvent>>(Array.Empty<IDomainEvent>()))
+                    : Task.FromResult(Result.Ok<IEnumerable<IDomainEvent>>(new[] { webEvent }));
+        }
+#else
+        public class Handler : Infrastructure.IRequestHandler<Query, Response>
+        {
+            public Task<Result<Response, Exception>> HandleAsync(Query request, CancellationToken cancelToken)
+            {
+                return Task.FromResult(Result.Ok(new Response()));
+            }
+        }
+#endif
     }
 }
