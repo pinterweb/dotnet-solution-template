@@ -28,6 +28,8 @@ namespace BusinessApp.Infrastructure.Persistence
                 .HasColumnType("varchar(100)")
                 .IsRequired();
 
+            builder.HasDiscriminator(p => p.DataSetName);
+
             builder.Property(p => p.TypeName)
                 .HasColumnName("TypeName")
                 .HasColumnType("varchar(100)")
