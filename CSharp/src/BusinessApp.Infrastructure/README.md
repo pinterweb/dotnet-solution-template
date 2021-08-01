@@ -15,7 +15,9 @@ validation, authentication etc. All supporting services run as
 //#endif
 - Logging
 - Authorization
+//#if hasbatch
 - Batch Request Handling
+//#endif
 //#if macro
 - Macro "like" Request Handling\
   _A macro is a single request from a client that issues batch commands_

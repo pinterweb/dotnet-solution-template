@@ -35,9 +35,17 @@ namespace BusinessApp.WebApi.ProblemDetails
                 option = actualValue;
             }
 
+#if DEBUG
             return exception is BatchException f
                 ? CreateCompositeProblem(f)
                 : CreateSingleProblem(exception, option);
+#elif hasbatch
+            return exception is BatchException f
+                ? CreateCompositeProblem(f)
+                : CreateSingleProblem(exception, option);
+#else
+            return CreateSingleProblem(exception, option);
+#endif
         }
 
         private static ProblemDetail CreateSingleProblem(Exception? error,
@@ -61,6 +69,7 @@ namespace BusinessApp.WebApi.ProblemDetails
             return problem;
         }
 
+#if DEBUG
         private ProblemDetail CreateCompositeProblem(BatchException errors)
         {
             var responses = errors
@@ -77,5 +86,23 @@ namespace BusinessApp.WebApi.ProblemDetails
                     "continuing"
             };
         }
+#elif hasbatch
+        private ProblemDetail CreateCompositeProblem(BatchException errors)
+        {
+            var responses = errors
+                .Select(r =>
+                    r.MapOrElse(
+                        err => Create(err),
+                        ok => new ProblemDetail(StatusCodes.Status200OK)
+                    )
+                );
+
+            return new CompositeProblemDetail(responses)
+            {
+                Detail = "The request partially succeeded. Please review the errors before " +
+                    "continuing"
+            };
+        }
+#endif
     }
 }

@@ -184,6 +184,16 @@
         "validation": {
           "type": "computed",
           "value": "((fluentvalidation || dataannotations))"
+        },
+        "batching": {
+            "type": "parameter",
+            "dataType": "bool",
+            "defaultValue": "false",
+            "description": "Add services to support batch requests"
+        },
+        "hasbatch": {
+          "type": "computed",
+          "value": "((macro || batching))"
         }
     },
     "sources": [
@@ -311,6 +321,16 @@
                     "exclude": [
                         "src/**/Macro*.cs",
                         "src/**/*Macro*.cs"
+                    ]
+                },
+                {
+                    "condition": "(!hasbatch)",
+                    "exclude": [
+                        "src/**/Batch*.cs",
+                        "src/**/*Batch*.cs",
+                        "src/**/HttpRequestBodyAnalyzer*.cs",
+                        "src/**/IHttpRequestAnalyzer.cs",
+                        "src/**/JsonHttpRequestAnalyzer*.cs"
                     ]
                 }
             ]

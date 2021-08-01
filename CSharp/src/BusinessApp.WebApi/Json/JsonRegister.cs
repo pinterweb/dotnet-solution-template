@@ -25,7 +25,11 @@ namespace BusinessApp.WebApi.Json
 
             _ = ProblemDetailOptionBootstrap.KnownProblems.Add(jsonProblemDetailOption);
 
+#if DEBUG
             container.RegisterSingleton<IHttpRequestAnalyzer, JsonHttpRequestAnalyzer>();
+#elif hasbatch
+            container.RegisterSingleton<IHttpRequestAnalyzer, JsonHttpRequestAnalyzer>();
+#endif
 
             container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
                 typeof(JsonHttpDecorator<,>));

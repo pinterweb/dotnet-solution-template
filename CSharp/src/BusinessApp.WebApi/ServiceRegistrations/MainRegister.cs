@@ -46,11 +46,19 @@ namespace BusinessApp.WebApi
                 typeof(HttpRequestHandler<,>),
                 ctx => !ctx.Handled);
 
+#if DEBUG
             context.Container.RegisterDecorator(
                 typeof(IHttpRequestHandler),
                 typeof(HttpRequestBodyAnalyzer),
                 Lifestyle.Singleton
             );
+#elif hasbatch
+            context.Container.RegisterDecorator(
+                typeof(IHttpRequestHandler),
+                typeof(HttpRequestBodyAnalyzer),
+                Lifestyle.Singleton
+            );
+#endif
 
             context.Container.RegisterDecorator(
                 typeof(IHttpRequestHandler),
