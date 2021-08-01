@@ -1448,7 +1448,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType)
                 );
             }
-
+#else
             [Fact]
             public void OfTR_HasCorrectOrder()
             {
@@ -1501,6 +1501,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                         implType)
                 );
             }
+#endif
         }
 
 #if DEBUG
