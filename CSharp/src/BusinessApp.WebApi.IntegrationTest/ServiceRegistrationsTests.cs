@@ -143,13 +143,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
-#if DEBUG
-                        typeof(IDomainEvent));
-#elif events
-                        typeof(IDomainEvent));
-#else
-                        typeof(ResponseStub));
-#endif
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     Type MakeSvcGenericType(Type type)
@@ -189,7 +182,11 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
+#if events
                         typeof(IDomainEvent));
+#else
+                        typeof(ResponseStub));
+#endif
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     container.RegisterInstance(hateoasSvcType, Activator.CreateInstance(hateoasImplType));
@@ -311,6 +308,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 }
 #endif
 
+#if DEBUG
                 [Fact]
                 public void WithEventResponse_HasSingleAndEventDecorators()
                 {
