@@ -31,14 +31,14 @@ namespace BusinessApp.Test.Shared
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder.AddJsonFile("appsettings.test.json");
-                    builder.AddEnvironmentVariables(prefix: "StaticForms_");
+                    builder.AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
                 .UseStartup<Startup>()
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));
 
-            ConnectionStr = config.GetConnectionString("Main");
+            ConnectionStr = config.GetConnectionString("Test");
 		}
 
 		public DatabaseFixture()

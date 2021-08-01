@@ -59,6 +59,9 @@ dotnet new sln-layers --help
 
 Once you installed your new app do not forget to:
 - [ ] Add something in your CONTRIBUTING
+- [ ] Commit your code to source control (e.g. `feat(all): Add initial infrastructure`)
+- [ ] Add your continuous integration assets (e.g. azure-pipeline.yml)
+- [ ] Commit your code to source control (e.g. `chore(build): Add build/release assets`)
 
 For Docker:
 - [ ] Add extra dependencies in your docker development container if you want

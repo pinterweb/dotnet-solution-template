@@ -6,4 +6,4 @@ then
     exit 1
 fi
 
-dotnet ef database update %1 -v -s ..\BusinessApp.WebApi\ --context BusinessAppDbContext
+dotnet ef database update $1 -v -s ../BusinessApp.WebApi --context BusinessAppDbContext

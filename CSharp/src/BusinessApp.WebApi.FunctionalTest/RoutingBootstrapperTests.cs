@@ -87,7 +87,9 @@ namespace BusinessApp.WebApi.FunctionalTest
             // Then
             await response.Success(output);
             var json = await response.Content.ReadAsStringAsync();
-            Assert.Equal("{\r\n  \"longerId\": \"99\",\r\n  \"id\": 1\r\n}", json);
+            Assert.Equal(
+                "{  \"longerId\": \"99\",  \"id\": 1}",
+                json.Replace(Environment.NewLine, ""));
         }
 
         [Fact]

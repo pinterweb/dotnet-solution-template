@@ -35,7 +35,7 @@ namespace BusinessApp.WebApi.FunctionalTest
                     _ = builder.ConfigureAppConfiguration((hostingContext, config) =>
                     {
                         _ = config.AddJsonFile("appsettings.test.json")
-                            .AddEnvironmentVariables(prefix: "StaticForms_");
+                            .AddEnvironmentVariables(prefix: "BusinessApp_Test_");
                     })
                     .ConfigureServices(services =>
                     {

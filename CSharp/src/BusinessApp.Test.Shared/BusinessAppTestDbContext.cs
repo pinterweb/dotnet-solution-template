@@ -42,7 +42,7 @@ namespace BusinessApp.Test.Shared
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.AddCommandLine(args);
-                    config.AddEnvironmentVariables();
+                    config.AddEnvironmentVariables(prefix: "BusinessApp_");
                     config.AddJsonFile("appsettings.test.json");
                 })
                 .UseStartup<Startup>()
