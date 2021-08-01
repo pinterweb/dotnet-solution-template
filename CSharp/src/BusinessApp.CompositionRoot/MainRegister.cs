@@ -196,6 +196,15 @@ namespace BusinessApp.CompositionRoot
                     && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
                     && c.Consumer.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>)));
 
+#if DEBUG
+            context.Container.RegisterDecorator(
+                serviceType,
+                typeof(EventConsumingRequestDecorator<,>),
+                c => !c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>))
+                    && !c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>))
+                    && !c.ImplementationType.IsTypeDefinition(typeof(TransactionRequestDecorator<,>))
+                    && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>)));
+#elif validation
             // decorate the inner most handler that is not a decorator running as a service
             // most of the time this would be the actual command handler
 
@@ -205,9 +214,7 @@ namespace BusinessApp.CompositionRoot
                 c => !c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>))
                     && !c.ImplementationType.IsTypeDefinition(typeof(TransactionRequestDecorator<,>))
-#if validation
                     && !c.ImplementationType.IsTypeDefinition(typeof(ValidationRequestDecorator<,>))
-#endif
             );
 #endif
 
