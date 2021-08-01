@@ -177,7 +177,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
-                        typeof(ResponseStub));
+                        typeof(IDomainEvent));
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     container.RegisterInstance(hateoasSvcType, Activator.CreateInstance(hateoasImplType));
