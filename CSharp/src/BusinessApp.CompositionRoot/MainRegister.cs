@@ -43,10 +43,8 @@ namespace BusinessApp.CompositionRoot
             RegisterLogging(context.Container);
 #if DEBUG
             RegisterValidators(context.Container);
-#else
-#if validation
+#elif validation
             RegisterValidators(context.Container);
-#endif
 #endif
             RegisterRequestDecoratePipeline(context);
             RegisterAppHandlers(context.Container);
@@ -164,8 +162,7 @@ namespace BusinessApp.CompositionRoot
                         || c.Consumer.ImplementationType.IsTypeDefinition(typeof(DummyScopedBatchRequestDelegator<,>))
                     )
                     && !c.ServiceType.GetGenericArguments()[0].IsMacro());
-#else
-#if macro
+#elif macro
             // run this only once not within a macro request, only the requests
             // that are generated from the macro
             context.Container.RegisterConditional(
@@ -194,7 +191,6 @@ namespace BusinessApp.CompositionRoot
                 typeof(DeadlockRetryRequestDecorator<,>),
                 c => CanHandle(c)
                     && c.Consumer.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
-#endif
 #endif
 
             context.Container.RegisterConditional(
