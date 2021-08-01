@@ -313,7 +313,7 @@
                         "src/**/Automation*.cs",
                         "src/**/IRequestStore.cs",
                         "src/**/IRequestMapper.cs",
-                        "src/**/RequestMetadata.cs"
+                        "src/**/RequestMetadata*.cs"
                     ]
                 },
                 {
