@@ -94,8 +94,6 @@ namespace BusinessApp.CompositionRoot
                                 && i.GetGenericTypeDefinition() != typeof(IRequestHandler<,>))
                         ));
 
-            #region Query Pipeline
-
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(EntityNotFoundQueryDecorator<,>),
@@ -105,8 +103,6 @@ namespace BusinessApp.CompositionRoot
                 serviceType,
                 typeof(InstanceCacheQueryDecorator<,>),
                 c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
-
-            #endregion
 
             // Apply the group decorator as an actual service second in the pipeline
             // for macro requests
@@ -200,10 +196,9 @@ namespace BusinessApp.CompositionRoot
                     && !c.ServiceType.GetGenericArguments()[0].IsQueryType()
                     && c.Consumer.ImplementationType.IsTypeDefinition(typeof(DeadlockRetryRequestDecorator<,>)));
 
-            #region Event Pipeline Additions
-
             // decorate the inner most handler that is not a decorator running as a service
             // most of the time this would be the actual command handler
+
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(EventConsumingRequestDecorator<,>),
@@ -294,7 +289,6 @@ namespace BusinessApp.CompositionRoot
 #endif
 #endif
 #endif
-            #endregion
         }
 
         private static bool CanHandle(PredicateContext context)
