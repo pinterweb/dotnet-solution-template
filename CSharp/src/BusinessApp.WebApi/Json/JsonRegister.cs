@@ -23,7 +23,7 @@ namespace BusinessApp.WebApi.Json
         {
             var container = context.Container;
 
-            _ = ProblemDetailOptionBootstrap.KnownProblems.Add(jsonProblemDetailOption);
+            ProblemDetailOptionBootstrap.AddProblem(jsonProblemDetailOption);
 
 #if DEBUG
             container.RegisterSingleton<IHttpRequestAnalyzer, JsonHttpRequestAnalyzer>();

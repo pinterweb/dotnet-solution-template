@@ -15,7 +15,7 @@ namespace BusinessApp.WebApi.ProblemDetails
     /// </summary>
     public static partial class ProblemDetailOptionBootstrap
     {
-        public static HashSet<ProblemDetailOptions> KnownProblems = new()
+        public static HashSet<ProblemDetailOptions> knownProblems = new()
         {
             new ProblemDetailOptions(typeof(ActivationException), StatusCodes.Status404NotFound)
             {
@@ -73,5 +73,8 @@ namespace BusinessApp.WebApi.ProblemDetails
             },
             new ProblemDetailOptions(typeof(CommunicationException), StatusCodes.Status424FailedDependency)
         };
+
+        public static void AddProblem(ProblemDetailOptions options) => _ = knownProblems.Add(options);
+        public static HashSet<ProblemDetailOptions> GetProblems() => knownProblems;
     }
 }

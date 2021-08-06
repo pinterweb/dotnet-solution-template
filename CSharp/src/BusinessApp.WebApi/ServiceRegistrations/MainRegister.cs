@@ -77,7 +77,7 @@ namespace BusinessApp.WebApi
 
         private static void RegisterWebApiErrorResponse(Container container)
         {
-            container.RegisterInstance(ProblemDetailOptionBootstrap.KnownProblems);
+            container.RegisterInstance(ProblemDetailOptionBootstrap.GetProblems());
             container.RegisterSingleton<IProblemDetailFactory, ProblemDetailFactory>();
             container.RegisterDecorator<IProblemDetailFactory, LocalizedProblemDetailFactory>();
         }
