@@ -12,18 +12,18 @@ namespace BusinessApp.Infrastructure
         where TRequest : notnull
     {
         private readonly IRequestHandler<TRequest, TResponse> inner;
+        private readonly IPostCommitHandler<TRequest, TResponse> postHandler;
         private readonly ITransactionFactory transactionFactory;
         private readonly ILogger logger;
-        private readonly PostCommitRegister register;
 
         public TransactionRequestDecorator(ITransactionFactory transactionFactory,
-            IRequestHandler<TRequest, TResponse> inner, PostCommitRegister register,
-            ILogger logger)
+            IRequestHandler<TRequest, TResponse> inner, ILogger logger,
+            IPostCommitHandler<TRequest, TResponse> postHandler)
         {
             this.inner = inner.NotNull().Expect(nameof(inner));
             this.transactionFactory = transactionFactory.NotNull().Expect(nameof(transactionFactory));
-            this.register = register.NotNull().Expect(nameof(register));
             this.logger = logger.NotNull().Expect(nameof(logger));
+            this.postHandler = postHandler.NotNull().Expect(nameof(postHandler));
         }
 
         public async Task<Result<TResponse, Exception>> HandleAsync(
@@ -47,31 +47,28 @@ namespace BusinessApp.Infrastructure
         private async Task<Result<TResponse, Exception>> RunPostCommitHandlersAsync(
             Result<IUnitOfWork, Exception> uowResult, TRequest request, TResponse response, CancellationToken cancelToken)
         {
-            while (register.FinishHandlers.Count > 0)
+            try
             {
+                _ = await postHandler.HandleAsync(request, response, cancelToken).OrElseAsync(e => throw e);
+                _ = await uowResult.AndThenAsync(u => SaveAsync(u, response, cancelToken));
+            }
+            catch
+            {
+
                 try
                 {
-                    await register.OnFinishedAsync();
-                    _ = await uowResult.AndThenAsync(u => SaveAsync(u, response, cancelToken));
+                    _ = await RevertAsync(uowResult, response, cancelToken);
                 }
-                catch
+                catch (Exception revertError)
                 {
-
-                    try
+                    logger.Log(new LogEntry(LogSeverity.Critical, revertError.Message)
                     {
-                        _ = await RevertAsync(uowResult, response, cancelToken);
-                    }
-                    catch (Exception revertError)
-                    {
-                        logger.Log(new LogEntry(LogSeverity.Critical, revertError.Message)
-                        {
-                            Exception = revertError,
-                            Data = request
-                        });
-                    }
-
-                    throw;
+                        Exception = revertError,
+                        Data = request
+                    });
                 }
+
+                throw;
             }
 
             return Result.Ok(response);
