@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-focal AS build
 
 ARG USER__CA_CERT
 ARG CONTAINER__EXTRA_DEPS
