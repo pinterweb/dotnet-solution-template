@@ -21,6 +21,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 new ProblemDetailOptions(typeof(ProblemTypeExceptionStub), 400)
                 {
                     AbsoluteType = "http://bar/foo.html"
+                },
+                new ProblemDetailOptions(typeof(AnotherProblemTypeExceptionStub), 500)
+                {
+                    AbsoluteType = "http://bar/foo.html"
                 }
             };
 
@@ -171,7 +175,49 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void Exception_WhenDataKeyToStringReturnsNull_EmptyStringUsedAsKey()
+            public void StatusNot404_WhenDataKeyToStringReturnsEmpty_GenericErrorKeyUsed()
+            {
+                /* Arrange */
+                var error = new AnotherProblemTypeExceptionStub();
+                error.Data.Add("", "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["Errors"]);
+            }
+
+            [Fact]
+            public void StatusNot404_WhenDataKeyToStringReturnsNull_GenericErrorKeyUsed()
+            {
+                /* Arrange */
+                var error = new AnotherProblemTypeExceptionStub();
+                error.Data.Add(new DictionaryKey(), "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["Errors"]);
+            }
+
+            [Fact]
+            public void Status404_WhenDataKeyToStringReturnsEmpty_GenericErrorKeyUsed()
+            {
+                /* Arrange */
+                var error = new ProblemTypeExceptionStub();
+                error.Data.Add("", "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["ValidationErrors"]);
+            }
+
+            [Fact]
+            public void Status404_WhenDataKeyToStringReturnsNull_GenericErrorKeyUsed()
             {
                 /* Arrange */
                 var error = new ProblemTypeExceptionStub();
@@ -181,7 +227,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var problem = sut.Create(error);
 
                 /* Assert */
-                Assert.Equal("bar", problem[""]);
+                Assert.Equal("bar", problem["ValidationErrors"]);
             }
 
             [Fact]
@@ -189,14 +235,14 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             {
                 /* Arrange */
                 var error = new ProblemTypeExceptionStub();
-                error.Data.Add(new DictionaryKey(), "bar");
-                error.Data.Add(new AnotherDictionaryKey(), "lomre");
+                error.Data.Add(new FirstDictionaryKey(), "bar");
+                error.Data.Add(new SecondDictionaryKey(), "lorem");
 
                 /* Act */
                 var problem = sut.Create(error);
 
                 /* Assert */
-                Assert.Equal("bar", problem[""]);
+                Assert.Equal("bar", problem["A"]);
             }
 
             [Fact]
@@ -524,6 +570,12 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             {}
         }
 
+        private sealed class AnotherProblemTypeExceptionStub : Exception
+        {
+            public AnotherProblemTypeExceptionStub(string msg = null) : base(msg)
+            {}
+        }
+
         private sealed class DictionaryKey
         {
             public override string ToString() => null;
@@ -532,6 +584,16 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         private sealed class AnotherDictionaryKey
         {
             public override string ToString() => null;
+        }
+
+        private sealed class FirstDictionaryKey
+        {
+            public override string ToString() => "A";
+        }
+
+        private sealed class SecondDictionaryKey
+        {
+            public override string ToString() => "A";
         }
     }
 }
