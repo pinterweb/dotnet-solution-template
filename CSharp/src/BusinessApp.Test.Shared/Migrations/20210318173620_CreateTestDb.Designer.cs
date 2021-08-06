@@ -78,6 +78,8 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Metadata", "dbo");
+
+                    b.HasDiscriminator<string>("DataSetName").HasValue("Metadata");
                 });
 
             modelBuilder.Entity("BusinessApp.Infrastructure.RequestMetadata", b =>
@@ -223,6 +225,20 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("PostOrPutBody");
                 });
 
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
+                {
+                    b.HasBaseType("BusinessApp.Infrastructure.Metadata");
+
+                    b.HasDiscriminator().HasValue("Metadata<Query>");
+                });
+
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
+                {
+                    b.HasBaseType("BusinessApp.Infrastructure.Metadata");
+
+                    b.HasDiscriminator().HasValue("Metadata<Body>");
+                });
+
             modelBuilder.Entity("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+WebDomainEvent>", b =>
                 {
                     b.HasOne("BusinessApp.Infrastructure.Metadata", null)
@@ -271,8 +287,8 @@ namespace BusinessApp.Test.Shared.Migrations
 
             modelBuilder.Entity("BusinessApp.WebApi.Delete+Query", b =>
                 {
-                    b.HasOne("BusinessApp.Infrastructure.Metadata", null)
-                        .WithOne()
+                    b.HasOne("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+Query>", null)
+                        .WithOne("Data")
                         .HasForeignKey("BusinessApp.WebApi.Delete+Query", "MetadataId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -280,8 +296,8 @@ namespace BusinessApp.Test.Shared.Migrations
 
             modelBuilder.Entity("BusinessApp.WebApi.PostOrPut+Body", b =>
                 {
-                    b.HasOne("BusinessApp.Infrastructure.Metadata", null)
-                        .WithOne()
+                    b.HasOne("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", null)
+                        .WithOne("Data")
                         .HasForeignKey("BusinessApp.WebApi.PostOrPut+Body", "MetadataId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -290,6 +306,18 @@ namespace BusinessApp.Test.Shared.Migrations
             modelBuilder.Entity("BusinessApp.Test.Shared.ResponseStub", b =>
                 {
                     b.Navigation("ChildResponseStubs");
+                });
+
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+Query>", b =>
+                {
+                    b.Navigation("Data")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
+                {
+                    b.Navigation("Data")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

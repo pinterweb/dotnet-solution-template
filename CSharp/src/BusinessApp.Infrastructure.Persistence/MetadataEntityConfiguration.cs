@@ -36,6 +36,8 @@ namespace BusinessApp.Infrastructure.Persistence
             builder.Property(p => p.OccurredUtc)
                 .HasColumnName("OccurredUtc")
                 .HasColumnType("datetimeoffset(0)");
+
+            builder.HasDiscriminator(m => m.DataSetName);
         }
     }
 
@@ -43,8 +45,8 @@ namespace BusinessApp.Infrastructure.Persistence
         where T : class
     {
         public virtual void Configure(EntityTypeBuilder<T> builder)
-            => builder.HasOne<Metadata>()
-                .WithOne()
+            => builder.HasOne<Metadata<T>>()
+                .WithOne(m => m.Data)
                 .HasForeignKey<T>("MetadataId")
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
