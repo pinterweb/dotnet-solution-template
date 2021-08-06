@@ -2,6 +2,7 @@ using System.Linq;
 using BusinessApp.Infrastructure;
 using Microsoft.Extensions.Logging;
 using SimpleInjector;
+using Microsoft.Extensions.Configuration;
 
 namespace BusinessApp.CompositionRoot
 {
@@ -11,9 +12,9 @@ namespace BusinessApp.CompositionRoot
     public static class Bootstrapper
     {
         public static void RegisterServices(Container container,
-            RegistrationOptions options, ILoggerFactory loggerFactory)
+            RegistrationOptions options, ILoggerFactory loggerFactory, IConfiguration configuration)
         {
-            var bootstrapContainer = SetupBootstrapContainer(options, loggerFactory);
+            var bootstrapContainer = SetupBootstrapContainer(options, loggerFactory, configuration);
 
             RegisterBootstrapDecorators(bootstrapContainer, options);
 
@@ -32,13 +33,14 @@ namespace BusinessApp.CompositionRoot
         }
 
         private static Container SetupBootstrapContainer(RegistrationOptions options,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory, IConfiguration configuration)
         {
             var bootstrapContainer = new Container();
 
             bootstrapContainer.Register<IBootstrapRegister, MainRegister>();
             bootstrapContainer.RegisterInstance(options);
             bootstrapContainer.RegisterInstance(loggerFactory);
+            bootstrapContainer.RegisterInstance(configuration);
 
             return bootstrapContainer;
         }

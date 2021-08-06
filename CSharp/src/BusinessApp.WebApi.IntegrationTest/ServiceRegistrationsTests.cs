@@ -29,9 +29,21 @@ namespace BusinessApp.WebApi.IntegrationTest
     {
         private readonly Container container;
         private readonly Scope scope;
+        private readonly IConfiguration config;
 
         public ServiceRegistrationsTests()
         {
+            config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+                .ConfigureAppConfiguration((_, builder) =>
+                {
+                    builder.AddJsonFile("appsettings.test.json");
+                    builder.AddEnvironmentVariables(prefix: "BusinessApp_");
+                })
+                .UseStartup<Startup>()
+                .Build()
+                .Services
+                .GetService(typeof(IConfiguration));
+
             container = new Container();
             scope = container.CreateScope();
         }
@@ -47,7 +59,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
             container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
 #endif
-            container.CreateRegistrations(envName);
+            container.CreateRegistrations(config, envName);
         }
 
         public class RequestHandlers : ServiceRegistrationsTests

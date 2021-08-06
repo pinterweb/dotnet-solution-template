@@ -13,6 +13,8 @@ services:
       - "${$(upper_appname)_WEBAPI__HTTPS_PORT?}:443"
     environment:
       $(upper_appname)_CONNECTIONSTRINGS__MAIN: "${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}"
+      $(upper_appname)_CONNECTIONSTRINGS__TEST: "${$(upper_appname)_CONNECTIONSTRINGS__TEST?}"
+      $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN: "${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}"
     restart: always
     depends_on:
       - db

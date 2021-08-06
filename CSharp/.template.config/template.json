@@ -218,7 +218,8 @@
                 {
                     "condition": "(efcore)",
                     "exclude": [
-                        "src/BusinessApp.NoPersistence.sln"
+                        "src/BusinessApp.NoPersistence.sln",
+                        "**/Migrations/*.*"
                     ]
                 },
                 {

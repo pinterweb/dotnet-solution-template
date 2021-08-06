@@ -1,11 +1,9 @@
+using BusinessApp.Infrastructure;
 using BusinessApp.Infrastructure.Persistence;
 using BusinessApp.Kernel;
-using BusinessApp.Infrastructure;
 using BusinessApp.WebApi;
 using FakeItEasy;
 using FakeItEasy.Creation;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -37,21 +35,20 @@ namespace BusinessApp.Test.Shared
     {
         public BusinessAppTestDbContext CreateDbContext(string[] args)
         {
-            var config = (IConfiguration)WebHost.CreateDefaultBuilder(args)
+            var config = (IConfiguration)Program.CreateWebHostBuilder(args)
                 .ConfigureServices(sc => sc.AddSingleton(new Container()))
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    config.AddCommandLine(args);
-                    config.AddEnvironmentVariables(prefix: "BusinessApp_");
-                    config.AddJsonFile("appsettings.test.json");
+                    _ = config.AddCommandLine(args)
+                        .AddJsonFile("appsettings.Migrations.json")
+                        .AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
-                .UseStartup<Startup>()
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));
 
             var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
-            var connection = config.GetConnectionString("Main");
+            var connection = config.GetConnectionString("Test");
 
             optionsBuilder.UseSqlServer(connection);
 
@@ -134,12 +131,8 @@ namespace BusinessApp.Test.Shared
 
         private class PostOrPutBodyConfiguration : MetadataEntityConfiguration<PostOrPut.Body>
         {
-            protected override string TableName => "PostOrPutBody";
-
             public override void Configure(EntityTypeBuilder<PostOrPut.Body> builder)
             {
-                base.Configure(builder);
-
                 builder.ToTable("PostOrPutBody");
 
                 builder.Property<int>("PostOrPutBodyRequestId")
@@ -150,16 +143,16 @@ namespace BusinessApp.Test.Shared
                 builder.Property(p => p.Id)
                     .HasColumnName("PostOrPutId")
                     .HasConversion(id => (int)id, val => new EntityId(val));
+
+                base.Configure(builder);
             }
         }
 
         private class DeleteQueryConfiguration : MetadataEntityConfiguration<Delete.Query>
         {
-            protected override string TableName => "DeleteQuery";
-
             public override void Configure(EntityTypeBuilder<Delete.Query> builder)
             {
-                base.Configure(builder);
+                builder.ToTable("DeleteQuery");
 
                 builder.Property<int>("DeleteQueryRequestId")
                     .ValueGeneratedOnAdd();
@@ -169,6 +162,8 @@ namespace BusinessApp.Test.Shared
                 builder.Property(p => p.Id)
                     .HasColumnName("DeleteQueryId")
                     .HasConversion(id => (int)id, val => new EntityId(val));
+
+                base.Configure(builder);
             }
         }
     }
