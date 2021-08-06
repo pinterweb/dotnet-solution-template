@@ -19,16 +19,18 @@ namespace BusinessApp.WebApi.IntegrationTest
     {
         public static Scope CreateScope(this Container container)
         {
+            // run this to setup container
             var config = A.Fake<IConfiguration>();
             var configSection = A.Fake<IConfigurationSection>();
-            var _ = A.CallTo(() => config.GetSection("ConnectionStrings")).Returns(configSection);
-            var __ = A.CallTo(() => configSection["Main"]).Returns("foo");
-            var startup = new Startup(config, container, A.Dummy<IWebHostEnvironment>());
+            _ = A.CallTo(() => config.GetSection("ConnectionStrings")).Returns(configSection);
+            _ = A.CallTo(() => configSection["Main"]).Returns("foo");
+            _ = new Startup(config, container, A.Dummy<IWebHostEnvironment>());
 
             return AsyncScopedLifestyle.BeginScope(container);
         }
 
-        public static void CreateRegistrations(this Container container, string envName = "Development")
+        public static void CreateRegistrations(this Container container, IConfiguration config,
+            string envName = "Development")
         {
             var bootstrapOptions = new RegistrationOptions(
                 "Server=(localdb)\\MSSQLLocalDb;Initial Catalog=foobar",
@@ -52,8 +54,8 @@ namespace BusinessApp.WebApi.IntegrationTest
 
             Bootstrapper.RegisterServices(container,
                 bootstrapOptions,
-                A.Dummy<ILoggerFactory>());
+                A.Dummy<ILoggerFactory>(),
+                config);
         }
-
     }
 }

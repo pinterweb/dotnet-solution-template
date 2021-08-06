@@ -3,7 +3,7 @@
 @echo off
 
 IF [%1] == [] (
-    echo "Migration name required"
+    echo "Migration name must be the first argument"
     exit /b %errorlevel%
 )
 

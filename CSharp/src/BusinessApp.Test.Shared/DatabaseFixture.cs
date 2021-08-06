@@ -1,15 +1,15 @@
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Logging;
+using BusinessApp.Infrastructure.Persistence;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Hosting;
+using BusinessApp.WebApi;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
 namespace BusinessApp.Test.Shared
 {
-    using System;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Migrations;
-    using Microsoft.Extensions.Logging;
-    using BusinessApp.Infrastructure.Persistence;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.AspNetCore.Hosting;
-    using BusinessApp.WebApi;
-    using Microsoft.EntityFrameworkCore.Infrastructure;
-
     public class DatabaseFixture : IDisposable
 	{
         public static readonly ILoggerFactory EFDebugLoggerFactory

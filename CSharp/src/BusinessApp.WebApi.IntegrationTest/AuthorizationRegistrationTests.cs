@@ -13,9 +13,21 @@ namespace BusinessApp.WebApi.IntegrationTest
     {
         private readonly Container container;
         private readonly Scope scope;
+        private readonly IConfiguration config;
 
         public AuthorizationRegistrationTests()
         {
+            config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+                .ConfigureAppConfiguration((_, builder) =>
+                {
+                    builder.AddJsonFile("appsettings.test.json");
+                    builder.AddEnvironmentVariables(prefix: "PurchaseOrderItemReceiver_");
+                })
+                .UseStartup<Startup>()
+                .Build()
+                .Services
+                .GetService(typeof(IConfiguration));
+
             container = new Container();
             scope = container.CreateScope();
         }
@@ -27,7 +39,7 @@ namespace BusinessApp.WebApi.IntegrationTest
         {
             /* Arrange */
             var requestType = typeof(AuthWithAttrubte);
-            container.CreateRegistrations();
+            container.CreateRegistrations(config);
             container.Verify();
             var serviceType = typeof(IAuthorizer<>).MakeGenericType(requestType);
 
@@ -43,7 +55,7 @@ namespace BusinessApp.WebApi.IntegrationTest
         {
             /* Arrange */
             var requestType = typeof(AuthWithOutAttrubte);
-            container.CreateRegistrations();
+            container.CreateRegistrations(config);
             container.Verify();
             var serviceType = typeof(IAuthorizer<>).MakeGenericType(requestType);
 

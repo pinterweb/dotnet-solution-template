@@ -33,10 +33,12 @@ namespace BusinessApp.WebApi
     {
         private readonly Container container;
         private readonly RegistrationOptions options;
+        private readonly IConfiguration configuration;
 
         public Startup(IConfiguration configuration, Container container, IWebHostEnvironment env)
         {
             this.container = container.NotNull().Expect(nameof(container));
+            this.configuration = configuration;
             container.Options.ResolveUnregisteredConcreteTypes = false;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
@@ -122,7 +124,7 @@ namespace BusinessApp.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 #endif
-            Bootstrapper.RegisterServices(container, options, loggerFactory);
+            Bootstrapper.RegisterServices(container, options, loggerFactory, configuration);
 
             container.Collection.Register<IStartupConfiguration>(
                 new[] { typeof(Startup).Assembly },
