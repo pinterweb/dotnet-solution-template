@@ -61,8 +61,10 @@ namespace BusinessApp.WebApi.ProblemDetails
             {
                 foreach (DictionaryEntry entry in error.Data)
                 {
-                    var key = entry.Key.ToString() ?? "";
-                    _ = problem.TryAdd(key, entry.Value ?? "");
+                    var key = entry.Key.ToString() ?? CreateKey(option);
+                    _ = problem.TryAdd(
+                        string.IsNullOrWhiteSpace(key) ? CreateKey(option) : key,
+                        entry.Value ?? "");
                 }
             }
 
@@ -104,5 +106,12 @@ namespace BusinessApp.WebApi.ProblemDetails
             };
         }
 #endif
+
+    private static string CreateKey(ProblemDetailOptions options)
+        => options.StatusCode switch
+        {
+            400 => ModelValidationException.ValidationKey,
+            _ => "Errors"
+        };
     }
 }

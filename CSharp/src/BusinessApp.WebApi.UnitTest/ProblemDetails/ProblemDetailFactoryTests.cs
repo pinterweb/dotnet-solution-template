@@ -21,6 +21,10 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 new ProblemDetailOptions(typeof(ProblemTypeExceptionStub), 400)
                 {
                     AbsoluteType = "http://bar/foo.html"
+                },
+                new ProblemDetailOptions(typeof(AnotherProblemTypeExceptionStub), 500)
+                {
+                    AbsoluteType = "http://bar/foo.html"
                 }
             };
 
@@ -171,7 +175,49 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void Exception_WhenDataKeyToStringReturnsNull_EmptyStringUsedAsKey()
+            public void StatusNot404_WhenDataKeyToStringReturnsEmpty_GenericErrorKeyUsed()
+            {
+                /* Arrange */
+                var error = new AnotherProblemTypeExceptionStub();
+                error.Data.Add("", "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["Errors"]);
+            }
+
+            [Fact]
+            public void StatusNot404_WhenDataKeyToStringReturnsNull_GenericErrorKeyUsed()
+            {
+                /* Arrange */
+                var error = new AnotherProblemTypeExceptionStub();
+                error.Data.Add(new DictionaryKey(), "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["Errors"]);
+            }
+
+            [Fact]
+            public void Status404_WhenDataKeyToStringReturnsEmpty_GenericErrorKeyUsed()
+            {
+                /* Arrange */
+                var error = new ProblemTypeExceptionStub();
+                error.Data.Add("", "bar");
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("bar", problem["ValidationErrors"]);
+            }
+
+            [Fact]
+            public void Status404_WhenDataKeyToStringReturnsNull_GenericErrorKeyUsed()
             {
                 /* Arrange */
                 var error = new ProblemTypeExceptionStub();
@@ -181,7 +227,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var problem = sut.Create(error);
 
                 /* Assert */
-                Assert.Equal("bar", problem[""]);
+                Assert.Equal("bar", problem["ValidationErrors"]);
             }
 
             [Fact]
@@ -189,14 +235,14 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             {
                 /* Arrange */
                 var error = new ProblemTypeExceptionStub();
-                error.Data.Add(new DictionaryKey(), "bar");
-                error.Data.Add(new AnotherDictionaryKey(), "lomre");
+                error.Data.Add(new FirstDictionaryKey(), "bar");
+                error.Data.Add(new SecondDictionaryKey(), "lorem");
 
                 /* Act */
                 var problem = sut.Create(error);
 
                 /* Assert */
-                Assert.Equal("bar", problem[""]);
+                Assert.Equal("bar", problem["A"]);
             }
 
             [Fact]
@@ -213,314 +259,17 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 Assert.Equal("", problem["bar"]);
             }
 
-#if DEBUG
-            [Fact]
-            public void BatchException_CompositeProblemReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(A.Dummy<Exception>())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.IsType<CompositeProblemDetail>(problem);
-            }
-
-            [Fact]
-            public void BatchException_ManyStatusesReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(A.Dummy<Exception>())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.Equal(200, p.StatusCode),
-                    p => Assert.Equal(500, p.StatusCode)
-                );
-            }
-
-            [Fact]
-            public void BatchException_ManyTypesReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(new ProblemTypeExceptionStub())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.Equal("about:blank", p.Type.ToString()),
-                    p => Assert.Equal("http://bar/foo.html", p.Type.ToString())
-                );
-            }
-
-            [Fact]
-            public void BatchException_ManyMessagesReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(new ProblemTypeExceptionStub("msg from exception"))
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.Null(p.Detail),
-                    p => Assert.Equal("msg from exception", p.Detail)
-                );
-            }
-
-            [Fact]
-            public void BatchException_ExceptionExtensionsAdded()
-            {
-                /* Arrange */
-                var innerError = new ProblemTypeExceptionStub();
-                innerError.Data.Add("foo", "bar");
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(innerError)
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.False(p.TryGetValue("foo", out object _)),
-                    p => Assert.Equal("bar", p["foo"])
-                );
-            }
-
-            [Theory]
-            [InlineData(1)]
-            [InlineData("")]
-            public void BatchExceptionIsAMixOfExceptionWithoutStringKey_ExtensionsNotAdded(
-                object key)
-            {
-                /* Arrange */
-                var innerError = new ProblemTypeExceptionStub();
-                innerError.Data.Add(key, "bar");
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(innerError)
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.False(problem.TryGetValue(key.ToString(), out object _));
-            }
-
-            [Fact]
-            public void BatchException_DetailMessagedAdded()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(A.Dummy<ProblemTypeExceptionStub>())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.Equal(
-                    "The request partially succeeded. Please review the errors before continuing",
-                    problem.Detail);
-            }
-#elif hasbatch
-            [Fact]
-            public void BatchException_CompositeProblemReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(A.Dummy<Exception>())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.IsType<CompositeProblemDetail>(problem);
-            }
-
-            [Fact]
-            public void BatchException_ManyStatusesReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(A.Dummy<Exception>())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.Equal(200, p.StatusCode),
-                    p => Assert.Equal(500, p.StatusCode)
-                );
-            }
-
-            [Fact]
-            public void BatchException_ManyTypesReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(new ProblemTypeExceptionStub())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.Equal("about:blank", p.Type.ToString()),
-                    p => Assert.Equal("http://bar/foo.html", p.Type.ToString())
-                );
-            }
-
-            [Fact]
-            public void BatchException_ManyMessagesReturned()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(new ProblemTypeExceptionStub("msg from exception"))
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.Null(p.Detail),
-                    p => Assert.Equal("msg from exception", p.Detail)
-                );
-            }
-
-            [Fact]
-            public void BatchException_ExceptionExtensionsAdded()
-            {
-                /* Arrange */
-                var innerError = new ProblemTypeExceptionStub();
-                innerError.Data.Add("foo", "bar");
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(innerError)
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                var problems = Assert.IsType<CompositeProblemDetail>(problem);
-                Assert.Collection<ProblemDetail>(problems,
-                    p => Assert.False(p.TryGetValue("foo", out object _)),
-                    p => Assert.Equal("bar", p["foo"])
-                );
-            }
-
-            [Theory]
-            [InlineData(1)]
-            [InlineData("")]
-            public void BatchExceptionIsAMixOfExceptionWithoutStringKey_ExtensionsNotAdded(
-                object key)
-            {
-                /* Arrange */
-                var innerError = new ProblemTypeExceptionStub();
-                innerError.Data.Add(key, "bar");
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(innerError)
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.False(problem.TryGetValue(key.ToString(), out object _));
-            }
-
-            [Fact]
-            public void BatchException_DetailMessagedAdded()
-            {
-                /* Arrange */
-                var results = new[]
-                {
-                    Result.Ok(),
-                    Result.Error(A.Dummy<ProblemTypeExceptionStub>())
-                };
-                var error = BatchException.FromResults(results);
-
-                /* Act */
-                var problem = sut.Create(error);
-
-                /* Assert */
-                Assert.Equal(
-                    "The request partially succeeded. Please review the errors before continuing",
-                    problem.Detail);
-            }
-#endif
         }
 
         private sealed class ProblemTypeExceptionStub : Exception
         {
             public ProblemTypeExceptionStub(string msg = null) : base(msg)
+            {}
+        }
+
+        private sealed class AnotherProblemTypeExceptionStub : Exception
+        {
+            public AnotherProblemTypeExceptionStub(string msg = null) : base(msg)
             {}
         }
 
@@ -532,6 +281,16 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         private sealed class AnotherDictionaryKey
         {
             public override string ToString() => null;
+        }
+
+        private sealed class FirstDictionaryKey
+        {
+            public override string ToString() => "A";
+        }
+
+        private sealed class SecondDictionaryKey
+        {
+            public override string ToString() => "A";
         }
     }
 }

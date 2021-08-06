@@ -10,6 +10,7 @@ namespace BusinessApp.Infrastructure
     /// </summary>
     public class ModelValidationException : BusinessAppException, IEnumerable<MemberValidationException>
     {
+        public const string ValidationKey = "ValidationErrors";
         private readonly IEnumerable<MemberValidationException> memberErrors;
 
         public ModelValidationException(string modelMessage)
@@ -19,7 +20,7 @@ namespace BusinessApp.Infrastructure
             : base(message)
         {
             this.memberErrors = memberErrors.NotEmpty().Expect(nameof(memberErrors));
-            Data.Add("ValidationErrors", memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
+            Data.Add(ValidationKey, memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
