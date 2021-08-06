@@ -14,17 +14,30 @@ namespace BusinessApp.Infrastructure.UnitTest
         private readonly IRequestHandler<CommandStub, CommandStub> inner;
         private readonly ITransactionFactory factory;
         private readonly ILogger logger;
-        private readonly PostCommitRegister register;
+        private readonly IPostCommitHandler<CommandStub, CommandStub> postHandler;
+        private readonly IUnitOfWork uow;
+        private readonly CancellationToken cancelToken;
+        private readonly CommandStub request;
+        private readonly CommandStub response;
+
 
         public TransactionRequestDecorator()
         {
             inner = A.Fake<IRequestHandler<CommandStub, CommandStub>>();
             factory = A.Fake<ITransactionFactory>();
-            register = new PostCommitRegister();
             logger = A.Fake<ILogger>();
+            postHandler = A.Fake<IPostCommitHandler<CommandStub, CommandStub>>();
+            cancelToken = A.Dummy<CancellationToken>();
+            response = new CommandStub();
+            request = A.Dummy<CommandStub>();
 
-            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, register,
-                logger);
+            sut = new TransactionRequestDecorator<CommandStub, CommandStub>(factory, inner, logger, postHandler);
+
+            uow = A.Fake<IUnitOfWork>();
+            A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
+
+            A.CallTo(() => inner.HandleAsync(request, cancelToken))
+                .Returns(Result.Ok(response));
         }
 
         public class Constructor : TransactionRequestDecorator
@@ -35,31 +48,39 @@ namespace BusinessApp.Infrastructure.UnitTest
                 {
                     null,
                     A.Dummy<IRequestHandler<CommandStub, CommandStub>>(),
-                    A.Dummy<PostCommitRegister>(),
-                    A.Dummy<ILogger>()
+                    A.Dummy<ILogger>(),
+                    A.Dummy<IPostCommitHandler<CommandStub, CommandStub>>(),
                 },
                 new object[]
                 {
                     A.Fake<ITransactionFactory>(),
                     null,
-                    A.Dummy<PostCommitRegister>(),
-                    A.Dummy<ILogger>()
+                    A.Dummy<ILogger>(),
+                    A.Dummy<IPostCommitHandler<CommandStub, CommandStub>>(),
                 },
                 new object[]
                 {
                     A.Fake<ITransactionFactory>(),
                     A.Dummy<IRequestHandler<CommandStub, CommandStub>>(),
                     null,
-                    A.Dummy<ILogger>()
+                    A.Dummy<IPostCommitHandler<CommandStub, CommandStub>>(),
+                },
+                new object[]
+                {
+                    A.Fake<ITransactionFactory>(),
+                    A.Dummy<IRequestHandler<CommandStub, CommandStub>>(),
+                    A.Dummy<ILogger>(),
+                    null,
                 },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(ITransactionFactory v,
-                IRequestHandler<CommandStub, CommandStub> c, PostCommitRegister r, ILogger l)
+                IRequestHandler<CommandStub, CommandStub> c, ILogger l,
+                IPostCommitHandler<CommandStub, CommandStub> p)
             {
                 /* Arrange */
-                void shouldThrow() => new TransactionRequestDecorator<CommandStub, CommandStub>(v, c, r, l);
+                void shouldThrow() => new TransactionRequestDecorator<CommandStub, CommandStub>(v, c, l, p);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -74,126 +95,112 @@ namespace BusinessApp.Infrastructure.UnitTest
             [Fact]
             public async Task BeforeRegister_TransFactoryAndHandlerCalledInOrder()
             {
-                /* Arrange */
-                var cancelToken = A.Dummy<CancellationToken>();
-                var handler = A.Fake<Func<Task>>();
-                var command = A.Dummy<CommandStub>();
-                var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
-                register.FinishHandlers.Add(handler);
-
                 /* Act */
-                await sut.HandleAsync(command, cancelToken);
+                await sut.HandleAsync(request, cancelToken);
 
                 /* Assert */
                 A.CallTo(() => factory.Begin()).MustHaveHappened()
-                    .Then(A.CallTo(() => inner.HandleAsync(command, cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => inner.HandleAsync(request, cancelToken)).MustHaveHappened())
                     .Then(A.CallTo(() => uow.CommitAsync(cancelToken)).MustHaveHappened())
-                    .Then(A.CallTo(() => handler.Invoke()).MustHaveHappened());
-            }
-
-            [Fact]
-            public async Task AfterFirstCommit_HandlersRunThenCommit()
-            {
-                /* Arrange */
-                var cancelToken = A.Dummy<CancellationToken>();
-                var handler1 = A.Fake<Func<Task>>();
-                var handler2 = A.Fake<Func<Task>>();
-                var uow = A.Fake<IUnitOfWork>();
-                register.FinishHandlers.Add(handler1);
-                register.FinishHandlers.Add(handler2);
-                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
-
-                /* Act */
-                await sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken);
-
-                /* Assert */
-                A.CallTo(() => handler1()).MustHaveHappenedOnceExactly()
-                    .Then(A.CallTo(() => handler2()).MustHaveHappenedOnceExactly())
+                    .Then(A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken)).MustHaveHappened())
                     .Then(A.CallTo(() => uow.CommitAsync(cancelToken)).MustHaveHappened());
             }
 
             [Fact]
-            public async Task FinishHandlersThrow_RevertRunsImmediately()
+            public async Task PostCommitHandlerThrows_RethrowsException()
             {
                 /* Arrange */
-                var cancelToken = A.Dummy<CancellationToken>();
-                var handler1 = A.Fake<Func<Task>>();
-                var handler2 = A.Fake<Func<Task>>();
-                var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => handler1.Invoke()).Throws<Exception>();
-                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
-                register.FinishHandlers.Add(handler1);
-                register.FinishHandlers.Add(handler2);
+                var originalError = new Exception();
+                A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken))
+                    .Throws(originalError);
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken));
+                var thrownError = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                 /* Assert */
-                Assert.NotNull(ex);
-                A.CallTo(() => handler1.Invoke()).MustHaveHappenedOnceExactly()
-                    .Then(A.CallTo(() => uow.RevertAsync(cancelToken)).MustHaveHappenedOnceExactly());
-                A.CallTo(() => handler2.Invoke()).MustNotHaveHappened();
+                Assert.Same(originalError, thrownError);
             }
 
             [Fact]
-            public async Task SecondCommitThrows_RevertRunsImmediately()
+            public async Task PostCommitHandlerReturnsError_RethrowsException()
             {
                 /* Arrange */
-                var cancelToken = A.Dummy<CancellationToken>();
-                var handler = A.Fake<Func<Task>>();
-                var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
-                A.CallTo(() => uow.CommitAsync(cancelToken))
-                    .DoesNothing().Once().Then.Throws<Exception>();
-                register.FinishHandlers.Add(handler);
+                var originalError = new Exception();
+                A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken))
+                    .Returns(Result.Error(originalError));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken));
+                var thrownError = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                 /* Assert */
-                Assert.NotNull(ex);
-                A.CallTo(() => handler.Invoke()).MustHaveHappened()
+                Assert.Same(originalError, thrownError);
+            }
+
+            [Fact]
+            public async Task PostCommitHandlerThrows_RevertRunsImmediately()
+            {
+                /* Arrange */
+                A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken)).Throws<Exception>();
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
+
+                /* Assert */
+                A.CallTo(() => factory.Begin()).MustHaveHappened()
+                    .Then(A.CallTo(() => inner.HandleAsync(request, cancelToken)).MustHaveHappened())
                     .Then(A.CallTo(() => uow.CommitAsync(cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken)).MustHaveHappened())
                     .Then(A.CallTo(() => uow.RevertAsync(cancelToken)).MustHaveHappened());
             }
 
             [Fact]
-            public async Task SecondCommitThrows_LaterHandlerNotRun()
+            public async Task PostCommitHandlerReturnsErrors_RevertRunsImmediately()
             {
                 /* Arrange */
-                var cancelToken = A.Dummy<CancellationToken>();
-                var handler1 = A.Fake<Func<Task>>();
-                var handler2 = A.Fake<Func<Task>>();
-                var uow = A.Fake<IUnitOfWork>();
-                A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
-                A.CallTo(() => uow.CommitAsync(cancelToken)).Throws<Exception>();
-                A.CallTo(() => handler1.Invoke())
-                    .Invokes(ctx => register.FinishHandlers.Add(handler2));
-                register.FinishHandlers.Add(handler1);
+                A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken))
+                    .Returns(Result.Error(A.Dummy<Exception>()));
 
                 /* Act */
-                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken));
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                 /* Assert */
-                A.CallTo(() => handler2.Invoke()).MustNotHaveHappened();
+                A.CallTo(() => factory.Begin()).MustHaveHappened()
+                    .Then(A.CallTo(() => inner.HandleAsync(request, cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.CommitAsync(cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.RevertAsync(cancelToken)).MustHaveHappened());
+            }
+
+            [Fact]
+            public async Task SecondCommitThrows_RevertRunImmediately()
+            {
+                /* Arrange */
+                A.CallTo(() => uow.CommitAsync(cancelToken))
+                    .Returns(Task.CompletedTask).Once()
+                    .Then
+                    .Throws<Exception>();
+
+                /* Act */
+                var ex = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
+
+                /* Assert */
+                A.CallTo(() => factory.Begin()).MustHaveHappened()
+                    .Then(A.CallTo(() => inner.HandleAsync(request, cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.CommitAsync(cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.CommitAsync(cancelToken)).MustHaveHappened())
+                    .Then(A.CallTo(() => uow.RevertAsync(cancelToken)).MustHaveHappened());
             }
 
             public class RevertThrows : TransactionRequestDecorator
             {
-                private CancellationToken cancelToken;
                 private LogEntry logEntry;
-                private IUnitOfWork uow;
 
                 public RevertThrows()
                 {
-                    uow = A.Fake<IUnitOfWork>();
-                    var handler1 = A.Fake<Func<Task>>();
-                    cancelToken = A.Dummy<CancellationToken>();
                     logEntry = null;
-                    A.CallTo(() => factory.Begin()).Returns(Result.Ok(uow));
-                    A.CallTo(() => handler1.Invoke()).Throws<Exception>();
-                    register.FinishHandlers.Add(handler1);
+                    A.CallTo(() => postHandler.HandleAsync(request, response, cancelToken))
+                        .Throws<Exception>();
                     A.CallTo(() => logger.Log(A<LogEntry>._))
                         .Invokes(ctx => logEntry = ctx.GetArgument<LogEntry>(0));
                 }
@@ -205,7 +212,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                     A.CallTo(() => uow.RevertAsync(cancelToken)).Throws<Exception>();
 
                     /* Act */
-                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken));
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                     /* Assert */
                     Assert.Equal(LogSeverity.Critical, logEntry.Severity);
@@ -218,7 +225,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                     A.CallTo(() => uow.RevertAsync(cancelToken)).Throws(new Exception("foobar"));
 
                     /* Act */
-                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken));
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                     /* Assert */
                     Assert.Equal("foobar", logEntry.Message);
@@ -232,7 +239,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                     A.CallTo(() => uow.RevertAsync(cancelToken)).Throws(targetException);
 
                     /* Act */
-                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(A.Dummy<CommandStub>(), cancelToken));
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                     /* Assert */
                     Assert.Same(targetException, logEntry.Exception);
@@ -242,14 +249,13 @@ namespace BusinessApp.Infrastructure.UnitTest
                 public async Task RevertThrows_CommandLogged()
                 {
                     /* Arrange */
-                    var targetCmd = new CommandStub();
                     A.CallTo(() => uow.RevertAsync(cancelToken)).Throws<Exception>();
 
                     /* Act */
-                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(targetCmd, cancelToken));
+                    var _ = await Record.ExceptionAsync(() => sut.HandleAsync(request, cancelToken));
 
                     /* Assert */
-                    Assert.Same(targetCmd, logEntry.Data);
+                    Assert.Same(request, logEntry.Data);
                 }
             }
         }

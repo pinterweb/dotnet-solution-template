@@ -31,9 +31,6 @@ namespace BusinessApp.CompositionRoot
 
             container.RegisterSingleton(typeof(IEntityIdFactory<>), typeof(LongEntityIdFactory<>));
 
-            container.Register<PostCommitRegister>();
-            container.Register<IPostCommitRegister>(container.GetInstance<PostCommitRegister>);
-
             RegisterSpecifications(context.Container);
             RegisterLocalization(context.Container);
             RegisterLogging(context.Container);
@@ -44,6 +41,7 @@ namespace BusinessApp.CompositionRoot
 #endif
             RegisterRequestDecoratePipeline(context);
             RegisterAppHandlers(context.Container);
+            RegisterPostCommitHandlers(context.Container);
         }
 
         private void RegisterSpecifications(Container container)
@@ -215,8 +213,6 @@ namespace BusinessApp.CompositionRoot
 #endif
             );
 #endif
-
-
 #if DEBUG
             context.Container.RegisterDecorator(
                 serviceType,
@@ -491,5 +487,13 @@ namespace BusinessApp.CompositionRoot
                 CancellationToken cancelToken) => inner.HandleAsync(request, cancelToken);
         }
 #endif
+        private void RegisterPostCommitHandlers(Container container)
+        {
+            container.Collection.Register(typeof(IPostCommitHandler<,>), options.RegistrationAssemblies);
+
+            container.Register(typeof(IPostCommitHandler<,>),
+                typeof(CompositePostCommitHandler<,>),
+                Lifestyle.Singleton);
+        }
     }
 }
