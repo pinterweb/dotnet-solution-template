@@ -37,7 +37,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder.AddJsonFile("appsettings.test.json");
-                    builder.AddEnvironmentVariables(prefix: "PurchaseOrderItemReceiver_");
+                    builder.AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
                 .UseStartup<Startup>()
                 .Build()
