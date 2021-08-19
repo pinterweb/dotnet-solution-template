@@ -55,7 +55,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         public class Create : ProblemDetailFactoryTests
         {
             [Fact]
-            public void NullArgument_ExceptionThrown()
+            public void NullException_ExceptionThrown()
             {
                 /* Arrange */
                 Exception unknown = null;
@@ -257,6 +257,32 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
 
                 /* Assert */
                 Assert.Equal("", problem["bar"]);
+            }
+
+            [Fact]
+            public void WhenStatusCodeException_ThatStatusUsed()
+            {
+                /* Arrange */
+                var error = new StatusCodeExceptionStub();
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal(400, problem.StatusCode);
+            }
+
+            [Fact]
+            public void WhenStatusCodeException_ThatMessageUsed()
+            {
+                /* Arrange */
+                var error = new StatusCodeExceptionStub();
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                Assert.Equal("foo", problem.Detail);
             }
 
 #if DEBUG
@@ -573,6 +599,12 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         private sealed class AnotherProblemTypeExceptionStub : Exception
         {
             public AnotherProblemTypeExceptionStub(string msg = null) : base(msg)
+            {}
+        }
+
+        private sealed class StatusCodeExceptionStub : StatusCodeException
+        {
+            public StatusCodeExceptionStub() : base(400, "foo")
             {}
         }
 

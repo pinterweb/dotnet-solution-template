@@ -20,14 +20,13 @@ namespace BusinessApp.WebApi.ProblemDetails
 
         public ProblemDetail Create(Exception exception)
         {
-            _ = exception.NotNull().Expect(nameof(exception));
+            var error = exception.NotNull().Expect(nameof(exception));
 
-            var option = new ProblemDetailOptions(exception.GetType(),
-                StatusCodes.Status500InternalServerError)
+            var option = error switch
             {
-                MessageOverride = exception?.Message ??
-                    "An unknown error has occurred. Please try again or " +
-                    "contact support"
+                StatusCodeException s => CreateOptionsFromStatusCode(s),
+                _ => CreateDefaultOptions(error)
+
             };
 
             if (options.TryGetValue(option, out var actualValue))
@@ -47,6 +46,20 @@ namespace BusinessApp.WebApi.ProblemDetails
             return CreateSingleProblem(exception, option);
 #endif
         }
+
+        private static ProblemDetailOptions CreateDefaultOptions(Exception error)
+            => new(error.GetType(), StatusCodes.Status500InternalServerError)
+            {
+                MessageOverride = error.Message ??
+                    "An unknown error has occurred. Please try again or " +
+                    "contact support"
+            };
+
+        private static ProblemDetailOptions CreateOptionsFromStatusCode(StatusCodeException error)
+            => new(error.GetType(), error.StatusCode)
+            {
+                MessageOverride = error.Message
+            };
 
         private static ProblemDetail CreateSingleProblem(Exception? error,
             ProblemDetailOptions option)
