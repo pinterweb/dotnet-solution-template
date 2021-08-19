@@ -31,7 +31,7 @@ namespace BusinessApp.Infrastructure
 
         private class EventMetadataPublisher : IEventPublisher
         {
-            private readonly ConcurrentDictionary<IDomainEvent, EventTrackingId> outcomeTracking;
+            private readonly ConcurrentDictionary<IEvent, EventTrackingId> outcomeTracking;
             private readonly IEventPublisher inner;
             private readonly IEventStore store;
 
@@ -39,11 +39,11 @@ namespace BusinessApp.Infrastructure
             {
                 this.inner = inner.NotNull().Expect(nameof(inner));
                 this.store = store.NotNull().Expect(nameof(store));
-                outcomeTracking = new ConcurrentDictionary<IDomainEvent, EventTrackingId>();
+                outcomeTracking = new ConcurrentDictionary<IEvent, EventTrackingId>();
             }
 
-            public Task<Result<IEnumerable<IDomainEvent>, Exception>> PublishAsync<T>(
-                T @event, CancellationToken cancelToken) where T : IDomainEvent
+            public Task<Result<IEnumerable<IEvent>, Exception>> PublishAsync<T>(
+                T @event, CancellationToken cancelToken) where T : IEvent
                 => inner.PublishAsync(@event, cancelToken)
                     .AndThenAsync(o => TrackOutcomes(@event, o));
 
@@ -51,9 +51,9 @@ namespace BusinessApp.Infrastructure
             /// Add the current event to the store and track unpublished events
             /// so we can associate causation id
             /// </summary>
-            private Result<IEnumerable<IDomainEvent>, Exception> TrackOutcomes<T>(
-                T published, IEnumerable<IDomainEvent> outcomes)
-                where T : IDomainEvent
+            private Result<IEnumerable<IEvent>, Exception> TrackOutcomes<T>(
+                T published, IEnumerable<IEvent> outcomes)
+                where T : IEvent
             {
                 var publishedTrackingId = store.Add(published);
 

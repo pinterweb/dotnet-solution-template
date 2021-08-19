@@ -5,7 +5,7 @@ namespace BusinessApp.Kernel
     /// <summary>
     /// Represents event data
     /// </summary>
-    public interface IDomainEvent
+    public interface IEvent
     {
         DateTimeOffset OccurredUtc { get; }
     }

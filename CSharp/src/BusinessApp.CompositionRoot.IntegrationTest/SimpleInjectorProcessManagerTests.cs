@@ -17,14 +17,14 @@ namespace BusinessApp.CompositionRoot.IntegrationTest
         private readonly IRequestStore store;
         private readonly SimpleInjectorProcessManager sut;
         private readonly IRequestHandler<RequestStub, ResponseStub> handler;
-        private readonly IRequestMapper<RequestStub, DomainEventStub> mapper;
+        private readonly IRequestMapper<RequestStub, EventStub> mapper;
 
         public SimpleInjectorProcessManagerTests()
         {
             container = new Container();
             store = A.Fake<IRequestStore>();
             handler = A.Fake<IRequestHandler<RequestStub, ResponseStub>>();
-            mapper = A.Fake<IRequestMapper<RequestStub, DomainEventStub>>();
+            mapper = A.Fake<IRequestMapper<RequestStub, EventStub>>();
 
             sut = new SimpleInjectorProcessManager(container, store);
 
@@ -71,7 +71,7 @@ namespace BusinessApp.CompositionRoot.IntegrationTest
                 A.CallTo(() => store.GetAllAsync()).Returns(A.CollectionOfDummy<RequestMetadata>(0));
 
                 /* Act */
-                await sut.HandleNextAsync(A.CollectionOfDummy<IDomainEvent>(1), cancelToken);
+                await sut.HandleNextAsync(A.CollectionOfDummy<IEvent>(1), cancelToken);
 
                 /* Assert */
                 A.CallTo(() => handler.HandleAsync(A<RequestStub>._, A<CancellationToken>._))
@@ -85,10 +85,10 @@ namespace BusinessApp.CompositionRoot.IntegrationTest
                 A.CallTo(() => store.GetAllAsync()).Returns(A.CollectionOfDummy<RequestMetadata>(0));
 
                 /* Act */
-                await sut.HandleNextAsync(A.CollectionOfDummy<IDomainEvent>(1), cancelToken);
+                await sut.HandleNextAsync(A.CollectionOfDummy<IEvent>(1), cancelToken);
 
                 /* Assert */
-                A.CallTo(() => mapper.Map(A<RequestStub>._, A<DomainEventStub>._))
+                A.CallTo(() => mapper.Map(A<RequestStub>._, A<EventStub>._))
                     .MustNotHaveHappened();
             }
 
@@ -101,10 +101,10 @@ namespace BusinessApp.CompositionRoot.IntegrationTest
                 A.CallTo(() => store.GetAllAsync()).Returns(new[] { metadata });
 
                 /* Act */
-                await sut.HandleNextAsync(new[] { new DomainEventStub() }, cancelToken);
+                await sut.HandleNextAsync(new[] { new EventStub() }, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => mapper.Map(A<RequestStub>._, A<DomainEventStub>._))
+                A.CallTo(() => mapper.Map(A<RequestStub>._, A<EventStub>._))
                     .MustNotHaveHappened();
                 A.CallTo(() => handler.HandleAsync(A<RequestStub>._, A<CancellationToken>._))
                     .MustNotHaveHappened();
@@ -114,10 +114,10 @@ namespace BusinessApp.CompositionRoot.IntegrationTest
             public async Task StoreReturnsRequestMetadata_WithMatchedEvents_Handles()
             {
                 /* Arrange */
-                var @event = new DomainEventStub();
+                var @event = new EventStub();
                 RequestStub request = null;
                 var metadata = new RequestMetadata(typeof(RequestStub), typeof(ResponseStub))
-                    .SetProp(nameof(RequestMetadata.EventTriggers), new[] { typeof(DomainEventStub) });
+                    .SetProp(nameof(RequestMetadata.EventTriggers), new[] { typeof(EventStub) });
                 A.CallTo(() => store.GetAllAsync()).Returns(new[] { metadata });
                 A.CallTo(() => mapper.Map(A<RequestStub>._, @event))
                     .Invokes(c => request = c.GetArgument<RequestStub>(0));
@@ -136,13 +136,13 @@ namespace BusinessApp.CompositionRoot.IntegrationTest
                 /* Arrange */
                 var exception = new Exception();
                 var metadata = new RequestMetadata(typeof(RequestStub), typeof(ResponseStub))
-                    .SetProp(nameof(RequestMetadata.EventTriggers), new[] { typeof(DomainEventStub) });
+                    .SetProp(nameof(RequestMetadata.EventTriggers), new[] { typeof(EventStub) });
                 A.CallTo(() => store.GetAllAsync()).Returns(new[] { metadata });
                 A.CallTo(() => handler.HandleAsync(A<RequestStub>._, cancelToken))
                     .Returns(Result.Error<ResponseStub>(exception));
 
                 /* Act */
-                var result = await sut.HandleNextAsync(new[] { new DomainEventStub() }, cancelToken);
+                var result = await sut.HandleNextAsync(new[] { new EventStub() }, cancelToken);
 
                 /* Assert */
                 Assert.Equal(Result.Error<Unit>(exception), result);

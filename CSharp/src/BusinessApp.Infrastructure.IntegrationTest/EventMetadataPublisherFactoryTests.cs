@@ -81,10 +81,10 @@ namespace BusinessApp.Infrastructure.IntegrationTest
                 {
                     CausationId = (MetadataId)3
                 };
-                var e = A.Dummy<IDomainEvent>();
+                var e = A.Dummy<IEvent>();
                 A.CallTo(() => store.Add(e)).Returns(trackingId);
                 A.CallTo(() => inner.PublishAsync(e, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(new IDomainEvent[0]));
+                    .Returns(Result.Ok<IEnumerable<IEvent>>(new IEvent[0]));
 
                 /* Act */
                 var events = await publisher.PublishAsync(e, cancelToken);
@@ -97,10 +97,10 @@ namespace BusinessApp.Infrastructure.IntegrationTest
             public async Task HasEventOutcome_ThoseEventsReturns()
             {
                 /* Arrange */
-                var originalEvent = A.Dummy<IDomainEvent>();
-                var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
+                var originalEvent = A.Dummy<IEvent>();
+                var outcomes = A.CollectionOfDummy<IEvent>(1);
                 A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
+                    .Returns(Result.Ok<IEnumerable<IEvent>>(outcomes));
 
                 /* Act */
                 var events = await publisher.PublishAsync(originalEvent, cancelToken);
@@ -113,8 +113,8 @@ namespace BusinessApp.Infrastructure.IntegrationTest
             public async Task HasEventOutcome_OriginalEventIdSetAsCausationId()
             {
                 /* Arrange */
-                var originalEvent = A.Dummy<IDomainEvent>();
-                var outcomes = A.CollectionOfDummy<IDomainEvent>(1);
+                var originalEvent = A.Dummy<IEvent>();
+                var outcomes = A.CollectionOfDummy<IEvent>(1);
                 var firstTrackingId = new EventTrackingId((MetadataId)1, (MetadataId)2)
                 {
                     CausationId = (MetadataId)3
@@ -127,9 +127,9 @@ namespace BusinessApp.Infrastructure.IntegrationTest
                 A.CallTo(() => store.Add(originalEvent)).Returns(firstTrackingId);
                 A.CallTo(() => store.Add(outcomes.First())).Returns(nextTrackingId);
                 A.CallTo(() => inner.PublishAsync(originalEvent, cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(outcomes));
+                    .Returns(Result.Ok<IEnumerable<IEvent>>(outcomes));
                 A.CallTo(() => inner.PublishAsync(outcomes.First(), cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(A.CollectionOfDummy<IDomainEvent>(0)));
+                    .Returns(Result.Ok<IEnumerable<IEvent>>(A.CollectionOfDummy<IEvent>(0)));
                 var _ = await publisher.PublishAsync(originalEvent, cancelToken);
 
                 /* Act */
@@ -146,14 +146,14 @@ namespace BusinessApp.Infrastructure.IntegrationTest
             {
                 /* Arrange */
                 var error = new Exception();
-                A.CallTo(() => inner.PublishAsync(A<IDomainEvent>._, A<CancellationToken>._))
-                    .Returns(Result.Error<IEnumerable<IDomainEvent>>(error));
+                A.CallTo(() => inner.PublishAsync(A<IEvent>._, A<CancellationToken>._))
+                    .Returns(Result.Error<IEnumerable<IEvent>>(error));
 
                 /* Act */
-                var result = await publisher.PublishAsync(A.Dummy<IDomainEvent>(), cancelToken);
+                var result = await publisher.PublishAsync(A.Dummy<IEvent>(), cancelToken);
 
                 /* Assert */
-                Assert.Equal(Result.Error<IEnumerable<IDomainEvent>>(error), result);
+                Assert.Equal(Result.Error<IEnumerable<IEvent>>(error), result);
             }
         }
     }

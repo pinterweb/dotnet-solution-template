@@ -13,7 +13,7 @@ namespace BusinessApp.Infrastructure
         { }
 #nullable restore
 
-        public EventMetadata(EventTrackingId id, IDomainEvent e)
+        public EventMetadata(EventTrackingId id, IEvent e)
         {
             Id = id.NotNull().Expect(nameof(id)).Id;
             CorrelationId = id.CorrelationId;
@@ -35,7 +35,7 @@ namespace BusinessApp.Infrastructure
     /// Model to store event metadata.
     /// </summary>
     public class EventMetadata<T> : EventMetadata
-        where T : notnull, IDomainEvent
+        where T : notnull, IEvent
     {
 #nullable disable
         private EventMetadata()

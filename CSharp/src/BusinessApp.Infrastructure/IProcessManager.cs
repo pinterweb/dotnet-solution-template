@@ -12,7 +12,7 @@ namespace BusinessApp.Infrastructure
     /// </summary>
     public interface IProcessManager
     {
-        Task<Result<Unit, Exception>> HandleNextAsync(IEnumerable<IDomainEvent> events,
+        Task<Result<Unit, Exception>> HandleNextAsync(IEnumerable<IEvent> events,
             CancellationToken cancelToken);
     }
 }

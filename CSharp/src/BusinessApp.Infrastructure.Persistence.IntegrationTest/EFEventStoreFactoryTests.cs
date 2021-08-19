@@ -16,7 +16,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         private readonly IPrincipal user;
         private readonly BusinessAppDbContext db;
 
-        public EFEventStoreFactoryTests()
+        public EFEventStoreFactoryTests(DatabaseFixture fixture)
         {
             idFactory = A.Fake<IEntityIdFactory<MetadataId>>();
             db = A.Fake<BusinessAppDbContext>();
@@ -25,10 +25,14 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             sut = new EFEventStoreFactory(db, idFactory, user);
 
             A.CallTo(() => user.Identity.Name).Returns("foo");
+            A.CallTo(() => db.ChangeTracker).Returns(fixture.DbContext.ChangeTracker);
         }
 
         public class Constructor : EFEventStoreFactoryTests
         {
+            public Constructor(DatabaseFixture fixture) : base(fixture)
+            { }
+
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
                 new object[]
@@ -68,86 +72,137 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Create : EFEventStoreFactoryTests
         {
-            [Fact]
-            public void SetsMetadataId()
+            public Create(DatabaseFixture fixture) : base(fixture)
+            { }
+
+            public class WhenMetadataExists : EFEventStoreFactoryTests
             {
-                /* Arrange */
-                var id = A.Dummy<MetadataId>();
-                Metadata<object> metadata = null;
-                A.CallTo(() => idFactory.Create()).Returns(id);
-                A.CallTo(() => db.Add(A<Metadata<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+                private readonly RequestStub trigger;
 
-                /* Act */
-                var _ = sut.Create(A.Dummy<object>());
+                public WhenMetadataExists(DatabaseFixture fixture) : base(fixture)
+                {
+                    trigger = new RequestStub();
+                }
 
-                /* Assert */
-                Assert.Equal(id, metadata.Id);
+                [Fact]
+                public void NotAddedToDb()
+                {
+                    /* Arrange */
+                    var metadata = new Metadata<RequestStub>(A.Dummy<MetadataId>(),
+                        "user", MetadataType.Request, trigger);
+                    db.ChangeTracker.Context.Add(metadata);
+
+                    /* Act */
+                    _ = sut.Create(trigger);
+
+                    /* Assert */
+                    A.CallTo(() => db.Add(A<Metadata<RequestStub>>._)).MustNotHaveHappened();
+                }
+
+                [Fact]
+                public void CorrlelationIdIsMetadataId()
+                {
+                    /* Arrange */
+                    var id = new MetadataId(1);
+                    var metadata = new Metadata<RequestStub>(id, "user", MetadataType.Request,
+                        trigger);
+                    db.ChangeTracker.Context.Add(metadata);
+                    var store = sut.Create(trigger);
+
+                    /* Act */
+                    var trackingId = store.Add(A.Dummy<IEvent>());
+
+                    /* Assert */
+                    Assert.Same(id, trackingId.CorrelationId);
+                }
             }
 
-            [Theory]
-            [InlineData("foouser", "foouser")]
-            [InlineData(null, "Anonymous")]
-            public void SetsMetadataUsername(string identityName, string setName)
+            public class WhenMetadataDoesNotExist : EFEventStoreFactoryTests
             {
-                /* Arrange */
-                Metadata<object> metadata = null;
-                A.CallTo(() => user.Identity.Name).Returns(identityName);
-                A.CallTo(() => db.Add(A<Metadata<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+                public WhenMetadataDoesNotExist(DatabaseFixture fixture) : base(fixture)
+                { }
 
-                /* Act */
-                var _ = sut.Create(A.Dummy<object>());
+                [Fact]
+                public void SetsMetadataId()
+                {
+                    /* Arrange */
+                    var id = A.Dummy<MetadataId>();
+                    Metadata<object> metadata = null;
+                    A.CallTo(() => idFactory.Create()).Returns(id);
+                    A.CallTo(() => db.Add(A<Metadata<object>>._))
+                        .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
 
-                /* Assert */
-                Assert.Equal(setName, metadata.Username);
-            }
+                    /* Act */
+                    var _ = sut.Create(A.Dummy<object>());
 
-            [Fact]
-            public void NullIdentity_SetsAnonymousUsername()
-            {
-                /* Arrange */
-                Metadata<object> metadata = null;
-                A.CallTo(() => user.Identity).Returns(null);
-                A.CallTo(() => db.Add(A<Metadata<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+                    /* Assert */
+                    Assert.Equal(id, metadata.Id);
+                }
 
-                /* Act */
-                var _ = sut.Create(A.Dummy<object>());
+                [Theory]
+                [InlineData("foouser", "foouser")]
+                [InlineData(null, "Anonymous")]
+                public void SetsMetadataUsername(string identityName, string setName)
+                {
+                    /* Arrange */
+                    Metadata<object> metadata = null;
+                    A.CallTo(() => user.Identity.Name).Returns(identityName);
+                    A.CallTo(() => db.Add(A<Metadata<object>>._))
+                        .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
 
-                /* Assert */
-                Assert.Equal(AnonymousUser.Name, metadata.Username);
-            }
+                    /* Act */
+                    _ = sut.Create(A.Dummy<object>());
 
-            [Fact]
-            public void SetsMetadataEventTriggerType()
-            {
-                /* Arrange */
-                Metadata<object> metadata = null;
-                A.CallTo(() => db.Add(A<Metadata<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+                    /* Assert */
+                    Assert.Equal(setName, metadata.Username);
+                }
 
-                /* Act */
-                var _ = sut.Create(A.Dummy<object>());
+                [Fact]
+                public void NullIdentity_SetsAnonymousUsername()
+                {
+                    /* Arrange */
+                    Metadata<object> metadata = null;
+                    A.CallTo(() => user.Identity).Returns(null);
+                    A.CallTo(() => db.Add(A<Metadata<object>>._))
+                        .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
 
-                /* Assert */
-                Assert.Equal(MetadataType.EventTrigger.ToString(), metadata.TypeName);
-            }
+                    /* Act */
+                    _ = sut.Create(A.Dummy<object>());
 
-            [Fact]
-            public void SetsMetadataTrigger()
-            {
-                /* Arrange */
-                var trigger = A.Dummy<object>();
-                Metadata<object> metadata = null;
-                A.CallTo(() => db.Add(A<Metadata<object>>._))
-                    .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+                    /* Assert */
+                    Assert.Equal(AnonymousUser.Name, metadata.Username);
+                }
 
-                /* Act */
-                var _ = sut.Create(trigger);
+                [Fact]
+                public void SetsMetadataEventTriggerType()
+                {
+                    /* Arrange */
+                    Metadata<object> metadata = null;
+                    A.CallTo(() => db.Add(A<Metadata<object>>._))
+                        .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
 
-                /* Assert */
-                Assert.Same(trigger, metadata.Data);
+                    /* Act */
+                    _ = sut.Create(A.Dummy<object>());
+
+                    /* Assert */
+                    Assert.Equal(MetadataType.EventTrigger.ToString(), metadata.TypeName);
+                }
+
+                [Fact]
+                public void SetsMetadataTrigger()
+                {
+                    /* Arrange */
+                    var trigger = A.Dummy<object>();
+                    Metadata<object> metadata = null;
+                    A.CallTo(() => db.Add(A<Metadata<object>>._))
+                        .Invokes(c => metadata = c.GetArgument<Metadata<object>>(0));
+
+                    /* Act */
+                    _ = sut.Create(trigger);
+
+                    /* Assert */
+                    Assert.Same(trigger, metadata.Data);
+                }
             }
         }
 
@@ -156,7 +211,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             private readonly IEventStore store;
             private readonly MetadataId triggerId;
 
-            public Add()
+            public Add(DatabaseFixture fixture) : base(fixture)
             {
                 var trigger = A.Dummy<object>();
                 store = A.Fake<IEventStore>();
@@ -170,14 +225,14 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void SetsEventMetadataId()
             {
                 /* Arrange */
-                EventMetadata<DomainEventStub> metadata = null;
+                EventMetadata<EventStub> metadata = null;
                 var metadataId = A.Dummy<MetadataId>();
                 A.CallTo(() => idFactory.Create()).Returns(metadataId);
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
-                var _ = store.Add(A.Dummy<DomainEventStub>());
+                _ = store.Add(A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(metadataId, metadata.Id);
@@ -187,12 +242,12 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void SetsEventMetadataCorrelationId()
             {
                 /* Arrange */
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                EventMetadata<EventStub> metadata = null;
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
-                var _ = store.Add(A.Dummy<DomainEventStub>());
+                _ = store.Add(A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(triggerId, metadata.CorrelationId);
@@ -202,13 +257,13 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void SetsEventMetadataToTheEvent()
             {
                 /* Arrange */
-                var e = A.Dummy<DomainEventStub>();
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                var e = A.Dummy<EventStub>();
+                EventMetadata<EventStub> metadata = null;
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
-                var _ = store.Add(e);
+                _ = store.Add(e);
 
                 /* Assert */
                 Assert.Same(e, metadata.Event);
@@ -218,10 +273,10 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void ReturnsEventMetadataTrackingId()
             {
                 /* Arrange */
-                var e = new DomainEventStub();
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                var e = new EventStub();
+                EventMetadata<EventStub> metadata = null;
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
                 var id = store.Add(e);

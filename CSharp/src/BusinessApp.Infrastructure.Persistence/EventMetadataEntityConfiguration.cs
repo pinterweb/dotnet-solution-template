@@ -10,7 +10,7 @@ namespace BusinessApp.Infrastructure.Persistence
     /// </summary>
     public abstract class EventMetadataEntityConfiguration<T> :
         IEntityTypeConfiguration<EventMetadata<T>>
-        where T : class, IDomainEvent
+        where T : class, IEvent
     {
         protected abstract string TableName { get; }
 
@@ -41,11 +41,15 @@ namespace BusinessApp.Infrastructure.Persistence
                 .HasColumnType("datetimeoffset(0)")
                 .IsRequired();
 
-            builder.HasOne<Metadata>()
+            builder.HasOne<Metadata<T>>()
                 .WithOne()
-                .HasForeignKey<EventMetadata<T>>(e => e.CorrelationId);
+                .HasForeignKey<EventMetadata<T>>(e => e.CorrelationId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             var owned = builder.OwnsOne(o => o.Event);
+
+            owned.Ignore(o => o.OccurredUtc);
 
             ConfigureEvent(owned);
         }

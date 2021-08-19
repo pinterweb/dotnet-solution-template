@@ -23,7 +23,7 @@ namespace BusinessApp.CompositionRoot
             this.store = store.NotNull().Expect(nameof(store));
         }
 
-        public async Task<Result<Unit, Exception>> HandleNextAsync(IEnumerable<IDomainEvent> events,
+        public async Task<Result<Unit, Exception>> HandleNextAsync(IEnumerable<IEvent> events,
             CancellationToken cancelToken)
         {
             var commands = await store.GetAllAsync();
@@ -60,14 +60,14 @@ namespace BusinessApp.CompositionRoot
 
         private abstract class CommandMapper
         {
-            public abstract void Map(object request, IDomainEvent @event, Container container);
+            public abstract void Map(object request, IEvent @event, Container container);
         }
 
         private class CommandMapper<R, E> : CommandMapper
             where R : notnull, new()
-            where E : IDomainEvent
+            where E : IEvent
         {
-            public override void Map(object request, IDomainEvent @event, Container container)
+            public override void Map(object request, IEvent @event, Container container)
             {
                 var mapper = container.GetInstance<IRequestMapper<R, E>>();
 

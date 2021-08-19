@@ -15,7 +15,7 @@ namespace BusinessApp.WebApi.UnitTest
     public class WeblinkingHeaderEventRequestDecoratorTests
     {
         private readonly IHttpRequestHandler<RequestStub, CompoisteEventStub> inner;
-        private IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> links;
+        private IDictionary<Type, HateoasLink<RequestStub, IEvent>> links;
         private WeblinkingHeaderEventRequestDecorator<RequestStub, CompoisteEventStub> sut;
 
         public WeblinkingHeaderEventRequestDecoratorTests()
@@ -23,9 +23,9 @@ namespace BusinessApp.WebApi.UnitTest
             inner = A.Fake<IHttpRequestHandler<RequestStub, CompoisteEventStub>>();
         }
 
-        public void Setup(IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> links = null)
+        public void Setup(IDictionary<Type, HateoasLink<RequestStub, IEvent>> links = null)
         {
-            this.links = links ?? new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>();
+            this.links = links ?? new Dictionary<Type, HateoasLink<RequestStub, IEvent>>();
             sut = new WeblinkingHeaderEventRequestDecorator<RequestStub, CompoisteEventStub>(inner, this.links);
         }
 
@@ -38,12 +38,12 @@ namespace BusinessApp.WebApi.UnitTest
                     A.Dummy<IHttpRequestHandler<RequestStub, CompoisteEventStub>>(),
                     null,
                 },
-                new object[] { null, new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>() },
+                new object[] { null, new Dictionary<Type, HateoasLink<RequestStub, IEvent>>() },
             };
 
             [Theory, MemberData(nameof(InvalidCtorArgs))]
             public void InvalidCtorArgs_ExceptionThrown(IHttpRequestHandler<RequestStub, CompoisteEventStub> i,
-                IDictionary<Type, HateoasLink<RequestStub, IDomainEvent>> d)
+                IDictionary<Type, HateoasLink<RequestStub, IEvent>> d)
             {
                 /* Arrange */
                 void shouldThrow() =>
@@ -91,7 +91,7 @@ namespace BusinessApp.WebApi.UnitTest
                 Setup();
                 var events = new CompoisteEventStub
                 {
-                    Events = A.CollectionOfDummy<IDomainEvent>(2)
+                    Events = A.CollectionOfDummy<IEvent>(2)
                 };
                 var innerResult = Result.Ok(HandlerContext.Create(A.Dummy<RequestStub>(), events));
                 A.CallTo(() => inner.HandleAsync(context, cancelToken))
@@ -109,7 +109,7 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task HasEventLink_HeaderAdded()
             {
                 /* Arrange */
-                Setup(new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>
+                Setup(new Dictionary<Type, HateoasLink<RequestStub, IEvent>>
                 {
                     { typeof(EventStub) ,new EventStubEventHateoasLink() { Title = "bar" } }
                 });
@@ -143,7 +143,7 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task HasEventLinksWithExistingLinkHeader_HeadersAdded()
             {
                 /* Arrange */
-                Setup(new Dictionary<Type, HateoasLink<RequestStub, IDomainEvent>>
+                Setup(new Dictionary<Type, HateoasLink<RequestStub, IEvent>>
                 {
                     { typeof(EventStub) ,new EventStubEventHateoasLink() }
                 });
@@ -169,7 +169,7 @@ namespace BusinessApp.WebApi.UnitTest
                     headerValue);
             }
 
-            public class EventStub : IDomainEvent
+            public class EventStub : IEvent
             {
                 public int Id { get; set; }
                 public DateTimeOffset OccurredUtc { get; }

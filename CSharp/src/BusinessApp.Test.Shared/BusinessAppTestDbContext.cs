@@ -75,7 +75,7 @@ namespace BusinessApp.Test.Shared
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 #if DEBUG
-            modelBuilder.Entity<DomainEventStub>()
+            modelBuilder.Entity<EventStub>()
                 .Property(p => p.Id)
                 .HasConversion(id => id.ToInt64(null), val => new MetadataId(val));
 #elif events

@@ -9,7 +9,7 @@ using SimpleInjector;
 namespace BusinessApp.CompositionRoot
 {
 #pragma warning disable IDE0065
-    using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
+    using EventResult = Result<IEnumerable<IEvent>, Exception>;
 #pragma warning restore IDE0065
 
     /// <summary>
@@ -23,7 +23,7 @@ namespace BusinessApp.CompositionRoot
             => this.container = container.NotNull().Expect(nameof(container));
 
         public Task<EventResult> PublishAsync<T>(T e, CancellationToken cancelToken)
-            where T : notnull, IDomainEvent
+            where T : notnull, IEvent
         {
             var handler = (EventHandler)Activator.CreateInstance(
                 typeof(GenericEventHandler<>).MakeGenericType(typeof(T)))!;
@@ -33,14 +33,14 @@ namespace BusinessApp.CompositionRoot
 
         private abstract class EventHandler
         {
-            public abstract Task<EventResult> HandleAsync(IDomainEvent request,
+            public abstract Task<EventResult> HandleAsync(IEvent request,
                 Container container, CancellationToken cancelToken);
         }
 
         private class GenericEventHandler<TEvent> : EventHandler
-              where TEvent : IDomainEvent
+              where TEvent : IEvent
         {
-            public override async Task<EventResult> HandleAsync(IDomainEvent @event,
+            public override async Task<EventResult> HandleAsync(IEvent @event,
                 Container container, CancellationToken cancelToken)
             {
                 var handlers = container.GetAllInstances<IEventHandler<TEvent>>();

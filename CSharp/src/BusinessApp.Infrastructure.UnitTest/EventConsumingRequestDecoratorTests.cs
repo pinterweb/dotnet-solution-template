@@ -121,9 +121,9 @@ namespace BusinessApp.Infrastructure.UnitTest
             public async Task EventCreatesMoreEvents_AllEventsPublished()
             {
                 /* Arrange */
-                var twoEvents = new[] { new DomainEventStub(), new DomainEventStub() };
-                IEnumerable<IDomainEvent> noEvents = A.CollectionOfDummy<IDomainEvent>(0);
-                var firstEventEvents = new[] { new DomainEventStub(), new DomainEventStub() };
+                var twoEvents = new[] { new EventStub(), new EventStub() };
+                IEnumerable<IEvent> noEvents = A.CollectionOfDummy<IEvent>(0);
+                var firstEventEvents = new[] { new EventStub(), new EventStub() };
                 var @event = new CompositeEventStub
                 {
                     Events = twoEvents.ToList()
@@ -131,7 +131,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
                     .Returns(Result.Ok(@event));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.First(), cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(firstEventEvents));
+                    .Returns(Result.Ok<IEnumerable<IEvent>>(firstEventEvents));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.Last(), cancelToken))
                     .Returns(Result.Ok(noEvents));
                 A.CallTo(() => publisher.PublishAsync(firstEventEvents.First(), cancelToken))
@@ -154,8 +154,8 @@ namespace BusinessApp.Infrastructure.UnitTest
             public async Task AtLeastOnEventErrored_ErrorReturned()
             {
                 var exception = new Exception();
-                var noEvents = A.CollectionOfDummy<DomainEventStub>(0);
-                var twoEvents = new[] { new DomainEventStub(), new DomainEventStub() };
+                var noEvents = A.CollectionOfDummy<EventStub>(0);
+                var twoEvents = new[] { new EventStub(), new EventStub() };
                 var @event = new CompositeEventStub
                 {
                     Events = twoEvents
@@ -163,9 +163,9 @@ namespace BusinessApp.Infrastructure.UnitTest
                 A.CallTo(() => inner.HandleAsync(request, cancelToken))
                     .Returns(Result.Ok(@event));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.First(), cancelToken))
-                    .Returns(Result.Ok<IEnumerable<IDomainEvent>>(noEvents));
+                    .Returns(Result.Ok<IEnumerable<IEvent>>(noEvents));
                 A.CallTo(() => publisher.PublishAsync(twoEvents.Last(), cancelToken))
-                    .Returns(Result.Error<IEnumerable<IDomainEvent>>(exception));
+                    .Returns(Result.Error<IEnumerable<IEvent>>(exception));
 
                 /* Act */
                 var handlerResult = await sut.HandleAsync(request, cancelToken);

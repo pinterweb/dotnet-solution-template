@@ -17,10 +17,10 @@ namespace BusinessApp.WebApi
        where TResponse : ICompositeEvent
     {
         private readonly IHttpRequestHandler<TRequest, TResponse> handler;
-        private readonly IDictionary<Type, HateoasLink<TRequest, IDomainEvent>> lookup;
+        private readonly IDictionary<Type, HateoasLink<TRequest, IEvent>> lookup;
 
         public WeblinkingHeaderEventRequestDecorator(IHttpRequestHandler<TRequest, TResponse> handler,
-            IDictionary<Type, HateoasLink<TRequest, IDomainEvent>> links)
+            IDictionary<Type, HateoasLink<TRequest, IEvent>> links)
         {
             this.handler = handler.NotNull().Expect(nameof(handler));
             lookup = links.NotNull().Expect(nameof(links));
@@ -53,7 +53,7 @@ namespace BusinessApp.WebApi
                         return okVal;
                     });
 
-        private bool HasLink((IDomainEvent e, Type eventType) eventLookup)
+        private bool HasLink((IEvent e, Type eventType) eventLookup)
             => lookup.TryGetValue(eventLookup.eventType, out var _);
     }
 }

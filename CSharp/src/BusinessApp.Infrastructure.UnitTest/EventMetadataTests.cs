@@ -14,14 +14,14 @@ namespace BusinessApp.Infrastructure.UnitTest
             public static IEnumerable<object[]> InvalidArgs => new[]
             {
                 new object[] { null, A.Dummy<EventTrackingId>() },
-                new object[] { A.Dummy<DomainEventStub>(), null},
+                new object[] { A.Dummy<EventStub>(), null},
             };
 
             [Theory, MemberData(nameof(InvalidArgs))]
-            public void InvalidArgs_ExceptionThrown(DomainEventStub e, EventTrackingId i)
+            public void InvalidArgs_ExceptionThrown(EventStub e, EventTrackingId i)
             {
                 /* Arrange */
-                void shouldThrow() => new EventMetadata<DomainEventStub>(i, e);
+                void shouldThrow() => new EventMetadata<EventStub>(i, e);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -35,9 +35,9 @@ namespace BusinessApp.Infrastructure.UnitTest
             {
                 /* Arrange */
                 var i = A.Dummy<EventTrackingId>();
-                var e = A.Fake<DomainEventStub>();
+                var e = A.Fake<EventStub>();
                 A.CallTo(() => e.ToString()).Returns(null);
-                void shouldThrow() => new EventMetadata<DomainEventStub>(i, e);
+                void shouldThrow() => new EventMetadata<EventStub>(i, e);
 
                 /* Act */
                 var ex = Record.Exception(shouldThrow);
@@ -51,10 +51,10 @@ namespace BusinessApp.Infrastructure.UnitTest
             public void EventArg_EventPropertySet()
             {
                 /* Arrange */
-                var @event = A.Dummy<DomainEventStub>();
+                var @event = A.Dummy<EventStub>();
 
                 /* Act */
-                var sut = new EventMetadata<DomainEventStub>(A.Dummy<EventTrackingId>(), @event);
+                var sut = new EventMetadata<EventStub>(A.Dummy<EventTrackingId>(), @event);
 
                 /* Assert */
                 Assert.Same(@event, sut.Event);
@@ -64,11 +64,11 @@ namespace BusinessApp.Infrastructure.UnitTest
             public void EventArg_EventNamePropertySet()
             {
                 /* Arrange */
-                var @event = A.Fake<DomainEventStub>();
+                var @event = A.Fake<EventStub>();
                 A.CallTo(() => @event.ToString()).Returns("foobar");
 
                 /* Act */
-                var sut = new EventMetadata<DomainEventStub>(A.Dummy<EventTrackingId>(), @event);
+                var sut = new EventMetadata<EventStub>(A.Dummy<EventTrackingId>(), @event);
 
                 /* Assert */
                 Assert.Equal("foobar", sut.EventName);
@@ -79,13 +79,13 @@ namespace BusinessApp.Infrastructure.UnitTest
             {
                 /* Arrange */
                 var now = DateTimeOffset.UtcNow;
-                var @event = new DomainEventStub()
+                var @event = new EventStub()
                 {
                     OccurredUtc = now
                 };
 
                 /* Act */
-                var sut = new EventMetadata<DomainEventStub>(A.Dummy<EventTrackingId>(), @event);
+                var sut = new EventMetadata<EventStub>(A.Dummy<EventTrackingId>(), @event);
 
                 /* Assert */
                 Assert.Equal(now, sut.OccurredUtc);
@@ -99,7 +99,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var id = new EventTrackingId(eventId, A.Dummy<MetadataId>());
 
                 /* Act */
-                var sut = new EventMetadata<DomainEventStub>(id, A.Dummy<DomainEventStub>());
+                var sut = new EventMetadata<EventStub>(id, A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(eventId, sut.Id);
@@ -113,7 +113,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var id = new EventTrackingId(A.Dummy<MetadataId>(), correlationId);
 
                 /* Act */
-                var sut = new EventMetadata<DomainEventStub>(id, A.Dummy<DomainEventStub>());
+                var sut = new EventMetadata<EventStub>(id, A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(correlationId, sut.CorrelationId);
@@ -130,7 +130,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 };
 
                 /* Act */
-                var sut = new EventMetadata<DomainEventStub>(id, A.Dummy<DomainEventStub>());
+                var sut = new EventMetadata<EventStub>(id, A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(causationId, sut.CausationId);
