@@ -1,5 +1,10 @@
+using BusinessApp.Infrastructure;
 using BusinessApp.CompositionRoot;
+#if DEBUG
 using BusinessApp.Infrastructure.Persistence;
+#elif efcore
+using BusinessApp.Infrastructure.Persistence;
+#endif
 using BusinessApp.Kernel;
 using FakeItEasy;
 using Microsoft.AspNetCore.Hosting;
@@ -38,8 +43,8 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 RegistrationAssemblies = new[]
                 {
-                    typeof(ServiceRegistrationsTests).Assembly,
-                    typeof(Infrastructure.IQuery).Assembly,
+                    typeof(ContainerExtensions).Assembly,
+                    typeof(ConsoleLogger).Assembly,
 #if DEBUG
                     typeof(IQueryVisitor<>).Assembly,
 #elif efcore

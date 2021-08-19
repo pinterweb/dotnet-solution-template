@@ -32,8 +32,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.UnitTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.IntegrationTest", "BusinessApp.WebApi.IntegrationTest\BusinessApp.WebApi.IntegrationTest.csproj", "{1FC656DF-7B9A-4B9D-BB12-518B5C5BFCF0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.WebApi.FunctionalTest", "BusinessApp.WebApi.FunctionalTest\BusinessApp.WebApi.FunctionalTest.csproj", "{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Analyzers", "BusinessApp.Analyzers\BusinessApp.Analyzers.csproj", "{0D5D8149-C8DC-45AF-A55A-46E161775A52}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessApp.Analyzers.IntegrationTest", "BusinessApp.Analyzers.IntegrationTest\BusinessApp.Analyzers.IntegrationTest.csproj", "{F1920B2C-67C0-4534-BD3D-EBFB93E50E16}"
@@ -152,18 +150,6 @@ Global
 		{1FC656DF-7B9A-4B9D-BB12-518B5C5BFCF0}.Release|x64.Build.0 = Release|Any CPU
 		{1FC656DF-7B9A-4B9D-BB12-518B5C5BFCF0}.Release|x86.ActiveCfg = Release|Any CPU
 		{1FC656DF-7B9A-4B9D-BB12-518B5C5BFCF0}.Release|x86.Build.0 = Release|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Debug|x64.Build.0 = Debug|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Debug|x86.Build.0 = Debug|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Release|x64.ActiveCfg = Release|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Release|x64.Build.0 = Release|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Release|x86.ActiveCfg = Release|Any CPU
-		{90B3C93B-CB0F-44A8-B440-BCC21884E6FC}.Release|x86.Build.0 = Release|Any CPU
 		{0D5D8149-C8DC-45AF-A55A-46E161775A52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0D5D8149-C8DC-45AF-A55A-46E161775A52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D5D8149-C8DC-45AF-A55A-46E161775A52}.Debug|x64.ActiveCfg = Debug|Any CPU

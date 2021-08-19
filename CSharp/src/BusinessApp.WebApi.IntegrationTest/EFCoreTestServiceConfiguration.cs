@@ -2,7 +2,7 @@ using BusinessApp.Infrastructure.Persistence;
 using BusinessApp.Test.Shared;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi.FunctionalTest
+namespace BusinessApp.WebApi.IntegrationTest
  {
     internal class EFCoreTestServiceConfiguration : IServiceConfiguration
     {

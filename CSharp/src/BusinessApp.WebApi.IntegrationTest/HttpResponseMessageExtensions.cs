@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace BusinessApp.WebApi.FunctionalTest
+namespace BusinessApp.WebApi.IntegrationTest
 {
     public static class HttpResponseMessageExtensions
     {

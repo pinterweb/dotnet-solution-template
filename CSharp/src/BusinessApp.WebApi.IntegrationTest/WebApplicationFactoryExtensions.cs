@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi.FunctionalTest
+namespace BusinessApp.WebApi.IntegrationTest
 {
     public static class WebApplicationFactoryExtensions
     {
