@@ -44,8 +44,7 @@ namespace BusinessApp.Test.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CorrelationId")
-                        .IsUnique();
+                    b.HasIndex("CorrelationId");
 
                     b.ToTable("DeleteEvent", "evt");
                 });
@@ -136,7 +135,7 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.ToTable("ChildResponseStub");
                 });
 
-            modelBuilder.Entity("BusinessApp.Test.Shared.DomainEventStub", b =>
+            modelBuilder.Entity("BusinessApp.Test.Shared.EventStub", b =>
                 {
                     b.Property<long>("Id")
                         .HasColumnType("bigint");
@@ -146,7 +145,7 @@ namespace BusinessApp.Test.Shared.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DomainEventStub");
+                    b.ToTable("EventStub");
                 });
 
             modelBuilder.Entity("BusinessApp.Test.Shared.RequestStub", b =>
@@ -232,6 +231,13 @@ namespace BusinessApp.Test.Shared.Migrations
                     b.HasDiscriminator().HasValue("Metadata<Query>");
                 });
 
+            modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+WebDomainEvent>", b =>
+                {
+                    b.HasBaseType("BusinessApp.Infrastructure.Metadata");
+
+                    b.HasDiscriminator().HasValue("Metadata<WebDomainEvent>");
+                });
+
             modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.PostOrPut+Body>", b =>
                 {
                     b.HasBaseType("BusinessApp.Infrastructure.Metadata");
@@ -241,10 +247,10 @@ namespace BusinessApp.Test.Shared.Migrations
 
             modelBuilder.Entity("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+WebDomainEvent>", b =>
                 {
-                    b.HasOne("BusinessApp.Infrastructure.Metadata", null)
-                        .WithOne()
-                        .HasForeignKey("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+WebDomainEvent>", "CorrelationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+WebDomainEvent>", null)
+                        .WithMany()
+                        .HasForeignKey("CorrelationId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.OwnsOne("BusinessApp.WebApi.Delete+WebDomainEvent", "Event", b1 =>

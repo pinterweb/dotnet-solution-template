@@ -26,7 +26,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DomainEventStub",
+                name: "EventStub",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -34,7 +34,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DomainEventStub", x => x.Id);
+                    table.PrimaryKey("PK_EventStub", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -121,7 +121,7 @@ namespace BusinessApp.Test.Shared.Migrations
                         principalSchema: "dbo",
                         principalTable: "Metadata",
                         principalColumn: "MetadataId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -195,8 +195,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 name: "IX_DeleteEvent_CorrelationId",
                 schema: "evt",
                 table: "DeleteEvent",
-                column: "CorrelationId",
-                unique: true);
+                column: "CorrelationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DeleteQuery_MetadataId",
@@ -232,7 +231,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 name: "DeleteQuery");
 
             migrationBuilder.DropTable(
-                name: "DomainEventStub");
+                name: "EventStub");
 
             migrationBuilder.DropTable(
                 name: "PostOrPutBody");
