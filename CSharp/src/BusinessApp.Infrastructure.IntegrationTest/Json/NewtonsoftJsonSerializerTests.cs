@@ -1,13 +1,13 @@
-using FakeItEasy;
 using Xunit;
-using BusinessApp.Infrastructure.Json;
 using Newtonsoft.Json;
-using BusinessApp.Kernel;
 using System.IO;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 
 namespace BusinessApp.Infrastructure.IntegrationTest.Json
 {
+    using BusinessApp.Infrastructure.Json;
+
     public class NewtonsoftJsonSerializerTests
     {
         private readonly JsonSerializerSettings settings;
@@ -25,7 +25,7 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
         public class Deserialize : NewtonsoftJsonSerializerTests
         {
             [Fact]
-            public void NoError_ModelDeserializedWithSettings()
+            public void ModelDeserializedWithSettings()
             {
                 /* Arrange */
                 using var ms = new MemoryStream();
@@ -42,7 +42,7 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
             }
 
             [Fact]
-            public void OnError_WhenHasMemberName_ThrowsModelValidationException()
+            public void OnError_ThrowsJsonDeserializationException()
             {
                 /* Arrange */
                 using var ms = new MemoryStream();
@@ -55,32 +55,11 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
                 var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                 /* Assert */
-                var error = Assert.IsType<ModelValidationException>(ex);
+                var error = Assert.IsType<JsonDeserializationException>(ex);
             }
 
             [Fact]
-            public void OnError_HasMultipleMembers_ReturnsEachInvalidMember()
-            {
-                /* Arrange */
-                using var ms = new MemoryStream();
-                using var sw = new StreamWriter(ms);
-                sw.Write("{\"foo\":\"foo\",\"bar\":\"lorem\"}");
-                sw.Flush();
-                ms.Position = 0;
-
-                /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-
-                /* Assert */
-                var error = Assert.IsType<ModelValidationException>(ex);
-                Assert.Collection(error,
-                    e => Assert.Equal("foo", e.MemberName),
-                    e => Assert.Equal("bar", e.MemberName)
-                );
-            }
-
-            [Fact]
-            public void OnError_HasNewtonsoftErrorMessages()
+            public void OnError_HasOriginalException()
             {
                 /* Arrange */
                 using var ms = new MemoryStream();
@@ -91,32 +70,9 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
 
                 /* Act */
                 var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
-                var error = Assert.IsType<ModelValidationException>(ex);
-
-                /* Assert TODO can we remove the "Path portion? "*/
-                Assert.Collection(error,
-                    e => Assert.Contains(
-                        "Could not convert string to integer: foo. " +
-                        "Path 'foo', line 1, position 12.",
-                        e.Errors)
-                );
-            }
-
-            [Fact]
-            public void OnError_WithoutAMemberName_ThrowsOriginalException()
-            {
-                /* Arrange */
-                using var ms = new MemoryStream();
-                using var sw = new StreamWriter(ms);
-                sw.Write("[{\"foo\":\"foo\"}]");
-                sw.Flush();
-                ms.Position = 0;
-
-                /* Act */
-                var ex = Record.Exception(() => sut.Deserialize<TestModel>(ms.GetBuffer()));
 
                 /* Assert */
-                var error = Assert.IsType<JsonSerializationException>(ex);
+                var error = Assert.IsType<JsonReaderException>(ex.InnerException);
             }
         }
 
@@ -130,12 +86,38 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
 
                 /* Act */
                 var buffer = sut.Serialize(model);
+
+                /* Assert */
                 using var ms = new MemoryStream(buffer);
                 using var sr = new StreamReader(ms);
                 var payload = sr.ReadToEnd();
+                Assert.Equal("{\"foo\":1,\"bar\":2}", payload);
+            }
+
+            [Fact]
+            public void OnError_ThrowsJsonSerializationException()
+            {
+                /* Arrange */
+                var model = new DirectoryInfo("./");
+
+                /* Act */
+                var error = Record.Exception(() => sut.Serialize(model));
 
                 /* Assert */
-                Assert.Equal("{\"foo\":1,\"bar\":2}", payload);
+                _ = Assert.IsType<JsonSerializationException>(error);
+            }
+
+            [Fact]
+            public void OnError_HasOriginalException()
+            {
+                /* Arrange */
+                var model = new DirectoryInfo("./");
+
+                /* Act */
+                var error = Record.Exception(() => sut.Serialize(model));
+
+                /* Assert */
+                _ = Assert.IsType<JsonSerializationException>(error.InnerException);
             }
         }
 

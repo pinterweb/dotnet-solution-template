@@ -1,16 +1,10 @@
-﻿using System.Text;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Newtonsoft.Json;
 using BusinessApp.Kernel;
 using System.IO;
+using System.Text;
 
 namespace BusinessApp.Infrastructure.Json
 {
-#pragma warning disable IDE0065
-    using Newtonsoft.Json.Serialization;
-#pragma warning restore IDE0065
-
     /// <summary>
     /// A json serializer based on Newtonsoft
     /// </summary>
@@ -18,58 +12,41 @@ namespace BusinessApp.Infrastructure.Json
     {
         private readonly JsonSerializerSettings settings;
         private readonly JsonSerializer serializer;
-        private List<MemberValidationException> errors;
 
         public NewtonsoftJsonSerializer(JsonSerializerSettings settings)
         {
             this.settings = settings.NotNull().Expect(nameof(settings));
             serializer = JsonSerializer.Create(settings);
-            errors = new List<MemberValidationException>();
         }
 
         public T? Deserialize<T>(byte[] data)
         {
-            errors = new List<MemberValidationException>();
-            serializer.Error += OnError;
-
             using var serializationStream = new MemoryStream(data);
             using var sr = new StreamReader(serializationStream);
             using var jr = new JsonTextReader(sr);
 
             try
             {
-                var model = serializer.Deserialize<T>(jr);
+                return serializer.Deserialize<T>(jr);
 
-                return !errors.Any()
-                   ? model
-                   : throw new ModelValidationException("There is bad data", errors);
             }
-            finally
+            catch (JsonReaderException e)
             {
-                serializer.Error -= OnError;
+                throw new JsonDeserializationException("An error occurred while reading your JSON data", e);
             }
         }
 
         public byte[] Serialize<T>(T graph)
         {
-            var str = JsonConvert.SerializeObject(graph, settings);
-
-            return Encoding.UTF8.GetBytes(str);
-        }
-
-        private void OnError(object? sender, ErrorEventArgs e)
-        {
-            var args = e;
-            var memberName = args.ErrorContext.Member?.ToString();
-
-            if (!string.IsNullOrWhiteSpace(memberName))
+            try
             {
-                var error = new MemberValidationException(memberName,
-                    new[] { args.ErrorContext.Error.Message });
+                var jsonStr = JsonConvert.SerializeObject(graph, settings);
 
-                errors.Add(error);
-
-                args.ErrorContext.Handled = true;
+                return Encoding.UTF8.GetBytes(jsonStr);
+            }
+            catch (JsonException e)
+            {
+                throw new JsonSerializationException("An error occurred while converting your object to JSON", e);
             }
         }
     }
