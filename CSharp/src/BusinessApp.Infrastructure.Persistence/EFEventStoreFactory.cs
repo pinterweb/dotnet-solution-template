@@ -47,7 +47,7 @@ namespace BusinessApp.Infrastructure.Persistence
                 this.correlationId = correlationId;
             }
 
-            public EventTrackingId Add<T>(T @event) where T : notnull, IDomainEvent
+            public EventTrackingId Add<T>(T @event) where T : notnull, IEvent
             {
                 var eventId = idFactory.Create();
                 var id = new EventTrackingId(eventId, correlationId);

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace BusinessApp.Infrastructure
 {
 #pragma warning disable IDE0065
-    using EventResult = Result<IEnumerable<IDomainEvent>, Exception>;
+    using EventResult = Result<IEnumerable<IEvent>, Exception>;
 #pragma warning restore IDE0065
 
     /// <summary>
@@ -53,12 +53,12 @@ namespace BusinessApp.Infrastructure
         }
 
         private async Task<EventResult> ConsumeAsync(
-            IEventPublisher publisher, IEnumerable<IDomainEvent> events, CancellationToken cancelToken)
+            IEventPublisher publisher, IEnumerable<IEvent> events, CancellationToken cancelToken)
         {
             var consumedEvents = events.Select(s => s).ToList();
 
             return !consumedEvents.Any()
-                ? Result.Ok<IEnumerable<IDomainEvent>>(consumedEvents)
+                ? Result.Ok<IEnumerable<IEvent>>(consumedEvents)
                 : await Task.WhenAll(consumedEvents.Select(e => PublishAsync(publisher, e, cancelToken)))
                     .CollectAsync()
                     .MapAsync(v => v.SelectMany(s => s))
@@ -66,7 +66,7 @@ namespace BusinessApp.Infrastructure
                     .MapAsync(e => consumedEvents.Concat(e));
         }
 
-        public Task<EventResult> PublishAsync(IEventPublisher publisher, IDomainEvent @event,
+        public Task<EventResult> PublishAsync(IEventPublisher publisher, IEvent @event,
             CancellationToken cancelToken)
         {
             var generic = publishMethod.MakeGenericMethod(@event.GetType());

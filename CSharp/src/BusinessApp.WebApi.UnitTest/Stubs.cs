@@ -7,7 +7,7 @@ namespace BusinessApp.WebApi.UnitTest
     public enum EnumQueryStub { Foobar }
 
 #if DEBUG
-    public class EventStub : IDomainEvent
+    public class EventStub : IEvent
     {
         public string Id { get; set; }
         public DateTimeOffset OccurredUtc { get; }
@@ -15,7 +15,7 @@ namespace BusinessApp.WebApi.UnitTest
 
     public class CompoisteEventStub : ICompositeEvent
     {
-        public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
+        public IEnumerable<IEvent> Events { get; set; } = new List<IEvent>();
     }
 #elif events
     public class EventStub : IDomainEvent

@@ -81,7 +81,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var _ = await sut.HandleAsync(query, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => manager.HandleNextAsync(A<IEnumerable<IDomainEvent>>._, A<CancellationToken>._))
+                A.CallTo(() => manager.HandleNextAsync(A<IEnumerable<IEvent>>._, A<CancellationToken>._))
                     .MustNotHaveHappened();
             }
 

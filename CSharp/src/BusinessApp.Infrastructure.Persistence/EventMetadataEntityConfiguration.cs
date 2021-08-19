@@ -10,7 +10,7 @@ namespace BusinessApp.Infrastructure.Persistence
     /// </summary>
     public abstract class EventMetadataEntityConfiguration<T> :
         IEntityTypeConfiguration<EventMetadata<T>>
-        where T : class, IDomainEvent
+        where T : class, IEvent
     {
         protected abstract string TableName { get; }
 

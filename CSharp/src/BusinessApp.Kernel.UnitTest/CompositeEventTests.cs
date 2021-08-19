@@ -35,7 +35,7 @@ namespace BusinessApp.Kernel.UnitTest
             public void HasEvents_ReturnsThoseEvents()
             {
                 /* Arrange */
-                var events = A.CollectionOfDummy<IDomainEvent>(2);
+                var events = A.CollectionOfDummy<IEvent>(2);
 
                 /* Act */
                 var @event = new CompositeEvent(events);

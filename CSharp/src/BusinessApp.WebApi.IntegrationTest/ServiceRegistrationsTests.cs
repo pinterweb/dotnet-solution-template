@@ -7,13 +7,10 @@ using BusinessApp.Infrastructure;
 using BusinessApp.Test.Shared;
 using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System;
-using SimpleInjector.Lifestyles;
 using BusinessApp.Kernel;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using BusinessApp.WebApi.Json;
 using Microsoft.Extensions.Localization;
 using BusinessApp.CompositionRoot;
@@ -155,7 +152,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
-                         typeof(IDomainEvent));
+                         typeof(IEvent));
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     Type MakeSvcGenericType(Type type)
@@ -1484,8 +1481,8 @@ namespace BusinessApp.WebApi.IntegrationTest
             {
                 /* Arrange */
                 var linkFactory = A.Fake<Func<CommandStub, CompositeEventStub, string>>();
-                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IDomainEvent>>>(
-                    new Dictionary<Type, HateoasLink<CommandStub, IDomainEvent>>());
+                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IEvent>>>(
+                    new Dictionary<Type, HateoasLink<CommandStub, IEvent>>());
                 CreateRegistrations(container);
                 container.Verify();
                 var serviceType = typeof(IHttpRequestHandler<CommandStub, CompositeEventStub>);
@@ -1945,7 +1942,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 #if DEBUG
         public sealed class CompositeEventStub : ICompositeEvent
         {
-            public IEnumerable<IDomainEvent> Events { get; set; }
+            public IEnumerable<IEvent> Events { get; set; }
         }
 #elif events
         public sealed class CompositeEventStub : ICompositeEvent

@@ -10,7 +10,7 @@ namespace BusinessApp.Infrastructure
     /// </remarks>
     public interface IRequestMapper<TRequest, TEvent>
         where TRequest : notnull
-        where TEvent : IDomainEvent
+        where TEvent : IEvent
     {
         void Map(TRequest request, TEvent e);
     }

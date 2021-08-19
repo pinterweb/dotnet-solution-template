@@ -39,7 +39,7 @@ namespace BusinessApp.WebApi.UnitTest
             public void RelativeLinkFactory_CastsToEvent()
             {
                 /* Arrange */
-                HateoasLink<RequestStub, IDomainEvent> link =  new EventLinkStub("next");
+                HateoasLink<RequestStub, IEvent> link =  new EventLinkStub("next");
                 var e = new EventStub() { Id = "foobar" };
 
                 /* Act */

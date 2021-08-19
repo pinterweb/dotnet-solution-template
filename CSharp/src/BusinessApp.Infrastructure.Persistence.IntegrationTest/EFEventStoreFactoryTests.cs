@@ -170,14 +170,14 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void SetsEventMetadataId()
             {
                 /* Arrange */
-                EventMetadata<DomainEventStub> metadata = null;
+                EventMetadata<EventStub> metadata = null;
                 var metadataId = A.Dummy<MetadataId>();
                 A.CallTo(() => idFactory.Create()).Returns(metadataId);
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
-                var _ = store.Add(A.Dummy<DomainEventStub>());
+                _ = store.Add(A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(metadataId, metadata.Id);
@@ -187,12 +187,12 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void SetsEventMetadataCorrelationId()
             {
                 /* Arrange */
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                EventMetadata<EventStub> metadata = null;
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
-                var _ = store.Add(A.Dummy<DomainEventStub>());
+                _ = store.Add(A.Dummy<EventStub>());
 
                 /* Assert */
                 Assert.Same(triggerId, metadata.CorrelationId);
@@ -202,13 +202,13 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void SetsEventMetadataToTheEvent()
             {
                 /* Arrange */
-                var e = A.Dummy<DomainEventStub>();
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                var e = A.Dummy<EventStub>();
+                EventMetadata<EventStub> metadata = null;
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
-                var _ = store.Add(e);
+                _ = store.Add(e);
 
                 /* Assert */
                 Assert.Same(e, metadata.Event);
@@ -218,10 +218,10 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             public void ReturnsEventMetadataTrackingId()
             {
                 /* Arrange */
-                var e = new DomainEventStub();
-                EventMetadata<DomainEventStub> metadata = null;
-                A.CallTo(() => db.Add(A<EventMetadata<DomainEventStub>>._))
-                    .Invokes(c => metadata = c.GetArgument<EventMetadata<DomainEventStub>>(0));
+                var e = new EventStub();
+                EventMetadata<EventStub> metadata = null;
+                A.CallTo(() => db.Add(A<EventMetadata<EventStub>>._))
+                    .Invokes(c => metadata = c.GetArgument<EventMetadata<EventStub>>(0));
 
                 /* Act */
                 var id = store.Add(e);

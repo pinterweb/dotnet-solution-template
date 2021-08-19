@@ -7,6 +7,6 @@ namespace BusinessApp.Kernel
     /// </summary>
     public interface ICompositeEvent
     {
-        IEnumerable<IDomainEvent> Events { get; set; }
+        IEnumerable<IEvent> Events { get; set; }
     }
 }

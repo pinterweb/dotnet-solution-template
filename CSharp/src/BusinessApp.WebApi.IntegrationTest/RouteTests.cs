@@ -180,7 +180,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 this.tester = tester;
             }
 
-            public Task<Result<IEnumerable<IDomainEvent>, System.Exception>> HandleAsync(
+            public Task<Result<IEnumerable<IEvent>, System.Exception>> HandleAsync(
                 Delete.WebDomainEvent e, CancellationToken cancelToken)
             {
                 tester.Notify();
@@ -202,7 +202,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 this.tester = tester;
             }
 
-            public Task<Result<IEnumerable<IDomainEvent>, System.Exception>> HandleAsync(
+            public Task<Result<IEnumerable<IEvent>, System.Exception>> HandleAsync(
                 Delete.WebDomainEvent e, CancellationToken cancelToken)
             {
                 tester.Notify();
@@ -225,11 +225,11 @@ namespace BusinessApp.WebApi.IntegrationTest
         }
 
 #if DEBUG
-        private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
-            => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
+        private IDictionary<Type, HateoasLink<T, IEvent>> GetEventLinks<T>()
+            => new Dictionary<Type, HateoasLink<T, IEvent>>();
 #elif (usehateoas && events)
-        private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
-            => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
+        private IDictionary<Type, HateoasLink<T, IEvent>> GetEventLinks<T>()
+            => new Dictionary<Type, HateoasLink<T, IEvent>>();
 #endif
     }
 }
