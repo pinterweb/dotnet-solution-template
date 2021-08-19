@@ -1,6 +1,6 @@
 using SimpleInjector;
 
-namespace BusinessApp.WebApi.FunctionalTest
+namespace BusinessApp.WebApi.IntegrationTest
 {
     internal interface IServiceConfiguration
     {

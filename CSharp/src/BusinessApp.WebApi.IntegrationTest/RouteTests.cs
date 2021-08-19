@@ -14,16 +14,16 @@ using SimpleInjector;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace BusinessApp.WebApi.FunctionalTest
+namespace BusinessApp.WebApi.IntegrationTest
 {
     using BusinessApp.WebApi;
 
-    public class RoutingBootstrapperTests : IClassFixture<WebApplicationFactory<Startup>>
+    public class RouteTests : IClassFixture<WebApplicationFactory<Startup>>
     {
         private readonly WebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
 
-        public RoutingBootstrapperTests(WebApplicationFactory<Startup> factory,
+        public RouteTests(WebApplicationFactory<Startup> factory,
             ITestOutputHelper output)
         {
             this.factory = factory;
