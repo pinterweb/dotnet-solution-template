@@ -320,7 +320,9 @@
                 {
                     "condition": "(!metadata)",
                     "exclude": [
-                        "src/**/*MetadataStore*.cs"
+                        "src/**/Metadata*.cs",
+                        "src/**/*Metadata*.cs",
+                        "src/**/*Metadata.cs"
                     ]
                 },
                 {

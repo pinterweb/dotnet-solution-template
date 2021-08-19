@@ -9,6 +9,7 @@ services:
         USER__CA_CERT: "${USER__CA_CERT?}"
         CONTAINER__EXTRA_DEPS: "${CONTAINER__EXTRA_DEPS}"
     image:  projects/dotnet-sln-template:dev
+    command: dotnet watch run
     volumes:
       - .:/home/dotnet/dotnet-sln-template
       - ${HOME}/.bash_aliases:/home/dotnet/.bash_aliases

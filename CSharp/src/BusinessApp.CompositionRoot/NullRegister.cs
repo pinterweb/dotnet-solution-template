@@ -24,11 +24,25 @@ namespace BusinessApp.CompositionRoot
             inner.Register(context);
             var container = context.Container;
 
+#if events
             container.Register<IEventStoreFactory, NullEventStoreFactory>();
+#endif
             container.Register<ITransactionFactory, NullTransactionFactory>();
         }
 #endif
 
+#if DEBUG
+        private sealed class NullEventStoreFactory : IEventStoreFactory
+        {
+            public IEventStore Create<T>(T eventTrigger) where T : class => new NullEventStore();
+
+            private sealed class NullEventStore : IEventStore
+            {
+                public EventTrackingId Add<T>(T e) where T : notnull, IEvent
+                    => new(new MetadataId(0), new MetadataId(0));
+            }
+        }
+#elif events
         private sealed class NullEventStoreFactory : IEventStoreFactory
         {
             public IEventStore Create<T>(T eventTrigger) where T : class => new NullEventStore();
@@ -39,6 +53,7 @@ namespace BusinessApp.CompositionRoot
                     => new(new MetadataId(0), new MetadataId(0));
             }
         }
+#endif
 
         private sealed class NullTransactionFactory : ITransactionFactory
         {

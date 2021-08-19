@@ -17,7 +17,6 @@ namespace BusinessApp.Infrastructure.Persistence
         public BusinessAppDbContext(DbContextOptions<BusinessAppDbContext> opts)
             : base(opts)
         { }
-
 #if DEBUG
         public async Task<IEnumerable<RequestMetadata>> GetAllAsync()
             => await Set<RequestMetadata>().ToListAsync();
@@ -25,7 +24,6 @@ namespace BusinessApp.Infrastructure.Persistence
         public async Task<IEnumerable<RequestMetadata>> GetAllAsync()
             => await Set<RequestMetadata>().ToListAsync();
 #endif
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             _ = modelBuilder
