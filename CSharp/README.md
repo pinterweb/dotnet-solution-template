@@ -13,18 +13,18 @@ on a project, see the READMEs:
 
 ## Projects
 
+[Analyzers](./src/BusinessApp.Analyzers): Code generators to make your
+life easier\
+[Api](./src/BusinessApp.Api): Your app's business logic\
 [CompositionRoot](./src/BusinessApp.CompositionRoot): Registers all services\
-[WebApi](/CSharp/src/BusinessApp.WebApi): The runnable aspnet web api entrypoint\
+[Infrastructure](./src/BusinessApp.Infrastructure): Services to support
+your app's business logic\
 //#if efcore
 [Infrastructure.Persistence](./src/BusinessApp.Infrastructure.Persistence):
 Services to support persisting and querying data with entity framework core\
 //#endif
-[Api](./src/BusinessApp.Api): Your app's business logic\
-[Infrastructure](./src/BusinessApp.Infrastructure): Services to support
-your app's business logic\
-[Analyzers](./src/BusinessApp.Analyzers): Code generators to make your
-life easier\
 [Kernel](./src/BusinessApp.Kernel):The core code shared by all projects\
+[WebApi](/CSharp/src/BusinessApp.WebApi): The runnable aspnet web api entrypoint\
 
 ## Getting Started
 
