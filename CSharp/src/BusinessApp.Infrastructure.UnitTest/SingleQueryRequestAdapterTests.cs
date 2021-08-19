@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BusinessApp.Kernel;
+using BusinessApp.Test.Shared;
 using FakeItEasy;
 using Xunit;
 

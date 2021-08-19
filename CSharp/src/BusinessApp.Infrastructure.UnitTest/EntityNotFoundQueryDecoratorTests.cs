@@ -5,6 +5,7 @@ using FakeItEasy;
 using Xunit;
 using System.Threading;
 using BusinessApp.Kernel;
+using BusinessApp.Test.Shared;
 
 namespace BusinessApp.Infrastructure.UnitTest
 {

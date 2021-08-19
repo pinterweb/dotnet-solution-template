@@ -5,6 +5,7 @@ using Xunit;
 using System.Threading;
 using BusinessApp.Kernel;
 using System;
+using BusinessApp.Test.Shared;
 
 namespace BusinessApp.Infrastructure.UnitTest
 {
