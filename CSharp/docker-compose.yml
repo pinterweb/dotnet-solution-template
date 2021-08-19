@@ -27,9 +27,9 @@ services:
       - TERM=xterm-256color
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:5000;http://0.0.0.0:5001
-      $(upper_appname)_CONNECTIONSTRINGS__MAIN: "${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}"
-      $(upper_appname)_CONNECTIONSTRINGS__TEST: "${$(upper_appname)_CONNECTIONSTRINGS__TEST?}"
-      $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN: "${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}"
+      - $(upper_appname)_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}
+      - $(upper_appname)_CONNECTIONSTRINGS__TEST=${$(upper_appname)_CONNECTIONSTRINGS__TEST?}
+      - $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}
     depends_on:
       - db
   db:
