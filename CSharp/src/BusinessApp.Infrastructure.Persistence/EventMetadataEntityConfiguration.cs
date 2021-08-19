@@ -41,15 +41,11 @@ namespace BusinessApp.Infrastructure.Persistence
                 .HasColumnType("datetimeoffset(0)")
                 .IsRequired();
 
-            builder.HasOne<Metadata<T>>()
+            builder.HasOne<Metadata>()
                 .WithOne()
-                .HasForeignKey<EventMetadata<T>>(e => e.CorrelationId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey<EventMetadata<T>>(e => e.CorrelationId);
 
             var owned = builder.OwnsOne(o => o.Event);
-
-            owned.Ignore(o => o.OccurredUtc);
 
             ConfigureEvent(owned);
         }
