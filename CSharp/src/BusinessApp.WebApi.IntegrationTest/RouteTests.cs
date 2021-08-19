@@ -157,11 +157,9 @@ namespace BusinessApp.WebApi.IntegrationTest
             await response.Success(output);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 #if DEBUG
-            A.CallTo(() => notifier.Notify())
-                .MustHaveHappened(expectedCalls, Times.Exactly);
+            A.CallTo(() => notifier.Notify()).MustHaveHappenedOnceExactly();
 #elif events
-            A.CallTo(() => notifier.Notify())
-                .MustHaveHappened(expectedCalls, Times.Exactly);
+            A.CallTo(() => notifier.Notify()).MustHaveHappenedOnceExactly();
 #endif
         }
 
@@ -184,7 +182,9 @@ namespace BusinessApp.WebApi.IntegrationTest
                 Delete.WebDomainEvent e, CancellationToken cancelToken)
             {
                 tester.Notify();
-                return inner.HandleAsync(e, cancelToken);
+
+                return Task.FromResult(
+                    Result.Ok<IEnumerable<IEvent>>(Array.Empty<IEvent>()));
             }
         }
 #elif events
