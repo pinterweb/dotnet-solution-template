@@ -20,7 +20,7 @@ namespace BusinessApp.Infrastructure
             : base(message)
         {
             this.memberErrors = memberErrors.NotEmpty().Expect(nameof(memberErrors));
-            Data.Add(ValidationKey, memberErrors.ToDictionary(e => e.MemberName, e => e.Errors));
+            Data.Add(ValidationKey, memberErrors.ToDictionary(err => err.MemberName, err => err.Errors));
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
