@@ -157,9 +157,11 @@ namespace BusinessApp.WebApi.IntegrationTest
             await response.Success(output);
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 #if DEBUG
-            A.CallTo(() => notifier.Notify()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => notifier.Notify())
+                .MustHaveHappened(expectedCalls, Times.Exactly);
 #elif events
-            A.CallTo(() => notifier.Notify()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => notifier.Notify())
+                .MustHaveHappened(expectedCalls, Times.Exactly);
 #endif
         }
 
@@ -182,9 +184,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 Delete.WebDomainEvent e, CancellationToken cancelToken)
             {
                 tester.Notify();
-
-                return Task.FromResult(
-                    Result.Ok<IEnumerable<IEvent>>(Array.Empty<IEvent>()));
+                return inner.HandleAsync(e, cancelToken);
             }
         }
 #elif events
@@ -202,7 +202,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 this.tester = tester;
             }
 
-            public Task<Result<IEnumerable<IDomainEvent>, System.Exception>> HandleAsync(
+            public Task<Result<IEnumerable<IEvent>, System.Exception>> HandleAsync(
                 Delete.WebDomainEvent e, CancellationToken cancelToken)
             {
                 tester.Notify();
@@ -228,8 +228,8 @@ namespace BusinessApp.WebApi.IntegrationTest
         private IDictionary<Type, HateoasLink<T, IEvent>> GetEventLinks<T>()
             => new Dictionary<Type, HateoasLink<T, IEvent>>();
 #elif (usehateoas && events)
-        private IDictionary<Type, HateoasLink<T, IDomainEvent>> GetEventLinks<T>()
-            => new Dictionary<Type, HateoasLink<T, IDomainEvent>>();
+        private IDictionary<Type, HateoasLink<T, IEvent>> GetEventLinks<T>()
+            => new Dictionary<Type, HateoasLink<T, IEvent>>();
 #endif
     }
 }

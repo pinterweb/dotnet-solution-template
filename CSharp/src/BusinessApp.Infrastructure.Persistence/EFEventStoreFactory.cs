@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Security.Principal;
 using BusinessApp.Kernel;
 
@@ -23,29 +22,16 @@ namespace BusinessApp.Infrastructure.Persistence
 
         public IEventStore Create<T>(T eventTrigger) where T : class
         {
-            var existingMetadata = FindExistingMetadata(eventTrigger);
-
-            var id = existingMetadata?.Id ?? idFactory.Create();
-
-            var metadata = existingMetadata ?? new Metadata<T>(id,
+            var id = idFactory.Create();
+            var metadata = new Metadata<T>(id,
                 user.Identity?.Name ?? AnonymousUser.Name,
                 MetadataType.EventTrigger,
                 eventTrigger);
 
-            if (existingMetadata == null)
-            {
-                _ = db.Add(metadata);
-            }
+            _ = db.Add(metadata);
 
             return new EFEventStore(id, db, idFactory);
         }
-
-        private Metadata<T>? FindExistingMetadata<T>(T eventTrigger)
-            where T : class
-            => db.ChangeTracker
-                .Entries<Metadata<T>>()
-                .SingleOrDefault(c => c.Entity.Data.Equals(eventTrigger))
-                ?.Entity;
 
         private class EFEventStore : IEventStore
         {
