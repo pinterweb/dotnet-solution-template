@@ -1,4 +1,3 @@
-using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using BusinessApp.Kernel;
 using Xunit;
@@ -7,6 +6,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
+using BusinessApp.Test.Shared;
+using FakeItEasy;
 
 namespace BusinessApp.WebApi.UnitTest
 {
