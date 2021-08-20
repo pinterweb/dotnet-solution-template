@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
+using BusinessApp.Test.Shared;
 using BusinessApp.WebApi.Json;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;

@@ -4,6 +4,7 @@ using Xunit;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using BusinessApp.Kernel;
+using BusinessApp.Test.Shared;
 
 namespace BusinessApp.WebApi.UnitTest
 {
