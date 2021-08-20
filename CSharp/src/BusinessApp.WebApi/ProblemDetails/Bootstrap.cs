@@ -7,6 +7,7 @@ using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 using SimpleInjector;
+using System.Net.Http;
 
 namespace BusinessApp.WebApi.ProblemDetails
 {
@@ -15,7 +16,7 @@ namespace BusinessApp.WebApi.ProblemDetails
     /// </summary>
     public static partial class ProblemDetailOptionBootstrap
     {
-        public static HashSet<ProblemDetailOptions> knownProblems = new()
+        private static readonly HashSet<ProblemDetailOptions> knownProblems = new()
         {
             new ProblemDetailOptions(typeof(ActivationException), StatusCodes.Status404NotFound)
             {
@@ -71,7 +72,9 @@ namespace BusinessApp.WebApi.ProblemDetails
             {
                 MessageOverride = "The application does not support this business workflow."
             },
-            new ProblemDetailOptions(typeof(CommunicationException), StatusCodes.Status424FailedDependency)
+            new ProblemDetailOptions(typeof(CommunicationException), StatusCodes.Status424FailedDependency),
+            new ProblemDetailOptions(typeof(HttpRequestException), StatusCodes.Status502BadGateway),
+            new ProblemDetailOptions(typeof(TaskCanceledException), StatusCodes.Status503ServiceUnavailable)
         };
 
         public static void AddProblem(ProblemDetailOptions options) => _ = knownProblems.Add(options);

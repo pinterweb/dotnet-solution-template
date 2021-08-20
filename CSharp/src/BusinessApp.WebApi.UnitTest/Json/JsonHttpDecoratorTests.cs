@@ -8,6 +8,7 @@ using BusinessApp.WebApi.Json;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Xunit;
+using BusinessApp.WebApi.ProblemDetails;
 
 namespace BusinessApp.WebApi.UnitTest.Json
 {
@@ -65,8 +66,7 @@ namespace BusinessApp.WebApi.UnitTest.Json
             public async Task NotValidContent_ResultErrorReturned(string method)
             {
                 /* Arrange */
-                var error = new BusinessAppException(
-                    "Expected content-type to be application/json");
+                var errorMsg = "Expected content-type to be application/json";
                 A.CallTo(() => context.Request.ContentType).Returns("text");
                 A.CallTo(() => context.Request.Method).Returns(method);
 
@@ -74,11 +74,12 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
-                Assert.Equal(error.Message, result.UnwrapError().Message);
+                var error = result.UnwrapError();
+                Assert.Equal(errorMsg, result.UnwrapError().Message);
             }
 
             [Theory, MemberData(nameof(SaveMethods))]
-            public async Task NotValidContent_UnsupportedMediaResponseSet(string method)
+            public async Task NotValidContent_UnsupportedMediaResponseExceptionThrown(string method)
             {
                 /* Arrange */
                 A.CallTo(() => context.Request.ContentType).Returns("text");
@@ -88,8 +89,8 @@ namespace BusinessApp.WebApi.UnitTest.Json
                 var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
-                A.CallToSet(() => context.Response.StatusCode).To(415)
-                    .MustHaveHappenedOnceExactly();
+                var error = result.UnwrapError();
+                Assert.IsType<UnsupportedMediaTypeException>(error);
             }
 
             [Fact]
