@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using BusinessApp.Test.Shared;
 using Microsoft.EntityFrameworkCore;

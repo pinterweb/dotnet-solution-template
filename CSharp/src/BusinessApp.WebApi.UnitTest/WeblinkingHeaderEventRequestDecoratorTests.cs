@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Primitives;
+using BusinessApp.Test.Shared;
 
 namespace BusinessApp.WebApi.UnitTest
 {

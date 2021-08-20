@@ -8,7 +8,7 @@ namespace BusinessApp.Infrastructure.IntegrationTest
     }
 
     [CollectionDefinition(CommonFixture.Name)]
-    public class CommonCollection : ICollectionFixture<CommonFixture>
+    public class CommonCollectionFixture : ICollectionFixture<CommonFixture>
     {
         // This class has no code, and is never created. Its purpose is simply
         // to be the place to apply [CollectionDefinition] and all the

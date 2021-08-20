@@ -11,8 +11,8 @@ namespace BusinessApp.CompositionRoot
     /// </summary>
     public static class Bootstrapper
     {
-        public static void RegisterServices(Container container,
-            RegistrationOptions options, ILoggerFactory loggerFactory, IConfiguration configuration)
+        public static void RegisterServices(Container container, RegistrationOptions options,
+            ILoggerFactory loggerFactory, IConfiguration configuration)
         {
             var bootstrapContainer = SetupBootstrapContainer(options, loggerFactory, configuration);
 
