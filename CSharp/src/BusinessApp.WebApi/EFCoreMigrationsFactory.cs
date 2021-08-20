@@ -12,7 +12,7 @@ namespace BusinessApp.WebApi
     {
         public BusinessAppDbContext CreateDbContext(string[] args)
         {
-            var config = (IConfiguration?)Program.CreateWebHostBuilder(args)
+            var config = (IConfiguration?)Program.CreateHostBuilder(args)
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder.AddJsonFile("appsettings.Development.json");

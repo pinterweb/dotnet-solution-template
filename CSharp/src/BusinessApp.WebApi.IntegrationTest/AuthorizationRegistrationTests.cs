@@ -17,19 +17,18 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         public AuthorizationRegistrationTests()
         {
-            config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+            config = (IConfiguration)Program.CreateHostBuilder(new string[0])
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder.AddJsonFile("appsettings.test.json");
                     builder.AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
-                .UseStartup<Startup>()
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));
 
-            container = new Container();
-            scope = container.CreateScope();
+            container = Startup.ConfigureContainer();
+            scope = AsyncScopedLifestyle.BeginScope(container);
         }
 
         public void Dispose() => scope.Dispose();

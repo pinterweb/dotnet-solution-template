@@ -31,44 +31,33 @@ namespace BusinessApp.WebApi
     /// </summary>
     public class Startup
     {
-        private readonly Container container;
-        private readonly RegistrationOptions options;
         private readonly IConfiguration configuration;
+        private readonly IWebHostEnvironment env;
+        private readonly Container container;
 
-        public Startup(IConfiguration configuration, Container container, IWebHostEnvironment env)
+        public static Container ConfigureContainer()
         {
-            this.container = container.NotNull().Expect(nameof(container));
-            this.configuration = configuration;
+            var container = new Container();
             container.Options.ResolveUnregisteredConcreteTypes = false;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            var connStr = configuration.GetConnectionString("Main");
-
-            options = new RegistrationOptions(connStr, env.EnvironmentName)
-            {
-                RegistrationAssemblies = new[]
-                {
-                    typeof(IQuery).Assembly, // infrastructure
-#if DEBUG
-                    typeof(IQueryVisitor<>).Assembly,
-#elif efcore
-                    typeof(IQueryVisitor<>).Assembly, // persistence
-#endif
-                    typeof(ValueKind).Assembly, // Kernel
-                    typeof(Startup).Assembly, // webapi
-                    System.Reflection.Assembly.Load("BusinessApp.Api")
-                }
-            };
+            return container;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        {
+            container = ConfigureContainer();
+            this.configuration = configuration;
+            this.env = env;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            _ = services.AddLocalization(options => options.ResourcesPath = "Resources");
 //#if DEBUG
 #if cors
-            services.AddCors(options =>
+            _ = services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
                     builder =>
@@ -87,16 +76,17 @@ namespace BusinessApp.WebApi
             });
 #endif
 //#endif
-            services.AddRouting();
+            _ = services.AddRouting();
 #if winauth
-            services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-            services.AddAuthorization();
+            _ = services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+            _ = services.AddAuthorization();
 #endif
-            services.AddSimpleInjector(container, options => options.AddAspNetCore());
+            _ = services.AddSimpleInjector(container, options => options.AddAspNetCore());
+
+            _ = services.AddSingleton(container); // needed for tests and adapters
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             app.UseSimpleInjector(container);
             app.UseRequestLocalization(opt =>
@@ -124,6 +114,8 @@ namespace BusinessApp.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 #endif
+            var options = CreateRegistrationOptions();
+
             Bootstrapper.RegisterServices(container, options, loggerFactory, configuration);
 
             container.Collection.Register<IStartupConfiguration>(
@@ -141,6 +133,27 @@ namespace BusinessApp.WebApi
             {
                 startup.Configure();
             }
+        }
+
+        private RegistrationOptions CreateRegistrationOptions()
+        {
+            var connStr = configuration.GetConnectionString("Main");
+
+            return new(connStr, env.EnvironmentName)
+            {
+                RegistrationAssemblies = new[]
+                {
+                    typeof(IQuery).Assembly, // infrastructure
+#if DEBUG
+                    typeof(IQueryVisitor<>).Assembly,
+#elif efcore
+                    typeof(IQueryVisitor<>).Assembly, // persistence
+#endif
+                    typeof(ValueKind).Assembly, // Kernel
+                    typeof(Startup).Assembly, // webapi
+                    System.Reflection.Assembly.Load("BusinessApp.Api")
+                }
+            };
         }
     }
 }

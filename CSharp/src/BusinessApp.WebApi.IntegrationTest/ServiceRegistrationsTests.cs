@@ -1,6 +1,5 @@
 ﻿using Xunit;
 using SimpleInjector;
-using Microsoft.AspNetCore.Hosting;
 using FakeItEasy;
 using System.Linq;
 using BusinessApp.Infrastructure;
@@ -9,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
 using System;
+using SimpleInjector.Lifestyles;
 using BusinessApp.Kernel;
 using Microsoft.Extensions.Configuration;
 using BusinessApp.WebApi.Json;
@@ -30,19 +30,19 @@ namespace BusinessApp.WebApi.IntegrationTest
 
         public ServiceRegistrationsTests()
         {
-            config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
-                .ConfigureAppConfiguration((_, builder) =>
+            config = (IConfiguration)Program.CreateHostBuilder(new string[0])
+                .ConfigureAppConfiguration((hostBuilder, configBuilder) =>
                 {
-                    builder.AddJsonFile("appsettings.test.json");
-                    builder.AddEnvironmentVariables(prefix: "BusinessApp_");
+                    _ = configBuilder
+                        .AddJsonFile("appsettings.test.json")
+                        .AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
-                .UseStartup<Startup>()
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));
 
-            container = new Container();
-            scope = container.CreateScope();
+            container = Startup.ConfigureContainer();
+            scope = AsyncScopedLifestyle.BeginScope(container);
         }
 
         public void Dispose() => scope.Dispose();
