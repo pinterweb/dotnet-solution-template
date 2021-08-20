@@ -1,4 +1,4 @@
-using BusinessApp.Kernel;
+﻿using BusinessApp.Kernel;
 using System;
 using System.ComponentModel;
 using System.Globalization;
@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace BusinessApp.Infrastructure.Json
 {
-    public class SystemEntityIdJsonConverterFactory : JsonConverterFactory
+    public class SystemJsonEntityIdConverterFactory : JsonConverterFactory
     {
         public override bool CanConvert(Type typeToConvert)
             => typeof(IEntityId).IsAssignableFrom(typeToConvert) ||

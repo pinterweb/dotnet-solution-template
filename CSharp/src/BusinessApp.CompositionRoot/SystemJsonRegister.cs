@@ -33,8 +33,8 @@ namespace BusinessApp.CompositionRoot
 //#endif
                     Converters =
                     {
-                        new SystemEntityIdJsonConverterFactory(),
-                        new SystemLongToStringJsonConverter(),
+                        new SystemJsonEntityIdConverterFactory(),
+                        new SystemJsonLongToStringConverter(),
                         new JsonStringEnumConverter()
                     }
                 }
