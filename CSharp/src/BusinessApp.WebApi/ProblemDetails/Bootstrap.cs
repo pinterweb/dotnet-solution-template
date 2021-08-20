@@ -43,12 +43,6 @@ namespace BusinessApp.WebApi.ProblemDetails
                     "Your request was rejected because of bad data. Please review your " +
                     "request before resubmission."
             },
-            new ProblemDetailOptions(typeof(TaskCanceledException), StatusCodes.Status400BadRequest)
-            {
-                MessageOverride =
-                    "Your request has been cancelled. This is most likely due to a bad request. " +
-                    "If more details are not provided check the state of your date and retry the request."
-            },
             new ProblemDetailOptions(typeof(ModelValidationException), StatusCodes.Status400BadRequest),
             new ProblemDetailOptions(typeof(SecurityException), StatusCodes.Status403Forbidden)
             {
