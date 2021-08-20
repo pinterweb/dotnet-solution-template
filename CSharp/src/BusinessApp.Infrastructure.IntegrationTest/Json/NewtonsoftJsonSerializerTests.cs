@@ -117,7 +117,7 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
                 var error = Record.Exception(() => sut.Serialize(model));
 
                 /* Assert */
-                _ = Assert.IsType<JsonSerializationException>(error.InnerException);
+                _ = Assert.IsType<Newtonsoft.Json.JsonSerializationException>(error.InnerException);
             }
         }
 
