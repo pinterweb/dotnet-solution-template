@@ -43,9 +43,7 @@ namespace BusinessApp.WebApi
             {
                 Log(exception);
 
-                return Result.Error<HandlerContext<TRequest, TResponse>>(
-                    new BusinessAppException("An unknown error occurred while processing " +
-                        "your request. Please try again or contact support if this continues"));
+                return Result.Error<HandlerContext<TRequest, TResponse>>(exception);
             }
         }
 

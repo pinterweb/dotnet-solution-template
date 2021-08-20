@@ -44,7 +44,7 @@ namespace BusinessApp.WebApi
             {
                 var bodyReader = request.BodyReader;
                 var readResult = await bodyReader.ReadAsync(cancelToken);
-                T? model;
+                T? model = default;
 
                 try
                 {
@@ -65,12 +65,14 @@ namespace BusinessApp.WebApi
                     // now all the body payload has been read into buffer
                     var buffer = readResult.Buffer;
                     model = serializer.Deserialize<T>(buffer.ToArray());
-
-                    // Finally, reset the EXAMINED POSITION here
-                    bodyReader.RewindTo(readResult.Buffer);
                 }
                 finally
                 {
+                    // XXX Reset the EXAMINED POSITION here. I found if i do not
+                    // do this an exception is thrown in kestrel that is logged
+                    // but swallowed (status is still 200)
+                    bodyReader.RewindTo(readResult.Buffer);
+                    // XXX do not pass exception, will result in 500 error
                     await bodyReader.CompleteAsync();
                 }
 
