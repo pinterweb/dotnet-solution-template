@@ -52,13 +52,12 @@ namespace BusinessApp.WebApi
             this.env = env;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLocalization(options => options.ResourcesPath = "Resources");
+            _ = services.AddLocalization(options => options.ResourcesPath = "Resources");
 //#if DEBUG
 #if cors
-            services.AddCors(options =>
+            _ = services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
                     builder =>
@@ -77,16 +76,17 @@ namespace BusinessApp.WebApi
             });
 #endif
 //#endif
-            services.AddRouting();
+            _ = services.AddRouting();
 #if winauth
-            services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
-            services.AddAuthorization();
+            _ = services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+            _ = services.AddAuthorization();
 #endif
-            services.AddSimpleInjector(container, options => options.AddAspNetCore());
+            _ = services.AddSimpleInjector(container, options => options.AddAspNetCore());
+
+            _ = services.AddSingleton(container) // needed for tests and adapters
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)
         {
             app.UseSimpleInjector(container);
             app.UseRequestLocalization(opt =>

@@ -21,7 +21,7 @@ namespace BusinessApp.WebApi
             try
             {
                 logger.Log(new LogEntry(LogSeverity.Info,
-                        $"Starting PurchaseOrderItemReceiver web host..."));
+                        $"Starting BusinessApp web host..."));
 
                 CreateHostBuilder(args).Build().Run();
             }
@@ -29,7 +29,7 @@ namespace BusinessApp.WebApi
             {
                 logger.Log(
                     new LogEntry(LogSeverity.Critical,
-                        "PurchaseOrderItemReceiver terminated unexpectedly")
+                        "BusinessApp terminated unexpectedly")
                     {
                         Exception = ex
                     });
@@ -46,7 +46,7 @@ namespace BusinessApp.WebApi
                 {
                     _ = builder
                         .AddCommandLine(args)
-                        .AddEnvironmentVariables(prefix: "PurchaseOrderItemReceiver_");
+                        .AddEnvironmentVariables(prefix: "BusinessApp_");
 
                     ReplaceJsonConfigProvider(builder);
                 })
