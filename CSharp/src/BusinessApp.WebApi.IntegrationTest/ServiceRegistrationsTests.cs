@@ -1510,12 +1510,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                         typeof(JsonHttpDecorator<CommandStub, CompositeEventStub>),
                         implType),
                     implType => Assert.Equal(
-                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, CompositeEventStub>),
-                        implType),
-                    implType => Assert.Equal(
-                        typeof(SystemJsonExceptionDecorator<CommandStub, CompositeEventStub>),
-                        implType),
-                    implType => Assert.Equal(
                         typeof(HttpRequestHandler<CommandStub, CompositeEventStub>),
                         implType)
                 );

@@ -14,11 +14,30 @@ namespace BusinessApp.Infrastructure.Json
         public SystemJsonSerializerAdapter(JsonSerializerOptions options)
             => this.options = options.NotNull().Expect(nameof(options));
 
-        public T? Deserialize<T>(byte[] data) => data.Length > 0 ?
-            JsonSerializer.Deserialize<T>(data.AsSpan(), options) :
-            default;
+        public T? Deserialize<T>(byte[] data)
+        {
+            try
+            {
+                return data.Length > 0 ?
+                    JsonSerializer.Deserialize<T>(data.AsSpan(), options) :
+                    default;
+            }
+            catch (JsonException e)
+            {
+                throw new JsonDeserializationException("An error occurred while reading your JSON data", e);
+            }
+        }
 
         public byte[] Serialize<T>(T graph)
-            => JsonSerializer.SerializeToUtf8Bytes(graph, options);
+        {
+            try
+            {
+                return JsonSerializer.SerializeToUtf8Bytes(graph, options);
+            }
+            catch (JsonException e)
+            {
+                throw new JsonSerializationException("An error occurred while converting your object to JSON", e);
+            }
+        }
     }
 }

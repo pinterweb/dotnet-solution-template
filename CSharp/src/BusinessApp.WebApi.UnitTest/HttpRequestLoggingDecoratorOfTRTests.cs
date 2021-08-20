@@ -145,16 +145,14 @@ namespace BusinessApp.WebApi.UnitTest
             public async Task UnknownException_ReturnsErrorResult()
             {
                 /* Arrange */
-                var expectedMsg = "An unknown error occurred while processing your " +
-                    "request. Please try again or contact support if this continues";
-                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws<Exception>();
+                var exception = new Exception();
+                A.CallTo(() => inner.HandleAsync(context, cancelToken)).Throws(exception);
 
                 /* Act */
                 var result = await sut.HandleAsync(context, cancelToken);
 
                 /* Assert */
-                var error = Assert.IsType<BusinessAppException>(result.UnwrapError());
-                Assert.Equal(expectedMsg, error.Message);
+                Assert.Same(exception, result.UnwrapError());
             }
 
             [Fact]

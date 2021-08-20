@@ -1,28 +1,27 @@
 using Xunit;
-using Newtonsoft.Json;
 using System.IO;
 using System.Text;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 namespace BusinessApp.Infrastructure.IntegrationTest.Json
 {
     using BusinessApp.Infrastructure.Json;
 
-    public class NewtonsoftJsonSerializerTests
+    public class SystemJsonSerializerAdapterTests
     {
-        private readonly JsonSerializerSettings settings;
-        private readonly NewtonsoftJsonSerializer sut;
+        private readonly JsonSerializerOptions settings;
+        private readonly SystemJsonSerializerAdapter sut;
 
-        public NewtonsoftJsonSerializerTests()
+        public SystemJsonSerializerAdapterTests()
         {
-            settings = new JsonSerializerSettings
+            settings = new JsonSerializerOptions
             {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
-            sut = new NewtonsoftJsonSerializer(settings);
+            sut = new SystemJsonSerializerAdapter(settings);
         }
 
-        public class Deserialize : NewtonsoftJsonSerializerTests
+        public class Deserialize : SystemJsonSerializerAdapterTests
         {
             [Fact]
             public void ModelDeserializedWithSettings()
@@ -63,11 +62,11 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
                 var ex = Record.Exception(() => sut.Deserialize<TestModel>(data));
 
                 /* Assert */
-                var error = Assert.IsType<JsonReaderException>(ex.InnerException);
+                var error = Assert.IsType<JsonException>(ex.InnerException);
             }
         }
 
-        public class Serialize : NewtonsoftJsonSerializerTests
+        public class Serialize : SystemJsonSerializerAdapterTests
         {
             [Fact]
             public void WithTestModel_ConvertsToJsonString()
@@ -108,7 +107,7 @@ namespace BusinessApp.Infrastructure.IntegrationTest.Json
                 var error = Record.Exception(() => sut.Serialize(model));
 
                 /* Assert */
-                _ = Assert.IsType<Newtonsoft.Json.JsonSerializationException>(error.InnerException);
+                _ = Assert.IsType<JsonException>(error.InnerException);
             }
         }
 

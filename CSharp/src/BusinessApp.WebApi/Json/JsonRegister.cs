@@ -1,7 +1,7 @@
 using BusinessApp.CompositionRoot;
+using BusinessApp.Infrastructure.Json;
 using BusinessApp.WebApi.ProblemDetails;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace BusinessApp.WebApi.Json
 {
@@ -10,11 +10,13 @@ namespace BusinessApp.WebApi.Json
     /// </summary>
     public class JsonRegister : IBootstrapRegister
     {
-        private static readonly ProblemDetailOptions jsonProblemDetailOption =
-            new(typeof(JsonException), StatusCodes.Status400BadRequest)
+        private static readonly ProblemDetailOptions deserializationProblemOptions =
+            new(typeof(JsonDeserializationException), StatusCodes.Status422UnprocessableEntity)
             {
-                MessageOverride = "Data is not in the correct format"
+                MessageOverride = "Your data could not be read. The most likely causes is an invalid " +
+                    "json structure or incorrect data type in a field (e.g Using a string when number is expected)"
             };
+
         private readonly IBootstrapRegister inner;
 
         public JsonRegister(IBootstrapRegister inner) => this.inner = inner;
@@ -23,13 +25,13 @@ namespace BusinessApp.WebApi.Json
         {
             var container = context.Container;
 
-            ProblemDetailOptionBootstrap.AddProblem(jsonProblemDetailOption);
-
 #if DEBUG
             container.RegisterSingleton<IHttpRequestAnalyzer, JsonHttpRequestAnalyzer>();
 #elif hasbatch
             container.RegisterSingleton<IHttpRequestAnalyzer, JsonHttpRequestAnalyzer>();
 #endif
+
+            ProblemDetailOptionBootstrap.AddProblem(deserializationProblemOptions);
 
             container.RegisterDecorator(typeof(IHttpRequestHandler<,>),
                 typeof(JsonHttpDecorator<,>));

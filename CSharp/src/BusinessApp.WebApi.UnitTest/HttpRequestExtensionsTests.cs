@@ -435,6 +435,85 @@ namespace BusinessApp.WebApi.UnitTest
             }
 
             [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBody_BodyReaderRewound(string method)
+            {
+                /* Arrange */
+                var bytes = Encoding.UTF8.GetBytes("foobarish");
+                var sequence = new ReadOnlySequence<byte>(bytes);
+                var result = new ValueTask<ReadResult>(new ReadResult(sequence, true, true));
+                var token = A.Dummy<CancellationToken>();
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token))
+                    .Returns(result);
+
+                /* Act */
+                var returned = await sut.DeserializeAsync<Dummy>(serializer, token);
+
+                /* Assert */
+                A.CallTo(() => sut.BodyReader.AdvanceTo(sequence.Start, sequence.Start))
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBodyAndException_BodyReaderRewound(string method)
+            {
+                /* Arrange */
+                var bytes = Encoding.UTF8.GetBytes("foobarish");
+                var sequence = new ReadOnlySequence<byte>(bytes);
+                var result = new ValueTask<ReadResult>(new ReadResult(sequence, true, true));
+                var token = A.Dummy<CancellationToken>();
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token)).Returns(result);
+                A.CallTo(() => serializer.Deserialize<Dummy>(A<byte[]>._))
+                    .Throws<Exception>();
+
+                /* Act */
+                var returned = await Record.ExceptionAsync(() => sut.DeserializeAsync<Dummy>(serializer, token));
+
+                /* Assert */
+                A.CallTo(() => sut.BodyReader.AdvanceTo(sequence.Start, sequence.Start))
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBody_ReaderCompleted(string method)
+            {
+                /* Arrange */
+                var bytes = Encoding.UTF8.GetBytes("foobarish");
+                var sequence = new ReadOnlySequence<byte>(bytes);
+                var result = new ValueTask<ReadResult>(new ReadResult(sequence, true, true));
+                var token = A.Dummy<CancellationToken>();
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token)).Returns(result);
+
+                /* Act */
+                var returned = await sut.DeserializeAsync<Dummy>(serializer, token);
+
+                /* Assert */
+                A.CallTo(() => sut.BodyReader.CompleteAsync(null)).MustHaveHappenedOnceExactly();
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
+            public async Task NotGetOrDeleteWithBodyAndException_ReaderCompleted(string method)
+            {
+                /* Arrange */
+                var bytes = Encoding.UTF8.GetBytes("foobarish");
+                var sequence = new ReadOnlySequence<byte>(bytes);
+                var result = new ValueTask<ReadResult>(new ReadResult(sequence, true, true));
+                var token = A.Dummy<CancellationToken>();
+                A.CallTo(() => sut.Method).Returns(method);
+                A.CallTo(() => sut.BodyReader.ReadAsync(token)).Returns(result);
+                A.CallTo(() => serializer.Deserialize<Dummy>(A<byte[]>._))
+                    .Throws<Exception>();
+
+                /* Act */
+                var returned = await Record.ExceptionAsync(() => sut.DeserializeAsync<Dummy>(serializer, token));
+
+                /* Assert */
+                A.CallTo(() => sut.BodyReader.CompleteAsync(null)).MustHaveHappenedOnceExactly();
+            }
+
+            [Theory, MemberData(nameof(SaveMethods))]
             public async Task NotGetOrDeleteWithBodyAndRouteData_BothDeserialized(string method)
             {
                 /* Arrange */
