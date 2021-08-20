@@ -83,7 +83,7 @@ namespace BusinessApp.WebApi
 #endif
             _ = services.AddSimpleInjector(container, options => options.AddAspNetCore());
 
-            _ = services.AddSingleton(container) // needed for tests and adapters
+            _ = services.AddSingleton(container); // needed for tests and adapters
         }
 
         public void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)

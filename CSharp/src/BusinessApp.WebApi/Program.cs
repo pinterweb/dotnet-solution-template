@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BusinessApp.Infrastructure;
-using SimpleInjector;
 using Microsoft.Extensions.Hosting;
 
 namespace BusinessApp.WebApi
