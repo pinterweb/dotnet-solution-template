@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using BusinessApp.Kernel;
 using System.Threading;
+using BusinessApp.WebApi.ProblemDetails;
 
 namespace BusinessApp.WebApi.Json
 {
@@ -25,10 +26,8 @@ namespace BusinessApp.WebApi.Json
 
             if (context.Request.MayHaveContent() && !validContentType)
             {
-                context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
-
                 return Result.Error<HandlerContext<TRequest, TResponse>>(
-                    new BusinessAppException("Expected content-type to be application/json"));
+                    new UnsupportedMediaTypeException("Expected content-type to be application/json"));
             }
 
             try

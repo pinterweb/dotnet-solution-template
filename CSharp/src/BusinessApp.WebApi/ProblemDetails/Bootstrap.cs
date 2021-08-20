@@ -7,6 +7,7 @@ using BusinessApp.Infrastructure;
 using BusinessApp.Kernel;
 using Microsoft.AspNetCore.Http;
 using SimpleInjector;
+using System.Net.Http;
 
 namespace BusinessApp.WebApi.ProblemDetails
 {
@@ -15,7 +16,7 @@ namespace BusinessApp.WebApi.ProblemDetails
     /// </summary>
     public static partial class ProblemDetailOptionBootstrap
     {
-        public static HashSet<ProblemDetailOptions> knownProblems = new()
+        private static readonly HashSet<ProblemDetailOptions> knownProblems = new()
         {
             new ProblemDetailOptions(typeof(ActivationException), StatusCodes.Status404NotFound)
             {
@@ -42,12 +43,6 @@ namespace BusinessApp.WebApi.ProblemDetails
                     "Your request was rejected because of bad data. Please review your " +
                     "request before resubmission."
             },
-            new ProblemDetailOptions(typeof(TaskCanceledException), StatusCodes.Status400BadRequest)
-            {
-                MessageOverride =
-                    "Your request has been cancelled. This is most likely due to a bad request. " +
-                    "If more details are not provided check the state of your date and retry the request."
-            },
             new ProblemDetailOptions(typeof(ModelValidationException), StatusCodes.Status400BadRequest),
             new ProblemDetailOptions(typeof(SecurityException), StatusCodes.Status403Forbidden)
             {
@@ -71,7 +66,9 @@ namespace BusinessApp.WebApi.ProblemDetails
             {
                 MessageOverride = "The application does not support this business workflow."
             },
-            new ProblemDetailOptions(typeof(CommunicationException), StatusCodes.Status424FailedDependency)
+            new ProblemDetailOptions(typeof(CommunicationException), StatusCodes.Status424FailedDependency),
+            new ProblemDetailOptions(typeof(HttpRequestException), StatusCodes.Status502BadGateway),
+            new ProblemDetailOptions(typeof(TaskCanceledException), StatusCodes.Status503ServiceUnavailable)
         };
 
         public static void AddProblem(ProblemDetailOptions options) => _ = knownProblems.Add(options);
