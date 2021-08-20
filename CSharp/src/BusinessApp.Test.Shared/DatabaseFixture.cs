@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Logging;
 using BusinessApp.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
 using BusinessApp.WebApi;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -27,13 +26,12 @@ namespace BusinessApp.Test.Shared
 
         static DatabaseFixture()
 		{
-            var config = (IConfiguration)Program.CreateWebHostBuilder(new string[0])
+            var config = (IConfiguration)Program.CreateHostBuilder(new string[0])
                 .ConfigureAppConfiguration((_, builder) =>
                 {
                     builder.AddJsonFile("appsettings.test.json");
                     builder.AddEnvironmentVariables(prefix: "BusinessApp_");
                 })
-                .UseStartup<Startup>()
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using BusinessApp.Infrastructure;
 using SimpleInjector;
-using System.Linq;
+using Microsoft.Extensions.Hosting;
 
 namespace BusinessApp.WebApi
 {
@@ -19,30 +20,24 @@ namespace BusinessApp.WebApi
 
             try
             {
-                logger.Log(new LogEntry(LogSeverity.Info, $"Starting BusinessApp web host..."));
-                var container = new Container();
-                var builder = CreateContainerizedWebHostBuilder(args, container);
+                logger.Log(new LogEntry(LogSeverity.Info,
+                        $"Starting PurchaseOrderItemReceiver web host..."));
 
-                builder.Build().Run();
+                CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)
             {
-                logger.Log(new LogEntry(LogSeverity.Critical, "BusinessApp terminated unexpectedly")
-                {
-                    Exception = ex
-                });
+                logger.Log(
+                    new LogEntry(LogSeverity.Critical,
+                        "PurchaseOrderItemReceiver terminated unexpectedly")
+                    {
+                        Exception = ex
+                    });
             }
         }
 
-        public static IWebHostBuilder CreateContainerizedWebHostBuilder(string[] args, Container container) =>
-            CreateWebHostBuilderCore(args).ConfigureServices(sc => sc.AddSingleton(container));
-
-        // XXX needed for tests
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            CreateWebHostBuilderCore(args).ConfigureServices(sc => sc.AddSingleton(new Container()));
-
-        private static IWebHostBuilder CreateWebHostBuilderCore(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args)
+            => Host.CreateDefaultBuilder(args)
                 .ConfigureLogging(logging =>
                 {
                     _ = logging.ClearProviders().AddConsole();
@@ -51,11 +46,14 @@ namespace BusinessApp.WebApi
                 {
                     _ = builder
                         .AddCommandLine(args)
-                        .AddEnvironmentVariables(prefix: "BusinessApp_");
+                        .AddEnvironmentVariables(prefix: "PurchaseOrderItemReceiver_");
 
                     ReplaceJsonConfigProvider(builder);
                 })
-                .UseStartup<Startup>();
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    _ = webBuilder.UseStartup<Startup>();
+                });
 
         private static void ReplaceJsonConfigProvider(IConfigurationBuilder builder)
         {

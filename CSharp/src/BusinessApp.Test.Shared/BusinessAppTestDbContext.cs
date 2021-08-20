@@ -35,8 +35,7 @@ namespace BusinessApp.Test.Shared
     {
         public BusinessAppTestDbContext CreateDbContext(string[] args)
         {
-            var config = (IConfiguration)Program.CreateWebHostBuilder(args)
-                .ConfigureServices(sc => sc.AddSingleton(new Container()))
+            var config = (IConfiguration)Program.CreateHostBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     _ = config.AddCommandLine(args)

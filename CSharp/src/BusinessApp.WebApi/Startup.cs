@@ -31,35 +31,25 @@ namespace BusinessApp.WebApi
     /// </summary>
     public class Startup
     {
-        private readonly Container container;
-        private readonly RegistrationOptions options;
         private readonly IConfiguration configuration;
+        private readonly IWebHostEnvironment env;
+        private readonly Container container;
 
-        public Startup(IConfiguration configuration, Container container, IWebHostEnvironment env)
+        public static Container ConfigureContainer()
         {
-            this.container = container.NotNull().Expect(nameof(container));
-            this.configuration = configuration;
+            var container = new Container();
             container.Options.ResolveUnregisteredConcreteTypes = false;
             container.Options.DefaultLifestyle = Lifestyle.Scoped;
             container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
 
-            var connStr = configuration.GetConnectionString("Main");
+            return container;
+        }
 
-            options = new RegistrationOptions(connStr, env.EnvironmentName)
-            {
-                RegistrationAssemblies = new[]
-                {
-                    typeof(IQuery).Assembly, // infrastructure
-#if DEBUG
-                    typeof(IQueryVisitor<>).Assembly,
-#elif efcore
-                    typeof(IQueryVisitor<>).Assembly, // persistence
-#endif
-                    typeof(ValueKind).Assembly, // Kernel
-                    typeof(Startup).Assembly, // webapi
-                    System.Reflection.Assembly.Load("BusinessApp.Api")
-                }
-            };
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
+        {
+            container = ConfigureContainer();
+            this.configuration = configuration;
+            this.env = env;
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -124,6 +114,8 @@ namespace BusinessApp.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 #endif
+            var options = CreateRegistrationOptions();
+
             Bootstrapper.RegisterServices(container, options, loggerFactory, configuration);
 
             container.Collection.Register<IStartupConfiguration>(
@@ -141,6 +133,27 @@ namespace BusinessApp.WebApi
             {
                 startup.Configure();
             }
+        }
+
+        private RegistrationOptions CreateRegistrationOptions()
+        {
+            var connStr = configuration.GetConnectionString("Main");
+
+            return new(connStr, env.EnvironmentName)
+            {
+                RegistrationAssemblies = new[]
+                {
+                    typeof(IQuery).Assembly, // infrastructure
+#if DEBUG
+                    typeof(IQueryVisitor<>).Assembly,
+#elif efcore
+                    typeof(IQueryVisitor<>).Assembly, // persistence
+#endif
+                    typeof(ValueKind).Assembly, // Kernel
+                    typeof(Startup).Assembly, // webapi
+                    System.Reflection.Assembly.Load("BusinessApp.Api")
+                }
+            };
         }
     }
 }

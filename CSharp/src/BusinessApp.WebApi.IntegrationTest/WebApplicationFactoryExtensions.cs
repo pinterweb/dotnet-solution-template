@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -23,7 +24,6 @@ namespace BusinessApp.WebApi.IntegrationTest
             Action<Container> configuringServices = null)
             where T : class
         {
-            var container = new Container();
             var startupContainer = new Container();
             startupContainer.Collection.Register<IServiceConfiguration>(new[]
             {
@@ -37,13 +37,14 @@ namespace BusinessApp.WebApi.IntegrationTest
                         _ = config.AddJsonFile("appsettings.test.json")
                             .AddEnvironmentVariables(prefix: "BusinessApp_Test_");
                     })
-                    .ConfigureServices(services =>
-                    {
-                        _ = services.AddSingleton(container);
-                    })
                     .ConfigureTestServices(services =>
                     {
+                        var container = (Container)services
+                            .First(s => s.ServiceType == typeof(Container))
+                            .ImplementationInstance;
+
                         configuringServices?.Invoke(container);
+
                         _ = services.AddAuthentication(AuthenticationScheme)
                                 .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>
                                 (AuthenticationScheme, options => { });
@@ -58,8 +59,6 @@ namespace BusinessApp.WebApi.IntegrationTest
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
                 AuthenticationScheme);
-
-            container.Verify();
 
             return client;
         }
