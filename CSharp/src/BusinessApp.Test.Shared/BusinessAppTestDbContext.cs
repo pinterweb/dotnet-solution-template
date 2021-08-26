@@ -96,10 +96,10 @@ namespace BusinessApp.Test.Shared
             modelBuilder.ApplyConfiguration(new DeleteEventConfiguration());
 #endif
 
-#region Command Modeling
-            modelBuilder.ApplyConfiguration(new DeleteQueryConfiguration());
-            modelBuilder.ApplyConfiguration(new PostOrPutBodyConfiguration());
-#endregion
+            modelBuilder.ApplyConfiguration<Delete.Query>(new DeleteQueryConfiguration());
+            modelBuilder.ApplyConfiguration<PostOrPut.Body>(new PostOrPutBodyConfiguration());
+            modelBuilder.ApplyConfiguration<Metadata<Delete.Query>>(new DeleteQueryConfiguration());
+            modelBuilder.ApplyConfiguration<Metadata<PostOrPut.Body>>(new PostOrPutBodyConfiguration());
         }
 
 #if DEBUG
@@ -130,7 +130,7 @@ namespace BusinessApp.Test.Shared
 
         private class PostOrPutBodyConfiguration : MetadataEntityConfiguration<PostOrPut.Body>
         {
-            public override void Configure(EntityTypeBuilder<PostOrPut.Body> builder)
+            protected override void ConfigureData(EntityTypeBuilder<PostOrPut.Body> builder)
             {
                 builder.ToTable("PostOrPutBody");
 
@@ -142,14 +142,12 @@ namespace BusinessApp.Test.Shared
                 builder.Property(p => p.Id)
                     .HasColumnName("PostOrPutId")
                     .HasConversion(id => (int)id, val => new EntityId(val));
-
-                base.Configure(builder);
             }
         }
 
         private class DeleteQueryConfiguration : MetadataEntityConfiguration<Delete.Query>
         {
-            public override void Configure(EntityTypeBuilder<Delete.Query> builder)
+            protected override void ConfigureData(EntityTypeBuilder<Delete.Query> builder)
             {
                 builder.ToTable("DeleteQuery");
 
@@ -161,8 +159,6 @@ namespace BusinessApp.Test.Shared
                 builder.Property(p => p.Id)
                     .HasColumnName("DeleteQueryId")
                     .HasConversion(id => (int)id, val => new EntityId(val));
-
-                base.Configure(builder);
             }
         }
     }

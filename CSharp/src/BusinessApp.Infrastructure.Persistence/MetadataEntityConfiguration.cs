@@ -2,7 +2,6 @@ using BusinessApp.Kernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-#pragma warning disable IDE0058
 namespace BusinessApp.Infrastructure.Persistence
 {
     /// <summary>
@@ -12,44 +11,63 @@ namespace BusinessApp.Infrastructure.Persistence
     {
         public void Configure(EntityTypeBuilder<Metadata> builder)
         {
-            builder.ToTable("Metadata", "dbo");
+            _ = builder.ToTable("Metadata", "dbo");
 
-            builder.Property(i => i.Id)
+            _ = builder.Property(i => i.Id)
                 .HasColumnName("MetadataId")
                 .HasConversion(id => (long)id, val => new MetadataId(val));
 
-            builder.Property(p => p.Username)
+            _ = builder.Property(p => p.Username)
                 .HasColumnName("Username")
                 .HasColumnType("varchar(100)")
                 .IsRequired();
 
-            builder.Property(p => p.DataSetName)
+            _ = builder.Property(p => p.DataSetName)
                 .HasColumnName("DataSetName")
                 .HasColumnType("varchar(100)")
                 .IsRequired();
 
-            builder.Property(p => p.TypeName)
+            _ = builder.Property(p => p.TypeName)
                 .HasColumnName("TypeName")
                 .HasColumnType("varchar(100)")
                 .IsRequired();
 
-            builder.Property(p => p.OccurredUtc)
+            _ = builder.Property(p => p.OccurredUtc)
                 .HasColumnName("OccurredUtc")
                 .HasColumnType("datetimeoffset(0)");
-
-            builder.HasDiscriminator(m => m.DataSetName);
         }
     }
 
-    public abstract class MetadataEntityConfiguration<T> : IEntityTypeConfiguration<T>
+    /// <summary>
+    /// Entity configuration to setup a discriminator on the metadata table
+    /// and relate the two tables correctly
+    /// </summary>
+    /// <remarks>Use if metadata is saved to a different table</remarks>
+    public abstract class MetadataEntityConfiguration<T> :
+        IEntityTypeConfiguration<Metadata<T>>,
+        IEntityTypeConfiguration<T>
         where T : class
     {
-        public virtual void Configure(EntityTypeBuilder<T> builder)
-            => builder.HasOne<Metadata<T>>()
+        public virtual string MetadataDiscriminatorValue { get; } =
+            $"{typeof(T).Namespace}.{typeof(T).Name}";
+
+        public void Configure(EntityTypeBuilder<Metadata<T>> builder)
+        {
+            _ = builder.HasDiscriminator(m => m.DataSetName)
+                .HasValue(MetadataDiscriminatorValue);
+        }
+
+        public void Configure(EntityTypeBuilder<T> builder)
+        {
+            _ = builder.HasOne<Metadata<T>>()
                 .WithOne(m => m.Data)
                 .HasForeignKey<T>("MetadataId")
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            ConfigureData(builder);
+        }
+
+        protected abstract void ConfigureData(EntityTypeBuilder<T> builder);
     }
 }
-#pragma warning restore IDE0058
