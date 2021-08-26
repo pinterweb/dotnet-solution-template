@@ -18,7 +18,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         private readonly BusinessAppDbContext db;
         private readonly EFUnitOfWork sut;
 
-        public EFUnitOfWorkTests(DatabaseFixture fixture)
+        public EFUnitOfWorkTests(DbDatabaseFixture fixture)
         {
             db = fixture.DbContext;
             sut = new EFUnitOfWork(db);
@@ -31,7 +31,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Constructor : EFUnitOfWorkTests
         {
-            public Constructor(DatabaseFixture fixture)
+            public Constructor(DbDatabaseFixture fixture)
                 :base(fixture)
             { }
 
@@ -65,7 +65,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Track : EFUnitOfWorkTests
         {
-            public Track(DatabaseFixture fixture)
+            public Track(DbDatabaseFixture fixture)
                 :base(fixture)
             { }
 
@@ -85,7 +85,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Add : EFUnitOfWorkTests
         {
-            public Add(DatabaseFixture fixture)
+            public Add(DbDatabaseFixture fixture)
                 :base(fixture)
             { }
 
@@ -105,7 +105,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Remove : EFUnitOfWorkTests
         {
-            public Remove(DatabaseFixture fixture)
+            public Remove(DbDatabaseFixture fixture)
                 :base(fixture)
             { }
 
@@ -127,7 +127,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         {
             private readonly CancellationToken cancelToken;
 
-            public CommitAsync(DatabaseFixture fixture)
+            public CommitAsync(DbDatabaseFixture fixture)
                 :base(fixture)
             {
                 cancelToken = A.Dummy<CancellationToken>();
@@ -234,7 +234,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Begin : EFUnitOfWorkTests, IDisposable
         {
-            public Begin(DatabaseFixture fixture)
+            public Begin(DbDatabaseFixture fixture)
                 :base(fixture)
             { }
 
@@ -329,7 +329,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         {
             private readonly CancellationToken cancelToken;
 
-            public RevertAsync(DatabaseFixture fixture)
+            public RevertAsync(DbDatabaseFixture fixture)
                 :base(fixture)
             {
                 cancelToken = A.Dummy<CancellationToken>();
@@ -400,7 +400,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Find : EFUnitOfWorkTests
         {
-            public Find(DatabaseFixture fixture)
+            public Find(DbDatabaseFixture fixture)
                 :base(fixture)
             {}
 

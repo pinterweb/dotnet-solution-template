@@ -20,7 +20,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         private readonly IEntityIdFactory<MetadataId> idFactory;
         private readonly CancellationToken cancelToken;
 
-        public EFMetadataStoreRequestDecoratorTests(DatabaseFixture fixture)
+        public EFMetadataStoreRequestDecoratorTests(DbDatabaseFixture fixture)
         {
             user = A.Fake<IPrincipal>();
             inner = A.Fake<IRequestHandler<RequestStub, ResponseStub>>();
@@ -36,7 +36,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Constructor : EFMetadataStoreRequestDecoratorTests
         {
-            public Constructor(DatabaseFixture f) : base(f)
+            public Constructor(DbDatabaseFixture f) : base(f)
             {}
 
             public static IEnumerable<object[]> InvalidCtorArgs
@@ -95,9 +95,9 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class HandleAsync : EFMetadataStoreRequestDecoratorTests
         {
-            private readonly DatabaseFixture fixture;
+            private readonly DbDatabaseFixture fixture;
 
-            public HandleAsync(DatabaseFixture f) : base(f)
+            public HandleAsync(DbDatabaseFixture f) : base(f)
             {
                 fixture = f;
             }

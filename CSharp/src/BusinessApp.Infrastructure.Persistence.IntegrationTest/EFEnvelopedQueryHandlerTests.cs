@@ -20,7 +20,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         private EFEnvelopedQueryHandler<EnvelopeRequestStub, ResponseStub> sut;
         private readonly IEnumerable<ResponseStub> dataset;
 
-        public EFEnvelopedQueryHandlerTests(DatabaseFixture fixture)
+        public EFEnvelopedQueryHandlerTests(DbDatabaseFixture fixture)
         {
             db = fixture.DbContext;
             dbSetFactory = A.Fake<IDbSetVisitorFactory<EnvelopeRequestStub, ResponseStub>>();
@@ -49,7 +49,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Constructor : EFEnvelopedQueryHandlerTests
         {
-            public Constructor(DatabaseFixture fixture) : base(fixture) {}
+            public Constructor(DbDatabaseFixture fixture) : base(fixture) {}
 
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -93,7 +93,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         {
             private readonly EnvelopeRequestStub query;
 
-            public HandleAsync(DatabaseFixture fixture) : base(fixture)
+            public HandleAsync(DbDatabaseFixture fixture) : base(fixture)
             {
                 query = new EnvelopeRequestStub();
                 var dbSetVisitor = A.Fake<IDbSetVisitor<ResponseStub>>();

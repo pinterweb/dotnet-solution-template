@@ -15,7 +15,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         private readonly IEnumerable<ResponseStub> dataset;
         private EFQueryVisitor<ResponseStub> sut;
 
-        public EFQueryVisitorTests(DatabaseFixture fixture)
+        public EFQueryVisitorTests(DbDatabaseFixture fixture)
         {
             this.db = fixture.DbContext;
 
@@ -43,7 +43,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Constructor : EFQueryVisitorTests
         {
-            public Constructor(DatabaseFixture fixture) : base(fixture) {}
+            public Constructor(DbDatabaseFixture fixture) : base(fixture) {}
 
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
             {
@@ -69,7 +69,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Visit : EFQueryVisitorTests
         {
-            public Visit(DatabaseFixture fixture) : base(fixture) {}
+            public Visit(DbDatabaseFixture fixture) : base(fixture) {}
 
             [Fact]
             public void UnknownEmbedFields_IgnoresThem()

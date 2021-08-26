@@ -9,41 +9,32 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace BusinessApp.Test.Shared
 {
-    public class DatabaseFixture : IDisposable
-	{
+    public abstract class DatabaseFixture : IDisposable
+    {
         public static readonly ILoggerFactory EFDebugLoggerFactory
             = LoggerFactory.Create(builder =>
-            {
                 builder
                     .AddFilter((category, level) =>
                         category == DbLoggerCategory.Database.Command.Name
                         && level == LogLevel.Information)
-                    .AddDebug();
-            });
+                    .AddConsole()
+                    .AddDebug());
 
-        private static readonly string ConnectionStr;
         private readonly BusinessAppDbContext realDb;
 
-        static DatabaseFixture()
-		{
-            var config = (IConfiguration)Program.CreateHostBuilder(new string[0])
-                .ConfigureAppConfiguration((_, builder) =>
-                {
-                    builder.AddJsonFile("appsettings.test.json");
-                    builder.AddEnvironmentVariables(prefix: "BusinessApp_");
-                })
+        public DatabaseFixture()
+        {
+            var config = (IConfiguration)Program.CreateHostBuilder(Array.Empty<string>())
+                .ConfigureAppConfiguration((_, builder) => Configure(builder))
                 .Build()
                 .Services
                 .GetService(typeof(IConfiguration));
 
-            ConnectionStr = config.GetConnectionString("Test");
-		}
+            var connectionStr = config.GetConnectionString(ConnectionStringName);
 
-		public DatabaseFixture()
-		{
             var options = new DbContextOptionsBuilder<BusinessAppDbContext>()
                 .UseLoggerFactory(EFDebugLoggerFactory)
-                .UseSqlServer(ConnectionStr)
+                .UseSqlServer(connectionStr)
                 .EnableSensitiveDataLogging()
                 .Options;
 
@@ -51,12 +42,14 @@ namespace BusinessApp.Test.Shared
             DbContext = new BusinessAppTestDbContext(realDb, options);
 
             DbContext.Database.Migrate();
-		}
+        }
 
-		public BusinessAppDbContext DbContext { get; }
+        public BusinessAppDbContext DbContext { get; }
 
-		public void Dispose()
-		{
+        protected abstract string ConnectionStringName { get; }
+
+        public void Dispose()
+        {
             try
             {
                 DbContext.GetService<IMigrator>().Migrate("0");
@@ -69,14 +62,11 @@ namespace BusinessApp.Test.Shared
             }
 
             DbContext.Dispose();
-		}
-
-        private sealed class Startup
-        {
-            public void Configure()
-            {
-
-            }
         }
-	}
+
+        /// <summary>
+        /// Configures the integration test env and returns the connection string name to use
+        /// </summary>
+        protected abstract void Configure(IConfigurationBuilder builder);
+    }
 }
