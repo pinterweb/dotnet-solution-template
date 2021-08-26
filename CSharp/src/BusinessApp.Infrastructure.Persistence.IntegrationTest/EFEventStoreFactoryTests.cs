@@ -16,7 +16,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
         private readonly IPrincipal user;
         private readonly BusinessAppDbContext db;
 
-        public EFEventStoreFactoryTests(DatabaseFixture fixture)
+        public EFEventStoreFactoryTests(DbDatabaseFixture fixture)
         {
             idFactory = A.Fake<IEntityIdFactory<MetadataId>>();
             db = A.Fake<BusinessAppDbContext>();
@@ -30,7 +30,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Constructor : EFEventStoreFactoryTests
         {
-            public Constructor(DatabaseFixture fixture) : base(fixture)
+            public Constructor(DbDatabaseFixture fixture) : base(fixture)
             { }
 
             public static IEnumerable<object[]> InvalidCtorArgs => new[]
@@ -72,14 +72,14 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
         public class Create : EFEventStoreFactoryTests
         {
-            public Create(DatabaseFixture fixture) : base(fixture)
+            public Create(DbDatabaseFixture fixture) : base(fixture)
             { }
 
             public class WhenMetadataExists : EFEventStoreFactoryTests
             {
                 private readonly RequestStub trigger;
 
-                public WhenMetadataExists(DatabaseFixture fixture) : base(fixture)
+                public WhenMetadataExists(DbDatabaseFixture fixture) : base(fixture)
                 {
                     trigger = new RequestStub();
                 }
@@ -119,7 +119,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
             public class WhenMetadataDoesNotExist : EFEventStoreFactoryTests
             {
-                public WhenMetadataDoesNotExist(DatabaseFixture fixture) : base(fixture)
+                public WhenMetadataDoesNotExist(DbDatabaseFixture fixture) : base(fixture)
                 { }
 
                 [Fact]
@@ -211,7 +211,7 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             private readonly IEventStore store;
             private readonly MetadataId triggerId;
 
-            public Add(DatabaseFixture fixture) : base(fixture)
+            public Add(DbDatabaseFixture fixture) : base(fixture)
             {
                 var trigger = A.Dummy<object>();
                 store = A.Fake<IEventStore>();
