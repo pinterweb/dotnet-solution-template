@@ -47,8 +47,6 @@ namespace BusinessApp.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Metadata", "dbo");
-
-                    b.HasDiscriminator<string>("DataSetName");
                 });
 
             modelBuilder.Entity("BusinessApp.Infrastructure.RequestMetadata", b =>

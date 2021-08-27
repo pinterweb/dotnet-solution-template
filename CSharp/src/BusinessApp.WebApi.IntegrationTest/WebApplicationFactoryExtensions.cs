@@ -21,14 +21,16 @@ namespace BusinessApp.WebApi.IntegrationTest
         private const string AuthenticationScheme = "FakeAuthenticationScheme";
 
         public static HttpClient NewClient<T>(this WebApplicationFactory<T> factory,
-            Action<Container> configuringServices = null)
+            Action<Container, IServiceCollection> configuringServices = null)
             where T : class
         {
             var startupContainer = new Container();
+
             startupContainer.Collection.Register<IServiceConfiguration>(new[]
             {
                 typeof(WebApplicationFactoryExtensions).Assembly
             });
+
             var client = factory
                 .WithWebHostBuilder(builder =>
                 {
@@ -43,7 +45,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                             .First(s => s.ServiceType == typeof(Container))
                             .ImplementationInstance;
 
-                        configuringServices?.Invoke(container);
+                        configuringServices?.Invoke(container, services);
 
                         _ = services.AddAuthentication(AuthenticationScheme)
                                 .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>

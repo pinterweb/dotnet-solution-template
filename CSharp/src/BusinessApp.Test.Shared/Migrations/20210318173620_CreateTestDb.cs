@@ -46,7 +46,8 @@ namespace BusinessApp.Test.Shared.Migrations
                     Username = table.Column<string>(type: "varchar(100)", nullable: false),
                     DataSetName = table.Column<string>(type: "varchar(100)", nullable: false),
                     TypeName = table.Column<string>(type: "varchar(100)", nullable: false),
-                    OccurredUtc = table.Column<DateTimeOffset>(type: "datetimeoffset(0)", nullable: false)
+                    OccurredUtc = table.Column<DateTimeOffset>(type: "datetimeoffset(0)", nullable: false),
+                    MetadataType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {

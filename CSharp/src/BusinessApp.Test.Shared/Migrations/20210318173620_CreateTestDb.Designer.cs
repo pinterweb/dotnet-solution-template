@@ -60,6 +60,11 @@ namespace BusinessApp.Test.Shared.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("DataSetName");
 
+                    b.Property<string>("MetadataType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<DateTimeOffset>("OccurredUtc")
                         .HasColumnType("datetimeoffset(0)")
                         .HasColumnName("OccurredUtc");
@@ -78,7 +83,7 @@ namespace BusinessApp.Test.Shared.Migrations
 
                     b.ToTable("Metadata", "dbo");
 
-                    b.HasDiscriminator<string>("DataSetName").HasValue("Metadata");
+                    b.HasDiscriminator<string>("MetadataType").HasValue("Metadata");
                 });
 
             modelBuilder.Entity("BusinessApp.Infrastructure.RequestMetadata", b =>
@@ -228,7 +233,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 {
                     b.HasBaseType("BusinessApp.Infrastructure.Metadata");
 
-                    b.HasDiscriminator().HasValue("Metadata<Query>");
+                    b.HasDiscriminator().HasValue("BusinessApp.WebApi.Query");
                 });
 
             modelBuilder.Entity("BusinessApp.Infrastructure.Metadata<BusinessApp.WebApi.Delete+WebDomainEvent>", b =>
@@ -242,7 +247,7 @@ namespace BusinessApp.Test.Shared.Migrations
                 {
                     b.HasBaseType("BusinessApp.Infrastructure.Metadata");
 
-                    b.HasDiscriminator().HasValue("Metadata<Body>");
+                    b.HasDiscriminator().HasValue("BusinessApp.WebApi.Body");
                 });
 
             modelBuilder.Entity("BusinessApp.Infrastructure.EventMetadata<BusinessApp.WebApi.Delete+WebDomainEvent>", b =>

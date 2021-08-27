@@ -47,7 +47,7 @@ namespace BusinessApp.Test.Shared
                 .GetService(typeof(IConfiguration));
 
             var optionsBuilder = new DbContextOptionsBuilder<BusinessAppDbContext>();
-            var connection = config.GetConnectionString("Test");
+            var connection = config.GetConnectionString("DbTest");
 
             optionsBuilder.UseSqlServer(connection);
 

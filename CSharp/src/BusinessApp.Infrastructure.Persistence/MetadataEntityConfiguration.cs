@@ -53,8 +53,11 @@ namespace BusinessApp.Infrastructure.Persistence
 
         public void Configure(EntityTypeBuilder<Metadata<T>> builder)
         {
-            _ = builder.HasDiscriminator(m => m.DataSetName)
+            _ = builder.HasDiscriminator<string>("MetadataType")
                 .HasValue(MetadataDiscriminatorValue);
+
+            _  = builder.Property("MetadataType")
+                .HasMaxLength(100);
         }
 
         public void Configure(EntityTypeBuilder<T> builder)
