@@ -117,7 +117,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             // Given
             var notifier = A.Fake<ITestNotifier>();
             Container testContainer = null;
-            var client = factory.NewClient(container =>
+            var client = factory.NewClient((container, services) =>
             {
                 container.RegisterInstance(notifier);
 #if DEBUG
