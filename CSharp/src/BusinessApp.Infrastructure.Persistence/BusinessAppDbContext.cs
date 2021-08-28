@@ -21,8 +21,10 @@ namespace BusinessApp.Infrastructure.Persistence
         public async Task<IEnumerable<RequestMetadata>> GetAllAsync()
             => await Set<RequestMetadata>().ToListAsync();
 #elif automation
+
         public async Task<IEnumerable<RequestMetadata>> GetAllAsync()
             => await Set<RequestMetadata>().ToListAsync();
+
 #endif
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -26,7 +26,6 @@ namespace BusinessApp.WebApi
             // getHandler().HandleAsync<Get.Request, IEnumerable<Get.Response>>)
             // }
 
-
             return endpoints;
         }
     }

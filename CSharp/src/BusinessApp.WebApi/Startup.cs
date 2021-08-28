@@ -55,8 +55,8 @@ namespace BusinessApp.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             _ = services.AddLocalization(options => options.ResourcesPath = "Resources");
-//#if DEBUG
 #if cors
+//#if DEBUG
             _ = services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
@@ -74,8 +74,8 @@ namespace BusinessApp.WebApi
                             .AllowAnyHeader();
                     });
             });
-#endif
 //#endif
+#endif
             _ = services.AddRouting();
 #if winauth
             _ = services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
