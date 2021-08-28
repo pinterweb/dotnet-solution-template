@@ -49,7 +49,7 @@ namespace BusinessApp.CompositionRoot
 
             private sealed class NullEventStore : IEventStore
             {
-                public EventTrackingId Add<T>(T e) where T : notnull, IDomainEvent
+                public EventTrackingId Add<T>(T e) where T : notnull, IEvent
                     => new(new MetadataId(0), new MetadataId(0));
             }
         }

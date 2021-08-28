@@ -4,7 +4,7 @@ using BusinessApp.Kernel;
 namespace BusinessApp.WebApi
 {
     /// <summary>
-    /// Hateoas links for <see cre="IDomainEvent" />
+    /// Hateoas links for <see cre="IEvent" />
     /// </summary>
     /// <typeparam name="TRequest">The request type that triggered the event</typeparam>
     /// <typeparam name="TEvent">The event type</typeparam>

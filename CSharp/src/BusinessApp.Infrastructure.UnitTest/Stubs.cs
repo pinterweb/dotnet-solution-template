@@ -14,7 +14,7 @@ namespace BusinessApp.Infrastructure.UnitTest
 #elif events
     public class CompositeEventStub : ICompositeEvent
     {
-        public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
+        public IEnumerable<IEvent> Events { get; set; } = new List<IEvent>();
     }
 #endif
 

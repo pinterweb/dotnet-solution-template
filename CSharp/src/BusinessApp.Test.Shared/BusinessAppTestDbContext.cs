@@ -79,7 +79,7 @@ namespace BusinessApp.Test.Shared
                 .HasConversion(id => id.ToInt64(null), val => new MetadataId(val));
 #elif events
             // additional test models here
-            modelBuilder.Entity<DomainEventStub>()
+            modelBuilder.Entity<EventStub>()
                 .Property(p => p.Id)
                 .HasConversion(id => id.ToInt64(null), val => new MetadataId(val));
 #endif

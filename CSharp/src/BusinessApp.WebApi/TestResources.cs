@@ -99,10 +99,10 @@ namespace BusinessApp.WebApi
 #elif events
         public class Response : ICompositeEvent
         {
-            public IEnumerable<IDomainEvent> Events { get; set; } = new List<IDomainEvent>();
+            public IEnumerable<IEvent> Events { get; set; } = new List<IEvent>();
         }
 
-        public class WebDomainEvent : IDomainEvent
+        public class WebDomainEvent : IEvent
         {
             public EntityId? Id { get; set; }
 
@@ -153,12 +153,12 @@ namespace BusinessApp.WebApi
                 return Task.FromResult(Result.Ok(events));
             }
 
-            public Task<Result<IEnumerable<IDomainEvent>, Exception>> HandleAsync(
+            public Task<Result<IEnumerable<IEvent>, Exception>> HandleAsync(
                 WebDomainEvent e, CancellationToken cancelToken)
                 => webEvent == e
                     ? Task.FromResult(
-                        Result.Ok<IEnumerable<IDomainEvent>>(Array.Empty<IDomainEvent>()))
-                    : Task.FromResult(Result.Ok<IEnumerable<IDomainEvent>>(new[] { webEvent }));
+                        Result.Ok<IEnumerable<IEvent>>(Array.Empty<IEvent>()))
+                    : Task.FromResult(Result.Ok<IEnumerable<IEvent>>(new[] { webEvent }));
         }
 #else
         public class Handler : Infrastructure.IRequestHandler<Query, Response>

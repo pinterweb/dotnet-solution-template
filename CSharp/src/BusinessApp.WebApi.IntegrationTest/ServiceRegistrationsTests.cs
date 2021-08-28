@@ -193,7 +193,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
 #if events
-                        typeof(IDomainEvent));
+                        typeof(IEvent));
 #else
                         typeof(ResponseStub));
 #endif
@@ -1521,8 +1521,8 @@ namespace BusinessApp.WebApi.IntegrationTest
                 /* Arrange */
                 var linkFactory = A.Fake<Func<CommandStub, CompositeEventStub, string>>();
 #if usehateoas
-                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IDomainEvent>>>(
-                    new Dictionary<Type, HateoasLink<CommandStub, IDomainEvent>>());
+                container.RegisterInstance<IDictionary<Type, HateoasLink<CommandStub, IEvent>>>(
+                    new Dictionary<Type, HateoasLink<CommandStub, IEvent>>());
 #endif
                 CreateRegistrations(container);
                 container.Verify();
@@ -1552,16 +1552,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                     implType => Assert.Equal(
                         typeof(JsonHttpDecorator<CommandStub, CompositeEventStub>),
                         implType),
-#if newtonsoft
-                    implType => Assert.Equal(
-                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, CompositeEventStub>),
-                        implType),
-#endif
-#if systemjson
-                    implType => Assert.Equal(
-                        typeof(SystemJsonExceptionDecorator<CommandStub, CompositeEventStub>),
-                        implType),
-#endif
                     implType => Assert.Equal(
                         typeof(HttpRequestHandler<CommandStub, CompositeEventStub>),
                         implType)
@@ -1604,16 +1594,6 @@ namespace BusinessApp.WebApi.IntegrationTest
                     implType => Assert.Equal(
                         typeof(JsonHttpDecorator<CommandStub, ResponseStub>),
                         implType),
-#if newtonsoft
-                    implType => Assert.Equal(
-                        typeof(NewtonsoftJsonExceptionDecorator<CommandStub, ResponseStub>),
-                        implType),
-#endif
-#if systemjson
-                    implType => Assert.Equal(
-                        typeof(SystemJsonExceptionDecorator<CommandStub, ResponseStub>),
-                        implType),
-#endif
                     implType => Assert.Equal(
                         typeof(HttpRequestHandler<CommandStub, ResponseStub>),
                         implType)
@@ -1941,7 +1921,7 @@ namespace BusinessApp.WebApi.IntegrationTest
 #elif events
         public sealed class CompositeEventStub : ICompositeEvent
         {
-            public IEnumerable<IDomainEvent> Events { get; set; }
+            public IEnumerable<IEvent> Events { get; set; }
         }
 #endif
 
