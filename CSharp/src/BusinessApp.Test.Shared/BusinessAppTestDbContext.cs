@@ -98,8 +98,14 @@ namespace BusinessApp.Test.Shared
 
             modelBuilder.ApplyConfiguration<Delete.Query>(new DeleteQueryConfiguration());
             modelBuilder.ApplyConfiguration<PostOrPut.Body>(new PostOrPutBodyConfiguration());
+
+#if DEBUG
             modelBuilder.ApplyConfiguration<Metadata<Delete.Query>>(new DeleteQueryConfiguration());
             modelBuilder.ApplyConfiguration<Metadata<PostOrPut.Body>>(new PostOrPutBodyConfiguration());
+#elif metadata
+            modelBuilder.ApplyConfiguration<Metadata<Delete.Query>>(new DeleteQueryConfiguration());
+            modelBuilder.ApplyConfiguration<Metadata<PostOrPut.Body>>(new PostOrPutBodyConfiguration());
+#endif
         }
 
 #if DEBUG
@@ -128,9 +134,22 @@ namespace BusinessApp.Test.Shared
         }
 #endif
 
-        private class PostOrPutBodyConfiguration : MetadataEntityConfiguration<PostOrPut.Body>
+        private class PostOrPutBodyConfiguration
+#if DEBUG
+            : MetadataEntityConfiguration<PostOrPut.Body>
+#elif metadata
+            : MetadataEntityConfiguration<PostOrPut.Body>
+#else
+            : IEntityTypeConfiguration<PostOrPut.Body>
+#endif
         {
+#if DEBUG
             protected override void ConfigureData(EntityTypeBuilder<PostOrPut.Body> builder)
+#elif metadata
+            protected override void ConfigureData(EntityTypeBuilder<PostOrPut.Body> builder)
+#else
+            public void Configure(EntityTypeBuilder<PostOrPut.Body> builder)
+#endif
             {
                 builder.ToTable("PostOrPutBody");
 
@@ -145,9 +164,22 @@ namespace BusinessApp.Test.Shared
             }
         }
 
-        private class DeleteQueryConfiguration : MetadataEntityConfiguration<Delete.Query>
+        private class DeleteQueryConfiguration
+#if DEBUG
+            : MetadataEntityConfiguration<Delete.Query>
+#elif metadata
+            : MetadataEntityConfiguration<Delete.Query>
+#else
+            : IEntityTypeConfiguration<Delete.Query>
+#endif
         {
+#if DEBUG
             protected override void ConfigureData(EntityTypeBuilder<Delete.Query> builder)
+#elif metadata
+            protected override void ConfigureData(EntityTypeBuilder<Delete.Query> builder)
+#else
+            public void Configure(EntityTypeBuilder<Delete.Query> builder)
+#endif
             {
                 builder.ToTable("DeleteQuery");
 
