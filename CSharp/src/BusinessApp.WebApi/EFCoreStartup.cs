@@ -28,7 +28,7 @@ namespace BusinessApp.WebApi
             {
                 using (AsyncScopedLifestyle.BeginScope(container))
                 {
-                    var db = container.GetInstance<BusinessAppDbContext>();
+                    using var db = container.GetInstance<BusinessAppDbContext>();
                     db.Database.Migrate();
                 }
             }
