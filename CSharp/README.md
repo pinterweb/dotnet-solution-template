@@ -36,7 +36,8 @@ Services to support persisting and querying data with entity framework core\
     - Command data is automatically saved to the database.
 //#endif
     - Query contracts are queried by entity framework.
-- Run .\migrations_add to setup your database
+- Run .\migrations_add to setup your database and .\migration_add_new in your
+  test project
 //#endif
 - Create routes in `Routes.cs` located in the WebApi project\
   _note: Any requests inheriting from `IQuery` returning an `IEnumerable`, will_
