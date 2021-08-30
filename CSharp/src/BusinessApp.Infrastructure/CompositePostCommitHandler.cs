@@ -20,9 +20,9 @@ namespace BusinessApp.Infrastructure
         public async Task<Result<Unit, Exception>> HandleAsync(TRequest request, TResponse response,
             CancellationToken cancelToken)
         {
-            foreach (var validator in handlers)
+            foreach (var handler in handlers)
             {
-                var result = await validator.HandleAsync(request, response, cancelToken);
+                var result = await handler.HandleAsync(request, response, cancelToken);
 
                 if (result.Kind == ValueKind.Error)
                 {

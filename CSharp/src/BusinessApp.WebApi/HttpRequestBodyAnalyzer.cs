@@ -33,7 +33,8 @@ namespace BusinessApp.WebApi
             }
         }
 
-        public Task<HttpRequestPayloadType> Analyze(HttpRequest request) => !request.IsCommand()
+        public Task<HttpRequestPayloadType> Analyze(HttpRequest request)
+            => !request.IsCommand()
             ? Task.FromResult(HttpRequestPayloadType.Unknown)
             : analyzer.GetBodyTypeAsync(request);
     }

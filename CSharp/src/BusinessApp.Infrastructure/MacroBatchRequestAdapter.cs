@@ -15,7 +15,7 @@ namespace BusinessApp.Infrastructure
     /// This is useful when you need to change many values based on a query
     //  and those changes are the same for all objects returned by the query.
     // The alternative would be sending many requests.
-    /// <summary>
+    /// </remarks>
     public class MacroBatchRequestAdapter<TMacro, TRequest, TResponse>
         : IRequestHandler<TMacro, TResponse>
         where TMacro : IMacro<TRequest>
