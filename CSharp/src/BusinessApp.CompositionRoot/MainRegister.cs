@@ -118,7 +118,8 @@ namespace BusinessApp.CompositionRoot
             context.Container.RegisterConditional(
                 serviceType,
                 typeof(GroupedBatchRequestDecorator<,>),
-                c => CanHandle(c));
+                c => CanHandle(c)
+                    && c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
 #endif
 #endif
 #endif
@@ -229,12 +230,14 @@ namespace BusinessApp.CompositionRoot
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(SimpleInjectorScopedBatchRequestProxy<,>),
+                Lifestyle.Singleton,
                 c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>))
                     || c.ImplementationType.IsTypeDefinition(typeof(DummyScopedBatchRequestDelegator<,>)));
 #elif hasbatch
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(SimpleInjectorScopedBatchRequestProxy<,>),
+                Lifestyle.Singleton,
                 c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>))
                     || c.ImplementationType.IsTypeDefinition(typeof(DummyScopedBatchRequestDelegator<,>)));
 #endif
