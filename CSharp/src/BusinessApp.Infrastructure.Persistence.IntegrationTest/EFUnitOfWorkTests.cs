@@ -190,26 +190,6 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
             }
 
             [Fact]
-            public async Task HasExternalTranscation_DoesNotCommit()
-            {
-                /* Arrange */
-                var entity = new ResponseStub();
-                db.Add(entity);
-
-                /* Act */
-                using (var trans = db.Database.BeginTransaction())
-                {
-                    await sut.CommitAsync(A.Dummy<CancellationToken>());
-                    trans.Rollback();
-                }
-
-                /* Assert */
-                Assert.Empty(
-                    db.Set<ResponseStub>().Where(e => e.Id == entity.Id)
-                );
-            }
-
-            [Fact]
             public async Task AfterDbContextSaveChanges_CommittedEventInvoked()
             {
                 /* Arrange */
@@ -229,99 +209,6 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
                 /* Assert */
                 Assert.Equal(EntityState.Unchanged, stateDuringEvent);
-            }
-        }
-
-        public class Begin : EFUnitOfWorkTests, IDisposable
-        {
-            public Begin(DbDatabaseFixture fixture)
-                :base(fixture)
-            { }
-
-            public override void Dispose()
-            {
-                if (db.Database.CurrentTransaction != null)
-                {
-                    db.Database.CurrentTransaction.Rollback();
-                }
-
-                base.Dispose();
-            }
-
-            [Fact]
-            public void UsingInnerDatabase_BeginsTransaction()
-            {
-                /* Act */
-                sut.Begin();
-
-                /* Assert */
-                Assert.NotNull(db.Database.CurrentTransaction);
-            }
-
-            [Fact]
-            public void NoError_WrapsSelf()
-            {
-                /* Act */
-                var uow = sut.Begin();
-
-                /* Assert */
-                Assert.Equal(uow, Result.Ok<IUnitOfWork>(sut));
-            }
-
-            [Fact]
-            public async Task OnCommit_CommitTransaction()
-            {
-                /* Arrange */
-                var uow = sut.Begin().Unwrap();
-
-                /* Act */
-                await uow.CommitAsync(A.Dummy<CancellationToken>());
-
-                /* Assert */
-                Assert.Null(db.Database.CurrentTransaction);
-            }
-
-            [Fact]
-            public void AlreadyInTransaction_ErrorKindReturned()
-            {
-                /* Arrange */
-                db.Database.BeginTransaction();
-
-                /* Act */
-                var uow = sut.Begin();
-
-                /* Assert */
-                Assert.Equal(ValueKind.Error, uow.Kind);
-            }
-
-            [Fact]
-            public void AlreadyInTransaction_InvalidOperationExceptionReturn()
-            {
-                /* Arrange */
-                db.Database.BeginTransaction();
-
-                /* Act */
-                var uow = sut.Begin();
-
-                /* Assert */
-                Assert.IsType<InvalidOperationException>(uow.UnwrapError());
-            }
-
-            [Fact]
-            public void AnyOtherError_Throws()
-            {
-                /* Arrange */
-                var options = new DbContextOptionsBuilder<BusinessAppDbContext>()
-                    .Options;
-                var sutDb = new BusinessAppTestDbContext(db, options);
-                var anotherSut = new EFUnitOfWork(sutDb);
-                sutDb.Dispose();
-
-                /* Act */
-                var ex = Record.Exception(() => anotherSut.Begin());
-
-                /* Assert */
-                Assert.NotNull(ex);
             }
         }
 
@@ -350,26 +237,6 @@ namespace BusinessApp.Infrastructure.Persistence.IntegrationTest
 
                 /* Assert */
                 Assert.False(committingCalled);
-            }
-
-            [Fact]
-            public async Task HasExternalTranscation_DoesNotCommit()
-            {
-                /* Arrange */
-                var entity = new ResponseStub();
-                db.Add(entity);
-
-                /* Act */
-                using (var trans = db.Database.BeginTransaction())
-                {
-                    await sut.RevertAsync(A.Dummy<CancellationToken>());
-                    trans.Rollback();
-                }
-
-                /* Assert */
-                Assert.Empty(
-                    db.Set<ResponseStub>().Where(e => e.Id == entity.Id)
-                );
             }
 
             [Fact]

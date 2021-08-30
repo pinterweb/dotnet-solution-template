@@ -11,9 +11,8 @@ namespace BusinessApp.Infrastructure.Persistence
     /// <summary>
     /// Unit of work pattern wrapping Entity Framework
     /// </summary>
-    public class EFUnitOfWork : IUnitOfWork, ITransactionFactory
+    public class EFUnitOfWork : IUnitOfWork
     {
-        private bool transactionFromFactory;
         private readonly BusinessAppDbContext db;
 
         public EFUnitOfWork(BusinessAppDbContext db) => this.db = db.NotNull().Expect(nameof(db));
@@ -33,7 +32,7 @@ namespace BusinessApp.Infrastructure.Persistence
 
             try
             {
-                _ = await db.SaveChangesAsync(false, cancelToken);
+                _ = await db.SaveChangesAsync(cancelToken);
             }
             catch (DbUpdateConcurrencyException ex)
             {
@@ -44,14 +43,6 @@ namespace BusinessApp.Infrastructure.Persistence
                 );
             }
 
-            if (db.Database.CurrentTransaction != null && transactionFromFactory)
-            {
-                await db.Database.CurrentTransaction.CommitAsync(cancelToken);
-                transactionFromFactory = false;
-            }
-
-            db.ChangeTracker.AcceptAllChanges();
-
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
         }
 
@@ -61,40 +52,14 @@ namespace BusinessApp.Infrastructure.Persistence
         /// </summary>
         public async Task RevertAsync(CancellationToken cancelToken)
         {
-            _ = await db.SaveChangesAsync(false, cancelToken);
-
-            if (db.Database.CurrentTransaction != null && transactionFromFactory)
-            {
-                await db.Database.CurrentTransaction.CommitAsync(cancelToken);
-                transactionFromFactory = false;
-            }
-
-            db.ChangeTracker.AcceptAllChanges();
+            _ = await db.SaveChangesAsync(cancelToken);
 
             Volatile.Read(ref Committed).Invoke(this, EventArgs.Empty);
-        }
-
-        public Result<IUnitOfWork, Exception> Begin()
-        {
-            try
-            {
-                _ = db.Database.BeginTransaction();
-                transactionFromFactory = true;
-                return Result.Ok<IUnitOfWork>(this);
-            }
-            catch (InvalidOperationException e) when (AlreadyInTransaction(e.Message))
-            {
-                return Result.Error<IUnitOfWork>(e);
-            }
         }
 
         public T? Find<T>(Func<T, bool> filter) where T : AggregateRoot
             => db.ChangeTracker.Entries<T>()
                 .Select(e => e.Entity)
                 .SingleOrDefault(filter);
-
-        private static bool AlreadyInTransaction(string msg)
-            => msg == "The connection is already in a transaction and cannot participate in "
-                + "another transaction.";
     }
 }

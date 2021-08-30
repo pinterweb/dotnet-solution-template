@@ -27,7 +27,6 @@ namespace BusinessApp.CompositionRoot
 #if events
             container.Register<IEventStoreFactory, NullEventStoreFactory>();
 #endif
-            container.Register<ITransactionFactory, NullTransactionFactory>();
         }
 #endif
 
@@ -54,25 +53,5 @@ namespace BusinessApp.CompositionRoot
             }
         }
 #endif
-
-        private sealed class NullTransactionFactory : ITransactionFactory
-        {
-            private static readonly IUnitOfWork nullUow = new NullUnitOfWork();
-
-            public Result<IUnitOfWork, Exception> Begin() => Result.Ok(nullUow);
-
-            private sealed class NullUnitOfWork : IUnitOfWork
-            {
-                public event EventHandler Committing = delegate { };
-                public event EventHandler Committed = delegate { };
-
-                public void Add<T>(T aggregate) where T : AggregateRoot { }
-                public Task CommitAsync(CancellationToken cancelToken) => Task.CompletedTask;
-                public T? Find<T>(Func<T, bool> filter) where T : AggregateRoot => null;
-                public void Remove<T>(T aggregate) where T : AggregateRoot { }
-                public Task RevertAsync(CancellationToken cancelToken) => Task.CompletedTask;
-                public void Track<T>(T aggregate) where T : AggregateRoot { }
-            }
-        }
     }
 }
