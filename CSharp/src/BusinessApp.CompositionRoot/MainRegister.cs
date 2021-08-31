@@ -248,12 +248,11 @@ namespace BusinessApp.CompositionRoot
                 typeof(GroupedBatchRequestDecorator<,>),
                 c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
 #elif hasbatch
-            // Apply this as a decorator for batch requests before the ScopeBatchRequestProxy
-            // Need the conditional registration for macro requests
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(GroupedBatchRequestDecorator<,>),
-                c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
+                c => CanHandle(c)
+                    && c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
 #endif
 
 #if DEBUG
