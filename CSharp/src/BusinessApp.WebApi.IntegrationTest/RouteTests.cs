@@ -13,21 +13,24 @@ using Newtonsoft.Json;
 using SimpleInjector;
 using Xunit;
 using Xunit.Abstractions;
+using BusinessApp.Infrastructure;
+using BusinessApp.WebApi;
 
 namespace BusinessApp.WebApi.IntegrationTest
 {
-    using BusinessApp.WebApi;
-
+    [Collection(nameof(DatabaseCollectionFixture))]
     public class RouteTests : IClassFixture<WebApplicationFactory<Startup>>
     {
         private readonly WebApplicationFactory<Startup> factory;
         private readonly ITestOutputHelper output;
+        private readonly WebApiDatabaseFixture db;
 
-        public RouteTests(WebApplicationFactory<Startup> factory,
-            ITestOutputHelper output)
+        public RouteTests(WebApplicationFactory<Startup> factory, ITestOutputHelper output,
+            WebApiDatabaseFixture db)
         {
             this.factory = factory;
             this.output = output;
+            this.db = db;
         }
 
         [Fact]
@@ -76,7 +79,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             // Given
             var client = factory.NewClient();
 
-            var payload = new { id = 1, longerId = 99 };
+            var payload = new { id = 1, longerId = 1 };
             var content = new StringContent(JsonConvert.SerializeObject(payload),
                 Encoding.UTF8,
                 "application/json");
@@ -88,8 +91,56 @@ namespace BusinessApp.WebApi.IntegrationTest
             await response.Success(output);
             var json = await response.Content.ReadAsStringAsync();
             Assert.Equal(
-                "{  \"longerId\": \"99\",  \"id\": 1}",
-                json.Replace(Environment.NewLine, ""));
+                "{\"longerId\":\"1\",\"id\":1}",
+                json.Replace(Environment.NewLine, "").Replace(" ", ""));
+        }
+
+        [Fact]
+        public async Task GivenARequestToSaveManyResources_WhenIsValidRequest_EchosResut()
+        {
+            // Given
+            var grouper = A.Fake<IBatchGrouper<PostOrPut.Body>>();
+            A.CallTo(() => grouper.GroupAsync(A<IEnumerable<PostOrPut.Body>>._, A<CancellationToken>._))
+                .Returns(new[]
+                {
+                    new[] { new PostOrPut.Body { Id = new EntityId(2), LongerId = 99 } },
+                    new[] { new PostOrPut.Body { Id = new EntityId(3), LongerId = 97 } },
+                    new[] { new PostOrPut.Body { Id = new EntityId(4), LongerId = 96 } },
+                    new[] { new PostOrPut.Body { Id = new EntityId(5), LongerId = 95 } },
+                    new[] { new PostOrPut.Body { Id = new EntityId(6), LongerId = 94 } },
+                });
+            var client = factory.NewClient((c, s) =>
+            {
+                c.RegisterInstance<IBatchGrouper<PostOrPut.Body>>(grouper);
+            });
+
+            var payload = new[]
+            {
+                new { id = 1, longerId = 99 },
+                new { id = 2, longerId = 97 },
+                new { id = 3, longerId = 96 },
+                new { id = 4, longerId = 95 },
+                new { id = 5, longerId = 94 },
+            };
+            var content = new StringContent(JsonConvert.SerializeObject(payload),
+                Encoding.UTF8,
+                "application/json");
+
+            // When
+            var response = await client.PostAsync("/api/resources", content);
+
+            // Then
+            await response.Success(output);
+            var json = await response.Content.ReadAsStringAsync();
+            var savedData = db.DbContext.Set<PostOrPut.Body>()
+                .Where(p => p.LongerId >= 94 && p.LongerId <= 99)
+                .ToList().OrderBy(p => p.LongerId);
+            Assert.Collection(savedData,
+                p => Assert.Equal(94, p.LongerId),
+                p => Assert.Equal(95, p.LongerId),
+                p => Assert.Equal(96, p.LongerId),
+                p => Assert.Equal(97, p.LongerId),
+                p => Assert.Equal(99, p.LongerId));
         }
 
         [Fact]

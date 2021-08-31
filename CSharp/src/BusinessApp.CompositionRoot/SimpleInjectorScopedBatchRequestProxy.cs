@@ -26,12 +26,14 @@ namespace BusinessApp.CompositionRoot
             this.factory = factory.NotNull().Expect(nameof(factory));
         }
 
-        public Task<Result<TResponse, Exception>> HandleAsync(IEnumerable<TRequest> request,
+        public async Task<Result<TResponse, Exception>> HandleAsync(IEnumerable<TRequest> request,
             CancellationToken cancelToken)
         {
             using var _ = AsyncScopedLifestyle.BeginScope(container);
+
             var inner = factory();
-            return inner.HandleAsync(request, cancelToken);
+
+            return await inner.HandleAsync(request, cancelToken);
         }
     }
 }

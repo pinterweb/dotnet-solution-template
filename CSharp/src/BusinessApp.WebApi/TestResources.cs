@@ -74,6 +74,27 @@ namespace BusinessApp.WebApi
         {
             public long LongerId { get; set; }
             public EntityId? Id { get; set; }
+
+            public override bool Equals(object unknown)
+            {
+                if (unknown is PostOrPut.Body other)
+                {
+                    return LongerId.Equals(other.LongerId);
+                }
+
+                return base.Equals(unknown);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = 17;
+                    hash = hash * 23 + LongerId.GetHashCode();
+
+                    return hash;
+                }
+            }
         }
     }
 
