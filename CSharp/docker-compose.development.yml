@@ -3,7 +3,7 @@
 version: "2.4"
 
 services:
-  $(lower_appname):
+  webapi:
     build:
       context: .
       dockerfile: Dockerfile.development
@@ -15,7 +15,6 @@ services:
         - $(upper_appname)_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}
         - $(upper_appname)_CONNECTIONSTRINGS__DBTEST=${$(upper_appname)_CONNECTIONSTRINGS__DBTEST?}
         - $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}
-        - $(upper_appname)_CONNECTIONSTRINGS__MAINFRAMEURI=${$(upper_appname)_CONNECTIONSTRINGS__MAINFRAMEURI?}
         - PROXY_IGNORE=${PROXY_IGNORE?}
     image:  projects/$(lower_appname)/webapi:dev
     command: ["./wait-for-it.sh", "$(lower_appname)db:1433", "--timeout=0",  "--", "dotnet", "run", "--project", "src/BusinessApp.WebApi/BusinessApp.WebApi.csproj", "--launch-profile", "Docker" ]
@@ -38,9 +37,9 @@ services:
       - $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}
       - no_proxy=${PROXY_IGNORE?}
     depends_on:
-      - $(lower_appname)db
+      - db
 
-  $(lower_appname)db:
+  db:
     image: "mcr.microsoft.com/mssql/server"
     environment:
       SA_PASSWORD: "${$(upper_appname)_DB__SAPASSWORD?}"
