@@ -36,27 +36,40 @@ namespace BusinessApp.Infrastructure
 
             ThrowIfInvalid(request, payloads.SelectMany(p => p));
 
-            var tasks = new List<(IEnumerable<TRequest>, Task<Result<IEnumerable<TResponse>, Exception>>)>();
+            var tasks = new List<(TRequest[], Task<Result<IEnumerable<TResponse>, Exception>>)>();
 
             foreach (var group in payloads)
             {
-                var originalRequests = request.Intersect(group);
+                var originalRequests = request.Intersect(group).ToArray();
                 tasks.Add((originalRequests, handler.HandleAsync(group, cancelToken)));
             }
 
             var _ = await Task.WhenAll(tasks.Select(s => s.Item2));
 
-            var orderedResults = new List<Result<IEnumerable<TResponse>, Exception>>();
+            var orderedResults = new List<Result<TResponse, Exception>>();
 
-            foreach (var item in request)
+            for (var i = 0; i < request.Count(); i++)
             {
-                var target = tasks.SingleOrDefault(t => t.Item1.Contains(item));
-                orderedResults.Add(target.Item2.Result);
+                var item = request.ElementAt(i);
+
+                var itemTask = tasks.Single(t => t.Item1.Contains(item));
+
+                var groupIndex = Array.IndexOf(tasks
+                    .Single(t => t.Item1.Contains(item))
+                    .Item1
+                    ,
+                    item);
+
+                var itemResult = tasks.Single(t => t.Item1.Contains(item))
+                    .Item2.Result
+                    .Map(r => r.ElementAt(groupIndex));
+
+                orderedResults.Add(itemResult);
             }
 
             return orderedResults.Any(r => r.Kind == ValueKind.Error)
                 ? Result.Error<IEnumerable<TResponse>>(BatchException.FromResults(orderedResults))
-                : Result.Ok(orderedResults.SelectMany(o => o.Unwrap()));
+                : Result.Ok(orderedResults.Select(o => o.Unwrap()));
         }
 
         private static void ThrowIfInvalid(IEnumerable<TRequest> request,

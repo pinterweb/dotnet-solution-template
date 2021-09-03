@@ -26,18 +26,15 @@ namespace BusinessApp.WebApi.ProblemDetails
             var problem = inner.Create(exception);
             var detail = problem.Detail == null ? null : localizer[problem.Detail];
 
-            var localizedProblem = new ProblemDetail(problem.StatusCode, problem.Type)
-            {
-                Detail = detail?.Value
-            };
+            problem.Detail = detail?.Value;
 
             foreach (var kvp in problem.GetExtensions())
             {
                 var extValue = TranslateExtension(kvp.Value) ?? "";
-                localizedProblem[kvp.Key] = extValue;
+                problem[kvp.Key] = extValue;
             }
 
-            return localizedProblem;
+            return problem;
         }
 
         private object? TranslateExtension(object? value) => value switch

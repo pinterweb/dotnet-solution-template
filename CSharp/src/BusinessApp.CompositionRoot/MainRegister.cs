@@ -251,8 +251,7 @@ namespace BusinessApp.CompositionRoot
             context.Container.RegisterDecorator(
                 serviceType,
                 typeof(GroupedBatchRequestDecorator<,>),
-                c => CanHandle(c)
-                    && c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
+                c => c.ImplementationType.IsTypeDefinition(typeof(AuthorizationRequestDecorator<,>)));
 #endif
 
 #if DEBUG
