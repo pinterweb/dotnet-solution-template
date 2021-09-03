@@ -1,0 +1,40 @@
+version: "2.4"
+
+services:
+  dotnet-sln-template:
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+      args:
+        - USER__CA_CERT=${USER__CA_CERT?}
+        - CONTAINER__EXTRA_DEPS=${CONTAINER__EXTRA_DEPS}
+        - ASPNETCORE_ENVIRONMENT=Development
+        - ASPNETCORE_URLS=${ASPNETCORE_URLS?}
+    image:  projects/dotnet-sln-template:dev
+    command: ["./wait-for-it.sh", "businessappdb:1433", "--timeout=0",  "--", "dotnet", "run", "--project", "CSharp/src/BusinessApp.WebApi/BusinessApp.WebApi.csproj", "--launch-profile", "Docker" ]
+    volumes:
+      - .:/home/dotnet/dotnet-sln-template
+      - ${HOME}/.vim:/home/dotnet/.vim
+      - ${HOME}/.nuget:/home/dotnet/.nuget
+      - ${HOME}/.gitconfig:/home/dotnet/.gitconfig
+      - ${HOME}/.git_template:/home/dotnet/.git_template
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      - TERM=xterm-256color
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS?}
+      - BUSINESSAPP_CONNECTIONSTRINGS__MAIN=${BUSINESSAPP_TEST_CONNECTIONSTRINGS__MAIN?}
+      - BUSINESSAPP_CONNECTIONSTRINGS__DBTEST=${BUSINESSAPP_CONNECTIONSTRINGS__DBTEST?}
+      - BUSINESSAPP_TEST_CONNECTIONSTRINGS__MAIN=${BUSINESSAPP_TEST_CONNECTIONSTRINGS__MAIN?}
+    depends_on:
+      - businessappdb
+
+  businessappdb:
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+      SA_PASSWORD: "${BUSINESSAPP_DB__SAPASSWORD?}"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "${BUSINESSAPP_DB__PORT?}:1433"

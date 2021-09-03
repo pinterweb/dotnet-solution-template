@@ -1,18 +1,45 @@
+# Docker file for development, creates and image that can be run by other apps too
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0-focal AS build
 
 ARG USER__CA_CERT
 ARG CONTAINER__EXTRA_DEPS
-
-RUN apt-get update && apt-get install -y ca-certificates $CONTAINER__EXTRA_DEPS
-COPY ./$USER__CA_CERT /usr/local/share/ca-certificates/
-RUN update-ca-certificates
-
-RUN useradd -ms /bin/bash dotnet
-
-WORKDIR /home/dotnet/$(lower_appname)
+ARG ASPNETCORE_ENVIRONMENT=Development
+ARG ASPNETCORE_URLS
+ARG $(upper_appname)_CONNECTIONSTRINGS__MAIN
+ARG $(upper_appname)_CONNECTIONSTRINGS__DBTEST
+ARG $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN
+ARG $(upper_appname)_CONNECTIONSTRINGS__MAINFRAMEURI
+ARG PROXY_IGNORE
 
 EXPOSE 5000
 EXPOSE 5001
 
+RUN useradd -ms /bin/bash dotnet
+
+COPY ./$USER__CA_CERT /usr/local/share/ca-certificates/
+RUN apt-get update && apt-get install -y ca-certificates $CONTAINER__EXTRA_DEPS
+RUN update-ca-certificates
+
+RUN wget -qO- https://raw.githubusercontent.com/Microsoft/artifacts-credprovider/master/helpers/installcredprovider.sh | bash
+WORKDIR /home/dotnet/$(lower_appname)
+COPY --chown=dotnet:dotnet ./ .
+
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_URLS=${ASPNETCORE_URLS}
+ENV $(upper_appname)_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_CONNECTIONSTRINGS__MAIN}
+ENV $(upper_appname)_CONNECTIONSTRINGS__DBTEST=${$(upper_appname)_CONNECTIONSTRINGS__DBTEST}
+ENV $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN}
+ENV $(upper_appname)_CONNECTIONSTRINGS__MAINFRAMEURI=${$(upper_appname)_CONNECTIONSTRINGS__MAINFRAMEURI}
+ENV no_proxy=${PROXY_IGNORE}
+
+RUN dotnet restore ./src
+
+RUN dotnet publish ./src --configuration Release --no-restore --output dist
+
+RUN chown -R dotnet:dotnet /tmp/NuGetScratch/
 USER dotnet
-CMD ["dotnet"]
+RUN chmod +x wait-for-it.sh
+RUN dotnet dev-certs https --trust
+
+CMD cd dist && dotnet BusinessApp.WebApi.dll

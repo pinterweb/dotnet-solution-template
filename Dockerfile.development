@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0-focal AS build
+
+ARG USER__CA_CERT
+ARG CONTAINER__EXTRA_DEPS
+ARG ASPNETCORE_ENVIRONMENT=Development
+ARG ASPNETCORE_URLS
+
+EXPOSE 5000
+EXPOSE 5001
+
+ENV ASPNETCORE_URLS=${ASPNETCORE_URLS}
+
+COPY ./$USER__CA_CERT /usr/local/share/ca-certificates/
+RUN apt-get update && apt-get install -y ca-certificates $CONTAINER__EXTRA_DEPS
+RUN update-ca-certificates
+
+RUN useradd -ms /bin/bash dotnet
+
+WORKDIR /home/dotnet/dotnet-sln-template
+USER dotnet
+RUN dotnet dev-certs https --trust
+
+CMD ["dotnet", "run", "--project", "./CSharp/src/BusinessApp.WebApi/BusinessApp.WebApi.csproj"]

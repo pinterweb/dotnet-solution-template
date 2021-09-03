@@ -7,6 +7,7 @@
 *.userosscache
 *.sln.docstates
 *.gen.cs
+.env
 
 # Security
 *.snk
@@ -24,6 +25,7 @@ x86/
 build/
 bld/
 [Bb]in/
+[Dd]ist/
 [Oo]bj/
 Help/
 *.boltdata/
