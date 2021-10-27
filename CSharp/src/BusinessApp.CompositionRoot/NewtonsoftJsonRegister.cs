@@ -27,12 +27,10 @@ namespace BusinessApp.CompositionRoot
                 new JsonSerializerSettings
                 {
                     ContractResolver = new CamelCasePropertyNamesContractResolver(),
-
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 //#if DEBUG
                     Formatting = Formatting.Indented,
 //#endif
-
                     Converters = new JsonConverter[]
                     {
                         new NewtonsoftEntityIdJsonConverter(),

@@ -26,7 +26,6 @@ namespace BusinessApp.WebApi.ProblemDetails
             {
                 StatusCodeException s => CreateOptionsFromStatusCode(s),
                 _ => CreateDefaultOptions(error)
-
             };
 
             if (options.TryGetValue(option, out var actualValue))
@@ -85,7 +84,7 @@ namespace BusinessApp.WebApi.ProblemDetails
         }
 
 #if DEBUG
-        private ProblemDetail CreateCompositeProblem(BatchException errors)
+        private CompositeProblemDetail CreateCompositeProblem(BatchException errors)
         {
             var responses = errors
                 .Select(r =>
@@ -95,14 +94,14 @@ namespace BusinessApp.WebApi.ProblemDetails
                     )
                 );
 
-            return new CompositeProblemDetail(responses)
+            return new(responses)
             {
                 Detail = "The request partially succeeded. Please review the errors before " +
                     "continuing"
             };
         }
 #elif hasbatch
-        private ProblemDetail CreateCompositeProblem(BatchException errors)
+        private CompositeProblemDetail CreateCompositeProblem(BatchException errors)
         {
             var responses = errors
                 .Select(r =>
@@ -112,7 +111,7 @@ namespace BusinessApp.WebApi.ProblemDetails
                     )
                 );
 
-            return new CompositeProblemDetail(responses)
+            return new(responses)
             {
                 Detail = "The request partially succeeded. Please review the errors before " +
                     "continuing"

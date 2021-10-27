@@ -48,7 +48,22 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         public class Create : LocalizedProblemDetailFactoryTests
         {
             [Fact]
-            public void NoDetailProp_TranslationCalled()
+            public void InnerProblemReturned()
+            {
+                /* Arrange */
+                var exception = A.Dummy<Exception>();
+                var problem = new ProblemDetail(400);
+                A.CallTo(() => inner.Create(exception)).Returns(problem);
+
+                /* Act */
+                var localizedProblem = sut.Create(exception);
+
+                /* Assert */
+                Assert.Same(localizedProblem, problem);
+            }
+
+            [Fact]
+            public void NoDetailProp_TranslationNotCalled()
             {
                 /* Arrange */
                 var exception = A.Dummy<Exception>();
@@ -64,7 +79,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void DetailProp_TranslationCalled()
+            public void HasDetailProp_TranslationCalled()
             {
                 /* Arrange */
                 var exception = A.Dummy<Exception>();
@@ -122,7 +137,6 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 A.CallTo(() => localizer[null]).MustNotHaveHappened();
                 Assert.Equal("", localizedProblem["foo"]);
             }
-
 
             [Fact]
             public void StringExtension_TranslationCalled()

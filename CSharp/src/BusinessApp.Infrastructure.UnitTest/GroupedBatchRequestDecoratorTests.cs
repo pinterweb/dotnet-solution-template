@@ -165,7 +165,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                     var ex = Assert.IsType<BatchException>(results.UnwrapError());
                     Assert.Collection(ex,
                         r => Assert.Equal(Result.Error<object>(errorException), r),
-                        r => Assert.Equal(Result.Ok<object>(ok.Unwrap()), r),
+                        r => Assert.Equal(Result.Ok<object>(commands.ElementAt(1)), r),
                         r => Assert.Equal(Result.Error<object>(errorException), r)
                     );
                 }
@@ -189,6 +189,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var result1 = new[]
                 {
                     new CommandStub(),
+                    new CommandStub(),
                 };
                 var result2 = new[]
                 {
@@ -209,7 +210,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 Assert.Collection(results.Unwrap(),
                     v => Assert.Same(result1.First(), v),
                     v => Assert.Same(result2.First(), v),
-                    v => Assert.Same(result1.First(), v)
+                    v => Assert.Same(result1.Last(), v)
                 );
             }
         }
