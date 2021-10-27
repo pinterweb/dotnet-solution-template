@@ -25,7 +25,8 @@ namespace BusinessApp.WebApi.Json
 
             if (problem is CompositeProblemDetail c)
             {
-                problem["Responses"] = c.Responses.Select(i => i.ToDictionary(k => k.Key, v => v.Value));
+                problem["Responses"] = c.Responses
+                    .Select(i => i.ToDictionary(k => k.Key, v => v.Value));
             }
 
             return problem;

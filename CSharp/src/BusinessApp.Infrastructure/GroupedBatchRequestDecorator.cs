@@ -57,8 +57,7 @@ namespace BusinessApp.Infrastructure
                 var groupIndex = Array.IndexOf(tasks
                     .Single(t => t.Item1.Contains(item))
                     .Item1
-                    ,
-                    item);
+                    , item);
 
                 var itemResult = tasks.Single(t => t.Item1.Contains(item))
                     .Item2.Result
