@@ -3,7 +3,7 @@ using BusinessApp.CompositionRoot;
 using BusinessApp.WebApi.ProblemDetails;
 using SimpleInjector;
 
-namespace BusinessApp.WebApi
+namespace BusinessApp.WebApi.ServiceRegistrations
 {
     /// <summary>
     /// Main web api service register

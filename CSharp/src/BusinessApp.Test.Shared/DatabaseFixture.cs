@@ -6,6 +6,7 @@ using BusinessApp.Infrastructure.Persistence;
 using Microsoft.Extensions.Configuration;
 using BusinessApp.WebApi;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Threading;
 
 namespace BusinessApp.Test.Shared
 {
@@ -19,6 +20,8 @@ namespace BusinessApp.Test.Shared
                         && level == LogLevel.Information)
                     .AddConsole()
                     .AddDebug());
+
+        protected event Action<BusinessAppDbContext> DatabaseMigrated = delegate { };
 
         private readonly BusinessAppDbContext realDb;
 
@@ -42,6 +45,8 @@ namespace BusinessApp.Test.Shared
             DbContext = new BusinessAppTestDbContext(realDb, options);
 
             DbContext.Database.Migrate();
+
+            Volatile.Read(ref DatabaseMigrated).Invoke(DbContext);
         }
 
         public BusinessAppDbContext DbContext { get; }

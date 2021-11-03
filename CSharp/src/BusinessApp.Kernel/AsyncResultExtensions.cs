@@ -60,7 +60,7 @@ namespace BusinessApp.Kernel
         /// </summary>
         /// <remarks>
         /// Can be used to run side effect functions
-        /// </summary>
+        /// </remarks>
         public static async Task<Result<TIn, TErr>> OrElseRunAsync<TIn, TErr>(
             this Task<Result<TIn, TErr>> source, Func<TErr, Task> next)
         {
@@ -84,7 +84,7 @@ namespace BusinessApp.Kernel
         /// </summary>
         /// <remarks>
         /// Can be used to run side effect functions
-        /// </summary>
+        /// </remarks>
         public static async Task<Result<TIn, TErr>> OrElseRunAsync<TIn, TErr>(
             this Task<Result<TIn, TErr>> source, Action<TErr> next)
         {
@@ -142,7 +142,7 @@ namespace BusinessApp.Kernel
         /// </summary>
         /// <remarks>
         /// Can be used to run side effect functions
-        /// </summary>
+        /// </remarks>
         public static async Task<Result<TIn, TErr>> AndThenRunAsync<TIn, TErr>(
             this Task<Result<TIn, TErr>> source, Func<TIn, Task> next)
         {
@@ -152,6 +152,30 @@ namespace BusinessApp.Kernel
             {
                 case ValueKind.Ok:
                     await next(result.Unwrap());
+                    return result;
+                case ValueKind.Error:
+                    return result;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Awaits the result and runs the next action/computation on success,
+        /// returning the original result passed in
+        /// </summary>
+        /// <remarks>
+        /// Can be used to run side effect functions
+        /// </remarks>
+        public static async Task<Result<TIn, TErr>> AndThenRunAsync<TIn, TErr>(
+            this Task<Result<TIn, TErr>> source, Action<TIn> next)
+        {
+            var result = await source;
+
+            switch (result.Kind)
+            {
+                case ValueKind.Ok:
+                    next(result.Unwrap());
                     return result;
                 case ValueKind.Error:
                     return result;

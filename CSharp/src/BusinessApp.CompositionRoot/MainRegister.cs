@@ -295,8 +295,6 @@ namespace BusinessApp.CompositionRoot
             => !context.Handled
                 && context.HasConsumer
                 && context.Consumer.ImplementationType != context.ImplementationType;
-
-
 #if DEBUG
         private void RegisterValidators(Container container)
         {
@@ -385,10 +383,17 @@ namespace BusinessApp.CompositionRoot
 
             var handlers = RegisterConcreteHandlers();
 
-            bool HasConcereteType(Type type)
+            bool HasConcereteType(Type serviceType)
             {
-                return container.GetRootRegistrations()
-                    .Any(reg => reg.ServiceType.GetInterfaces().Any(i => i == type));
+                return container.GetTypesToRegister(serviceType,
+                    options.RegistrationAssemblies,
+                    new TypesToRegisterOptions
+                    {
+                        IncludeDecorators = false,
+                        IncludeGenericTypeDefinitions = false,
+                        IncludeComposites = false
+                    })
+                    .Any(type => type.GetInterfaces().Any(i => i == serviceType));
             }
 
             Type? CreateRequestHandler(TypeFactoryContext c)
@@ -490,7 +495,11 @@ namespace BusinessApp.CompositionRoot
 #endif
         private void RegisterPostCommitHandlers(Container container)
         {
-            container.Collection.Register(typeof(IPostCommitHandler<,>), options.RegistrationAssemblies);
+            container.Collection.Register(typeof(IPostCommitHandler<,>),
+                options.RegistrationAssemblies);
+
+            container.Collection.Append(typeof(IPostCommitHandler<,>),
+                typeof(BatchPostCommitAdapter<,>));
 
             container.Register(typeof(IPostCommitHandler<,>),
                 typeof(CompositePostCommitHandler<,>),

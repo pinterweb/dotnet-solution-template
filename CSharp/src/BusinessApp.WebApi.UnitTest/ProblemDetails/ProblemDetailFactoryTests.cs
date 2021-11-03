@@ -12,7 +12,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
     public class ProblemDetailFactoryTests
     {
         private readonly HashSet<ProblemDetailOptions> options;
-        public readonly ProblemDetailFactory sut;
+        private readonly ProblemDetailFactory sut;
 
         public ProblemDetailFactoryTests()
         {
@@ -393,6 +393,29 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                     p => Assert.Equal("bar", p["foo"])
                 );
             }
+
+            [Fact]
+            public void BatchException_OkResultHaveOriginalData()
+            {
+                /* Arrange */
+                var innerError = new ProblemTypeExceptionStub();
+                var dummyResponse = A.Dummy<QueryStub>();
+                innerError.Data.Add("foo", "bar");
+                var results = new[]
+                {
+                    Result.Ok(dummyResponse),
+                    Result.Error<QueryStub>(innerError)
+                };
+                var error = BatchException.FromResults(results);
+
+                /* Act */
+                var problem = sut.Create(error);
+
+                /* Assert */
+                var problems = Assert.IsType<CompositeProblemDetail>(problem);
+                Assert.Same(dummyResponse, problems.Responses.First()["Data"]);
+            }
+
 
             [Theory]
             [InlineData(1)]

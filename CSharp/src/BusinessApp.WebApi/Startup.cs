@@ -18,6 +18,8 @@ using BusinessApp.Infrastructure.Persistence;
 using Microsoft.Extensions.Logging;
 using BusinessApp.CompositionRoot;
 using BusinessApp.Infrastructure;
+using System.Collections.Generic;
+using System;
 #if winauth
 using Microsoft.AspNetCore.Authentication.Negotiate;
 #elif winauth
@@ -116,7 +118,11 @@ namespace BusinessApp.WebApi
 #endif
             var options = CreateRegistrationOptions();
 
-            Bootstrapper.RegisterServices(container, options, loggerFactory, configuration);
+            Bootstrapper.RegisterServices(container, options, new Dictionary<Type, object>
+            {
+                { typeof(ILoggerFactory), loggerFactory  },
+                { typeof(IConfiguration), configuration  },
+            });
 
             container.Collection.Register<IStartupConfiguration>(
                 new[] { typeof(Startup).Assembly },

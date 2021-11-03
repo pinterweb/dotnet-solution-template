@@ -1,18 +1,45 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0-focal AS build
 
-ARG USER__CA_CERT
-ARG CONTAINER__EXTRA_DEPS
-
-RUN apt-get update && apt-get install -y ca-certificates $CONTAINER__EXTRA_DEPS
-COPY ./$USER__CA_CERT /usr/local/share/ca-certificates/
-RUN update-ca-certificates
-
-RUN useradd -ms /bin/bash dotnet
-
-WORKDIR /home/dotnet/$(lower_appname)
-
 EXPOSE 5000
 EXPOSE 5001
 
+RUN groupadd --gid 1000 dotnet \
+    && useradd --uid 1000 --gid dotnet --shell /bin/bash --create-home dotnet
+
+ARG USER__CA_CERT
+ARG CONTAINER__EXTRA_DEPS
+COPY ./${USER__CA_CERT} /usr/local/share/ca-certificates/
+RUN apt-get update && apt-get install -y ca-certificates ${CONTAINER__EXTRA_DEPS}
+RUN update-ca-certificates
+
+WORKDIR /home/dotnet/app
+COPY --chown=dotnet:dotnet ./ .
+
+RUN dotnet restore ./src
+RUN dotnet build ./src
+RUN chown -R dotnet:dotnet /tmp/NuGetScratch/
+RUN chmod u+x wait-for-it.sh
+
+ARG ARG_ASPNETCORE_ENVIRONMENT
+ARG ARG_ASPNETCORE_URLS
+ARG $(upper_appname)_CONNECTIONSTRINGS__MAIN
+ARG $(upper_appname)_CONNECTIONSTRINGS__DBTEST
+ARG $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN
+ARG ARG_NO_PROXY
+ENV ASPNETCORE_ENVIRONMENT=${ARG_ASPNETCORE_ENVIRONMENT}
+ENV ASPNETCORE_URLS=${ARG_ASPNETCORE_URLS}
+ENV $(upper_appname)_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_CONNECTIONSTRINGS__MAIN}
+ENV $(upper_appname)_CONNECTIONSTRINGS__DBTEST=${(upper_appname)_CONNECTIONSTRINGS__DBTEST}
+ENV $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN}
+ENV no_proxy=${ARG_NO_PROXY}
+
+ARG WEB_PROJECT_NAME
+WORKDIR ./src/${WEB_PROJECT_NAME}
+RUN dotnet publish --configuration Release --no-build --output /home/dotnet/dist
+RUN chown -R dotnet:dotnet /home/dotnet/app
+
 USER dotnet
-CMD ["dotnet"]
+RUN dotnet dev-certs https --trust
+
+WORKDIR /home/dotnet/dist
+CMD dotnet ${WEB_PROJECT_NAME}.dll

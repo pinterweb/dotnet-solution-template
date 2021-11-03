@@ -7,15 +7,14 @@ namespace BusinessApp.Infrastructure
     /// <summary>
     /// Consolidate batch requests into units of work
     /// </summary>
-    public interface IBatchGrouper<TCommand>
-        where TCommand : notnull
+    public interface IBatchGrouper<TRequest> where TRequest : notnull
     {
         /// <summary>
-        /// Groups the <paramref name="commands"/>
+        /// Groups the <paramref name="requests"/>
         /// </summary>
-        /// <param name="commands">The commands to group</param>
-        /// <returns>The new grouped commands</returns>
-        Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(IEnumerable<TCommand> commands,
+        /// <param name="requests">The requests to group</param>
+        /// <returns>The new grouped requests</returns>
+        Task<IEnumerable<IEnumerable<TRequest>>> GroupAsync(IEnumerable<TRequest> requests,
             CancellationToken cancelToken);
     }
 }

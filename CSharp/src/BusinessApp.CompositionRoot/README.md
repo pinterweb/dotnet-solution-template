@@ -1,9 +1,10 @@
 # BusinessApp.CompositionRoot
 > Service Registration
 
-_Depends on API, Kernel and Infrastructure projects_
 //#if efcore
 _Depends on API, Kernel Entity Framework and Infrastructure projects_
+//#else
+_Depends on API, Kernel and Infrastructure projects_
 //#endif
 
 The purpose of this project is to register all your services from an application

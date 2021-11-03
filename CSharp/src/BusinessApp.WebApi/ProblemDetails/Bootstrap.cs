@@ -37,12 +37,6 @@ namespace BusinessApp.WebApi.ProblemDetails
                 MessageOverride = "One of your data fields was not in the correct format " +
                     "and was rejected. Please check your data before resubmtting"
             },
-            new ProblemDetailOptions(typeof(InvalidOperationException), StatusCodes.Status400BadRequest)
-            {
-                MessageOverride =
-                    "Your request was rejected because of bad data. Please review your " +
-                    "request before resubmission."
-            },
             new ProblemDetailOptions(typeof(ModelValidationException), StatusCodes.Status400BadRequest),
             new ProblemDetailOptions(typeof(SecurityException), StatusCodes.Status403Forbidden)
             {

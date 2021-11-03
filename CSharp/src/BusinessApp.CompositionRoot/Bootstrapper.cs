@@ -1,8 +1,8 @@
 using System.Linq;
 using BusinessApp.Infrastructure;
-using Microsoft.Extensions.Logging;
 using SimpleInjector;
-using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System;
 
 namespace BusinessApp.CompositionRoot
 {
@@ -12,9 +12,9 @@ namespace BusinessApp.CompositionRoot
     public static class Bootstrapper
     {
         public static void RegisterServices(Container container, RegistrationOptions options,
-            ILoggerFactory loggerFactory, IConfiguration configuration)
+            IDictionary<Type, object> bootstrapServices)
         {
-            var bootstrapContainer = SetupBootstrapContainer(options, loggerFactory, configuration);
+            var bootstrapContainer = SetupBootstrapContainer(options, bootstrapServices);
 
             RegisterBootstrapDecorators(bootstrapContainer, options);
 
@@ -33,14 +33,17 @@ namespace BusinessApp.CompositionRoot
         }
 
         private static Container SetupBootstrapContainer(RegistrationOptions options,
-            ILoggerFactory loggerFactory, IConfiguration configuration)
+            IDictionary<Type, object> bootstrapServices)
         {
             var bootstrapContainer = new Container();
 
             bootstrapContainer.Register<IBootstrapRegister, MainRegister>();
             bootstrapContainer.RegisterInstance(options);
-            bootstrapContainer.RegisterInstance(loggerFactory);
-            bootstrapContainer.RegisterInstance(configuration);
+
+            foreach (var svc in bootstrapServices)
+            {
+                bootstrapContainer.RegisterInstance(svc.Key, svc.Value);
+            }
 
             return bootstrapContainer;
         }

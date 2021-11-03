@@ -32,7 +32,6 @@ namespace BusinessApp.WebApi.ProblemDetails
             {
                 option = actualValue;
             }
-
 #if DEBUG
             return exception is BatchException f
                 ? CreateCompositeProblem(f)
@@ -82,7 +81,6 @@ namespace BusinessApp.WebApi.ProblemDetails
 
             return problem;
         }
-
 #if DEBUG
         private CompositeProblemDetail CreateCompositeProblem(BatchException errors)
         {
@@ -91,6 +89,9 @@ namespace BusinessApp.WebApi.ProblemDetails
                     r.MapOrElse(
                         err => Create(err),
                         ok => new ProblemDetail(StatusCodes.Status200OK)
+                        {
+                            { "Data", ok }
+                        }
                     )
                 );
 
@@ -108,6 +109,9 @@ namespace BusinessApp.WebApi.ProblemDetails
                     r.MapOrElse(
                         err => Create(err),
                         ok => new ProblemDetail(StatusCodes.Status200OK)
+                        {
+                            { "Data", ok }
+                        }
                     )
                 );
 

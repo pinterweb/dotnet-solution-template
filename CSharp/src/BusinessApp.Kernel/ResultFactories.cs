@@ -10,11 +10,11 @@ namespace BusinessApp.Kernel
     [DebuggerStepThrough]
     public static partial class ResultFactories
     {
-        public static Result<T, string> NotNull<T>(this T value) => value == null
+        public static Result<T, string> NotNull<T>(this T? value) => value == null
             ? Result<T, string>.Error("Value cannot be null")
             : Result<T, string>.Ok(value);
 
-        public static Result<string, string> NotEmpty(this string value)
+        public static Result<string, string> NotEmpty(this string? value)
         {
             var nullResult = value.NotNull();
 

@@ -1,23 +1,28 @@
 ﻿using Xunit;
 using SimpleInjector;
+using Microsoft.AspNetCore.Hosting;
 using FakeItEasy;
 using System.Linq;
 using BusinessApp.Infrastructure;
 using BusinessApp.Test.Shared;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System;
 using SimpleInjector.Lifestyles;
 using BusinessApp.Kernel;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using BusinessApp.WebApi.Json;
 using Microsoft.Extensions.Localization;
 using BusinessApp.CompositionRoot;
 #if DEBUG
 using BusinessApp.Infrastructure.Persistence;
-#elif efcore
+#else
+#if efcore
 using BusinessApp.Infrastructure.Persistence;
+#endif
 #endif
 
 namespace BusinessApp.WebApi.IntegrationTest
@@ -26,23 +31,11 @@ namespace BusinessApp.WebApi.IntegrationTest
     {
         private readonly Container container;
         private readonly Scope scope;
-        private readonly IConfiguration config;
 
         public ServiceRegistrationsTests()
         {
-            config = (IConfiguration)Program.CreateHostBuilder(new string[0])
-                .ConfigureAppConfiguration((hostBuilder, configBuilder) =>
-                {
-                    _ = configBuilder
-                        .AddJsonFile("appsettings.test.json")
-                        .AddEnvironmentVariables(prefix: "BusinessApp_");
-                })
-                .Build()
-                .Services
-                .GetService(typeof(IConfiguration));
-
-            container = Startup.ConfigureContainer();
-            scope = AsyncScopedLifestyle.BeginScope(container);
+            container = new Container();
+            scope = container.CreateScope();
         }
 
         public void Dispose() => scope.Dispose();
@@ -56,7 +49,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             container.RegisterInstance(A.Fake<IBatchMacro<MacroStub, CommandStub>>());
             container.RegisterInstance(A.Fake<IBatchMacro<NoHandlerMacroStub, NoHandlerCommandStub>>());
 #endif
-            container.CreateRegistrations(config, envName);
+            container.CreateRegistrations(envName);
         }
 
         public class RequestHandlers : ServiceRegistrationsTests
@@ -137,7 +130,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Equal(
                         expectedServices,
@@ -152,7 +145,13 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
-                         typeof(IEvent));
+#if DEBUG
+                        typeof(IEvent));
+#elif events
+                        typeof(IEvent));
+#else
+                        typeof(ResponseStub));
+#endif
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     Type MakeSvcGenericType(Type type)
@@ -192,11 +191,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     /* Arrange */
                     var hateoasType = typeof(HateoasLink<,>).MakeGenericType(
                         serviceType.GetGenericArguments()[0],
-#if events
-                        typeof(IEvent));
-#else
                         typeof(ResponseStub));
-#endif
                     var hateoasImplType = typeof(Dictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     var hateoasSvcType = typeof(IDictionary<,>).MakeGenericType(typeof(Type), hateoasType);
                     container.RegisterInstance(hateoasSvcType, Activator.CreateInstance(hateoasImplType));
@@ -247,7 +242,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Collection(handlers,
                           implType => Assert.Equal(
@@ -286,7 +281,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Collection(handlers,
                           implType => Assert.Equal(
@@ -331,7 +326,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Collection(handlers,
                         implType => Assert.Equal(
@@ -373,7 +368,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Collection(handlers,
                         implType => Assert.Equal(
@@ -421,7 +416,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Collection(handlers,
                         implType => Assert.Equal(
@@ -460,7 +455,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(serviceType);
+                    var handlers = GetServiceGraph(serviceType);
 
                     Assert.Collection(handlers,
                         implType => Assert.Equal(
@@ -508,7 +503,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                         typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>));
 
@@ -561,7 +556,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                         typeof(IRequestHandler<CommandStub, CompositeEventStub>));
 
@@ -617,7 +612,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         typeof(IRequestHandler<CommandStub, CommandStub>));
 
@@ -673,7 +668,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                         typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>));
 
@@ -733,7 +728,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                         typeof(IRequestHandler<CommandStub, CompositeEventStub>));
 
@@ -796,7 +791,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         typeof(IRequestHandler<CommandStub, CommandStub>));
 
@@ -860,7 +855,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
                         typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                         typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>));
@@ -927,7 +922,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<NoHandlerMacroStub, IEnumerable<NoHandlerCommandStub>>),
                         typeof(IRequestHandler<IEnumerable<NoHandlerCommandStub>, IEnumerable<NoHandlerCommandStub>>),
                         typeof(IRequestHandler<NoHandlerCommandStub, NoHandlerCommandStub>));
@@ -1001,7 +996,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<MacroStub, IEnumerable<CompositeEventStub>>),
                         typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CompositeEventStub>>),
                         typeof(IRequestHandler<CommandStub, CompositeEventStub>));
@@ -1079,7 +1074,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<MacroStub, IEnumerable<CommandStub>>),
                         typeof(IRequestHandler<IEnumerable<CommandStub>, IEnumerable<CommandStub>>),
                         typeof(IRequestHandler<CommandStub, CommandStub>));
@@ -1157,7 +1152,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(typeof(IRequestHandler<QueryStub, ResponseStub>));
+                    var handlers = GetServiceGraph(typeof(IRequestHandler<QueryStub, ResponseStub>));
 
                     Assert.Collection(handlers,
                         implType => Assert.Equal(
@@ -1199,7 +1194,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(typeof(IRequestHandler<QueryStub, ResponseStub>));
+                    var handlers = GetServiceGraph(typeof(IRequestHandler<QueryStub, ResponseStub>));
 
                     Assert.Collection(handlers,
                         implType => Assert.Equal(
@@ -1247,7 +1242,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>),
                         typeof(IRequestHandler<UnregisteredQuery, IEnumerable<UnregisteredQuery>>));
 
@@ -1294,7 +1289,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<UnregisteredQuery, UnregisteredQuery>),
                         typeof(IRequestHandler<UnregisteredQuery, IEnumerable<UnregisteredQuery>>));
 
@@ -1353,7 +1348,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<UnregisteredQuery, EnvelopeContract<UnregisteredQuery>>));
 
                     Assert.Collection(handlers,
@@ -1396,7 +1391,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                     var _ = container.GetInstance(serviceType);
 
                     /* Assert */
-                    var handlers = container.GetServiceGraph(
+                    var handlers = GetServiceGraph(
                         typeof(IRequestHandler<UnregisteredQuery, EnvelopeContract<UnregisteredQuery>>));
 
                     Assert.Collection(handlers,
@@ -1454,7 +1449,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 var _ = container.GetInstance(serviceType);
 
                 /* Assert */
-                var handlers = container.GetServiceGraph(serviceType);
+                var handlers = GetServiceGraph(serviceType);
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
@@ -1491,7 +1486,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 var _ = container.GetInstance(serviceType);
 
                 /* Assert */
-                var handlers = container.GetServiceGraph(serviceType);
+                var handlers = GetServiceGraph(serviceType);
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
@@ -1532,7 +1527,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 var _ = container.GetInstance(serviceType);
 
                 /* Assert */
-                var handlers = container.GetServiceGraph(serviceType);
+                var handlers = GetServiceGraph(serviceType);
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
@@ -1577,7 +1572,7 @@ namespace BusinessApp.WebApi.IntegrationTest
                 var _ = container.GetInstance(serviceType);
 
                 /* Assert */
-                var handlers = container.GetServiceGraph(serviceType);
+                var handlers = GetServiceGraph(serviceType);
 
                 Assert.Collection(handlers,
                     implType => Assert.Equal(
@@ -1860,6 +1855,18 @@ namespace BusinessApp.WebApi.IntegrationTest
             private sealed class LocalizedCommand {  }
         }
 
+        private IEnumerable<Type> GetServiceGraph(params Type[] serviceTypes)
+        {
+            var firstType = container.GetRegistration(serviceTypes.First());
+
+            return firstType
+                .GetDependencies()
+                .Where(i => serviceTypes.Any(st => st.IsAssignableFrom(i.ServiceType)))
+                .Prepend(firstType)
+                .Select(ip => ip.Registration.ImplementationType)
+                .Where(t => t.IsVisible);
+        }
+
 #if DEBUG
         public sealed class CommandHandlerEventStub : IRequestHandler<CommandStub, CompositeEventStub>
         {
@@ -1900,6 +1907,7 @@ namespace BusinessApp.WebApi.IntegrationTest
         public sealed class NoHandlerCommandStub { }
 
         public sealed class CommandStub { }
+
 #if DEBUG
         public sealed class CompositeEventStub : ICompositeEvent
         {
@@ -1911,6 +1919,7 @@ namespace BusinessApp.WebApi.IntegrationTest
             public IEnumerable<IEvent> Events { get; set; }
         }
 #endif
+
 #if DEBUG
         public sealed class MacroStub : IMacro<CommandStub> { }
 
@@ -1922,6 +1931,7 @@ namespace BusinessApp.WebApi.IntegrationTest
         public sealed class NoHandlerMacroStub : IMacro<NoHandlerCommandStub> { }
 #endif
 #endif
+
         public sealed class UnregisteredQuery : Query
         {
             public override IEnumerable<string> Sort { get; set; }

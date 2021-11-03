@@ -89,7 +89,6 @@ namespace BusinessApp.Test.Shared
             modelBuilder.Entity<AggregateRootStub>();
 
             base.OnModelCreating(modelBuilder);
-
 #if DEBUG
             modelBuilder.ApplyConfiguration(new DeleteEventConfiguration());
 #elif events
@@ -98,7 +97,6 @@ namespace BusinessApp.Test.Shared
 
             modelBuilder.ApplyConfiguration<Delete.Query>(new DeleteQueryConfiguration());
             modelBuilder.ApplyConfiguration<PostOrPut.Body>(new PostOrPutBodyConfiguration());
-
 #if DEBUG
             modelBuilder.ApplyConfiguration<Metadata<Delete.Query>>(new DeleteQueryConfiguration());
             modelBuilder.ApplyConfiguration<Metadata<PostOrPut.Body>>(new PostOrPutBodyConfiguration());
@@ -107,7 +105,6 @@ namespace BusinessApp.Test.Shared
             modelBuilder.ApplyConfiguration<Metadata<PostOrPut.Body>>(new PostOrPutBodyConfiguration());
 #endif
         }
-
 #if DEBUG
         private class DeleteEventConfiguration : EventMetadataEntityConfiguration<Delete.WebDomainEvent>
         {

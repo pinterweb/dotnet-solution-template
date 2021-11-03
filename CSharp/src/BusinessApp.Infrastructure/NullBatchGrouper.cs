@@ -5,15 +5,15 @@ using System.Threading.Tasks;
 namespace BusinessApp.Infrastructure
 {
     /// <summary>
-    /// Null pattern that does not group the commands
+    /// Null pattern that does not group the requests
     /// </summary>
-    public class NullBatchGrouper<TCommand> : IBatchGrouper<TCommand>
-        where TCommand : notnull
+    public class NullBatchGrouper<TRequest> : IBatchGrouper<TRequest>
+        where TRequest : notnull
     {
-        public Task<IEnumerable<IEnumerable<TCommand>>> GroupAsync(IEnumerable<TCommand> commands,
+        public Task<IEnumerable<IEnumerable<TRequest>>> GroupAsync(IEnumerable<TRequest> requests,
             CancellationToken cancelToken)
         {
-            IEnumerable<IEnumerable<TCommand>> onlyGroup = new IEnumerable<TCommand>[1] { commands };
+            IEnumerable<IEnumerable<TRequest>> onlyGroup = new IEnumerable<TRequest>[1] { requests };
 
             return Task.FromResult(onlyGroup);
         }

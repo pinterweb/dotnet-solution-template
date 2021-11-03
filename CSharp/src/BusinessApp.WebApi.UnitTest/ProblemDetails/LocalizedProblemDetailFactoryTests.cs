@@ -48,21 +48,6 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
         public class Create : LocalizedProblemDetailFactoryTests
         {
             [Fact]
-            public void InnerProblemReturned()
-            {
-                /* Arrange */
-                var exception = A.Dummy<Exception>();
-                var problem = new ProblemDetail(400);
-                A.CallTo(() => inner.Create(exception)).Returns(problem);
-
-                /* Act */
-                var localizedProblem = sut.Create(exception);
-
-                /* Assert */
-                Assert.Same(localizedProblem, problem);
-            }
-
-            [Fact]
             public void NoDetailProp_TranslationNotCalled()
             {
                 /* Arrange */
@@ -79,7 +64,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void HasDetailProp_TranslationCalled()
+            public void DetailProp_TranslationCalled()
             {
                 /* Arrange */
                 var exception = A.Dummy<Exception>();
@@ -100,26 +85,7 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
             }
 
             [Fact]
-            public void NullExtensionValue_AddedAsEmptyString()
-            {
-                /* Arrange */
-                var exception = A.Dummy<Exception>();
-                var localizedStr = new LocalizedString("bar", "ipsum");
-                var problem = new ProblemDetail(400)
-                {
-                    { "foo", null }
-                };
-                A.CallTo(() => inner.Create(exception)).Returns(problem);
-
-                /* Act */
-                var localizedProblem = sut.Create(exception);
-
-                /* Assert */
-                Assert.Equal("", localizedProblem["foo"]);
-            }
-
-            [Fact]
-            public void NullExtensionToStringValue_AddedAsEmptyString()
+            public void ComplexTypeAsKey_Skipped()
             {
                 /* Arrange */
                 var exception = A.Dummy<Exception>();
@@ -134,9 +100,9 @@ namespace BusinessApp.WebApi.UnitTest.ProblemDetails
                 var localizedProblem = sut.Create(exception);
 
                 /* Assert */
-                A.CallTo(() => localizer[null]).MustNotHaveHappened();
-                Assert.Equal("", localizedProblem["foo"]);
+                A.CallTo(() => localizer[A<string>._]).MustNotHaveHappened();
             }
+
 
             [Fact]
             public void StringExtension_TranslationCalled()

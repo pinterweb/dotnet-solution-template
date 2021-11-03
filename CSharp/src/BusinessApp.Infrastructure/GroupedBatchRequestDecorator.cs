@@ -36,12 +36,12 @@ namespace BusinessApp.Infrastructure
 
             ThrowIfInvalid(request, payloads.SelectMany(p => p));
 
-            var tasks = new List<(TRequest[], Task<Result<IEnumerable<TResponse>, Exception>>)>();
+            var tasks = new List<(TRequest[], Task<Result<IEnumerable<TResponse>, Exception>>, TRequest[])>();
 
             foreach (var group in payloads)
             {
                 var originalRequests = request.Intersect(group).ToArray();
-                tasks.Add((originalRequests, handler.HandleAsync(group, cancelToken)));
+                tasks.Add((originalRequests, handler.HandleAsync(group, cancelToken), group.ToArray()));
             }
 
             var _ = await Task.WhenAll(tasks.Select(s => s.Item2));
@@ -59,11 +59,26 @@ namespace BusinessApp.Infrastructure
                     .Item1
                     , item);
 
+                var groupItemIndex = Array.IndexOf(tasks
+                    .Single(t => t.Item1.Contains(item))
+                    .Item3
+                    , item);
+
                 var itemResult = tasks.Single(t => t.Item1.Contains(item))
                     .Item2.Result
                     .Map(r => r.ElementAt(groupIndex));
 
-                orderedResults.Add(itemResult);
+                if (itemResult.Kind == ValueKind.Error && itemResult.UnwrapError() is BatchException be)
+                {
+                    orderedResults.Add(be.ElementAt(groupItemIndex)
+                            .MapOrElse(
+                                e => Result.Error<TResponse>(e),
+                                o => Result.Ok((TResponse)o)));
+                }
+                else
+                {
+                    orderedResults.Add(itemResult);
+                }
             }
 
             return orderedResults.Any(r => r.Kind == ValueKind.Error)

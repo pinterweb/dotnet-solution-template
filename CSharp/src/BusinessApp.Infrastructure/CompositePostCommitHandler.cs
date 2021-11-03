@@ -15,7 +15,9 @@ namespace BusinessApp.Infrastructure
         private readonly IEnumerable<IPostCommitHandler<TRequest, TResponse>> handlers;
 
         public CompositePostCommitHandler(IEnumerable<IPostCommitHandler<TRequest, TResponse>> handlers)
-            => this.handlers = handlers.NotNull().Expect(nameof(handlers));
+        {
+            this.handlers = handlers.NotNull().Expect(nameof(handlers));
+        }
 
         public async Task<Result<Unit, Exception>> HandleAsync(TRequest request, TResponse response,
             CancellationToken cancelToken)

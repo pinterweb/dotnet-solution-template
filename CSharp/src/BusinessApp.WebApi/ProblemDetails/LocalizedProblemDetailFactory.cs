@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BusinessApp.Kernel;
 using Microsoft.Extensions.Localization;
+using System.Linq;
 
 namespace BusinessApp.WebApi.ProblemDetails
 {
@@ -31,7 +32,11 @@ namespace BusinessApp.WebApi.ProblemDetails
             foreach (var kvp in problem.GetExtensions())
             {
                 var extValue = TranslateExtension(kvp.Value) ?? "";
-                problem[kvp.Key] = extValue;
+
+                if (!kvp.Value.Equals(extValue))
+                {
+                    problem[kvp.Key] = extValue;
+                }
             }
 
             return problem;
@@ -40,10 +45,10 @@ namespace BusinessApp.WebApi.ProblemDetails
         private object? TranslateExtension(object? value) => value switch
         {
             IDictionary d => TranslateExtension(d),
+            IDictionary<string, object> d => TranslateExtension(d),
             IEnumerable e when e is not string => TranslateExtension(e),
-            null => null,
-            object o when o.ToString() is null => null,
-            _ => localizer[value.ToString()!].Value,
+            string s => localizer[s].Value,
+            _ => value
         };
 
 
@@ -58,6 +63,19 @@ namespace BusinessApp.WebApi.ProblemDetails
 
             return genericDic;
         }
+
+        private object TranslateExtension(IDictionary<string, object> dic)
+        {
+            var genericDic = new Dictionary<string, object?>();
+
+            foreach (var kvp in dic)
+            {
+                genericDic[kvp.Key] = TranslateExtension(kvp.Value);
+            }
+
+            return genericDic;
+        }
+
 
         private object TranslateExtension(IEnumerable enumerable)
         {

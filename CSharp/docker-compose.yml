@@ -1,37 +1,38 @@
 version: "2.4"
 
 services:
-  $(lower_appname):
+  webapi:
     build:
       context: .
       dockerfile: Dockerfile.development
       args:
-        USER__CA_CERT: "${USER__CA_CERT?}"
-        CONTAINER__EXTRA_DEPS: "${CONTAINER__EXTRA_DEPS}"
+        - USER__CA_CERT=${USER__CA_CERT?}
+        - CONTAINER__EXTRA_DEPS=${CONTAINER__EXTRA_DEPS}
+        - ARG_ASPNETCORE_ENVIRONMENT=Development
+        - ARG_ASPNETCORE_URLS=http://0.0.0.0:5000;https://0.0.0.0:5001
+        - $(upper_appname)_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}
+        - $(upper_appname)_CONNECTIONSTRINGS__DBTEST=${$(upper_appname)_CONNECTIONSTRINGS__DBTEST?}
+        - $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}
+        - ARG_NO_PROXY=
+        - WEB_PROJECT_NAME=BusinessApp.WebApi
     image:  projects/$(lower_appname)/webapi:dev
-    # map the app and some other commong "nice to have files"
+    working_dir: /home/dotnet/$(lower_appname)
+    command: ["./wait-for-it.sh", "db:1433", "--timeout=0",  "--", "dotnet", "run", "--project", "src/BusinessApp.WebApi/BusinessApp.WebApi.csproj", "--launch-profile", "Docker" ]
     volumes:
       - .:/home/dotnet/$(lower_appname)
-      - ${HOME}/.bash_aliases:/home/dotnet/.bash_aliases
-      - ${HOME}/.bash_history:/home/dotnet/.bash_history
-      - ${HOME}/.bash_profile:/home/dotnet/.bash_profile
-      - ${HOME}/.bashrc:/home/dotnet/.bashrc
-      - ${HOME}/.profile:/home/dotnet/.profile
+      - ${HOME}/.vim:/home/dotnet/.vim
+      - ${HOME}/.cache/omnisharp-vim/omnisharp-roslyn:/home/dotnet/.cache/omnisharp-vim/omnisharp-roslyn
+      - ${HOME}/.nuget:/home/dotnet/.nuget
       - ${HOME}/.gitconfig:/home/dotnet/.gitconfig
       - ${HOME}/.git_template:/home/dotnet/.git_template
-      - ${HOME}/.vim:/home/dotnet/.vim
     ports:
       - "${$(upper_appname)_WEBAPI__HTTP_PORT?}:5000"
       - "${$(upper_appname)_WEBAPI__HTTPS_PORT?}:5001"
     environment:
       - TERM=xterm-256color
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://0.0.0.0:5000;http://0.0.0.0:5001
-      - $(upper_appname)_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_CONNECTIONSTRINGS__MAIN?}
-      - $(upper_appname)_CONNECTIONSTRINGS__DBTEST=${$(upper_appname)_CONNECTIONSTRINGS__DBTEST?}
-      - $(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN=${$(upper_appname)_TEST_CONNECTIONSTRINGS__MAIN?}
     depends_on:
       - db
+
   db:
     image: "mcr.microsoft.com/mssql/server"
     environment:

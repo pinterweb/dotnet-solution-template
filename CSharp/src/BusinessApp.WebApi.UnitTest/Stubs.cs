@@ -5,7 +5,6 @@ using BusinessApp.Kernel;
 namespace BusinessApp.WebApi.UnitTest
 {
     public enum EnumQueryStub { Foobar }
-
 #if DEBUG
     public class EventStub : IEvent
     {
@@ -29,7 +28,6 @@ namespace BusinessApp.WebApi.UnitTest
         public IEnumerable<IEvent> Events { get; set; } = new List<IEvent>();
     }
 #endif
-
     public class QueryStub
     {
         public bool? Bool { get; set; }

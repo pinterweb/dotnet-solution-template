@@ -14,6 +14,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <BUILD_ARTIFACTSTAGINGDIRECTORY Condition=" '$(BUILD_ARTIFACTSTAGINGDIRECTORY)' == '' ">.</BUILD_ARTIFACTSTAGINGDIRECTORY>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
     <PackageReference Include="Bogus" Version="33.0.2">
@@ -32,7 +36,7 @@
   </ItemGroup>
 
   <Target Name="CodeCheck" AfterTargets="Restore">
-      <Exec WorkingDirectory="..\..\" Command="git config core.hooksPath .githooks" />
+      <Exec IgnoreExitCode="true" WorkingDirectory="..\..\" Command="git config core.hooksPath .githooks" />
   </Target>
 
 <!--#if (efcore)-->

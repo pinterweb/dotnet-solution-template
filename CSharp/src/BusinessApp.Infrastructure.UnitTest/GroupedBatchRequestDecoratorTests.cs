@@ -137,7 +137,11 @@ namespace BusinessApp.Infrastructure.UnitTest
                     };
 
                     errorException = new Exception();
-                    error = Result.Error<IEnumerable<CommandStub>>(errorException);
+                    error = Result.Error<IEnumerable<CommandStub>>(BatchException.FromResults(new[]
+                    {
+                        Result.Ok(commands.Last()),
+                        Result.Error<CommandStub>(errorException)
+                    }));
                     ok = Result.Ok<IEnumerable<CommandStub>>(new[] { commands.ElementAt(1) });
 
                     A.CallTo(() => grouper.GroupAsync(commands, cancelToken)).Returns(groups);
@@ -156,7 +160,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                 }
 
                 [Fact]
-                public async Task AllReturnedInBatchExceptionInOrder()
+                public async Task AllReturnedInBatchExceptionInOrderWithoutDuplicates()
                 {
                     /* Act */
                     var results = await sut.HandleAsync(commands, cancelToken);
@@ -166,8 +170,7 @@ namespace BusinessApp.Infrastructure.UnitTest
                     Assert.Collection(ex,
                         r => Assert.Equal(Result.Error<object>(errorException), r),
                         r => Assert.Equal(Result.Ok<object>(commands.ElementAt(1)), r),
-                        r => Assert.Equal(Result.Error<object>(errorException), r)
-                    );
+                        r => Assert.Equal(Result.Ok<object>(commands.Last()), r));
                 }
             }
 
