@@ -147,6 +147,76 @@ namespace BusinessApp.Infrastructure.UnitTest
             }
 
             [Fact]
+            public async Task HandlerReturnsError_ErrorErrorTypeLogged()
+            {
+                /* Arrange */
+                LogEntry entry = null;
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .Returns(Result.Error<ResponseStub>(new Exception("foo")));
+                A.CallTo(() => logger.Log(A<LogEntry>._))
+                    .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
+
+                /* Act */
+                var _ = await sut.HandleAsync(request, cancelToken);
+
+                /* Assert */
+                Assert.Equal(LogSeverity.Error, entry.Severity);
+            }
+
+            [Fact]
+            public async Task HandlerReturnsError_ExceptionMessageLogged()
+            {
+                /* Arrange */
+                var ex = new Exception("thrown");
+                LogEntry entry = null;
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .Returns(Result.Error<ResponseStub>(ex));
+                A.CallTo(() => logger.Log(A<LogEntry>._))
+                    .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
+
+                /* Act */
+                var _ = await sut.HandleAsync(request, cancelToken);
+
+                /* Assert */
+                Assert.Equal("thrown", entry.Message);
+            }
+
+            [Fact]
+            public async Task HandlerReturnsError_ExceptionLogged()
+            {
+                /* Arrange */
+                var ex = new Exception("foo");
+                LogEntry entry = null;
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .Returns(Result.Error<ResponseStub>(ex));
+                A.CallTo(() => logger.Log(A<LogEntry>._))
+                    .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
+
+                /* Act */
+                var _ = await sut.HandleAsync(request, cancelToken);
+
+                /* Assert */
+                Assert.Same(ex, entry.Exception);
+            }
+
+            [Fact]
+            public async Task HandlerReturnsError_RequestLogged()
+            {
+                /* Arrange */
+                LogEntry entry = null;
+                A.CallTo(() => inner.HandleAsync(A<QueryStub>._, A<CancellationToken>._))
+                    .Returns(Result.Error<ResponseStub>(new Exception("foo")));
+                A.CallTo(() => logger.Log(A<LogEntry>._))
+                    .Invokes(ctx => entry = ctx.GetArgument<LogEntry>(0));
+
+                /* Act */
+                var _ = await sut.HandleAsync(request, cancelToken);
+
+                /* Assert */
+                Assert.Same(request, entry.Data);
+            }
+
+            [Fact]
             public async Task NoException_InnerResultReturned()
             {
                 /* Arrange */

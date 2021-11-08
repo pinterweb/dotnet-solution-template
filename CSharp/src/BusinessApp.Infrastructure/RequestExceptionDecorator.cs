@@ -27,18 +27,24 @@ namespace BusinessApp.Infrastructure
         {
             try
             {
-                return await inner.HandleAsync(request, cancelToken);
+                return await inner.HandleAsync(request, cancelToken)
+                    .OrElseAsync(e => Log(e, request, LogSeverity.Error));
             }
             catch (Exception e)
             {
-                logger.Log(new LogEntry(LogSeverity.Critical, e.Message)
-                {
-                    Exception = e,
-                    Data = request
-                });
-
-                return Result.Error<TResponse>(e);
+                return Log(e, request, LogSeverity.Critical);
             }
+        }
+
+        private Result<TResponse, Exception> Log(Exception e, TRequest request, LogSeverity severity)
+        {
+            logger.Log(new LogEntry(severity, e.Message)
+            {
+                Exception = e,
+                Data = request
+            });
+
+            return Result.Error<TResponse>(e);
         }
     }
 }

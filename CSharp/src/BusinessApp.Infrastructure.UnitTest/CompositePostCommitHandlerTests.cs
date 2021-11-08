@@ -31,7 +31,7 @@ namespace BusinessApp.Infrastructure.UnitTest
             sut = new CompositePostCommitHandler<RequestStub, RequestStub>(handlers);
         }
 
-        public class Constructor: CompositePostCommitHandlerTests
+        public class Constructor : CompositePostCommitHandlerTests
         {
             [Fact]
             public void InvalidArgs_ExceptionThrown()
@@ -68,11 +68,12 @@ namespace BusinessApp.Infrastructure.UnitTest
             public async Task FirstHandlerHasError_FirstErrorReturned()
             {
                 /* Arrange */
-                var error = new Exception();
+                var error = A.Dummy<Exception>();
+                var result2 = Result.Ok();
                 A.CallTo(() => handlers.First().HandleAsync(request, response, cancelToken))
                     .Returns(Result.Error(error));
                 A.CallTo(() => handlers.Last().HandleAsync(request, response, cancelToken))
-                    .Returns(Result.Ok());
+                    .Returns(result2);
 
                 /* Act */
                 var result = await sut.HandleAsync(request, response, cancelToken);
@@ -82,7 +83,7 @@ namespace BusinessApp.Infrastructure.UnitTest
             }
 
             [Fact]
-            public async Task FirstHandlerHasError_SecondNotRun()
+            public async Task FirstHandlerHasError_AllHandlersStillRun()
             {
                 /* Arrange */
                 var error = new Exception();
@@ -95,8 +96,29 @@ namespace BusinessApp.Infrastructure.UnitTest
                 var result = await sut.HandleAsync(request, response, cancelToken);
 
                 /* Assert */
-                A.CallTo(() => handlers.Last().HandleAsync(A<RequestStub>._, A<RequestStub>._,
-                    cancelToken)).MustNotHaveHappened();
+                A.CallTo(() => handlers.Last().HandleAsync(request, response, cancelToken))
+                    .MustHaveHappenedOnceExactly();
+            }
+
+            [Fact]
+            public async Task AllError_AggregateExceptionReturned()
+            {
+                /* Arrange */
+                var error1 = new Exception();
+                var error2 = new Exception();
+                A.CallTo(() => handlers.First().HandleAsync(request, response, cancelToken))
+                    .Returns(Result.Error(error1));
+                A.CallTo(() => handlers.Last().HandleAsync(request, response, cancelToken))
+                    .Returns(Result.Error(error2));
+
+                /* Act */
+                var result = await sut.HandleAsync(request, response, cancelToken);
+
+                /* Assert */
+                var errors = Assert.IsType<AggregateException>(result.UnwrapError());
+                Assert.Collection(errors.InnerExceptions,
+                    e => Assert.Same(error1, e),
+                    e => Assert.Same(error2, e));
             }
 
             [Fact]
