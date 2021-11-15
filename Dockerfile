@@ -4,7 +4,7 @@ ARG USER__CA_CERT
 ARG CONTAINER__EXTRA_DEPS
 
 RUN apt-get update && apt-get install -y ca-certificates $CONTAINER__EXTRA_DEPS
-COPY ./$USER__CA_CERT /usr/local/share/ca-certificates/
+COPY *.crt /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
 RUN useradd -ms /bin/bash dotnet

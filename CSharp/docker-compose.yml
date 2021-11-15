@@ -6,7 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile.development
       args:
-        - USER__CA_CERT=${USER__CA_CERT?}
         - CONTAINER__EXTRA_DEPS=${CONTAINER__EXTRA_DEPS}
         - ARG_ASPNETCORE_ENVIRONMENT=Development
         - ARG_ASPNETCORE_URLS=http://0.0.0.0:5000;https://0.0.0.0:5001

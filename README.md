@@ -66,5 +66,4 @@ Once you installed your new app do not forget to:
 For Docker:
 - [ ] Add extra dependencies in your docker development container by setting the
       CONTAINER__EXTRA_DEPS environmental variable
-- [ ] Copy over any custom root CA certs to get NuGet to work and set the
-      USER__CA_CERT environmental variable
+- [ ] Copy over any custom root CA certs to get NuGet to work

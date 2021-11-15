@@ -6,9 +6,8 @@ EXPOSE 5001
 RUN groupadd --gid 1000 dotnet \
     && useradd --uid 1000 --gid dotnet --shell /bin/bash --create-home dotnet
 
-ARG USER__CA_CERT
 ARG CONTAINER__EXTRA_DEPS
-COPY ./${USER__CA_CERT} /usr/local/share/ca-certificates/
+COPY *.crt /usr/local/share/ca-certificates/
 RUN apt-get update && apt-get install -y ca-certificates ${CONTAINER__EXTRA_DEPS}
 RUN update-ca-certificates
 
